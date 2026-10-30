@@ -12,9 +12,9 @@ import StoreKit
 /// It doesn't know about houses. ``PremiumManager`` combines this with the house record to
 /// decide whether the house is Premium.
 ///
-/// The purchase screen itself is StoreKit's `SubscriptionStoreView` (see ``PremiumView``), so
-/// this class doesn't load products or call `purchase()`; it only verifies and finishes the
-/// transactions and reads the entitlements.
+/// It also loads the products (prices come from the App Store, in the person's currency) for
+/// ``PremiumView``, which runs the purchase with SwiftUI's `purchase` action and hands the result
+/// to ``handle(_:)``.
 @MainActor
 @Observable
 final class StoreManager {
@@ -63,6 +63,14 @@ final class StoreManager {
     @ObservationIgnored
     var onEntitlementsChanged: (() async -> Void)?
 
+    /// The App Store products, by product ID. Empty until ``loadProducts()`` finishes (or when
+    /// the App Store can't be reached).
+    private(set) var products: [String: Product] = [:]
+
+    /// Whether this Apple ID can still get the free trial. It's offered once per subscription
+    /// group, so a person who already had any Premium subscription doesn't get it again.
+    private(set) var isEligibleForTrial = true
+
     /// Listens to `Transaction.updates` for the whole app session.
     @ObservationIgnored
     private var updatesTask: Task<Void, Never>?
@@ -84,6 +92,28 @@ final class StoreManager {
             }
         }
         await refreshEntitlements()
+    }
+
+    // MARK: - Products
+
+    /// Loads every Premium product and checks whether the free trial is still available.
+    /// Does nothing when they're already loaded.
+    func loadProducts() async {
+        guard products.isEmpty else { return }
+        do {
+            let loaded = try await Product.products(for: PremiumPlan.allProductIDs)
+            products = Dictionary(uniqueKeysWithValues: loaded.map { ($0.id, $0) })
+            if let subscription = loaded.compactMap(\.subscription).first {
+                isEligibleForTrial = await subscription.isEligibleForIntroOffer
+            }
+        } catch {
+            print("StoreManager: couldn't load products. \(error)")
+        }
+    }
+
+    /// The App Store product of `plan`, or `nil` while it isn't loaded.
+    func product(for plan: PremiumPlan) -> Product? {
+        products[plan.productID]
     }
 
     // MARK: - Transactions

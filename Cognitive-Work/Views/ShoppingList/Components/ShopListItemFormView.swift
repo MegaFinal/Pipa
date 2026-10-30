@@ -263,6 +263,10 @@ struct ShopListItemFormView: View {
             // AI button only when creating, and only if the model can run here.
             canSuggest = !isEditing && !isDraft && viewModel.canSuggestItemDetails
         }
+        // Bought Premium from the hint: the AI turns on without reopening the form.
+        .onChange(of: PremiumManager.shared.isPremium) { _, _ in
+            canSuggest = !isEditing && !isDraft && viewModel.canSuggestItemDetails
+        }
         // No request keeps running after the sheet closes.
         .onDisappear {
             suggestionTask?.cancel()
@@ -418,6 +422,8 @@ struct ShopListItemFormView: View {
                     .font(.system(size: 13))
                     .foregroundStyle(.subTitleGray)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                } else if !isEditing && !isDraft && PremiumAIHint.isNeeded {
+                    PremiumAIHint(text: "Descreva o item e a IA preenche para você", paywall: $paywall)
                 }
             }
         }

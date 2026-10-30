@@ -4,6 +4,50 @@
     "" : {
       "shouldTranslate" : false
     },
+    "%@ grátis, depois de %@/ano" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ free, then %2$@/year"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ gratis, después %2$@/año"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ gratuite, puis %2$@/an"
+          }
+        }
+      }
+    },
+    "%@ grátis, depois de %@/mês" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ free, then %2$@/month"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ gratis, después %2$@/mes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ gratuite, puis %2$@/mois"
+          }
+        }
+      }
+    },
     "%@ · cerca de %lld min" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -767,6 +811,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@，共 %@"
+          }
+        }
+      }
+    },
+    "%@/ano" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/year"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/año"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/an"
+          }
+        }
+      }
+    },
+    "%@/mês" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/month"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/mes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/mois"
           }
         }
       }
@@ -2542,6 +2630,402 @@
     },
     "+%lld" : {
       "shouldTranslate" : false
+    },
+    "Aceitar Oferta" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accept Offer"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aceptar Oferta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accepter l’offre"
+          }
+        }
+      }
+    },
+    "Acompanhe suas pendências" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep track of what's owed"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sigue tus pendientes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suis ce qui est dû"
+          }
+        }
+      }
+    },
+    "Alguém entrou na casa ou a sua rotina mudou? Refaça a sua divisão a qualquer momento." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Someone moved in or your routine changed? Redo your split anytime."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Alguien entró a la casa o cambió tu rutina? Rehaz tu reparto en cualquier momento."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quelqu’un a emménagé ou ta routine a changé ? Refais ta répartition quand tu veux."
+          }
+        }
+      }
+    },
+    "Assinar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subscribe"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suscribirse"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "S’abonner"
+          }
+        }
+      }
+    },
+    "Descreva a tarefa e a IA preenche para você" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe the chore and AI fills it in for you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe la tarea y la IA la completa por ti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Décris la tâche et l’IA la remplit pour toi"
+          }
+        }
+      }
+    },
+    "Descreva o item e a IA preenche para você" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe the item and AI fills it in for you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Describe el ítem y la IA lo completa por ti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Décris l’article et l’IA le remplit pour toi"
+          }
+        }
+      }
+    },
+    "Divisão automática ilimitada" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlimited automatic split"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reparto automático ilimitado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Répartition automatique illimitée"
+          }
+        }
+      }
+    },
+    "e" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "and"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "y"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "et"
+          }
+        }
+      }
+    },
+    "Pague uma vez e tenha o Premium para sempre por apenas %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pay once and have Premium forever for just %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paga una sola vez y ten Premium para siempre por solo %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paie une seule fois et profite de Premium pour toujours pour seulement %@"
+          }
+        }
+      }
+    },
+    "Política de Privacidade" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy Policy"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Política de Privacidad"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Politique de confidentialité"
+          }
+        }
+      }
+    },
+    "Premium Anual" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Annual"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Anual"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Annuel"
+          }
+        }
+      }
+    },
+    "Premium Mensal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Monthly"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Mensual"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Mensuel"
+          }
+        }
+      }
+    },
+    "Premium Vitalício" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Lifetime"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Vitalicio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium à vie"
+          }
+        }
+      }
+    },
+    "Receba sugestões do que comprar e de como organizar a sua rotina, feitas com IA." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get AI-powered suggestions on what to buy and how to organize your routine."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recibe sugerencias hechas con IA sobre qué comprar y cómo organizar tu rutina."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reçois des suggestions faites par l’IA sur quoi acheter et comment organiser ta routine."
+          }
+        }
+      }
+    },
+    "Sugestões inteligentes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smart suggestions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerencias inteligentes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggestions intelligentes"
+          }
+        }
+      }
+    },
+    "Termos de Serviço" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terms of Service"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Términos del Servicio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conditions d’utilisation"
+          }
+        }
+      }
+    },
+    "Uma assinatura libera todos os benefícios para a casa inteira" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One subscription unlocks every benefit for the whole home"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una suscripción desbloquea todos los beneficios para toda la casa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un seul abonnement débloque tous les avantages pour toute la maison"
+          }
+        }
+      }
+    },
+    "Veja os detalhes das suas pendências, quem te deve e para quem você está devendo, e acerte as contas com Pix." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See the details of what's owed — who owes you and who you owe — and settle up with Pix."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mira el detalle de tus pendientes, quién te debe y a quién le debes, y salda las cuentas con Pix."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consulte le détail de ce qui est dû, qui te doit et à qui tu dois, et règle les comptes avec Pix."
+          }
+        }
+      }
     },
     "×%lld" : {
       "shouldTranslate" : false
@@ -4999,46 +5483,6 @@
         }
       }
     },
-    "Adicione vários itens de uma vez e receba sugestões do que está faltando." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add several items at once and get suggestions for what's missing."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Agrega varios ítems a la vez y recibe sugerencias de lo que falta."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajoute plusieurs articles d’un coup et reçois des suggestions de ce qui manque."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "複数の項目をまとめて追加して、足りない物の提案を受け取りましょう。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "여러 항목을 한 번에 추가하고 빠진 물건을 추천받으세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一次添加多件商品，并获得缺少物品的建议。"
-          }
-        }
-      }
-    },
     "adquiridos por ter notado algo na casa" : {
       "localizations" : {
         "en" : {
@@ -6889,46 +7333,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已启用"
-          }
-        }
-      }
-    },
-    "Atualize seu plano" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Upgrade your plan"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mejora tu plan"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passe à l’offre supérieure"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "プランをアップグレード"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "플랜 업그레이드"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "升级你的方案"
           }
         }
       }
@@ -11633,46 +12037,6 @@
         }
       }
     },
-    "Criar tarefas com IA" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Create chores with AI"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Crear tareas con IA"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Créer des tâches avec l’IA"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AIで家事を作成"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI로 집안일 만들기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "用 AI 创建家务"
-          }
-        }
-      }
-    },
     "Criar uma casa" : {
       "localizations" : {
         "en" : {
@@ -12590,46 +12954,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "描述你想买的东西，我们会自动帮你填好。"
-          }
-        }
-      }
-    },
-    "Descreva o que precisa ser feito e a IA monta as tarefas e a ordem." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Describe what needs to be done and AI creates the chores and their order."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Describe lo que hay que hacer y la IA arma las tareas y el orden."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Décris ce qu’il faut faire et l’IA crée les tâches et leur ordre."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "やるべきことを入力すると、AIが家事と順番を作成します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "해야 할 일을 설명하면 AI가 집안일과 순서를 만들어 줘요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "描述需要做的事，AI 会创建家务并安排顺序。"
           }
         }
       }
@@ -15319,46 +15643,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "请登录你的 iCloud 账户以继续。"
-          }
-        }
-      }
-    },
-    "Entrou alguém novo ou a rotina mudou? Refaça a divisão na hora." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Someone new moved in or your routine changed? Redo the division right away."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Llegó alguien nuevo o cambió la rutina? Rehaz el reparto al instante."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quelqu’un a emménagé ou la routine a changé ? Refais la répartition tout de suite."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "新しい住人が入った、または生活パターンが変わりましたか?すぐに分担をやり直しましょう。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "새 구성원이 들어왔거나 생활 패턴이 바뀌었나요? 바로 다시 분배하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有新室友搬进来，或者你的作息变了？立即重新分配。"
           }
         }
       }
@@ -21024,46 +21308,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI"
-          }
-        }
-      }
-    },
-    "IA na lista de compras" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI on the shopping list"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "IA en la lista de compras"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "IA dans la liste de courses"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "買い物リストのAI"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "장보기 목록의 AI"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "购物清单中的 AI"
           }
         }
       }
@@ -31437,46 +31681,6 @@
         }
       }
     },
-    "Ou pague uma vez" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Or pay all at once"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "O paga una sola vez"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ou paie une seule fois"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "または一括で支払う"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "또는 한 번에 결제"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "或者一次付清"
-          }
-        }
-      }
-    },
     "Ouro" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -36141,46 +36345,6 @@
         }
       }
     },
-    "Quem deve para quem" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Who owes whom"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quién le debe a quién"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Qui doit quoi à qui"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "誰が誰に支払うか"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "누가 누구에게 갚아야 하나요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "谁欠谁"
-          }
-        }
-      }
-    },
     "Quem é você na casa?" : {
       "localizations" : {
         "en" : {
@@ -36499,46 +36663,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "家庭排行榜"
-          }
-        }
-      }
-    },
-    "Rebalancear a divisão quando quiser" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rebalance chores anytime"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reequilibra el reparto cuando quieras"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rééquilibre la répartition quand tu veux"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "いつでも分担を調整し直せます"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "언제든 분배를 다시 조정하세요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "随时重新平衡家务"
           }
         }
       }
@@ -44795,46 +44919,6 @@
         }
       }
     },
-    "Uma assinatura libera tudo para a casa inteira." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "One subscription unlocks everything for the whole home."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Una suscripción desbloquea todo para toda la casa."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Un seul abonnement débloque tout pour toute la maison."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1つのサブスクリプションで、家全体がすべての機能を使えます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "구독 하나로 집 전체가 모든 기능을 사용할 수 있어요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一份订阅，全家解锁所有功能。"
-          }
-        }
-      }
-    },
     "única" : {
       "localizations" : {
         "en" : {
@@ -45152,46 +45236,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "用户"
-          }
-        }
-      }
-    },
-    "Vale para a sua conta, em qualquer casa e com qualquer número de moradores." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Works for your account, in any home, with any number of housemates."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vale para tu cuenta, en cualquier casa y con cualquier número de integrantes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valable pour ton compte, dans n’importe quelle maison et avec n’importe quel nombre de colocataires."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "あなたのアカウントに適用され、どの家でも、何人の住人でも利用できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내 계정에 적용되며 어떤 집, 몇 명의 구성원이든 상관없어요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "适用于你的账户，在任何家庭、任何人数下都可使用。"
           }
         }
       }
@@ -45842,46 +45886,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "看看你过去 15 天做得怎么样"
-          }
-        }
-      }
-    },
-    "Veja os detalhes das pendências e acerte as contas com Pix." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "See who owes what in detail and settle up with Pix."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mira el detalle de los pendientes y salda las cuentas con Pix."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Consulte le détail de ce qui est dû et règle les comptes avec Pix."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未払いの詳細を確認して、Pixで精算しましょう。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "대기 중 결제의 상세 내역을 확인하고 Pix로 정산하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "详细查看谁欠多少，并用 Pix 结清。"
           }
         }
       }
