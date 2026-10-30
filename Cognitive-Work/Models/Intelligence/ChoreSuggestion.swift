@@ -226,14 +226,28 @@ enum ChoreDateReader {
     /// Weekday words -> `Calendar` weekday numbers (1 = Sunday).
     private static let weekdays: [String: Int] = [
         "domingo": 1, "segunda": 2, "terca": 3, "quarta": 4, "quinta": 5, "sexta": 6, "sabado": 7,
-        "sunday": 1, "monday": 2, "tuesday": 3, "wednesday": 4, "thursday": 5, "friday": 6, "saturday": 7
+        "sunday": 1, "monday": 2, "tuesday": 3, "wednesday": 4, "thursday": 5, "friday": 6, "saturday": 7,
+        // Spanish ("domingo" and "sábado" are the same as in Portuguese).
+        "lunes": 2, "martes": 3, "miercoles": 4, "jueves": 5, "viernes": 6,
+        // French.
+        "dimanche": 1, "lundi": 2, "mardi": 3, "mercredi": 4, "jeudi": 5, "vendredi": 6, "samedi": 7
+    ]
+
+    /// Chinese weekdays, looked for inside the text (no spaces between words).
+    private static let chineseWeekdays: [(String, Int)] = [
+        ("星期一", 2), ("星期二", 3), ("星期三", 4), ("星期四", 5), ("星期五", 6), ("星期六", 7),
+        ("星期日", 1), ("星期天", 1), ("周一", 2), ("周二", 3), ("周三", 4), ("周四", 5),
+        ("周五", 6), ("周六", 7), ("周日", 1), ("周天", 1), ("礼拜天", 1), ("礼拜日", 1)
     ]
 
     /// Words saying the chore repeats ("toda segunda", "a cada 15 dias", "every week").
     private static let repetitionWords: Set<String> = [
         "todo", "toda", "todos", "todas", "cada", "diario", "diaria", "diariamente",
         "semanal", "semanalmente", "quinzenal", "mensal", "mensalmente", "sempre",
-        "every", "daily", "weekly", "monthly", "always"
+        "every", "daily", "weekly", "monthly", "always",
+        "quincenal", "mensual", "mensualmente", "siempre",
+        "chaque", "tous", "toutes", "quotidien", "quotidienne", "hebdomadaire", "mensuel",
+        "mensuelle", "toujours"
     ]
 
     /// Whether `text` says how often the chore repeats, so a day in it is just the first one
@@ -242,6 +256,8 @@ enum ChoreDateReader {
         let words = text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
             .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
             .map(String.init)
+        // Chinese: "每天", "每周", "天天"…
+        if text.contains("每") || text.contains("天天") { return true }
         return words.contains { repetitionWords.contains($0) }
     }
 
@@ -255,9 +271,25 @@ enum ChoreDateReader {
         func days(_ count: Int) -> Date? { calendar.date(byAdding: .day, value: count, to: today) }
 
         // Longest phrases first: "depois de amanhã" also contains "amanhã".
-        if joined.contains(" depois de amanha ") || joined.contains(" day after tomorrow ") { return days(2) }
-        if joined.contains(" amanha ") || joined.contains(" tomorrow ") { return days(1) }
-        if joined.contains(" hoje ") || joined.contains(" today ") { return today }
+        // Portuguese, English, Spanish, French, then Chinese.
+        if joined.contains(" depois de amanha ") || joined.contains(" day after tomorrow ")
+            || joined.contains(" pasado manana ") || joined.contains(" apres demain ")
+            || folded.contains("后天") { return days(2) }
+        if joined.contains(" amanha ") || joined.contains(" tomorrow ") || joined.contains(" manana ")
+            || joined.contains(" demain ") || folded.contains("明天") { return days(1) }
+        if joined.contains(" hoje ") || joined.contains(" today ") || joined.contains(" hoy ")
+            || joined.contains(" aujourd hui ") || folded.contains("今天") { return today }
+
+        for (phrase, weekday) in Self.chineseWeekdays where folded.contains(phrase) {
+            let todayWeekday = calendar.component(.weekday, from: today)
+            return days((weekday - todayWeekday + 7) % 7)
+        }
+
+        // Chinese "30号" / "30日": that day this month, or next month if it already passed.
+        if let match = folded.firstMatch(of: #/(\d{1,2})\s*[号日]/#),
+           let day = Int(match.1), (1...31).contains(day) {
+            return nextDate(day: day, month: nil, from: today, calendar: calendar)
+        }
 
         // A weekday: the next one, today included.
         for word in words {
@@ -313,7 +345,9 @@ enum ChoreDuplicateFinder {
     /// Small words that don't tell chores apart.
     private static let fillers: Set<String> = [
         "a", "o", "as", "os", "de", "da", "do", "das", "dos", "e", "em", "na", "no", "nas", "nos",
-        "the", "of", "and", "in", "on", "to"
+        "the", "of", "and", "in", "on", "to",
+        "el", "la", "los", "las", "del", "y", "un", "una", "en",
+        "le", "les", "du", "des", "et", "l", "d"
     ]
 
     /// Lowercased words without accents and fillers; "Lavar a Louça" -> ["lavar", "louca"].
@@ -344,7 +378,14 @@ enum ChoreDuplicateFinder {
                 return (chore, 2)
             }
             let shared = Set(newWords).intersection(existing).filter { $0.count >= 4 }
-            return shared.isEmpty ? nil : (chore, 1)
+            if !shared.isEmpty { return (chore, 1) }
+            // Chinese names are one "word": one containing the other is a candidate.
+            let newText = newWords.joined(), oldText = existing.joined()
+            if newText.hasCJK, newText.count >= 2, oldText.count >= 2,
+               newText.contains(oldText) || oldText.contains(newText) {
+                return (chore, 2)
+            }
+            return nil
         }
         return scored.sorted { $0.score > $1.score }.prefix(limit).map(\.chore)
     }

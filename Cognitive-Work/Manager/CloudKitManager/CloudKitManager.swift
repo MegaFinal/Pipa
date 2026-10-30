@@ -588,6 +588,10 @@ class CloudKitManager {
         
         await house.appendUsers([saved])
         clearPendingJoin(ifMatching: houseID.zoneID)
+        
+        // Tells the admin, who can redo the automatic division.
+        let memberName = profile.name
+        Task { await NotificationManager.shared.notifyNewMember(named: memberName, houseID: houseID) }
         return true
     }
     

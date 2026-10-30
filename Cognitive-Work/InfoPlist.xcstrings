@@ -23,9 +23,27 @@
             "value" : "Pipa"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pipa"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pipa"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "Pipa"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "Pipa"
           }
         }
@@ -53,9 +71,27 @@
             "value" : "Cognitive-Work"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cognitive-Work"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cognitive-Work"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "Cognitive-Work"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "Cognitive-Work"
           }
         }
@@ -83,10 +119,28 @@
             "value" : "Nous avons besoin d’accéder à ton calendrier pour synchroniser et mettre à jour les tâches ménagères qui te sont attribuées."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分に割り当てられた家事を同期・更新するために、カレンダーへのアクセスが必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나에게 배정된 집안일을 동기화하고 업데이트하려면 캘린더에 접근해야 해요."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Precisamos de acesso ao seu calendário para sincronizar e atualizar as suas tarefas domésticas atribuídas."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们需要访问你的日历，以同步和更新分配给你的家务。"
           }
         }
       }
@@ -99,6 +153,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : ""
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None"
           }
         }
       }
@@ -125,10 +185,28 @@
             "value" : "Nous utilisons le réseau local pour trouver Harvii et communiquer avec lui."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiを見つけて通信するために、ローカルネットワークを使用します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii를 찾아 통신하기 위해 로컬 네트워크를 사용해요."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Usamos a rede local para encontrar e se comunicar com o Harvi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们使用本地网络来查找 Harvii 并与之通信。"
           }
         }
       }
@@ -155,10 +233,28 @@
             "value" : "Nous utilisons le micro pour que tu puisses ajouter des articles à la voix."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話して項目を追加できるように、マイクを使用します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "말로 항목을 추가할 수 있도록 마이크를 사용해요."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Usamos o microfone para você adicionar itens falando."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们使用麦克风，让你可以用说话的方式添加内容。"
           }
         }
       }
@@ -185,10 +281,28 @@
             "value" : "Nous utilisons la reconnaissance vocale pour transformer ce que tu dis en articles de la liste."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話した内容をリストの項目に変換するために、音声認識を使用します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "말한 내용을 목록 항목으로 바꾸기 위해 음성 인식을 사용해요."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "Usamos o reconhecimento de fala para transformar o que você diz em itens da lista."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们使用语音识别，把你说的话转成清单上的内容。"
           }
         }
       }

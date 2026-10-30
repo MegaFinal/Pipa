@@ -52,8 +52,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         if notification?.subscriptionID == "shared-changes" || notification?.subscriptionID == "private-changes" {
             NotificationCenter.default.post(name: .cloudKitDidChange, object: nil)
             
-            // Something changed in the house: bring the device up to date if this phone is at home
-            print("Silent push received")
+            // Notifications go first: a silent push only gives the app a short background
+            // window, and waiting on the Harvii delivery before this could use all of it.
+            await NotificationManager.shared.processIncoming()
+            await NotificationManager.shared.refreshReminders()
+            await NotificationManager.shared.refreshUnseenNotifications(force: true)
+            
             HardwareViewModel.notifyDataChanged()
             await HardwareViewModel.waitForPendingDelivery()
         }
@@ -75,10 +79,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             // Warm the memoised zone check once, at launch, so the first record the user
             // creates doesn't pay for it. `createZoneIfNeeded()` is a no-op afterwards — it
             // used to issue a full `CKRecordZone` save before *every single* `create()`.
+            NotificationManager.shared.configure()
             await CloudKitManager.shared.createZoneIfNeeded()
             try? await CloudKitManager.shared.createSharedSubscription()
         }
         
         return true
+    }
+    
+    func applicationDidFinishLaunching(_ application: UIApplication) {
+        NotificationManager.shared.configure()
     }
 }

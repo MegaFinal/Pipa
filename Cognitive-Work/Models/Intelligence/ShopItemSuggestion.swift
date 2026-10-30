@@ -248,11 +248,17 @@ extension IntelligenceManager {
         selectedConsumers: [UserModel]
     ) -> ShopItemSuggestion {
         // Clamp to what the form accepts. The output is guided, but never trust it blindly.
-        let name = String(
+        var name = String(
             generated.name
                 .trimmingCharacters(in: .whitespacesAndNewlines)
                 .prefix(TextLimits.shopItemName)
         )
+        // The model sometimes translates a Chinese name into Portuguese ("咖啡" -> "café", from
+        // the prompt's examples). When the person wrote just the product, keep their words.
+        let written = (sourceText ?? input).trimmingCharacters(in: .whitespacesAndNewlines)
+        if written.hasCJK, !name.hasCJK, let product = Self.chineseProductName(in: written) {
+            name = String(product.prefix(TextLimits.shopItemName))
+        }
         let range = QuantityStepper.allowedRange
         let quantity = min(max(generated.quantity, range.lowerBound), range.upperBound)
         // Resolved first: a per-person price needs to know how many people split the item.
@@ -349,13 +355,55 @@ extension IntelligenceManager {
         }
     }
 
+    // MARK: Chinese product name
+
+    /// Units, money and people words that surround a product in Chinese ("2公斤咖啡，25元，给我").
+    private static let chineseNonProductWords = [
+        "公斤", "千克", "毫升", "克", "升", "个", "包", "盒", "瓶", "袋", "罐", "斤", "块", "元", "钱",
+        "每人", "大家", "所有人", "全家", "我们", "给", "我", "和", "的", "买", "要", "一", "两"
+    ]
+
+    /// The product in a Chinese entry: the longest run of Chinese characters once units, money
+    /// and people words are taken out ("2公斤咖啡，25元，给我" -> "咖啡"). Used when the model
+    /// translated the name ("café") instead of keeping it.
+    static func chineseProductName(in text: String) -> String? {
+        var cleaned = text
+        for word in chineseNonProductWords {
+            cleaned = cleaned.replacingOccurrences(of: word, with: " ")
+        }
+        var runs: [String] = []
+        var current = ""
+        for character in cleaned {
+            if String(character).hasCJK {
+                current.append(character)
+            } else if !current.isEmpty {
+                runs.append(current)
+                current = ""
+            }
+        }
+        if !current.isEmpty { runs.append(current) }
+        return runs.max { $0.count < $1.count }
+    }
+
     // MARK: People mentioned in the text
 
-    /// Words meaning "the whole house" ("para todos", "para a casa", "for everyone").
-    private static let everyoneWords: Set<String> = ["todos", "todas", "casa", "geral", "everyone", "everybody", "house"]
+    /// Words meaning "the whole house", in every app language ("para todos", "for everyone",
+    /// "para todos" (es), "pour tous").
+    private static let everyoneWords: Set<String> = [
+        "todos", "todas", "casa", "geral", "everyone", "everybody", "house",
+        "tous", "toutes", "maison"
+    ]
 
-    /// Words meaning the person typing ("eu", "para mim", "for me", "I").
-    private static let selfWords: Set<String> = ["eu", "mim", "comigo", "me", "i", "myself"]
+    /// Words meaning the person typing ("eu", "para mim", "for me", "para mí", "pour moi").
+    private static let selfWords: Set<String> = [
+        "eu", "mim", "comigo", "me", "i", "myself",
+        "yo", "mi", "conmigo",
+        "moi"
+    ]
+
+    /// Chinese has no spaces between words, so these are looked for inside the text instead.
+    private static let everyonePhrases = ["大家", "所有人", "全家", "每个人", "我们", "tout le monde", "todo el mundo"]
+    private static let selfPhrases = ["我"]
 
     /// Who an item is for, read straight from its own text: housemates whose first name appears
     /// in it, the person typing for "eu" / "mim" / "me", or everyone for "todos" / "casa".
@@ -375,7 +423,9 @@ extension IntelligenceManager {
                 .map(String.init)
         )
 
-        if everyoneCounts, !words.isDisjoint(with: everyoneWords) {
+        let foldedText = folded(text)
+        if everyoneCounts,
+           !words.isDisjoint(with: everyoneWords) || everyonePhrases.contains(where: foldedText.contains) {
             return housemates.isEmpty ? nil : housemates
         }
 
@@ -383,8 +433,11 @@ extension IntelligenceManager {
         func add(_ user: UserModel) {
             if !picked.contains(where: { $0.id == user.id }) { picked.append(user) }
         }
-        if !words.isDisjoint(with: selfWords), let currentUser { add(currentUser) }
-        for user in housemates where isMentioned(user.name, in: words) {
+        // "我" (me) counts, but not inside "我们" (us), which means the whole house.
+        let withoutUs = foldedText.replacingOccurrences(of: "我们", with: "")
+        let saysSelf = !words.isDisjoint(with: selfWords) || selfPhrases.contains(where: withoutUs.contains)
+        if saysSelf, let currentUser { add(currentUser) }
+        for user in housemates where isMentioned(user.name, in: words) || isMentionedCJK(user.name, in: foldedText) {
             add(user)
         }
         return picked.isEmpty ? nil : picked
@@ -399,6 +452,13 @@ extension IntelligenceManager {
         else { return false }
         if words.contains(first) { return true }
         return first.count >= 4 && words.contains(where: { $0.hasPrefix(first) })
+    }
+
+    /// Chinese names: no spaces to split on, so the name (2+ characters) is looked for inside the text.
+    private static func isMentionedCJK(_ fullName: String, in text: String) -> Bool {
+        let name = folded(fullName).trimmingCharacters(in: .whitespaces)
+        guard name.hasCJK, name.count >= 2 else { return false }
+        return text.contains(name)
     }
 
     /// Lowercased without accents, so "Chá" and "cha", "João" and "joao" compare equal.
@@ -419,3 +479,13 @@ extension IntelligenceManager {
     }
 }
 
+extension String {
+    /// Whether the text has Chinese, Japanese or Korean characters, which aren't separated by
+    /// spaces, so word-by-word checks need a "contains" fallback.
+    var hasCJK: Bool {
+        unicodeScalars.contains { scalar in
+            (0x4E00...0x9FFF).contains(scalar.value) || (0x3400...0x4DBF).contains(scalar.value)
+                || (0x3040...0x30FF).contains(scalar.value) || (0xAC00...0xD7AF).contains(scalar.value)
+        }
+    }
+}

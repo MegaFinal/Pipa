@@ -49,9 +49,13 @@ struct Cognitive_WorkApp: App {
         .onChange(of: scenePhase) { _, phase in
             switch phase {
             case .active:
-                Task { await HardwareViewModel.deliverNow() }
-                // The subscription may have expired or been cancelled while in the background.
-                Task { await StoreManager.shared.refreshEntitlements() }
+                Task {
+                    await NotificationManager.shared.processIncoming()
+                    await NotificationManager.shared.refreshReminders()
+                    await NotificationManager.shared.refreshUnseenNotifications()
+                    await StoreManager.shared.refreshEntitlements() 
+                    await HardwareViewModel.deliverNow()
+                }
             case .background:
                 HardwareBackgroundSync.scheduleAppRefresh()
             default:
