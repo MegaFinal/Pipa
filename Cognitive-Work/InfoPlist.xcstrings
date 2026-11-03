@@ -23,6 +23,18 @@
             "value" : "Pipa"
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pipa"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pipa"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
@@ -48,6 +60,18 @@
           }
         },
         "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cognitive-Work"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cognitive-Work"
+          }
+        },
+        "ko" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cognitive-Work"
@@ -81,6 +105,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nous avons besoin d’accéder à ton calendrier pour synchroniser et mettre à jour les tâches ménagères qui te sont attribuées."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自分に割り当てられた家事を同期・更新するために、カレンダーへのアクセスが必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나에게 배정된 집안일을 동기화하고 업데이트하려면 캘린더에 접근해야 해요."
           }
         },
         "pt-BR" : {
@@ -125,6 +161,18 @@
             "value" : "Nous utilisons le réseau local pour trouver Harvii et communiquer avec lui."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiを見つけて通信するために、ローカルネットワークを使用します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii를 찾아 통신하기 위해 로컬 네트워크를 사용해요."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
@@ -155,6 +203,18 @@
             "value" : "Nous utilisons le micro pour que tu puisses ajouter des articles à la voix."
           }
         },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話して項目を追加できるように、マイクを使用します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "말로 항목을 추가할 수 있도록 마이크를 사용해요."
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
@@ -183,6 +243,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nous utilisons la reconnaissance vocale pour transformer ce que tu dis en articles de la liste."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話した内容をリストの項目に変換するために、音声認識を使用します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "말한 내용을 목록 항목으로 바꾸기 위해 음성 인식을 사용해요."
           }
         },
         "pt-BR" : {

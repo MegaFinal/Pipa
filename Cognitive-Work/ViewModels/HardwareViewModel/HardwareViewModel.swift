@@ -18,6 +18,8 @@ class HardwareViewModel {
     /// The host name  of the target hardware device.
     var hostName = ""
     
+    var wifiName: String = ""
+    
     /// The device's host name as saved in CloudKit for the house.
     var hardwareHostName: HardwareHostNameModel?
     
@@ -34,7 +36,7 @@ class HardwareViewModel {
     var isPasswordVisible = false
     
     /// A flag indicating whether to navigate to the pairing view.
-    var navigateToParingView: Bool = false
+    var navigateToNextView: Bool = false
     
     /// An optional error message capturing the latest failure state.
     var errorMessage: String?
@@ -58,6 +60,7 @@ class HardwareViewModel {
     /// Loads the saved device address.
     init() {
         hostName = hardwareNetworkManager.host
+        wifiName = hardwareNetworkManager.wifiName
     }
     
     //MARK: - Connection with Esp32
@@ -72,7 +75,7 @@ class HardwareViewModel {
                 ssid: userWifiName,
                 password: userWifiPassord
             )
-            navigateToParingView = true
+            navigateToNextView = true
         } catch {
             wifiResult = .failureWiFi
         }

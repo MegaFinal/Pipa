@@ -14,6 +14,9 @@ import SwiftUI
 /// shared ``OnboardingHeader`` and the round "continue" button at the bottom.
 struct EnterHarviiNetwork: View {
     
+    /// The device connection's view model.
+    @Bindable var viewModel: HardwareViewModel
+    
     /// Password of the Wi-Fi network the Harvii creates while it isn't configured.
     private let harviiPassword = "12345678"
     
@@ -53,7 +56,7 @@ struct EnterHarviiNetwork: View {
                     text: "chevron.right",
                     isSystemImage: true
                 ) {
-                    // TODO: go to the next Harvii step.
+                    viewModel.navigateToNextView = true
                 }
                 .padding(.bottom, height * 0.02)
                 .padding(.trailing, width * 0.061)
@@ -126,5 +129,5 @@ struct EnterHarviiNetwork: View {
 }
 
 #Preview {
-    EnterHarviiNetwork()
+    EnterHarviiNetwork(viewModel: HardwareViewModel())
 }

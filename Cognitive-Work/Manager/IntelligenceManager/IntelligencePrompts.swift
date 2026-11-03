@@ -14,7 +14,6 @@ import Foundation
 /// language from the app's current language.
 enum IntelligencePrompts {
 
-    /// Turns one shopping-list entry ("2kg de arroz, R$ 25, eu e Ana") into name, quantity, unit,
     /// category, price and who splits it.
     enum ShopItemParse {
 
@@ -137,6 +136,27 @@ enum IntelligencePrompts {
         /// Both names are the person's own text, so they go in the prompt, never the instructions.
         static func prompt(newName: String, existingName: String) -> String {
             "New entry: \(newName)\nAlready on the list: \(existingName)"
+        }
+    }
+
+    /// Turns dishes the person wants to cook into the ingredients to buy.
+    enum ShopRecipeExpansion {
+
+        static let id = "shop-recipe-expansion-v2"
+
+        static let task = """
+        The person writes what to add to a household shopping list. Some parts may be dishes they want to cook ("quero fazer lasanha", "ingredientes para um bolo de cenoura").
+        dishes: for each dish mentioned, the ingredients usually bought to make it for about 4 people, one per entry, with an amount when natural ("500 g de carne moída", "1 pacote de massa para lasanha"). Leave out water and salt. If no dish is mentioned, return no dishes.
+        whoFor: who the dish is for, as written ("eu", "eu e Ana", "todos"). When the person speaks in the first person ("eu quero fazer", "vou fazer") and names nobody else, use "eu". Empty if not said.
+        otherItems: every other part of the text that is not about those dishes, copied exactly as written (items, amounts, prices, people). Empty if there is nothing else.
+        Examples:
+        "quero fazer lasanha, e detergente para todos" -> dishes: lasanha ["1 pacote de massa para lasanha", "500 g de carne moída", "molho de tomate", "400 g de queijo muçarela", "200 g de presunto"], whoFor: "eu", otherItems: "detergente para todos"
+        "2kg de arroz, ingredientes para bolo de cenoura" -> dishes: bolo de cenoura ["3 cenouras", "1 kg de farinha de trigo", "1 kg de açúcar", "12 ovos", "óleo"], whoFor: "", otherItems: "2kg de arroz"
+        """
+
+        /// The person's text goes in the prompt, never in the instructions.
+        static func prompt(for text: String) -> String {
+            "Text: \(text)"
         }
     }
 

@@ -24,6 +24,18 @@ enum Notifications: String {
     case yourDelayedChore = " está atrasado"
     /// A chore nobody picked up is late (the chore's name goes after the title).
     case noUserDelayedChore = "Ninguém pegou "
+    /// Someone else did a chore that was assigned to the user. The raw value is the title's
+    /// format: who did it, which chore.
+    case choreDoneForYou = "%@ fez %@ por você"
+    /// Someone bought an item the user added to the shopping list. The raw value is the title's
+    /// format: who bought it, which item.
+    case itemBought = "%@ comprou %@"
+    /// The user owes money to housemates (reminded every week while unpaid).
+    case debtYouOwe = "Você tem pagamentos pendentes"
+    /// Housemates owe money to the user (reminded every week while unpaid).
+    case debtOwedToYou = "Você tem pagamentos a receber"
+    /// Suggests a new member to turn on the Apple Calendar sync.
+    case calendarSync = "Sincronize com o Calendário"
     
     /// The second line of the notification, explaining what to do. Empty when the title is enough.
     var subTitle: String {
@@ -34,6 +46,11 @@ enum Notifications: String {
         case .newDivision: return "Suas tarefas dos próximos 15 dias já estão na escala"
         case .yourDelayedChore: return ""
         case .noUserDelayedChore: return ""
+        case .choreDoneForYou: return "Essa tarefa estava na sua lista"
+        case .itemBought: return "Um item que você adicionou à lista de compras"
+        case .debtYouOwe: return ""
+        case .debtOwedToYou: return ""
+        case .calendarSync: return "Veja as suas tarefas direto no Apple Calendar"
         }
     }
     
@@ -46,6 +63,11 @@ enum Notifications: String {
         case .newDivision: return .lowOpacityGreen
         case .yourDelayedChore: return .lowOpacityOrange
         case .noUserDelayedChore: return .lowOpacityOrange
+        case .choreDoneForYou: return .lowOpacityGreen
+        case .itemBought: return .lowOpacityBlue
+        case .debtYouOwe: return .lowOpacityOrange
+        case .debtOwedToYou: return .lowOpacityGreen
+        case .calendarSync: return .lowOpacityPurple
         }
     }
     
@@ -58,6 +80,11 @@ enum Notifications: String {
         case .newDivision: return "chart.bar.horizontal.page"
         case .yourDelayedChore: return "exclamationmark.triangle"
         case .noUserDelayedChore: return "exclamationmark.triangle"
+        case .choreDoneForYou: return "checkmark.circle"
+        case .itemBought: return "cart"
+        case .debtYouOwe: return "creditcard"
+        case .debtOwedToYou: return "banknote"
+        case .calendarSync: return "calendar"
         }
     }
 }

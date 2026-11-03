@@ -120,7 +120,7 @@ struct ContentView: View {
                     Label("Compras", systemImage: "basket")
                 }
             
-            GamificationView()
+            GamificationView(viewModel: viewModel.gamification)
                 .tabItem {
                     Label("Recompensas", systemImage: "gift")
                 }

@@ -42,6 +42,10 @@ class ContentViewModel {
     /// The shared data every tab reads.
     private let store = HouseDataStore.shared
     
+    /// The gamification tab's model. It lives here so ``bootstrap()`` can prepare it while the
+    /// loading screen is up, and the tab opens with coins, ranks and coupons already in place.
+    let gamification = GamificationViewModel()
+    
     /// Opens the app: settles which house the user belongs to, then loads all of its data in
     /// one go.
     func bootstrap() async {
@@ -57,6 +61,9 @@ class ContentViewModel {
         guard !Task.isCancelled, !userHasNoHouse else { return }
         
         await store.load(force: true)
+        guard !Task.isCancelled else { return }
+        
+        await gamification.setup()
         
         Task { await syncFreeTime() }
     }

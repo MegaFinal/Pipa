@@ -22,7 +22,7 @@ struct GeneralProfileSettingsView: View {
     @State private var activeSheet: SettingsSheet?
         
     @AppStorage(HapticsManager.storageKey) private var areHapticsEnabled = true
-    @AppStorage("notificationsEnabled") private var areNotificationsEnabled = false
+    @AppStorage(NotificationManager.enabledKey) private var areNotificationsEnabled = false
     @AppStorage("didOnboard") private var didOnboard: Bool = true
     /// Saved for the "Microinterações" switch. Nothing in the app reads it yet.
     @AppStorage("microinteractionsEnabled") private var areMicrointeractionsEnabled = true
@@ -44,6 +44,8 @@ struct GeneralProfileSettingsView: View {
                     enableNotifications()
                 } else {
                     areNotificationsEnabled = false
+                    // Nothing that was already scheduled should show up after turning it off.
+                    NotificationManager.shared.cancelAll()
                 }
             }
         )
@@ -52,24 +54,24 @@ struct GeneralProfileSettingsView: View {
     /// Asks for system permission; if the user already denied it, offers to open Settings.
     private func enableNotifications() {
         Task {
-            let center = UNUserNotificationCenter.current()
-            let status = await center.notificationSettings().authorizationStatus
-            switch status {
+            let manager = NotificationManager.shared
+            switch await manager.authorizationStatus() {
             case .authorized, .provisional, .ephemeral:
                 areNotificationsEnabled = true
             case .notDetermined:
-                let granted = (try? await center.requestAuthorization(options: [.alert, .badge, .sound])) ?? false
-                areNotificationsEnabled = granted
+                areNotificationsEnabled = await manager.requestAuthorization()
             default:
                 areNotificationsEnabled = false
                 showNotificationsDeniedAlert = true
             }
+            // Plans the reminders (retrospective, chores to pick up, payments) right away.
+            if areNotificationsEnabled { await manager.refreshReminders(force: true) }
         }
     }
     
     /// Keeps the switch honest if the user revoked permission in iOS Settings.
     private func syncNotificationsWithSystem() async {
-        let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        let status = await NotificationManager.shared.authorizationStatus()
         if status == .denied { areNotificationsEnabled = false }
     }
     
