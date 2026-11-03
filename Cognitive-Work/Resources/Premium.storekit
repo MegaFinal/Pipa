@@ -1,478 +1,540 @@
 {
-  "appPolicies": {
-    "eula": "",
-    "policies": [
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
       {
-        "locale": "en_US",
-        "policyText": "",
-        "policyURL": ""
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
       }
     ]
   },
-  "identifier": "6F1C2A7E",
-  "nonRenewingSubscriptions": [],
-  "products": [
+  "identifier" : "6F1C2A7E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
     {
-      "displayPrice": "249.90",
-      "familyShareable": false,
-      "internalID": "6739000300",
-      "localizations": [
+      "displayPrice" : "249.90",
+      "familyShareable" : false,
+      "internalID" : "6739000300",
+      "localizations" : [
         {
-          "description": "Pague uma vez e tenha o Premium para sempre.",
-          "displayName": "Premium Vitalício",
-          "locale": "pt_BR"
+          "description" : "Pague uma vez e tenha o Premium para sempre.",
+          "displayName" : "Premium Vitalício",
+          "locale" : "pt_BR"
         }
       ],
-      "productID": "JonasMelo.CognitiveWork.premium.lifetime",
-      "referenceName": "Premium Vitalício",
-      "type": "NonConsumable"
+      "productID" : "JonasMelo.CognitiveWork.premium.lifetime",
+      "referenceName" : "Premium Vitalício",
+      "type" : "NonConsumable"
     }
   ],
-  "settings": {
-    "_askToBuyEnabled": false,
-    "_billingGracePeriodEnabled": false,
-    "_billingIssuesEnabled": false,
-    "_disableDialogs": false,
-    "_failTransactionsEnabled": false,
-    "_locale": "pt_BR",
-    "_renewalBillingIssuesEnabled": false,
-    "_storefront": "BRA",
-    "_storeKitErrors": [],
-    "_timeRate": 0
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "pt_BR",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "BRA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
   },
-  "subscriptionBundleGroups": [],
-  "subscriptionGroups": [
+  "subscriptionBundleGroups" : [
+
+  ],
+  "subscriptionGroups" : [
     {
-      "id": "21571301",
-      "localizations": [
+      "id" : "21571301",
+      "localizations" : [
         {
-          "description": "",
-          "displayName": "Pipa Premium",
-          "locale": "pt_BR"
+          "description" : "",
+          "displayName" : "Pipa Premium",
+          "locale" : "pt_BR"
         }
       ],
-      "name": "Pipa Premium",
-      "subscriptions": [
+      "name" : "Pipa Premium",
+      "subscriptions" : [
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "12.90",
-          "familyShareable": false,
-          "groupNumber": 3,
-          "internalID": "6739000111",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000211",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "12.90",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6739000111",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (até 3 moradores).",
-              "displayName": "Premium Mensal",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (até 3 moradores).",
+              "displayName" : "Premium Mensal",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.small.monthly",
-          "recurringSubscriptionPeriod": "P1M",
-          "referenceName": "Premium Mensal (Até 3 moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.small.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Mensal (Até 3 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "99.90",
-          "familyShareable": false,
-          "groupNumber": 3,
-          "internalID": "6739000112",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000212",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "99.90",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6739000112",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (até 3 moradores).",
-              "displayName": "Premium Anual",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (até 3 moradores).",
+              "displayName" : "Premium Anual",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.small.yearly",
-          "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "Premium Anual (Até 3 moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.small.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual (Até 3 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "69.90",
-          "familyShareable": false,
-          "groupNumber": 3,
-          "internalID": "6739000113",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000213",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "69.90",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6739000113",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (até 3 moradores).",
-              "displayName": "Premium Anual Estudante",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (até 3 moradores).",
+              "displayName" : "Premium Anual Estudante",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.small.student.yearly",
-          "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "Premium Anual Estudante (Até 3 moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.small.student.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual Estudante (Até 3 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "16.90",
-          "familyShareable": false,
-          "groupNumber": 2,
-          "internalID": "6739000114",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000214",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "16.90",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6739000114",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (4 a 6 moradores).",
-              "displayName": "Premium Mensal",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (4 a 6 moradores).",
+              "displayName" : "Premium Mensal",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.medium.monthly",
-          "recurringSubscriptionPeriod": "P1M",
-          "referenceName": "Premium Mensal (4 a 6 moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.medium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Mensal (4 a 6 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "129.90",
-          "familyShareable": false,
-          "groupNumber": 2,
-          "internalID": "6739000115",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000215",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "129.90",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6739000115",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (4 a 6 moradores).",
-              "displayName": "Premium Anual",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (4 a 6 moradores).",
+              "displayName" : "Premium Anual",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.medium.yearly",
-          "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "Premium Anual (4 a 6 moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.medium.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual (4 a 6 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "90.90",
-          "familyShareable": false,
-          "groupNumber": 2,
-          "internalID": "6739000116",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000216",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "90.90",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6739000116",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (4 a 6 moradores).",
-              "displayName": "Premium Anual Estudante",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (4 a 6 moradores).",
+              "displayName" : "Premium Anual Estudante",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.medium.student.yearly",
-          "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "Premium Anual Estudante (4 a 6 moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.medium.student.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual Estudante (4 a 6 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "21.90",
-          "familyShareable": false,
-          "groupNumber": 1,
-          "internalID": "6739000117",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000217",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "21.90",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6739000117",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (7 ou mais moradores).",
-              "displayName": "Premium Mensal",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (7 ou mais moradores).",
+              "displayName" : "Premium Mensal",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.large.monthly",
-          "recurringSubscriptionPeriod": "P1M",
-          "referenceName": "Premium Mensal (7 ou mais moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.large.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Mensal (7 ou mais moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "169.90",
-          "familyShareable": false,
-          "groupNumber": 1,
-          "internalID": "6739000118",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000218",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "169.90",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6739000118",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (7 ou mais moradores).",
-              "displayName": "Premium Anual",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (7 ou mais moradores).",
+              "displayName" : "Premium Anual",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.large.yearly",
-          "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "Premium Anual (7 ou mais moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.large.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual (7 ou mais moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         },
         {
-          "adHocOffers": [],
-          "billingPlans": [
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "commitmentDisplayPrice": "14.90",
-              "displayPrice": "14.90",
-              "internalID": "E733C437",
-              "isEnabled": true
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "14.90",
+              "displayPrice" : "14.90",
+              "internalID" : "E733C437",
+              "isEnabled" : true
             }
           ],
-          "codeOffers": [],
-          "displayPrice": "118.90",
-          "familyShareable": false,
-          "groupNumber": 1,
-          "internalID": "6739000119",
-          "introductoryOffer": {
-            "billingPlanType": "BILLED_UPFRONT",
-            "internalID": "6739000219",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P1W"
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "118.90",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6739000119",
+          "introductoryOffer" : {
+            "billingPlanType" : "BILLED_UPFRONT",
+            "internalID" : "6739000011",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
           },
-          "introductoryOffers": [
+          "introductoryOffers" : [
             {
-              "billingPlanType": "BILLED_UPFRONT",
-              "internalID": "6739000011",
-              "numberOfPeriods": 1,
-              "paymentMode": "free",
-              "subscriptionPeriod": "P1W"
+              "billingPlanType" : "BILLED_UPFRONT",
+              "internalID" : "6739000011",
+              "numberOfPeriods" : 1,
+              "paymentMode" : "free",
+              "subscriptionPeriod" : "P1W"
             }
           ],
-          "localizations": [
+          "localizations" : [
             {
-              "description": "Premium para a casa inteira (7 ou mais moradores).",
-              "displayName": "Premium Anual Estudante",
-              "locale": "pt_BR"
+              "description" : "Premium para a casa inteira (7 ou mais moradores).",
+              "displayName" : "Premium Anual Estudante",
+              "locale" : "pt_BR"
             }
           ],
-          "productID": "JonasMelo.CognitiveWork.premium.large.student.yearly",
-          "recurringSubscriptionPeriod": "P1Y",
-          "referenceName": "Premium Anual Estudante (7 ou mais moradores)",
-          "subscriptionGroupID": "21571301",
-          "type": "RecurringSubscription",
-          "winbackOffers": []
+          "productID" : "JonasMelo.CognitiveWork.premium.large.student.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual Estudante (7 ou mais moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
         }
       ]
     }
   ],
-  "subscriptionSuiteGroups": [],
-  "version": {
-    "major": 6,
-    "minor": 3
+  "subscriptionSuiteGroups" : [
+
+  ],
+  "version" : {
+    "major" : 6,
+    "minor" : 3
   }
 }

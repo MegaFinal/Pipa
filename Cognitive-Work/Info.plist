@@ -52,7 +52,7 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
-		<false/>
+		<true/>
 	</dict>
 	<key>UIAppFonts</key>
 	<array>
