@@ -35,8 +35,11 @@ class HardwareViewModel {
     /// A boolean value indicating whether the Wi-Fi password is visible in the UI.
     var isPasswordVisible = false
     
-    /// A flag indicating whether to navigate to the pairing view.
-    var navigateToNextView: Bool = false
+    /// A flag indicating whether to navigate to the EnterHArviiNetwork view.
+    var navigateToEnterHarviiNetworkView: Bool = false
+    
+    /// A flag indicating whether to navigate to the WifiCredentialsView view.
+    var navigateToWifiCredentialsView: Bool = false
     
     /// An optional error message capturing the latest failure state.
     var errorMessage: String?
@@ -75,7 +78,7 @@ class HardwareViewModel {
                 ssid: userWifiName,
                 password: userWifiPassord
             )
-            navigateToNextView = true
+            navigateToEnterHarviiNetworkView = true
         } catch {
             wifiResult = .failureWiFi
         }

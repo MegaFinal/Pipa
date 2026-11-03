@@ -46,7 +46,7 @@ struct WifiCredentialsView: View {
                     // MARK: - Skip to pairing (Wi-Fi already sent), or the Wi-Fi fields
                     if wasWifiSent {
                         Button("Já enviei o WiFi, ir para o pareamento") {
-                            viewModel.navigateToNextView = true
+                            viewModel.navigateToEnterHarviiNetworkView = true
                         }
                         .voiceControlNames([
                             L10n.tr("Já enviei o WiFi, ir para o pareamento"),
@@ -104,7 +104,7 @@ struct WifiCredentialsView: View {
             
             // TODO: back button to the previous Harvii step.
             // MARK: - Pairing step, result alert and keyboard
-            .navigationDestination(isPresented: $viewModel.navigateToNextView) {
+            .navigationDestination(isPresented: $viewModel.navigateToEnterHarviiNetworkView) {
                 DevicePairView(hardwareViewModel: viewModel, onClose: { dismiss() })
             }
             .resultAlert($viewModel.wifiResult)
@@ -123,7 +123,7 @@ extension WifiCredentialsView {
     /// shows the error alert when it doesn't).
     func continueTapped() async {
         if wasWifiSent {
-            viewModel.navigateToNextView = true
+            viewModel.navigateToEnterHArviiNetworkView = true
         } else {
             await viewModel.sendWifiCredentials()
         }

@@ -29,7 +29,7 @@ struct EnterHarviiNetwork: View {
     private var sideMargin: CGFloat { width * 0.0565 }
     
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             VStack(alignment: .center, spacing: 45) {
                 
                 OnboardingHeader(
@@ -47,6 +47,9 @@ struct EnterHarviiNetwork: View {
                 openConfigurationButton
                 
             }
+            .navigationDestination(isPresented: $viewModel.navigateToWifiCredentialsView) {
+                EnterHarviiNetwork(viewModel: viewModel)
+            }
             .padding(.horizontal, sideMargin)
             .padding(.bottom, height * 0.02)
             .overlay(alignment: .bottomTrailing) {
@@ -56,7 +59,7 @@ struct EnterHarviiNetwork: View {
                     text: "chevron.right",
                     isSystemImage: true
                 ) {
-                    viewModel.navigateToNextView = true
+                    viewModel.navigateToWifiCredentialsView = true
                 }
                 .padding(.bottom, height * 0.02)
                 .padding(.trailing, width * 0.061)

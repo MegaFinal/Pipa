@@ -28,7 +28,7 @@ struct WelcomeHarviiView: View {
                         .transition(.move(edge: .bottom))
                 }
             }
-            .navigationDestination(isPresented: $viewModel.navigateToNextView) {
+            .navigationDestination(isPresented: $viewModel.navigateToEnterHarviiNetworkView) {
                 EnterHarviiNetwork(viewModel: viewModel)
             }
             .onAppear {
@@ -99,7 +99,7 @@ private extension WelcomeHarviiView {
     /// Round chevron that goes to the next step.
     var continueButton: some View {
         Button("Continuar", systemImage: "chevron.right") {
-            viewModel.navigateToNextView = true
+            viewModel.navigateToEnterHarviiNetworkView = true
         }
         // Voice Control: short names for the icon-only chevron.
         .voiceControlNames([L10n.tr("Continuar"), L10n.tr("Próximo"), L10n.tr("Avançar")])
