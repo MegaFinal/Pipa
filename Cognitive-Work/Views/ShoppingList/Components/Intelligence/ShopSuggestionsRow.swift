@@ -10,7 +10,8 @@ import SwiftUI
 /// "Pode estar faltando" inside the list: the suggestions of one category, each as an AI card
 /// at the end of that category's card (the same look as the chore checklist's suggestions:
 /// dashed purple box on the AI tint, "Adicionar" on the right). Tapping "Adicionar" adds the
-/// product (see ``ShopListSuggestionViewModel``); a long press hides it for now. Nothing is
+/// product (see ``ShopListSuggestionViewModel``); swiping left hides it, and a new idea takes its
+/// place. Each card works on its own: adding one never blocks or replaces the others. Nothing is
 /// ever added on its own.
 struct ShopSuggestionCards: View {
 
@@ -19,8 +20,23 @@ struct ShopSuggestionCards: View {
     var category: ShopItemCategory?
     /// When set, only the suggestions with these ids (the leftover box).
     var onlyIDs: Set<String>? = nil
+    /// Which card is swiped open, shared with the item cards so only one is open at a time.
+    @Binding var revealedID: String?
 
-    @State private var addingID: String?
+    /// The suggestions being added right now; each card shows its own spinner.
+    @State private var addingIDs: Set<String> = []
+
+    /// Swipe left to hide a suggestion: same gesture as the item cards, sized to these cards.
+    private var swipeStyle: SwipeToDeleteStyle {
+        SwipeToDeleteStyle(
+            buttonWidth: 70,
+            cornerRadius: 16,
+            topInset: 0,
+            backgroundColor: .chorePurple,
+            systemImage: "eye.slash.fill",
+            title: "Remover"
+        )
+    }
 
     private var suggestions: [ShopListSuggestion] {
         model.suggestions.filter { suggestion in
@@ -37,7 +53,17 @@ struct ShopSuggestionCards: View {
                         .padding(.vertical, 4)
                 }
                 ForEach(suggestions) { suggestion in
-                    card(for: suggestion)
+                    SwipeToDeleteRow(
+                        id: "suggestion-\(suggestion.id)",
+                        revealedID: $revealedID,
+                        style: swipeStyle,
+                        onDelete: {
+                            withAnimation(.snappy) { model.dismiss(suggestion) }
+                        }
+                    ) {
+                        card(for: suggestion)
+                    }
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
             .padding(.top, 12)
@@ -71,7 +97,7 @@ struct ShopSuggestionCards: View {
                 Task { await add(suggestion) }
             } label: {
                 Group {
-                    if addingID == suggestion.id {
+                    if addingIDs.contains(suggestion.id) {
                         ProgressView()
                             .tint(.white)
                             .controlSize(.small)
@@ -86,7 +112,8 @@ struct ShopSuggestionCards: View {
                 .background(Color.chorePurple.opacity(0.7), in: Capsule())
             }
             .buttonStyle(.plain)
-            .disabled(addingID != nil)
+            // Only this card waits for its own save; the others stay tappable.
+            .disabled(addingIDs.contains(suggestion.id))
             .voiceOverLabel(L10n.tr("Adicionar \(suggestion.name)"))
             .voiceOverHint(reason(for: suggestion.kind))
             .voiceControlNames([L10n.tr("Adicionar \(suggestion.name)"), suggestion.name])
@@ -98,17 +125,7 @@ struct ShopSuggestionCards: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(Color.chorePurple, style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
         )
-        .contextMenu {
-            Button {
-                withAnimation(.snappy) { model.dismiss(suggestion) }
-            } label: {
-                Label(L10n.tr("Não sugerir agora"), systemImage: "eye.slash")
-            }
-        }
-        .accessibilityAction(named: Text(verbatim: L10n.tr("Não sugerir agora"))) {
-            withAnimation(.snappy) { model.dismiss(suggestion) }
-        }
-        .transition(.opacity.combined(with: .move(edge: .top)))
+        // Swiping isn't easy with VoiceOver: the row's "Remover" action does the same.
     }
 
     private func icon(for kind: ShopListSuggestion.Kind) -> String {
@@ -131,8 +148,8 @@ struct ShopSuggestionCards: View {
     }
 
     private func add(_ suggestion: ShopListSuggestion) async {
-        addingID = suggestion.id
-        defer { addingID = nil }
+        guard addingIDs.insert(suggestion.id).inserted else { return }
+        defer { addingIDs.remove(suggestion.id) }
         if await model.add(suggestion) {
             HapticsManager.notify(.success)
             VoiceOver.announce(L10n.tr("\(suggestion.name) adicionado"))
@@ -149,6 +166,8 @@ struct ShopSuggestionsLeftoverBox: View {
     var model: ShopListSuggestionViewModel
     /// Categories that already have a card in the list (their suggestions show there).
     var shownCategories: Set<ShopItemCategory>
+    /// Which card is swiped open (see ``ShopSuggestionCards/revealedID``).
+    @Binding var revealedID: String?
 
     var body: some View {
         let leftover = model.suggestions.filter { !shownCategories.contains($0.category) }
@@ -163,7 +182,12 @@ struct ShopSuggestionsLeftoverBox: View {
                 .foregroundStyle(.subTitleGray)
                 .accessibilityAddTraits(.isHeader)
 
-                ShopSuggestionCards(model: model, category: nil, onlyIDs: Set(leftover.map(\.id)))
+                ShopSuggestionCards(
+                    model: model,
+                    category: nil,
+                    onlyIDs: Set(leftover.map(\.id)),
+                    revealedID: $revealedID
+                )
             }
             .transition(.opacity)
         }

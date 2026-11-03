@@ -91,8 +91,9 @@ struct ShopItemSuggestion {
     let quantity: Int
     let unit: UnitMeasurement
     let category: ShopItemCategory
-    /// Price of ONE unit (like ``ShopListItem/value``), or `nil` when no price was written.
-    let unitPrice: Double?
+    /// Price of the whole item (like ``ShopListItem/totalPrice``), or `nil` when no price was
+    /// written.
+    let totalPrice: Double?
     /// Who consumes and splits the item, or `nil` when the person didn't say (the form keeps
     /// what it has).
     let consumers: [UserModel]?
@@ -280,45 +281,54 @@ extension IntelligenceManager {
             }
         }
 
+        let unit = UnitMeasurement(rawValue: generated.unit.rawValue) ?? .unit
         return ShopItemSuggestion(
             input: input,
             name: name,
             quantity: quantity,
-            unit: UnitMeasurement(rawValue: generated.unit.rawValue) ?? .unit,
+            unit: unit,
             category: ShopItemCategory(rawValue: generated.category.rawValue) ?? .other,
-            unitPrice: Self.unitPrice(from: generated, quantity: quantity, consumerCount: consumers?.count),
+            totalPrice: Self.totalPrice(from: generated, quantity: quantity, unit: unit, consumerCount: consumers?.count),
             consumers: consumers
         )
     }
 
-    /// The price of one unit, the way ``ShopListItem/value`` stores it. All arithmetic happens
-    /// here, in code, never in the model:
-    /// - `perUnit`: the price as written.
-    /// - `total`: price ÷ quantity.
-    /// - `perPerson`: price × people = total, then ÷ quantity. When nobody was named, the caller
-    ///   falls back to the form's selection or the whole house before calling this.
+    /// The price of the whole item, the way ``ShopListItem/totalPrice`` stores it. All
+    /// arithmetic happens here, in code, never in the model:
+    /// - `total`: the price as written.
+    /// - `perUnit`: price × amount. A per-unit price for grams or milliliters is per kilogram or
+    ///   per liter, since nobody prices per gram.
+    /// - `perPerson`: price × people. When nobody was named, the caller falls back to the form's
+    ///   selection or the whole house before calling this.
     ///
-    /// The unit price is rounded to cents, so a split that doesn't divide evenly can be off by a
-    /// cent per person (R$ 1 × 3 people ÷ 7 units stores R$ 0,43).
-    private static func unitPrice(
+    /// The total is rounded to cents.
+    private static func totalPrice(
         from generated: GeneratedShopItem,
         quantity: Int,
+        unit: UnitMeasurement,
         consumerCount: Int?
     ) -> Double? {
         guard generated.price > 0, generated.price.isFinite else { return nil }
-        let unit: Double
+        let total: Double
         switch generated.priceKind {
         case .none:
             return nil
-        case .perUnit:
-            unit = generated.price
         case .total:
-            unit = generated.price / Double(quantity)
+            total = generated.price
+        case .perUnit:
+            let pricedUnit: UnitMeasurement
+            switch unit {
+            case .gram: pricedUnit = .kilogram
+            case .milliliter: pricedUnit = .liter
+            default: pricedUnit = unit
+            }
+            let amount = unit.convert(Double(quantity), to: pricedUnit) ?? Double(quantity)
+            total = generated.price * amount
         case .perPerson:
             guard let consumerCount, consumerCount > 0 else { return nil }
-            unit = generated.price * Double(consumerCount) / Double(quantity)
+            total = generated.price * Double(consumerCount)
         }
-        let cents = (unit * 100).rounded() / 100
+        let cents = (total * 100).rounded() / 100
         return cents > 0 ? cents : nil
     }
 

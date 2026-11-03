@@ -138,18 +138,20 @@ extension IntelligenceManager {
     /// Up to five typical steps for a chore ("Limpar o banheiro" -> vaso, pia, box…), in the
     /// app's language. Only suggestions: the form shows them as chips the person taps to add.
     ///
-    /// - Parameter existing: Items already on the checklist, so they aren't suggested again.
+    /// - Parameters:
+    ///   - existing: Items already on the checklist, so they aren't suggested again.
+    ///   - avoiding: Ideas already shown or hidden by the person, never suggested again.
     /// - Returns: `nil` when AI is unavailable or the request fails.
-    func suggestChecklist(for name: String, room: String?, existing: [String]) async -> [String]? {
+    func suggestChecklist(for name: String, room: String?, existing: [String], avoiding: [String] = []) async -> [String]? {
         let prompt = IntelligencePrompts.ChoreChecklistIdeas.self
         guard let generated = await generate(
             GeneratedChecklistIdeas.self,
-            prompt: prompt.prompt(name: name, room: room, existing: existing),
+            prompt: prompt.prompt(name: name, room: room, existing: existing, avoiding: avoiding),
             instructions: instructions(task: prompt.task, output: .appLanguage),
             promptID: prompt.id
         ) else { return nil }
 
-        let taken = Set(existing.map(Self.foldedKey))
+        let taken = Set((existing + avoiding).map(Self.foldedKey))
         var seen = Set<String>()
         return generated.items.compactMap { item in
             guard let text = Self.cleaned(item, limit: TextLimits.checklistItem) else { return nil }
