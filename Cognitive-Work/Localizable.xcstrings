@@ -11577,6 +11577,9 @@
         }
       }
     },
+    "Harvii está recebendo as suas tarefas" : {
+
+    },
     "Histórico completo de gastos" : {
       "localizations" : {
         "en" : {
@@ -19128,6 +19131,9 @@
           }
         }
       }
+    },
+    "Pode levar até um minuto para a conexão estar completa. A tela do e-paper pisca um pouco antes de atualizar, é normal." : {
+
     },
     "Poltrona" : {
       "localizations" : {
