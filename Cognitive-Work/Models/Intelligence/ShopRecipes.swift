@@ -70,7 +70,14 @@ extension IntelligenceManager {
     ]
 
     /// Chinese has no spaces between words: these are looked for inside the text.
-    private static let recipePhrases = ["做", "食谱", "菜谱", "材料", "配料", "煮", "烤", "烧"]
+    private static let recipePhrases = [
+        "做", "食谱", "菜谱", "材料", "配料", "煮", "烤", "烧",       // Chinese
+        "作る", "作りたい", "レシピ", "料理", "材料",              // Japanese
+        "만들", "레시피", "재료", "요리"                          // Korean
+    ]
+
+    /// First person in Chinese, Japanese and Korean ("我想做…", "私は…作りたい", "내가 … 만들래").
+    private static let selfPhrases = ["我", "私", "僕", "俺", "내가", "제가", "나는", "저는"]
 
     /// Replaces the dishes in a shopping text with their ingredients ("quero fazer lasanha" ->
     /// "massa para lasanha", "carne moída", "molho de tomate"…), keeping everything else as
@@ -98,7 +105,8 @@ extension IntelligenceManager {
         for dish in generated.dishes {
             let dishName = dish.name.trimmingCharacters(in: .whitespacesAndNewlines)
             var whoFor = dish.whoFor.trimmingCharacters(in: .whitespacesAndNewlines)
-            if whoFor.isEmpty, !words.isDisjoint(with: Self.selfWords) || folded.contains("我") {
+            if whoFor.isEmpty,
+               !words.isDisjoint(with: Self.selfWords) || Self.selfPhrases.contains(where: folded.contains) {
                 whoFor = "eu"
             }
             for ingredient in dish.ingredients {

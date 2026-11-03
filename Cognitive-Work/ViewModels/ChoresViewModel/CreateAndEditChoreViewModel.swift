@@ -137,13 +137,16 @@ final class CreateAndEditChoreViewModel {
     }
 
     /// Typical steps for the chore named so far, to offer as chips. Only for new chores.
-    func checklistIdeas() async -> [String]? {
+    ///
+    /// - Parameter avoiding: Ideas already shown or hidden, so new ones are different.
+    func checklistIdeas(avoiding: [String] = []) async -> [String]? {
         let name = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard canSuggest, !name.isEmpty else { return nil }
         return await IntelligenceManager.shared.suggestChecklist(
             for: name,
             room: draft.room?.name.localizedDefault,
-            existing: draft.checklist.map(\.name).filter { !$0.isEmpty }
+            existing: draft.checklist.map(\.name).filter { !$0.isEmpty },
+            avoiding: avoiding
         )
     }
 

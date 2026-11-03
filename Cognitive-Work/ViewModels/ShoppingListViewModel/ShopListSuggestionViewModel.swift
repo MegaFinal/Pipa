@@ -35,16 +35,23 @@ final class ShopListSuggestionViewModel {
     private(set) var suggestions: [ShopListSuggestion] = []
 
     @ObservationIgnored private let shopList: ShopListViewModel
-    /// Hidden by the person in this session ("Não sugerir agora").
+    /// Hidden by the person in this session (swiped away).
     @ObservationIgnored private var dismissedIDs = Set<String>()
-    /// The pending names the model last answered for, so it isn't asked again for the same list.
-    /// Each category's AI suggestions and the items they were made for (see ``complementItems(excluding:)``).
-    @ObservationIgnored private var sectionIdeas: [ShopItemCategory: (key: String, suggestions: [ShopListSuggestion])] = [:]
+    /// Names hidden in this session, per category, so the model is told not to suggest them again.
+    @ObservationIgnored private var dismissedNames: [ShopItemCategory: [String]] = [:]
+    /// The AI ideas on screen, per category. They stay as they are while the list changes, so
+    /// adding or hiding one never replaces the others: only a freed slot gets a new idea.
+    @ObservationIgnored private var shownIdeas: [ShopItemCategory: [ShopListSuggestion]] = [:]
+    /// Per category, what the model was last asked with (the section's items and the names to
+    /// avoid), so a slot it couldn't fill isn't asked for again until something changes.
+    @ObservationIgnored private var askedKeys: [ShopItemCategory: String] = [:]
     @ObservationIgnored private var lastComplements: [ShopListSuggestion] = []
     @ObservationIgnored private var refreshTask: Task<Void, Never>?
 
-    /// How many usual items and model ideas the row shows at most.
+    /// How many usual items the row shows at most.
     private let maxUsual = 5
+    /// How many AI ideas each category card shows at most.
+    private let maxIdeasPerCategory = 2
 
     init(shopList: ShopListViewModel) {
         self.shopList = shopList
@@ -127,10 +134,15 @@ final class ShopListSuggestionViewModel {
         return success
     }
 
-    /// Hides a suggestion until the app is opened again.
+    /// Hides a suggestion until the app is opened again. Its slot frees up, so an AI idea is
+    /// replaced by a new one that isn't any of the hidden ones.
     func dismiss(_ suggestion: ShopListSuggestion) {
         dismissedIDs.insert(suggestion.id)
+        if case .goesWithList = suggestion.kind {
+            dismissedNames[suggestion.category, default: []].append(suggestion.name)
+        }
         suggestions.removeAll { $0.id == suggestion.id }
+        refresh()
     }
 
     // MARK: - Usual items
@@ -185,15 +197,20 @@ final class ShopListSuggestionViewModel {
 
     // MARK: - Goes with the list
 
-    /// AI suggestions for every category that has a card on the list (up to two each), so each
-    /// card can end with its own. One request per category, reused while that category's items
-    /// don't change.
+    /// AI suggestions for every category that has a card on the list (up to
+    /// ``maxIdeasPerCategory`` each), so each card can end with its own.
+    ///
+    /// Ideas already on screen are kept while they are still valid (not added, not hidden, not
+    /// on the list some other way), so adding or hiding one leaves the others alone. The model is
+    /// only asked when a category has a free slot, and is told which names to avoid.
     private func complementItems(excluding usual: [ShopListSuggestion]) async -> [ShopListSuggestion] {
         let pending = shopList.pendingItems
         // AI suggestions are Premium; the "usual items" (no AI) stay free.
         guard !pending.isEmpty, IntelligenceManager.shared.isAvailable,
               PremiumManager.shared.allows(.intelligence) else {
-            sectionIdeas = [:]
+            shownIdeas = [:]
+            askedKeys = [:]
+            lastComplements = []
             return []
         }
 
@@ -201,41 +218,67 @@ final class ShopListSuggestionViewModel {
         let listNames = Array(pending.sorted { $0.createdAt > $1.createdAt }.prefix(20).map(\.name))
         let categories = ShopItemCategory.allCases.filter { category in pending.contains { $0.category == category } }
 
-        var fresh: [ShopItemCategory: (key: String, suggestions: [ShopListSuggestion])] = [:]
-        for category in categories {
-            let sectionNames = pending.filter { $0.category == category }.map(\.name)
-            let key = sectionNames.map(Self.key(for:)).sorted().joined(separator: "|")
-
-            // Same items in this category as last time: keep its suggestions.
-            if let cached = sectionIdeas[category], cached.key == key {
-                fresh[category] = cached
-                continue
-            }
-            guard !Task.isCancelled else { return [] }
-            let names = await IntelligenceManager.shared.suggestForSection(
-                category,
-                sectionNames: sectionNames,
-                listNames: listNames
-            ) ?? []
-            fresh[category] = (key, names.map { name in
-                ShopListSuggestion(
-                    id: Self.key(for: name),
-                    kind: .goesWithList,
-                    name: name,
-                    category: category,
-                    quantity: 1,
-                    unit: .unit,
-                    consumers: nil
-                )
-            })
-        }
-        sectionIdeas = fresh
-
-        // In the list's category order, each product once, never one already suggested as usual.
+        // Each product once across the row, never one already suggested as usual.
         var seen = Set(usual.map(\.id))
-        let complements = categories
-            .flatMap { fresh[$0]?.suggestions ?? [] }
-            .filter { !$0.id.isEmpty && seen.insert($0.id).inserted }
+
+        /// Whether an idea can (still) be shown.
+        func isUsable(_ idea: ShopListSuggestion) -> Bool {
+            !idea.id.isEmpty
+                && !dismissedIDs.contains(idea.id)
+                && !seen.contains(idea.id)
+                && ShopItemDuplicateFinder.candidates(for: idea.name, in: pending, limit: 1).isEmpty
+        }
+
+        var fresh: [ShopItemCategory: [ShopListSuggestion]] = [:]
+        for category in categories {
+            // Keep what is on screen and still valid.
+            var ideas: [ShopListSuggestion] = []
+            for idea in shownIdeas[category] ?? [] where ideas.count < maxIdeasPerCategory && isUsable(idea) {
+                ideas.append(idea)
+                seen.insert(idea.id)
+            }
+
+            // Ask only for the free slots, and only when something changed since the last ask.
+            if ideas.count < maxIdeasPerCategory {
+                let sectionNames = pending.filter { $0.category == category }.map(\.name)
+                let avoiding = ideas.map(\.name) + (dismissedNames[category] ?? [])
+                let askKey = sectionNames.map(Self.key(for:)).sorted().joined(separator: "|")
+                    + "#" + avoiding.map(Self.key(for:)).sorted().joined(separator: "|")
+
+                if askedKeys[category] != askKey {
+                    guard !Task.isCancelled else { return lastComplements }
+                    let names = await IntelligenceManager.shared.suggestForSection(
+                        category,
+                        sectionNames: sectionNames,
+                        listNames: listNames,
+                        avoiding: avoiding
+                    )
+                    guard !Task.isCancelled else { return lastComplements }
+                    // A failed request is tried again on the next refresh.
+                    if names != nil { askedKeys[category] = askKey }
+
+                    for name in names ?? [] where ideas.count < maxIdeasPerCategory {
+                        let idea = ShopListSuggestion(
+                            id: Self.key(for: name),
+                            kind: .goesWithList,
+                            name: name,
+                            category: category,
+                            quantity: 1,
+                            unit: .unit,
+                            consumers: nil
+                        )
+                        guard isUsable(idea) else { continue }
+                        ideas.append(idea)
+                        seen.insert(idea.id)
+                    }
+                }
+            }
+            fresh[category] = ideas
+        }
+        shownIdeas = fresh
+
+        // In the list's category order.
+        let complements = categories.flatMap { fresh[$0] ?? [] }
         lastComplements = complements
         return complements
     }

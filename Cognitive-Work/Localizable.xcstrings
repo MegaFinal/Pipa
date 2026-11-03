@@ -48,6 +48,46 @@
         }
       }
     },
+    "%@ por %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ per %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ por %2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ par %2$@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@あたり%1$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@당 %1$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每%2$@ %1$@"
+          }
+        }
+      }
+    },
     "%@ · cerca de %lld min" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -987,46 +1027,6 @@
     },
     "%lld" : {
       "shouldTranslate" : false
-    },
-    "%lld × %@, total %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld × %@, total %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld × %@, total %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld × %@, total %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld × %@、合計%@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld × %@, 총 %@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld × %@，共 %@"
-          }
-        }
-      }
     },
     "%lld ativos" : {
       "localizations" : {
@@ -2763,6 +2763,46 @@
         }
       }
     },
+    "Digite o valor total pago. Ele é dividido entre quem vai consumir e aparece em Pendências." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the total you paid. It's split among whoever will use it and shows up in Pending payments."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe el total que pagaste. Se divide entre quienes lo van a consumir y aparece en Pendientes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisissez le total payé. Il est partagé entre ceux qui vont consommer et apparaît dans Paiements en attente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支払った合計金額を入力してください。使う人どうしで分けられ、「未払い」に表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "낸 총액을 입력하세요. 사용하는 사람끼리 나뉘어 대기 중 결제에 표시돼요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入支付的总额。总额由使用的人平分，并显示在“待付款项”中。"
+          }
+        }
+      }
+    },
     "Divisão automática ilimitada" : {
       "localizations" : {
         "en" : {
@@ -2917,6 +2957,46 @@
         }
       }
     },
+    "Quanto custou no total?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How much was it in total?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuánto costó en total?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien ça a coûté au total ?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計でいくらでしたか?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 얼마였나요?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一共多少钱？"
+          }
+        }
+      }
+    },
     "Receba sugestões do que comprar e de como organizar a sua rotina, feitas com IA." : {
       "localizations" : {
         "en" : {
@@ -3001,6 +3081,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Un seul abonnement débloque tous les avantages pour toute la maison"
+          }
+        }
+      }
+    },
+    "Valor total" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total price"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valor total"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prix total"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計金額"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 금액"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总价"
+          }
+        }
+      }
+    },
+    "Valor total (R$ 0,00)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total price (R$ 0.00)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valor total (R$ 0,00)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prix total (0,00 R$)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計金額 (R$ 0,00)"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 금액 (R$ 0,00)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总价（R$ 0.00）"
           }
         }
       }
@@ -28351,46 +28511,6 @@
         }
       }
     },
-    "Não sugerir agora" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Don't suggest now"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No sugerir ahora"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ne pas suggérer maintenant"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "今は提案しない"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "지금은 추천하지 않기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "暂时不要推荐"
-          }
-        }
-      }
-    },
     "Nenhum" : {
       "localizations" : {
         "en" : {
@@ -30470,46 +30590,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pipa 使用你 iPhone 的 iCloud 账户安全地储存家庭数据，并在你和室友之间同步所有内容。请确认已在 iPhone 的“设置”中登录 iCloud 后继续。"
-          }
-        }
-      }
-    },
-    "O preço é por unidade. O total é dividido entre quem vai consumir e aparece em Pendências." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The price is per unit. The total is split among whoever will use it and shows up in Pending payments."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El precio es por unidad. El total se divide entre quienes lo van a consumir y aparece en Pendientes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le prix est à l’unité. Le total est partagé entre ceux qui vont consommer et apparaît dans Paiements en attente."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "価格は1個あたりです。合計は使う人どうしで分けられ、「未払い」に表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "가격은 개당이에요. 합계는 사용하는 사람끼리 나뉘어 대기 중 결제에 표시돼요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "价格为单价。总额由使用的人平分，并显示在“待付款项”中。"
           }
         }
       }
@@ -34778,86 +34858,6 @@
         }
       }
     },
-    "Preço por unidade" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Price per unit"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Precio por unidad"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prix à l’unité"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "単価"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "개당 가격"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "单价"
-          }
-        }
-      }
-    },
-    "Preço por unidade (R$ 0,00)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Price per unit (R$ 0.00)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Precio por unidad (R$ 0,00)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prix à l’unité (0,00 R$)"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "単価 (R$ 0,00)"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "개당 가격 (R$ 0,00)"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "单价（R$ 0.00）"
-          }
-        }
-      }
-    },
     "Preencher" : {
       "localizations" : {
         "en" : {
@@ -36018,46 +36018,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@的数量"
-          }
-        }
-      }
-    },
-    "Quanto custou cada um?" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How much was each one?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Cuánto costó cada uno?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Combien a coûté chacun ?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1つあたりいくらでしたか?"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "하나에 얼마였나요?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每个多少钱？"
           }
         }
       }

@@ -154,12 +154,6 @@
             "state" : "new",
             "value" : ""
           }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "None"
-          }
         }
       }
     },
@@ -169,7 +163,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "We use the local network to find and communicate with Harvii."
           }
         },

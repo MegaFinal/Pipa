@@ -178,6 +178,7 @@ struct ShopListView: View {
                 PurchasePricePopUp(
                     itemName: prompt.item.name,
                     quantity: prompt.item.quantity,
+                    unit: prompt.item.unitMeasurement,
                     onConfirm: { text in
                         Task { await viewModel.confirmPurchaseAnnouncing(of: prompt.item, valueText: text) }
                     },
@@ -278,7 +279,11 @@ struct ShopListView: View {
                     sections: pendingSections,
                     footer: { section in
                         guard let category = section.category else { return AnyView(EmptyView()) }
-                        return AnyView(ShopSuggestionCards(model: suggestionsModel, category: category))
+                        return AnyView(ShopSuggestionCards(
+                            model: suggestionsModel,
+                            category: category,
+                            revealedID: $revealedItemID
+                        ))
                     }
                 ) { item in
                     row(for: item)
@@ -287,7 +292,8 @@ struct ShopListView: View {
 
                 ShopSuggestionsLeftoverBox(
                     model: suggestionsModel,
-                    shownCategories: Set(pendingSections.compactMap(\.category))
+                    shownCategories: Set(pendingSections.compactMap(\.category)),
+                    revealedID: $revealedItemID
                 )
                 .padding(.top, 24)
                 .animation(.snappy, value: suggestionsModel.suggestions.map(\.id))

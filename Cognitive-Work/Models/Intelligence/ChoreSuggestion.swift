@@ -138,18 +138,20 @@ extension IntelligenceManager {
     /// Up to five typical steps for a chore ("Limpar o banheiro" -> vaso, pia, box…), in the
     /// app's language. Only suggestions: the form shows them as chips the person taps to add.
     ///
-    /// - Parameter existing: Items already on the checklist, so they aren't suggested again.
+    /// - Parameters:
+    ///   - existing: Items already on the checklist, so they aren't suggested again.
+    ///   - avoiding: Ideas already shown or hidden by the person, never suggested again.
     /// - Returns: `nil` when AI is unavailable or the request fails.
-    func suggestChecklist(for name: String, room: String?, existing: [String]) async -> [String]? {
+    func suggestChecklist(for name: String, room: String?, existing: [String], avoiding: [String] = []) async -> [String]? {
         let prompt = IntelligencePrompts.ChoreChecklistIdeas.self
         guard let generated = await generate(
             GeneratedChecklistIdeas.self,
-            prompt: prompt.prompt(name: name, room: room, existing: existing),
+            prompt: prompt.prompt(name: name, room: room, existing: existing, avoiding: avoiding),
             instructions: instructions(task: prompt.task, output: .appLanguage),
             promptID: prompt.id
         ) else { return nil }
 
-        let taken = Set(existing.map(Self.foldedKey))
+        let taken = Set((existing + avoiding).map(Self.foldedKey))
         var seen = Set<String>()
         return generated.items.compactMap { item in
             guard let text = Self.cleaned(item, limit: TextLimits.checklistItem) else { return nil }
@@ -233,8 +235,14 @@ enum ChoreDateReader {
         "dimanche": 1, "lundi": 2, "mardi": 3, "mercredi": 4, "jeudi": 5, "vendredi": 6, "samedi": 7
     ]
 
-    /// Chinese weekdays, looked for inside the text (no spaces between words).
+    /// Chinese, Japanese and Korean weekdays, looked for inside the text (no spaces between
+    /// words, or particles glued to them).
     private static let chineseWeekdays: [(String, Int)] = [
+        // Japanese
+        ("月曜", 2), ("火曜", 3), ("水曜", 4), ("木曜", 5), ("金曜", 6), ("土曜", 7), ("日曜", 1),
+        // Korean
+        ("월요일", 2), ("화요일", 3), ("수요일", 4), ("목요일", 5), ("금요일", 6), ("토요일", 7), ("일요일", 1),
+        // Chinese
         ("星期一", 2), ("星期二", 3), ("星期三", 4), ("星期四", 5), ("星期五", 6), ("星期六", 7),
         ("星期日", 1), ("星期天", 1), ("周一", 2), ("周二", 3), ("周三", 4), ("周四", 5),
         ("周五", 6), ("周六", 7), ("周日", 1), ("周天", 1), ("礼拜天", 1), ("礼拜日", 1)
@@ -256,8 +264,9 @@ enum ChoreDateReader {
         let words = text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
             .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
             .map(String.init)
-        // Chinese: "每天", "每周", "天天"…
-        if text.contains("每") || text.contains("天天") { return true }
+        // Chinese ("每天", "天天"), Japanese ("毎日", "毎週", "いつも"), Korean ("매일", "매주", "마다", "항상").
+        let repeatPhrases = ["每", "天天", "毎", "いつも", "매일", "매주", "매달", "마다", "항상"]
+        if repeatPhrases.contains(where: text.contains) { return true }
         return words.contains { repetitionWords.contains($0) }
     }
 
@@ -274,19 +283,23 @@ enum ChoreDateReader {
         // Portuguese, English, Spanish, French, then Chinese.
         if joined.contains(" depois de amanha ") || joined.contains(" day after tomorrow ")
             || joined.contains(" pasado manana ") || joined.contains(" apres demain ")
-            || folded.contains("后天") { return days(2) }
+            || folded.contains("后天") || folded.contains("明後日") || folded.contains("あさって")
+            || folded.contains("모레") { return days(2) }
         if joined.contains(" amanha ") || joined.contains(" tomorrow ") || joined.contains(" manana ")
-            || joined.contains(" demain ") || folded.contains("明天") { return days(1) }
+            || joined.contains(" demain ") || folded.contains("明天") || folded.contains("明日")
+            || folded.contains("あした") || folded.contains("내일") { return days(1) }
         if joined.contains(" hoje ") || joined.contains(" today ") || joined.contains(" hoy ")
-            || joined.contains(" aujourd hui ") || folded.contains("今天") { return today }
+            || joined.contains(" aujourd hui ") || folded.contains("今天") || folded.contains("今日")
+            || folded.contains("きょう") || folded.contains("오늘") { return today }
 
         for (phrase, weekday) in Self.chineseWeekdays where folded.contains(phrase) {
             let todayWeekday = calendar.component(.weekday, from: today)
             return days((weekday - todayWeekday + 7) % 7)
         }
 
-        // Chinese "30号" / "30日": that day this month, or next month if it already passed.
-        if let match = folded.firstMatch(of: #/(\d{1,2})\s*[号日]/#),
+        // "30号" / "30日" (Chinese, Japanese) / "30일" (Korean): that day this month, or next
+        // month if it already passed.
+        if let match = folded.firstMatch(of: #/(\d{1,2})\s*[号日일]/#),
            let day = Int(match.1), (1...31).contains(day) {
             return nextDate(day: day, month: nil, from: today, calendar: calendar)
         }

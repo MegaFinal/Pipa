@@ -31,8 +31,10 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     /// The item's name.
     var name: String
 
-    /// Price of ONE unit (see ``totalValue``).
-    var value: Double?
+    /// What was paid for the whole item: every unit, or the whole weight/volume (4 breads,
+    /// 0,364 kg of cheese). People know this number (it's the receipt line), and it is what
+    /// gets split between housemates. The price of one unit is derived from it (``unitPrice``).
+    var totalPrice: Double?
 
     /// How much to buy, in ``unitMeasurement``.
     var quantity: Int
@@ -71,12 +73,37 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     private var settledUsersReference: [CKRecord.Reference]?
 
     /// Whether a price was informed (an item without one can't be split between housemates).
-    var hasPrice: Bool { (value ?? 0) > 0 }
+    var hasPrice: Bool { (totalPrice ?? 0) > 0 }
 
-    /// ``value`` is the price of one unit, so the whole purchase costs `value × quantity`.
+    /// The price paid for the whole item, or `nil` when no price was informed.
     var totalValue: Double? {
-        guard let value, value > 0 else { return nil }
-        return value * Double(quantity)
+        guard let totalPrice, totalPrice > 0 else { return nil }
+        return totalPrice
+    }
+
+    /// The price of one display unit (see ``unitPrice(total:quantity:unit:)``), or `nil` when no
+    /// price was informed.
+    var unitPrice: (amount: Double, unit: UnitMeasurement)? {
+        guard let totalValue else { return nil }
+        return Self.unitPrice(total: totalValue, quantity: quantity, unit: unitMeasurement)
+    }
+
+    /// The price of one display unit for `total` paid for `quantity` × `unit`. Grams and
+    /// milliliters are shown per kilogram and per liter, since nobody prices per gram.
+    ///
+    /// - Returns: The price and the unit it refers to, or `nil` for a zero quantity or price.
+    static func unitPrice(total: Double, quantity: Int, unit: UnitMeasurement) -> (amount: Double, unit: UnitMeasurement)? {
+        guard total > 0, quantity > 0 else { return nil }
+        let displayUnit: UnitMeasurement
+        switch unit {
+        case .gram: displayUnit = .kilogram
+        case .milliliter: displayUnit = .liter
+        case .undefined: displayUnit = .unit
+        default: displayUnit = unit
+        }
+        let amount = unit.convert(Double(quantity), to: displayUnit) ?? Double(quantity)
+        guard amount > 0 else { return nil }
+        return (total / amount, displayUnit)
     }
 
     /// The housemates the item is for, as record ids.
@@ -168,7 +195,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         self.recordID = record.recordID
 
         self.name = name
-        self.value = record["value"] as? Double
+        self.totalPrice = record["totalPrice"] as? Double
         self.quantity = quantity
         self.unitMeasurement = UnitMeasurement(rawValue: unitMeasurement) ?? .gram
         self.isBought = isBought
@@ -187,7 +214,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     ///
     /// - Parameters:
     ///   - name: Label shown to the user.
-    ///   - value: Estimated or actual price, when known.
+    ///   - totalPrice: Estimated or actual price of the whole item, when known.
     ///   - quantity: How many units to buy.
     ///   - unitMeasurement: The unit `quantity` is expressed in.
     ///   - isBought: Whether the item starts already purchased. Defaults to `false`.
@@ -198,7 +225,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     ///   - recordID: The record ID to use, when it is already known.
     init(
         name: String,
-        value: Double? = nil,
+        totalPrice: Double? = nil,
         quantity: Int,
         unitMeasurement: UnitMeasurement,
         isBought: Bool = false,
@@ -210,7 +237,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     ) {
         self.recordID = recordID
         self.name = name
-        self.value = value
+        self.totalPrice = totalPrice
         self.quantity = quantity
         self.unitMeasurement = unitMeasurement
         self.isBought = isBought
@@ -229,7 +256,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     /// > already on the server (same convention as ``ChoreModel/populate(record:)``).
     func populate(record: CKRecord) {
         record["name"] = name
-        record["value"] = value
+        record["totalPrice"] = totalPrice
         record["quantity"] = quantity
         record["unitMeasurement"] = unitMeasurement.rawValue
         record["isBought"] = isBought
@@ -277,12 +304,12 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     ///
     /// - Parameters:
     ///   - user: The user who bought the item.
-    ///   - value: The price paid, when it wasn't known before.
+    ///   - totalPrice: What was paid for the whole item, when it wasn't known before.
     @discardableResult
-    func markBought(by user: UserModel, value paid: Double? = nil) async -> Bool {
+    func markBought(by user: UserModel, totalPrice paid: Double? = nil) async -> Bool {
         guard let buyerID = user.recordID else { return false }
         let previousBuyer = buyerUserReference
-        let previousValue = value
+        let previousTotalPrice = totalPrice
         let previousSettled = settledUsersReference
         let previousBoughtAt = boughtAt
 
@@ -291,12 +318,12 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         buyerUserReference = CKRecord.Reference(recordID: buyerID, action: .none)
         // A new purchase starts with nobody having paid their share yet.
         settledUsersReference = []
-        if let paid { value = paid }
+        if let paid { totalPrice = paid }
 
         guard await CloudKitManager.shared.update(self) else {
             isBought = false
             buyerUserReference = previousBuyer
-            value = previousValue
+            totalPrice = previousTotalPrice
             settledUsersReference = previousSettled
             boughtAt = previousBoughtAt
             return false
@@ -345,7 +372,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     ///
     /// - Parameters:
     ///   - name: Label shown to the user.
-    ///   - value: Estimated or actual price, when known.
+    ///   - totalPrice: Estimated or actual price of the whole item, when known.
     ///   - quantity: How many units to buy.
     ///   - unitMeasurement: The unit `quantity` is expressed in.
     ///   - relatedUsers: Other users who will use/share this item.
@@ -353,7 +380,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     @discardableResult
     func update(
         name: String,
-        value: Double?,
+        totalPrice: Double?,
         quantity: Int,
         unitMeasurement: UnitMeasurement,
         category: ShopItemCategory,
@@ -361,7 +388,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     ) async -> Bool {
         self.category = category
         self.name = name
-        self.value = value
+        self.totalPrice = totalPrice
         self.quantity = quantity
         self.unitMeasurement = unitMeasurement
         self.relatedUsersReference = relatedUsers.compactMap { user -> CKRecord.Reference? in

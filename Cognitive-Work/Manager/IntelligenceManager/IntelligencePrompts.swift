@@ -17,14 +17,14 @@ enum IntelligencePrompts {
     /// category, price and who splits it.
     enum ShopItemParse {
 
-        static let id = "shop-item-parse-v2"
+        static let id = "shop-item-parse-v3"
 
         /// The unit, category, priceKind and sharing names match the cases of the `Generated…`
         /// enums in ShopItemSuggestion.swift; keep them in sync.
         /// Rules for every field of one item. Shared with ``ShopListParse`` so both read prices,
         /// units and people the same way.
         static let fieldRules = """
-        name: the product only, without amount or unit, short (at most 18 characters). Write it in the same language and script the person used, exactly as they wrote it: never translate it ("咖啡" stays "咖啡", "coffee" stays "coffee", "café" stays "café").
+        name: the product only, without amount or unit, short (at most 18 characters). Write it in the same language and script the person used, exactly as they wrote it: never translate it ("咖啡" stays "咖啡", "コーヒー" stays "コーヒー", "커피" stays "커피", "coffee" stays "coffee", "café" stays "café").
         quantity and unit: the amount the person wrote. If they wrote no amount, use quantity 1 and unit.
         Convert fractions to gram or milliliter, for example "meio quilo" is 500 gram.
         Use package for packs, boxes, bags and bundles.
@@ -82,7 +82,7 @@ enum IntelligencePrompts {
     /// Turns a text with several products, one per line, into a list of items. Used by the AI
     enum ShopListParse {
 
-        static let id = "shop-list-parse-v2"
+        static let id = "shop-list-parse-v3"
 
         static let task = """
         You turn what the person typed into household shopping list items, one item per product, in the order written.
@@ -163,12 +163,12 @@ enum IntelligencePrompts {
     /// Suggests products for one supermarket section, from what's listed in it.
     enum ShopSectionIdeas {
 
-        static let id = "shop-section-ideas-v1"
+        static let id = "shop-section-ideas-v2"
 
         static let task = """
         You help complete one section of a household shopping list. Suggest at most 2 products from that same supermarket section that people usually buy along with the ones listed there.
         Sections: food (groceries, meat, dairy, bread), produce (fruits, vegetables, herbs), drinks, cleaning (house, dishes and clothes), hygiene (personal care, toilet paper), home (household items), pets, other.
-        Never suggest something already on the list, or a variant of it (another brand, size or type). Only common, clear choices; if nothing fits, return an empty list.
+        Never suggest something already on the list, or a variant of it (another brand, size or type), nor anything under "Do not suggest". Only common, clear choices; if nothing fits, return an empty list.
         name: a short, common product name.
         Examples:
         cleaning: "detergente" -> "esponja", "sabão em pó"
@@ -178,12 +178,19 @@ enum IntelligencePrompts {
         """
 
         /// The names are the person's text, so they go in the prompt.
-        static func prompt(section: String, sectionNames: [String], listNames: [String]) -> String {
-            """
-            Section: \(section)
-            In this section: \(sectionNames.joined(separator: ", "))
-            Whole list: \(listNames.joined(separator: ", "))
-            """
+        ///
+        /// - Parameter avoiding: Products already shown or hidden; at most the 10 latest, to keep
+        ///   the prompt short.
+        static func prompt(section: String, sectionNames: [String], listNames: [String], avoiding: [String] = []) -> String {
+            var lines = [
+                "Section: \(section)",
+                "In this section: \(sectionNames.joined(separator: ", "))",
+                "Whole list: \(listNames.joined(separator: ", "))"
+            ]
+            if !avoiding.isEmpty {
+                lines.append("Do not suggest: \(avoiding.suffix(10).joined(separator: ", "))")
+            }
+            return lines.joined(separator: "\n")
         }
     }
 
@@ -224,11 +231,11 @@ enum IntelligencePrompts {
     /// Typical checklist steps for a chore the person named, shown as chips to tap.
     enum ChoreChecklistIdeas {
 
-        static let id = "chore-checklist-ideas-v1"
+        static let id = "chore-checklist-ideas-v2"
 
         static let task = """
         You suggest a checklist for a household chore: up to 5 short, concrete steps or parts (at most 40 characters each) that people usually do for it.
-        Only physical steps, no advice or safety tips. Never repeat an item already on the checklist. If the chore is too simple to split, return an empty list.
+        Only physical steps, no advice or safety tips. Never repeat an item already on the checklist or one under "Do not suggest". If the chore is too simple to split, or nothing new fits, return an empty list.
         Examples:
         "Limpar o banheiro" -> "Vaso", "Pia", "Box", "Espelho", "Trocar as toalhas"
         "Lavar a louça" -> "Pratos e copos", "Panelas", "Secar e guardar", "Limpar a pia"
@@ -236,10 +243,14 @@ enum IntelligencePrompts {
         """
 
         /// The chore's name and what's already listed are the person's text, so they go here.
-        static func prompt(name: String, room: String?, existing: [String]) -> String {
+        ///
+        /// - Parameter avoiding: Ideas already shown or hidden; at most the 10 latest, to keep the
+        ///   prompt short.
+        static func prompt(name: String, room: String?, existing: [String], avoiding: [String] = []) -> String {
             var lines = ["Chore: \(name)"]
             if let room { lines.append("Room: \(room)") }
             if !existing.isEmpty { lines.append("Already on the checklist: \(existing.joined(separator: ", "))") }
+            if !avoiding.isEmpty { lines.append("Do not suggest: \(avoiding.suffix(10).joined(separator: ", "))") }
             return lines.joined(separator: "\n")
         }
     }

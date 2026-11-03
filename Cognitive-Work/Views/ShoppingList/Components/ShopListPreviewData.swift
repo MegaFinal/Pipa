@@ -40,7 +40,7 @@ enum ShopListPreviewData {
         _ name: String,
         quantity: Int,
         unit: UnitMeasurement = .unit,
-        value: Double? = nil,
+        total: Double? = nil,
         category: ShopItemCategory = .other,
         isBought: Bool = false,
         buyer: UserModel? = nil,
@@ -48,7 +48,7 @@ enum ShopListPreviewData {
     ) -> ShopListItem {
         let item = ShopListItem(
             name: name,
-            value: value,
+            totalPrice: total,
             quantity: quantity,
             unitMeasurement: unit,
             isBought: isBought,
@@ -64,12 +64,12 @@ enum ShopListPreviewData {
 
     /// A pending item with price, three housemates and a short name.
     static var pendingItem: ShopListItem {
-        makeItem("Amaciante", quantity: 2, value: 30.5, category: .cleaning, users: [jones, isabela, carol])
+        makeItem("Amaciante", quantity: 2, total: 61, category: .cleaning, users: [jones, isabela, carol])
     }
 
     /// A checked-off item.
     static var boughtItem: ShopListItem {
-        makeItem("Veja multiuso", quantity: 1, value: 12.9, category: .cleaning, isBought: true, users: [jones, isabela])
+        makeItem("Veja multiuso", quantity: 1, total: 12.9, category: .cleaning, isBought: true, users: [jones, isabela])
     }
 
     /// A long name, no price, no housemates.
@@ -80,23 +80,23 @@ enum ShopListPreviewData {
     /// One pending item per category, to compare every tile and color.
     static var onePerCategory: [ShopListItem] {
         ShopItemCategory.allCases.map { category in
-            makeItem(category.displayName, quantity: 1, value: 9.9, category: category, users: [jones, anshu])
+            makeItem(category.displayName, quantity: 1, total: 9.9, category: category, users: [jones, anshu])
         }
     }
 
     /// A realistic list: several categories, some bought.
     static var items: [ShopListItem] {
         [
-            makeItem("Papel higiênico", quantity: 1, unit: .package, value: 24.9, category: .hygiene, users: [jones, isabela, carol]),
-            makeItem("Detergente", quantity: 2, value: 5.8, category: .cleaning, users: [jones, isabela, carol]),
-            makeItem("Amaciante", quantity: 2, value: 30.5, category: .cleaning, users: [isabela]),
+            makeItem("Papel higiênico", quantity: 1, unit: .package, total: 24.9, category: .hygiene, users: [jones, isabela, carol]),
+            makeItem("Detergente", quantity: 2, total: 11.6, category: .cleaning, users: [jones, isabela, carol]),
+            makeItem("Amaciante", quantity: 2, total: 61, category: .cleaning, users: [isabela]),
             makeItem("Vassoura", quantity: 1, category: .home, users: [jones, isabela, carol]),
             makeItem("Ovos", quantity: 6, category: .food, users: [jones]),
-            makeItem("Arroz", quantity: 5, unit: .kilogram, value: 28, category: .food, users: [jones, carol]),
+            makeItem("Arroz", quantity: 5, unit: .kilogram, total: 140, category: .food, users: [jones, carol]),
             makeItem("Banana", quantity: 1, unit: .kilogram, category: .produce, users: [anshu]),
             makeItem("Suco de uva", quantity: 2, unit: .liter, category: .drinks, users: [carol, anshu]),
-            makeItem("Ração", quantity: 1, unit: .package, value: 89.9, category: .pets, users: [jones]),
-            makeItem("Veja multiuso", quantity: 1, value: 12.9, category: .cleaning, isBought: true, users: [jones, isabela, carol]),
+            makeItem("Ração", quantity: 1, unit: .package, total: 89.9, category: .pets, users: [jones]),
+            makeItem("Veja multiuso", quantity: 1, total: 12.9, category: .cleaning, isBought: true, users: [jones, isabela, carol]),
             makeItem("Café", quantity: 500, unit: .gram, category: .food, isBought: true, users: [jones])
         ] + debtItems
     }
@@ -104,11 +104,11 @@ enum ShopListPreviewData {
     /// Bought, priced items split among housemates: Jones owes Isabela and Carol, and is owed by Anshu.
     static var debtItems: [ShopListItem] {
         [
-            makeItem("Pizza", quantity: 2, value: 45, category: .food, isBought: true, buyer: isabela, users: [jones, isabela, carol]),
-            makeItem("Sabão em pó", quantity: 1, unit: .package, value: 42, category: .cleaning, isBought: true, buyer: isabela, users: [jones, isabela]),
-            makeItem("Cerveja", quantity: 12, value: 5.5, category: .drinks, isBought: true, buyer: carol, users: [jones, carol]),
-            makeItem("Pão", quantity: 6, value: 3, category: .food, isBought: true, buyer: jones, users: [jones, anshu, carol]),
-            makeItem("Queijo", quantity: 1, unit: .kilogram, value: 55, category: .food, isBought: true, buyer: jones, users: [jones, anshu])
+            makeItem("Pizza", quantity: 2, total: 90, category: .food, isBought: true, buyer: isabela, users: [jones, isabela, carol]),
+            makeItem("Sabão em pó", quantity: 1, unit: .package, total: 42, category: .cleaning, isBought: true, buyer: isabela, users: [jones, isabela]),
+            makeItem("Cerveja", quantity: 12, total: 66, category: .drinks, isBought: true, buyer: carol, users: [jones, carol]),
+            makeItem("Pão", quantity: 6, total: 18, category: .food, isBought: true, buyer: jones, users: [jones, anshu, carol]),
+            makeItem("Queijo", quantity: 1, unit: .kilogram, total: 55, category: .food, isBought: true, buyer: jones, users: [jones, anshu])
         ]
     }
 

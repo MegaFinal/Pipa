@@ -42,7 +42,7 @@ struct ShopListItemFormView: View {
     @State private var quantity: Int = 1
     /// The unit (unit, kg, liter, ...).
     @State private var unitMeasurement: UnitMeasurement = .unit
-    /// The price per unit as typed (optional).
+    /// The total price as typed (optional): what is paid for the whole quantity.
     @State private var valueText: String = ""
     /// Who the item is for (they split the cost).
     @State private var relatedUsers: [UserModel] = []
@@ -177,6 +177,18 @@ struct ShopListItemFormView: View {
 
                     section("Valor (opcional)", isSuggested: isSuggested(.price)) {
                         priceField
+
+                        // The price of one unit derived from the total ("R$ 3,00 por unidade").
+                        if let unitPriceText {
+                            Text(unitPriceText)
+                                .font(.system(size: 13))
+                                .foregroundStyle(.subTitleGray)
+                                .accessibilityLabel(
+                                    ShopListViewModel.accessibilityUnitPrice(
+                                        text: valueText, quantity: quantity, unit: unitMeasurement
+                                    ) ?? unitPriceText
+                                )
+                        }
 
                         // The price paid last time for the same product, one tap to reuse it.
                         if let last = lastPriced {
@@ -732,23 +744,26 @@ struct ShopListItemFormView: View {
         return viewModel.lastPricedItem(named: trimmedName, excluding: editing)
     }
 
-    /// "Última vez: R$ 25,00 / quilograma · 12/10". Tapping it fills the price (per unit, like
-    /// the field) and the unit it was bought in.
+    /// "Última vez: R$ 49,90 / quilograma · 12/10": the price of one unit last time. Tapping it
+    /// switches to the unit it was bought in and fills the total for the quantity in the form.
     private func lastPriceButton(for item: ShopListItem) -> some View {
-        let price = (item.value ?? 0).formatted(
+        let unit = item.unitMeasurement == .undefined ? UnitMeasurement.unit : item.unitMeasurement
+        let unitPrice = item.unitPrice
+        let price = (unitPrice?.amount ?? 0).formatted(
             FloatingPointFormatStyle<Double>.Currency(code: "BRL").locale(L10n.locale)
         )
-        let unit = item.unitMeasurement == .undefined ? UnitMeasurement.unit : item.unitMeasurement
         let date = (item.boughtAt ?? item.createdAt)
             .formatted(.dateTime.day(.twoDigits).month(.twoDigits).locale(L10n.locale))
         // Interpolated like the rest of the app now: the key stays "Última vez: %@ / %@ · %@".
-        let unitName = unit.getDisplayName(for: 1)
+        let unitName = (unitPrice?.unit ?? unit).getDisplayName(for: 1)
         let text = L10n.tr("Última vez: \(price) / \(unitName) · \(date)")
 
         return Button {
             HapticsManager.selection()
             withAnimation(.snappy) {
-                valueText = ShopListViewModel.priceInputText(for: item.value ?? 0)
+                // Same price per unit as last time, for the quantity typed now.
+                let total = (item.totalValue ?? 0) * Double(quantity) / Double(max(item.quantity, 1))
+                valueText = ShopListViewModel.priceInputText(for: total)
                 unitMeasurement = unit
             }
         } label: {
@@ -774,10 +789,10 @@ struct ShopListItemFormView: View {
             TextField(pricePlaceholder, text: $valueText)
                 .priceInput(text: $valueText)
                 .font(.system(size: 17))
-                .voiceOverLabel(L10n.tr("Preço por unidade"))
+                .voiceOverLabel(L10n.tr("Valor total"))
                 .voiceOverValue(ShopListViewModel.accessibilityPrice(valueText))
                 // Voice Control: "Toque em Preço", then dictate the value.
-                .voiceControlNames([L10n.tr("Preço por unidade"), L10n.tr("Preço"), L10n.tr("Valor")])
+                .voiceControlNames([L10n.tr("Valor total"), L10n.tr("Preço"), L10n.tr("Valor")])
 
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
@@ -814,8 +829,8 @@ struct ShopListItemFormView: View {
         case .quantity: return quantity == suggestion.quantity
         case .unit: return unitMeasurement == suggestion.unit
         case .price:
-            guard let unitPrice = suggestion.unitPrice else { return false }
-            return valueText == ShopListViewModel.priceInputText(for: unitPrice)
+            guard let totalPrice = suggestion.totalPrice else { return false }
+            return valueText == ShopListViewModel.priceInputText(for: totalPrice)
         case .consumers:
             guard let consumers = suggestion.consumers else { return false }
             return Set(relatedUsers.map(\.id)) == Set(consumers.map(\.id))
@@ -826,9 +841,18 @@ struct ShopListItemFormView: View {
     /// to cents like ``DebtCalculator``. `nil` without a price or without anyone selected.
     private var shareText: String? {
         ShopListViewModel.shareText(
-            unitPrice: ShopListViewModel.parsePrice(valueText),
-            quantity: quantity,
+            total: ShopListViewModel.parsePrice(valueText),
             consumerCount: relatedUsers.count
+        )
+    }
+
+    /// "R$ 3,00 por unidade": the typed total divided by the quantity. `nil` when it would only
+    /// repeat the total or nothing was typed.
+    private var unitPriceText: String? {
+        ShopListViewModel.unitPriceText(
+            total: ShopListViewModel.parsePrice(valueText),
+            quantity: quantity,
+            unit: unitMeasurement
         )
     }
 
@@ -942,8 +966,8 @@ struct ShopListItemFormView: View {
             category = result.category
             quantity = result.quantity
             unitMeasurement = result.unit
-            if let unitPrice = result.unitPrice {
-                valueText = ShopListViewModel.priceInputText(for: unitPrice)
+            if let totalPrice = result.totalPrice {
+                valueText = ShopListViewModel.priceInputText(for: totalPrice)
             }
             if let consumers = result.consumers {
                 relatedUsers = consumers
@@ -956,7 +980,7 @@ struct ShopListItemFormView: View {
 
     /// Currency placeholder in the app's language/region format (e.g. "R$ 0,00").
     private var pricePlaceholder: String {
-        L10n.tr("Preço por unidade (R$ 0,00)")
+        L10n.tr("Valor total (R$ 0,00)")
     }
 
     /// Seeds the form's local state from the item being edited.
@@ -969,8 +993,8 @@ struct ShopListItemFormView: View {
             quantity = suggestion.quantity
             unitMeasurement = suggestion.unit
             relatedUsers = suggestion.consumers ?? availableUsers
-            if let unitPrice = suggestion.unitPrice {
-                valueText = ShopListViewModel.priceInputText(for: unitPrice)
+            if let totalPrice = suggestion.totalPrice {
+                valueText = ShopListViewModel.priceInputText(for: totalPrice)
             }
             return
         }
@@ -981,8 +1005,8 @@ struct ShopListItemFormView: View {
         quantity = item.quantity
         unitMeasurement = item.unitMeasurement == .undefined ? .unit : item.unitMeasurement
         relatedUsers = item.relatedUsers(in: availableUsers)
-        if let value = item.value {
-            valueText = ShopListViewModel.priceInputText(for: value)
+        if let total = item.totalValue {
+            valueText = ShopListViewModel.priceInputText(for: total)
         }
     }
 
@@ -1001,7 +1025,7 @@ struct ShopListItemFormView: View {
                 quantity: quantity,
                 unit: unitMeasurement,
                 category: category,
-                unitPrice: price > 0 ? price : nil,
+                totalPrice: price > 0 ? price : nil,
                 consumers: relatedUsers
             ))
             HapticsManager.notify(.success)
