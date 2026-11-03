@@ -313,6 +313,14 @@ final class ShopListViewModel {
         apply(snapshot)
     }
 
+    /// Pull to refresh: drops the cached house data and fetches it again from CloudKit.
+    func forceRefresh() async {
+        guard !isPreview else { return }
+        let snapshot = await HouseDataStore.shared.refreshAfterRemoteChange()
+        guard !Task.isCancelled else { return }
+        apply(snapshot)
+    }
+
     /// Coalesces refresh requests and cancels the previous one.
     ///
     /// - Parameter debounce: How long to wait for further requests before fetching.

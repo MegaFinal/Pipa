@@ -5,6 +5,14 @@
 
 import SwiftUI
 
+/// What is drawn behind a ``LoadingAnimation``.
+enum LoadingBackground {
+    /// A full-screen illustration from the asset catalog.
+    case scenery(String)
+    /// A light-blue sky with clouds drifting slowly to the side (``DriftingClouds``).
+    case driftingClouds
+}
+
 /// The hand-drawn loading animations, exported frame by frame from Procreate.
 ///
 /// The frames live in `Assets.xcassets/LoadingAnimations`, named `<framePrefix>_<index>`.
@@ -38,7 +46,7 @@ enum LoadingAnimation {
     var framesPerSecond: Double {
         switch self {
         case .kites: 12
-        case .burst: 6
+        case .burst: 8
         }
     }
     
@@ -59,12 +67,18 @@ enum LoadingAnimation {
         }
     }
     
-    /// The scenery drawn behind the animation. `nil` uses the app's soft sparkles texture.
-    var backgroundImageName: String? {
+    /// What is drawn behind the animation.
+    var background: LoadingBackground {
         switch self {
-        case .kites: "loadingKitesBackground"
-        case .burst: nil
+        case .kites: .scenery("loadingKitesBackground")
+        case .burst: .driftingClouds
         }
+    }
+    
+    /// How long one full pass of the animation takes (forward and back, with ``autoreverses``).
+    var cycleDuration: TimeInterval {
+        let steps = autoreverses ? 2 * (frameCount - 1) : frameCount
+        return Double(steps) / framesPerSecond
     }
     
     /// How far from the bottom of the screen the drawing's base sits, as a fraction of the

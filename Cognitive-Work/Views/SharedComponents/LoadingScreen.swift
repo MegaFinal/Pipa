@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Full-screen loading state: a hand-drawn animation over its scenery (or a soft texture).
+/// Full-screen loading state: a hand-drawn animation over its scenery or a sky with clouds.
 ///
 /// Shows no text unless a ``message`` is given (the blocking screens use it to say what is
 /// happening, e.g. "Excluindo sua casa...").
@@ -22,16 +22,18 @@ struct LoadingScreen: View {
     var message: LocalizedStringKey? = nil
     
     var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            
+        VStack {
             // MARK: - Message
             if let message {
                 Text(message)
-                    .foregroundStyle(.gray)
+                    .foregroundStyle(.choreBlue)
+                    .font(.custom("Alan Sans", size: 22))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
+                    .padding(.top, height * 0.1)
             }
+            
+            Spacer()
             
             // MARK: - Animation standing on the ground (when it doesn't fill the screen)
             if !animation.fillsScreen {
@@ -51,19 +53,18 @@ struct LoadingScreen: View {
         .accessibilityAddTraits(.updatesFrequently)
     }
     
-    /// The scenery (or texture) and, for animations that cover the screen, the animation itself.
+    /// The scenery or the sky and, for animations that cover the screen, the animation itself.
     private var background: some View {
         ZStack {
             Color(.systemBackground)
             
-            // MARK: - Scenery or texture
-            if let backgroundImageName = animation.backgroundImageName {
-                filling(Image(backgroundImageName).resizable().scaledToFill())
-            } else {
-                Image("yellow.sparkles")
-                    .resizable()
-                    .opacity(0.2)
-                    .frame(width: width * 1.6)
+            // MARK: - Scenery or sky with drifting clouds
+            switch animation.background {
+            case .scenery(let imageName):
+                filling(Image(imageName).resizable().scaledToFill())
+            case .driftingClouds:
+                Color(.lowOpacityBlue.opacity(0.35))
+                DriftingClouds()
             }
             
             // MARK: - Full-screen animation
