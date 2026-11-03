@@ -181,6 +181,11 @@ struct PixKeySettingsView: View {
     /// Saves the key, shows the toast and closes the screen.
     private func save() async {
         isFieldFocused = false
+        // Same key as before: only close, without saving or the "saved" toast.
+        guard viewModel.hasPixKeyChanges else {
+            dismiss()
+            return
+        }
         guard await viewModel.savePixKey() else { return }
         HapticsManager.selection()
         showSavedToast = true

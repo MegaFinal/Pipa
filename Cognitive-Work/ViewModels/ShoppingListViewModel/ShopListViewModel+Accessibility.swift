@@ -66,10 +66,15 @@ extension ShopListViewModel {
         return VoiceOver.currency(value)
     }
 
-    /// The popup's live total, spoken: "3 × 5 reais, total 15 reais". `nil` before a price is typed.
-    static func accessibilityPurchaseTotal(text: String, quantity: Int) -> String? {
-        guard let unit = parsePrice(text), unit > 0 else { return nil }
-        return L10n.tr("\(quantity) × \(VoiceOver.currency(unit)), total \(VoiceOver.currency(unit * Double(quantity)))")
+    /// The price of one unit derived from a typed total, spoken: "3 reais por unidade". `nil`
+    /// before a price is typed, or when it would only repeat the total.
+    static func accessibilityUnitPrice(text: String, quantity: Int, unit: UnitMeasurement) -> String? {
+        guard let total = parsePrice(text), total > 0,
+              let unitPrice = ShopListItem.unitPrice(total: total, quantity: quantity, unit: unit),
+              !(unitPrice.unit.dimension == .count && quantity == 1)
+        else { return nil }
+        let unitName = unitPrice.unit.getDisplayName(for: 1)
+        return L10n.tr("\(VoiceOver.currency(unitPrice.amount)) por \(unitName)")
     }
 
     // MARK: - Voice Control

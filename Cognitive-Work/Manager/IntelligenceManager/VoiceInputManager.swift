@@ -70,7 +70,9 @@ final class VoiceInputManager {
             return
         }
 
-        let locale = LanguageManager.shared.current.locale
+        // Speech models are listed by region: Simplified Chinese is "zh-CN", not "zh-Hans".
+        let language = LanguageManager.shared.current
+        let locale = language == .chinese ? Locale(identifier: "zh-CN") : language.locale
         do {
             try await startAnalyzer(locale: locale, contextualStrings: contextualStrings)
         } catch {

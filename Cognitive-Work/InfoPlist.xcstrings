@@ -40,6 +40,12 @@
             "state" : "new",
             "value" : "Pipa"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pipa"
+          }
         }
       }
     },
@@ -80,6 +86,12 @@
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "Cognitive-Work"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "Cognitive-Work"
           }
         }
@@ -124,6 +136,12 @@
             "state" : "new",
             "value" : "Precisamos de acesso ao seu calendário para sincronizar e atualizar as suas tarefas domésticas atribuídas."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们需要访问你的日历，以同步和更新分配给你的家务。"
+          }
         }
       }
     },
@@ -145,7 +163,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "We use the local network to find and communicate with Harvii."
           }
         },
@@ -177,6 +195,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Usamos a rede local para encontrar e se comunicar com o Harvi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们使用本地网络来查找 Harvii 并与之通信。"
           }
         }
       }
@@ -220,6 +244,12 @@
             "state" : "new",
             "value" : "Usamos o microfone para você adicionar itens falando."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们使用麦克风，让你可以用说话的方式添加内容。"
+          }
         }
       }
     },
@@ -261,6 +291,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "Usamos o reconhecimento de fala para transformar o que você diz em itens da lista."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我们使用语音识别，把你说的话转成清单上的内容。"
           }
         }
       }

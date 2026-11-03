@@ -313,6 +313,14 @@ final class ShopListViewModel {
         apply(snapshot)
     }
 
+    /// Pull to refresh: drops the cached house data and fetches it again from CloudKit.
+    func forceRefresh() async {
+        guard !isPreview else { return }
+        let snapshot = await HouseDataStore.shared.refreshAfterRemoteChange()
+        guard !Task.isCancelled else { return }
+        apply(snapshot)
+    }
+
     /// Coalesces refresh requests and cancels the previous one.
     ///
     /// - Parameter debounce: How long to wait for further requests before fetching.
@@ -398,6 +406,20 @@ final class ShopListViewModel {
         formatPriceInput(String(Int((value * 100).rounded())))
     }
 
+    /// the price of one unit derived from the total, shown under the price fields.
+    /// `nil` when it would only repeat the total (a single unit or package) or when there is no price.
+    static func unitPriceText(total: Double?, quantity: Int, unit: UnitMeasurement) -> String? {
+        guard let total,
+              let unitPrice = ShopListItem.unitPrice(total: total, quantity: quantity, unit: unit)
+        else { return nil }
+        // One piece or package costs the total itself; nothing to add.
+        if unitPrice.unit.dimension == .count, quantity == 1 { return nil }
+        let format = FloatingPointFormatStyle<Double>.Currency(code: "BRL").locale(L10n.locale)
+        let price = unitPrice.amount.formatted(format)
+        let unitName = unitPrice.unit.getDisplayName(for: 1)
+        return L10n.tr("\(price) por \(unitName)")
+    }
+
     /// The required fields that are still empty or invalid. 
     static func missingFields(
         name: String,
@@ -415,8 +437,8 @@ final class ShopListViewModel {
         return missing
     }
 
-    /// Parses the raw price text and saves the item — creating a new one, or applying edits to
-    /// `existingItem` when one is passed.
+    /// Parses the raw price text (the total paid for the whole item) and saves the item —
+    /// creating a new one, or applying edits to `existingItem` when one is passed.
     ///
     /// - Returns: `true` when the save reached CloudKit.
     @discardableResult
@@ -442,22 +464,22 @@ final class ShopListViewModel {
             return false
         }
 
-        let value = Self.parsePrice(valueText)
+        let totalPrice = Self.parsePrice(valueText)
 
         if isPreview {
-            previewSave(existingItem, name: name, value: value, quantity: quantity,
+            previewSave(existingItem, name: name, totalPrice: totalPrice, quantity: quantity,
                         unitMeasurement: unitMeasurement, category: category,
                         relatedUsers: relatedUsers, addedBy: addedBy)
             return true
         }
 
         var score = 0
-        let hasNewPrice = (value ?? 0) > 0
+        let hasNewPrice = (totalPrice ?? 0) > 0
         let success: Bool
 
         if let existingItem {
             let previousUserIDs = Set(existingItem.relatedUsers(in: houseUsers).compactMap(\.recordID))
-            let hadPrice = (existingItem.value ?? 0) > 0
+            let hadPrice = existingItem.hasPrice
 
             let addedBeneficiaries = relatedUsers.filter { user in
                 guard let id = user.recordID else { return false }
@@ -471,7 +493,7 @@ final class ShopListViewModel {
             success = await updateItem(
                 existingItem,
                 name: name,
-                value: value,
+                totalPrice: totalPrice,
                 quantity: quantity,
                 unitMeasurement: unitMeasurement,
                 category: category,
@@ -485,7 +507,7 @@ final class ShopListViewModel {
 
             success = await addItem(
                 name: name,
-                value: value,
+                totalPrice: totalPrice,
                 quantity: quantity,
                 unitMeasurement: unitMeasurement,
                 category: category,
@@ -504,7 +526,7 @@ final class ShopListViewModel {
     @discardableResult
     func addItem(
         name: String,
-        value: Double? = nil,
+        totalPrice: Double? = nil,
         quantity: Int,
         unitMeasurement: UnitMeasurement,
         category: ShopItemCategory = .default,
@@ -524,7 +546,7 @@ final class ShopListViewModel {
 
         let draft = ShopListItem(
             name: name,
-            value: value,
+            totalPrice: totalPrice,
             quantity: quantity,
             unitMeasurement: unitMeasurement,
             category: category,
@@ -546,7 +568,7 @@ final class ShopListViewModel {
     func updateItem(
         _ item: ShopListItem,
         name: String,
-        value: Double?,
+        totalPrice: Double?,
         quantity: Int,
         unitMeasurement: UnitMeasurement,
         category: ShopItemCategory,
@@ -555,7 +577,7 @@ final class ShopListViewModel {
 
         guard await item.update(
             name: name,
-            value: value,
+            totalPrice: totalPrice,
             quantity: quantity,
             unitMeasurement: unitMeasurement,
             category: category,
@@ -599,7 +621,7 @@ final class ShopListViewModel {
 
     /// Finishes a purchase started from the price popup.
     ///
-    /// - Parameter valueText: The typed price, or `nil` to buy without informing it.
+    /// - Parameter valueText: The typed total, or `nil` to buy without informing it.
     func confirmPurchase(of item: ShopListItem, valueText: String?) async {
         purchasePrompt = nil
 
@@ -607,10 +629,10 @@ final class ShopListViewModel {
         await setBought(item, price: price)
     }
 
-    /// Marks `item` as bought (or not), saving the price paid when given.
+    /// Marks `item` as bought (or not), saving the total paid when given.
     private func setBought(_ item: ShopListItem, price: Double?) async {
         if isPreview {
-            if let price { item.value = price }
+            if let price { item.totalPrice = price }
             item.isBought.toggle()
             item.boughtAt = item.isBought ? Date() : nil // Keep the purchase date in step.
             return
@@ -627,7 +649,7 @@ final class ShopListViewModel {
                 await ScoreManager.shared.removeScore(score: points, for: buyer)
             }
         } else if let currentUser {
-            let didSave = await item.markBought(by: currentUser, value: price)
+            let didSave = await item.markBought(by: currentUser, totalPrice: price)
             guard didSave else {
                 errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
                 return
@@ -755,16 +777,19 @@ final class ShopListViewModel {
 
     /// Merges a new entry into an item already on the list: adds `amount` to its quantity and
     /// adds `consumers` who aren't sharing it yet (for example, the person adding it now when a
-    /// housemate created the item). Name, price, unit and category stay as they are.
+    /// housemate created the item). Name, unit and category stay as they are; a known total
+    /// grows with the quantity, so the price of one unit stays the same.
     @discardableResult
     func merge(into item: ShopListItem, adding amount: Int, consumers: [UserModel]) async -> Bool {
         let range = QuantityStepper.allowedRange
         let people = item.relatedUsers(in: houseUsers) + newConsumers(consumers, for: item)
+        let quantity = min(item.quantity + amount, range.upperBound)
+        let total = item.totalValue.map { $0 * Double(quantity) / Double(max(item.quantity, 1)) }
         return await saveItem(
             item,
             name: item.name,
-            valueText: item.value.map(Self.priceInputText(for:)) ?? "",
-            quantity: min(item.quantity + amount, range.upperBound),
+            valueText: total.map(Self.priceInputText(for:)) ?? "",
+            quantity: quantity,
             unitMeasurement: item.unitMeasurement,
             category: item.category,
             relatedUsers: people,
@@ -797,7 +822,7 @@ final class ShopListViewModel {
             let success = await saveItem(
                 nil,
                 name: suggestion.name,
-                valueText: suggestion.unitPrice.map(Self.priceInputText(for:)) ?? "",
+                valueText: suggestion.totalPrice.map(Self.priceInputText(for:)) ?? "",
                 quantity: suggestion.quantity,
                 unitMeasurement: suggestion.unit,
                 category: suggestion.category,
@@ -812,9 +837,8 @@ final class ShopListViewModel {
 
     /// "R$ 12,50 por pessoa": an item's total split equally between `consumerCount` people,
     /// rounded to cents like ``DebtCalculator``. `nil` without a price or without anyone.
-    static func shareText(unitPrice: Double?, quantity: Int, consumerCount: Int) -> String? {
-        guard let unitPrice, unitPrice > 0, consumerCount > 0 else { return nil }
-        let total = unitPrice * Double(quantity)
+    static func shareText(total: Double?, consumerCount: Int) -> String? {
+        guard let total, total > 0, consumerCount > 0 else { return nil }
         let share = (total / Double(consumerCount) * 100).rounded() / 100
         let format = FloatingPointFormatStyle<Double>.Currency(code: "BRL").locale(L10n.locale)
         return L10n.tr("\(share.formatted(format)) por pessoa")
@@ -826,7 +850,7 @@ final class ShopListViewModel {
     private func previewSave(
         _ existingItem: ShopListItem?,
         name: String,
-        value: Double?,
+        totalPrice: Double?,
         quantity: Int,
         unitMeasurement: UnitMeasurement,
         category: ShopItemCategory,
@@ -839,7 +863,7 @@ final class ShopListViewModel {
 
         if let existingItem {
             existingItem.name = name
-            existingItem.value = value
+            existingItem.totalPrice = totalPrice
             existingItem.quantity = quantity
             existingItem.unitMeasurement = unitMeasurement
             existingItem.category = category
@@ -847,7 +871,7 @@ final class ShopListViewModel {
         } else {
             let item = ShopListItem(
                 name: name,
-                value: value,
+                totalPrice: totalPrice,
                 quantity: quantity,
                 unitMeasurement: unitMeasurement,
                 category: category,

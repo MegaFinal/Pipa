@@ -26,11 +26,9 @@ struct Onboarding: View {
     var body: some View {
         ZStack {
             Group {
-                // MARK: - Spinner while restoring, otherwise the current step
+                // MARK: - Loading animation while restoring, otherwise the current step
                 if viewModel.isRestoringSession && viewModel.stateMachine.index > 0 {
-                    ProgressView()
-                        .controlSize(.large)
-                        .accessibilityLabel(Text(L10n.tr("Carregando")))
+                    LoadingScreen(animation: .burst, accessibilityTitle: L10n.tr("Carregando"))
                 } else {
                     NavigationStack {
                         stepView(for: viewModel.stateMachine)

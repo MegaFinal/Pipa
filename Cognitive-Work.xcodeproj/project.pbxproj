@@ -209,6 +209,7 @@
 				"pt-BR",
 				es,
 				fr,
+				"zh-Hans",
 				ko,
 				ja,
 			);

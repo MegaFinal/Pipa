@@ -54,6 +54,8 @@ struct RankHistoryView: View {
         // Reloads on every data change, local or from another device (the CloudKit push bumps
         // `dataRevision`), e.g. when a cycle is settled and the rank starts over.
         .task(id: CloudKitManager.shared.dataRevision) { await load() }
+        // MARK: - Pull to refresh
+        .refreshable { await load() }
     }
 
     /// Loads the current points (from the server) and the history.

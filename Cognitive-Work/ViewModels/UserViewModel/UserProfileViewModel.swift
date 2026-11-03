@@ -218,6 +218,13 @@ final class UserProfileViewModel {
             return
         }
         
+        // Nothing changed: leave editing (the screens close as after a save) without writing.
+        guard hasUnsavedChanges else {
+            isEditing = false
+            didSaveSuccessfully = true
+            return
+        }
+        
         isSaving = true
         
         // Snapshot so a failed save doesn't leave the unsaved name/photo on screen.
@@ -298,10 +305,15 @@ final class UserProfileViewModel {
         pixKeyError = nil
     }
     
-    /// Whether the Pix key can be saved: not saving, and the key changed.
+    /// Whether the typed Pix key differs from the saved one.
+    var hasPixKeyChanges: Bool {
+        editedPixKey.trimmingCharacters(in: .whitespacesAndNewlines) != (savedPixKey ?? "")
+    }
+    
+    /// Whether the checkmark is enabled: not saving and the profile is loaded. With the same key
+    /// as before it only closes the screen (see ``hasPixKeyChanges``).
     var canSavePixKey: Bool {
-        guard !isSaving, privateUser != nil else { return false }
-        return editedPixKey.trimmingCharacters(in: .whitespacesAndNewlines) != (savedPixKey ?? "")
+        !isSaving && privateUser != nil
     }
     
     /// Saves the typed Pix key (or removes it when the field is empty) on the private profile and,

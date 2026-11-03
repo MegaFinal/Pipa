@@ -69,6 +69,7 @@ final class IntelligenceManager {
         case .portuguese: lines.append("The person's locale is pt_BR.")
         case .spanish: lines.append("The person's locale is es_419.")
         case .french: lines.append("The person's locale is fr_FR.")
+        case .chinese: lines.append("The person's locale is zh_CN.")
         case .korean: lines.append("The person's locale is ko_KR.")
         case .japanese: lines.append("The person's locale is ja_JP.")
         case .english: break
@@ -81,6 +82,7 @@ final class IntelligenceManager {
             case .english: lines.append("You MUST respond in English.")
             case .spanish: lines.append("You MUST respond in Latin American Spanish.")
             case .french: lines.append("You MUST respond in French.")
+            case .chinese: lines.append("You MUST respond in Simplified Chinese.")
             case .korean: lines.append("You MUST respond in Korean.")
             case .japanese: lines.append("You MUST respond in Japanese.")
             }

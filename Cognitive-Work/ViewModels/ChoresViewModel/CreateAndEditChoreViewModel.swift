@@ -137,13 +137,16 @@ final class CreateAndEditChoreViewModel {
     }
 
     /// Typical steps for the chore named so far, to offer as chips. Only for new chores.
-    func checklistIdeas() async -> [String]? {
+    ///
+    /// - Parameter avoiding: Ideas already shown or hidden, so new ones are different.
+    func checklistIdeas(avoiding: [String] = []) async -> [String]? {
         let name = draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard canSuggest, !name.isEmpty else { return nil }
         return await IntelligenceManager.shared.suggestChecklist(
             for: name,
             room: draft.room?.name.localizedDefault,
-            existing: draft.checklist.map(\.name).filter { !$0.isEmpty }
+            existing: draft.checklist.map(\.name).filter { !$0.isEmpty },
+            avoiding: avoiding
         )
     }
 
@@ -355,9 +358,63 @@ final class CreateAndEditChoreViewModel {
         mode == .edit || draft.frequency == .daily || selectedDate != nil
     }
     
-    /// Whether the "Confirmar" button is enabled.
+    /// Whether the "Confirmar" button is enabled. With nothing changed it is always enabled and
+    /// only closes the screen (see ``confirm()``).
     var canConfirm: Bool {
-        isLoaded && hasValidName && hasRoom && hasDate && !isSaving && !isDeleting
+        guard isLoaded, !isSaving, !isDeleting else { return false }
+        return !hasChanges || (hasValidName && hasRoom && hasDate)
+    }
+    
+    // MARK: - Changes
+    
+    /// What the form holds, reduced to what gets saved, to tell whether anything changed.
+    private struct FormSnapshot: Equatable {
+        /// One checklist line.
+        struct ChecklistLine: Equatable {
+            let name: String
+            let isDone: Bool
+        }
+        
+        let name: String
+        let description: String
+        let frequency: Recurrence
+        let duration: Double
+        let priority: PriorityTag
+        let isPublic: Bool
+        let symbolName: String
+        let roomID: CKRecord.ID?
+        let responsibleIDs: Set<CKRecord.ID>
+        let checklist: [ChecklistLine]
+        let day: Date?
+    }
+    
+    /// The form as it was right after ``load()``. `nil` before the first load.
+    private var loadedSnapshot: FormSnapshot?
+    
+    /// The form as it is now. Blank checklist lines and surrounding spaces don't count as changes.
+    private var currentSnapshot: FormSnapshot {
+        let trimmed = { (text: String) in text.trimmingCharacters(in: .whitespacesAndNewlines) }
+        return FormSnapshot(
+            name: trimmed(draft.name),
+            description: trimmed(draft.description),
+            frequency: draft.frequency,
+            duration: draft.duration,
+            priority: draft.priorityTag,
+            isPublic: draft.isPublic,
+            symbolName: draft.symbolName,
+            roomID: draft.room?.recordID,
+            responsibleIDs: Set(draft.responsibleUsers.compactMap(\.recordID)),
+            checklist: draft.checklist
+                .filter { !trimmed($0.name).isEmpty }
+                .map { FormSnapshot.ChecklistLine(name: trimmed($0.name), isDone: $0.isDone) },
+            day: selectedDate.map { Calendar.current.startOfDay(for: $0) }
+        )
+    }
+    
+    /// Whether the user changed anything since the form loaded.
+    var hasChanges: Bool {
+        guard let loadedSnapshot else { return false }
+        return currentSnapshot != loadedSnapshot
     }
     
     /// Whether to warn that a room is missing.
@@ -444,6 +501,7 @@ final class CreateAndEditChoreViewModel {
         }
         draft.hasChecklist = true
         
+        loadedSnapshot = currentSnapshot
         isLoaded = true
     }
     
@@ -517,6 +575,9 @@ final class CreateAndEditChoreViewModel {
     ///   chore is left untouched, ``alert`` explains why and the draft stays on screen.
     func confirm() async -> Bool {
         guard canConfirm else { return false }
+        // Nothing changed (an edit opened just to look, or an empty new chore): only close,
+        // without saving, rescheduling or awarding points.
+        guard hasChanges else { return true }
         isSaving = true
         defer { isSaving = false }
         

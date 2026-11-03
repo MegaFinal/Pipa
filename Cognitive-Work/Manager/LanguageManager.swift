@@ -17,6 +17,8 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     case spanish = "es"
     /// French (France, informal "tu" like the rest of the app).
     case french = "fr"
+    /// Simplified Chinese.
+    case chinese = "zh-Hans"
     /// Korean.
     case korean = "ko"
     /// Japanese.
@@ -36,6 +38,7 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .english: return "English"
         case .spanish: return "Español"
         case .french: return "Français"
+        case .chinese: return "简体中文"
         case .korean: return "한국어"
         case .japanese: return "日本語"
         }
@@ -44,6 +47,9 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     /// The best match for the device's preferred languages.
     static var systemDefault: AppLanguage {
         let preferred = Locale.preferredLanguages.first ?? AppLanguage.portuguese.rawValue
+        // Simplified Chinese written by region ("zh-CN") counts too; every other language
+        // matches by its code.
+        if preferred.hasPrefix("zh-CN") { return .chinese }
         return allCases.first { preferred.hasPrefix($0.rawValue) } ?? .portuguese
     }
 }
@@ -167,9 +173,10 @@ extension String {
     var localizedDefault: String {
         // Only the app's own default content is translated. Any other catalog key (weekday
         // abbreviations like "Qua", button titles…) typed by the user stays exactly as written.
-        if DefaultChoreCatalog.defaultTexts.contains(self) {
-            let translated = L10n.tr(key: self)
-            if translated != self { return translated }
+        // Case and accents don't matter ("lavar roupas" is the default "Lavar roupas").
+        if let key = DefaultChoreCatalog.defaultKey(for: self) {
+            let translated = L10n.tr(key: key)
+            if translated != key { return translated }
         }
         
         // "Quarto 2" -> "Bedroom 2"

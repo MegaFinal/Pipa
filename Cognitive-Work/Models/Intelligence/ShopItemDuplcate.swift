@@ -35,6 +35,12 @@ enum ShopItemDuplicateFinder {
             if let first = newWords.first, first.count >= 4, first == existingWords.first {
                 return (item, 1)
             }
+            // Chinese names are one "word": "牛奶" in "全脂牛奶" is a candidate.
+            let newText = newWords.joined(), oldText = existingWords.joined()
+            if newText.hasCJK, newText.count >= 2, oldText.count >= 2,
+               newText.contains(oldText) || oldText.contains(newText) {
+                return (item, 2)
+            }
             return nil
         }
         return scored

@@ -54,14 +54,30 @@ struct RecipeExpansion {
 extension IntelligenceManager {
 
     /// First-person words: "eu quero fazer um bolo" is for the person typing.
-    private static let selfWords: Set<String> = ["eu", "quero", "vou", "mim", "me", "i", "want"]
+    private static let selfWords: Set<String> = [
+        "eu", "quero", "vou", "mim", "me", "i", "want",
+        "yo", "quiero", "voy",
+        "je", "veux", "vais", "moi"
+    ]
 
     /// Words that say the person wants to cook something; without them the text is read as a
     /// plain list and no request is made.
     private static let recipeWords = [
         "fazer", "receita", "ingrediente", "ingredientes", "cozinhar", "preparar",
-        "make", "recipe", "ingredients", "cook"
+        "make", "recipe", "ingredients", "cook",
+        "hacer", "receta", "cocinar",
+        "faire", "recette", "cuisiner", "preparer"
     ]
+
+    /// Chinese has no spaces between words: these are looked for inside the text.
+    private static let recipePhrases = [
+        "做", "食谱", "菜谱", "材料", "配料", "煮", "烤", "烧",       // Chinese
+        "作る", "作りたい", "レシピ", "料理", "材料",              // Japanese
+        "만들", "레시피", "재료", "요리"                          // Korean
+    ]
+
+    /// First person in Chinese, Japanese and Korean ("我想做…", "私は…作りたい", "내가 … 만들래").
+    private static let selfPhrases = ["我", "私", "僕", "俺", "내가", "제가", "나는", "저는"]
 
     /// Replaces the dishes in a shopping text with their ingredients ("quero fazer lasanha" ->
     /// "massa para lasanha", "carne moída", "molho de tomate"…), keeping everything else as
@@ -73,7 +89,9 @@ extension IntelligenceManager {
     func expandRecipes(in text: String) async -> RecipeExpansion? {
         let folded = text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
         let words = Set(folded.split(whereSeparator: { !$0.isLetter }).map(String.init))
-        guard Self.recipeWords.contains(where: words.contains) else { return nil }
+        guard Self.recipeWords.contains(where: words.contains)
+                || Self.recipePhrases.contains(where: folded.contains)
+        else { return nil }
 
         let prompt = IntelligencePrompts.ShopRecipeExpansion.self
         guard let generated = await generate(
@@ -87,7 +105,8 @@ extension IntelligenceManager {
         for dish in generated.dishes {
             let dishName = dish.name.trimmingCharacters(in: .whitespacesAndNewlines)
             var whoFor = dish.whoFor.trimmingCharacters(in: .whitespacesAndNewlines)
-            if whoFor.isEmpty, !words.isDisjoint(with: Self.selfWords) {
+            if whoFor.isEmpty,
+               !words.isDisjoint(with: Self.selfWords) || Self.selfPhrases.contains(where: folded.contains) {
                 whoFor = "eu"
             }
             for ingredient in dish.ingredients {
