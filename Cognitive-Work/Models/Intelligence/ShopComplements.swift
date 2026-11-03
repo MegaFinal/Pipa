@@ -25,16 +25,23 @@ extension IntelligenceManager {
     /// - Parameters:
     ///   - sectionNames: What's still to buy in that section.
     ///   - listNames: Everything still to buy, so nothing already listed is suggested.
+    ///   - avoiding: Products already suggested or hidden by the person, never suggested again.
     /// - Returns: Names in the app's language, or `nil` when AI is unavailable or the request fails.
     func suggestForSection(
         _ category: ShopItemCategory,
         sectionNames: [String],
-        listNames: [String]
+        listNames: [String],
+        avoiding: [String] = []
     ) async -> [String]? {
         let prompt = IntelligencePrompts.ShopSectionIdeas.self
         guard let generated = await generate(
             GeneratedSectionIdeas.self,
-            prompt: prompt.prompt(section: category.rawValue, sectionNames: sectionNames, listNames: listNames),
+            prompt: prompt.prompt(
+                section: category.rawValue,
+                sectionNames: sectionNames,
+                listNames: listNames,
+                avoiding: avoiding
+            ),
             instructions: instructions(task: prompt.task, output: .appLanguage),
             promptID: prompt.id
         ) else { return nil }

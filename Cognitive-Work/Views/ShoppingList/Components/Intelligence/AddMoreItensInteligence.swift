@@ -351,8 +351,7 @@ struct AddMoreItensInteligence: View {
                             }
 
                             if let share = ShopListViewModel.shareText(
-                                unitPrice: suggestion.unitPrice,
-                                quantity: suggestion.quantity,
+                                total: suggestion.totalPrice,
                                 consumerCount: consumers.count
                             ) {
                                 Text(share)
@@ -455,9 +454,9 @@ struct AddMoreItensInteligence: View {
     /// "2 quilogramas · R$ 25,00" (the price only when one was said).
     private func amountText(for suggestion: ShopItemSuggestion) -> String {
         var parts = ["\(suggestion.quantity) \(suggestion.unit.getDisplayName(for: Double(suggestion.quantity)))"]
-        if let unitPrice = suggestion.unitPrice {
+        if let totalPrice = suggestion.totalPrice {
             let format = FloatingPointFormatStyle<Double>.Currency(code: "BRL").locale(L10n.locale)
-            parts.append((unitPrice * Double(suggestion.quantity)).formatted(format))
+            parts.append(totalPrice.formatted(format))
         }
         return parts.joined(separator: " · ")
     }

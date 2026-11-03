@@ -70,6 +70,15 @@ struct CreateAndEditChoreView: View {
     /// The name (and room) the ideas were asked for, so they aren't asked again.
     @State private var checklistIdeasKey = ""
     @State private var checklistIdeasTask: Task<Void, Never>?
+    /// Ideas swiped away for this chore's name; never offered again for it.
+    @State private var dismissedChecklistIdeas: [String] = []
+    /// What the last top-up asked with, so an empty answer isn't asked for again.
+    @State private var checklistRefillKey = ""
+    @State private var checklistRefillTask: Task<Void, Never>?
+    /// Which idea is swiped open.
+    @State private var revealedChecklistIdeaID: String?
+    /// How many ideas the checklist card shows at most.
+    private let maxChecklistIdeas = 5
 
     /// Listening, reading, or the name still holds a whole description: "Próximo" waits.
     private var isReadingDescription: Bool {
@@ -125,6 +134,7 @@ struct CreateAndEditChoreView: View {
             suggestionTask?.cancel()
             previewTask?.cancel()
             checklistIdeasTask?.cancel()
+            checklistRefillTask?.cancel()
             voice.cancel()
         }
         .onChange(of: viewModel.draft.isPublic) { _, isPublic in
@@ -281,8 +291,17 @@ struct CreateAndEditChoreView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         CheckListCreateAndEdit(localChecklist: $viewModel.draft.checklist)
 
+                        // Swipe an idea left to hide it; a new one takes its place.
                         ForEach(visibleChecklistIdeas, id: \.self) { idea in
-                            checklistIdeaRow(idea)
+                            SwipeToDeleteRow(
+                                id: "checklist-idea-\(idea)",
+                                revealedID: $revealedChecklistIdeaID,
+                                style: checklistIdeaSwipeStyle,
+                                onDelete: { dismissChecklistIdea(idea) }
+                            ) {
+                                checklistIdeaRow(idea)
+                            }
+                            .transition(.opacity.combined(with: .move(edge: .top)))
                         }
                     }
                     .padding(.horizontal, 20)
@@ -804,17 +823,78 @@ struct CreateAndEditChoreView: View {
         "\(viewModel.draft.name)|\(viewModel.draft.room?.name ?? "")"
     }
 
-    /// Ideas not already on the checklist; none once the person typed items of their own.
+    /// Ideas not already on the checklist and not hidden; none once the person typed items of
+    /// their own.
     private var visibleChecklistIdeas: [String] {
         guard canSuggest, !viewModel.hasHandWrittenChecklistItems else { return [] }
-        let listed = Set(viewModel.draft.checklist.map { IntelligenceManager.foldedKey($0.name) })
-        return checklistIdeas.filter { !listed.contains(IntelligenceManager.foldedKey($0)) }
+        let hidden = Set(
+            (viewModel.draft.checklist.map(\.name) + dismissedChecklistIdeas).map(IntelligenceManager.foldedKey)
+        )
+        return checklistIdeas.filter { !hidden.contains(IntelligenceManager.foldedKey($0)) }
+    }
+
+    /// Same swipe as the list cards, sized to the idea boxes, with "Remover".
+    private var checklistIdeaSwipeStyle: SwipeToDeleteStyle {
+        SwipeToDeleteStyle(
+            buttonWidth: 70,
+            cornerRadius: 16,
+            topInset: 0,
+            backgroundColor: .chorePurple,
+            systemImage: "eye.slash.fill",
+            title: "Remover"
+        )
+    }
+
+    /// Hides an idea for this chore and asks for a new one in its place.
+    private func dismissChecklistIdea(_ idea: String) {
+        withAnimation(.snappy) {
+            dismissedChecklistIdeas.append(idea)
+        }
+        refillChecklistIdeas()
+    }
+
+    /// Tops the ideas back up after one was added or hidden, so each one works on its own: the
+    /// others stay, and only the free places get new ideas, different from every idea shown or
+    /// hidden so far.
+    private func refillChecklistIdeas() {
+        checklistRefillTask?.cancel()
+        let key = checklistIdeasTrigger
+        guard canSuggest, key == checklistIdeasKey else { return }
+
+        checklistRefillTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(0.8))
+            } catch {
+                return // Another idea was added or hidden; that one asks.
+            }
+            let freePlaces = maxChecklistIdeas - visibleChecklistIdeas.count
+            guard freePlaces > 0, !viewModel.hasHandWrittenChecklistItems else { return }
+
+            let avoiding = checklistIdeas + dismissedChecklistIdeas
+            let listed = viewModel.draft.checklist.map(\.name).filter { !$0.isEmpty }
+            let askKey = key + "#" + (listed + avoiding).map(IntelligenceManager.foldedKey).sorted().joined(separator: "|")
+            guard askKey != checklistRefillKey else { return }
+
+            guard let ideas = await viewModel.checklistIdeas(avoiding: avoiding),
+                  !Task.isCancelled, key == checklistIdeasTrigger
+            else { return }
+            checklistRefillKey = askKey
+
+            var known = Set(avoiding.map(IntelligenceManager.foldedKey))
+            let fresh = ideas
+                .filter { known.insert(IntelligenceManager.foldedKey($0)).inserted }
+                .prefix(freePlaces)
+            withAnimation(.snappy) {
+                checklistIdeas.append(contentsOf: fresh)
+            }
+        }
     }
 
     /// Asks for ideas a moment after the name stops changing, once the name is a real name (not
     /// a description still being read).
     private func scheduleChecklistIdeas() {
         checklistIdeasTask?.cancel()
+        checklistRefillTask?.cancel()
         let name = viewModel.draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
         let key = checklistIdeasTrigger
         guard canSuggest, !name.isEmpty, name.count <= TextLimits.choreName,
@@ -833,6 +913,9 @@ struct CreateAndEditChoreView: View {
             guard !Task.isCancelled, key == checklistIdeasTrigger, let ideas else { return }
             checklistIdeasKey = key
             checklistIdeas = ideas
+            // A new name starts over: ideas hidden for the old one may fit this one.
+            dismissedChecklistIdeas = []
+            checklistRefillKey = ""
         }
     }
 
@@ -858,6 +941,8 @@ struct CreateAndEditChoreView: View {
                     viewModel.addChecklistIdea(idea)
                 }
                 VoiceOver.announce(L10n.tr("\(idea) adicionado"))
+                // The other ideas stay; a new one fills this place.
+                refillChecklistIdeas()
             } label: {
                 Text("Adicionar")
                     .font(.subheadline.weight(.semibold))
@@ -877,7 +962,6 @@ struct CreateAndEditChoreView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .strokeBorder(Color.chorePurple, style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
         )
-        .transition(.opacity.combined(with: .move(edge: .top)))
     }
 
     /// Reads what was typed in the name, once per text.

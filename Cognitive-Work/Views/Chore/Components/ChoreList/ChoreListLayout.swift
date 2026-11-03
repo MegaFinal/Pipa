@@ -257,7 +257,8 @@ struct SwipeToDeleteStyle {
     /// The button's SF Symbol.
     var systemImage: String = "trash.fill"
     
-    /// Label under the icon; `nil` shows the icon alone.
+    /// Label under the icon, as a key of `Localizable.xcstrings` (translated when shown); `nil`
+    /// shows the icon alone.
     var title: String? = "Excluir"
     
     /// Dragging the card past this fraction of the row's width and letting go deletes right
@@ -372,7 +373,8 @@ struct SwipeToDeleteRow<Content: View>: View {
                     .font(.system(size: 20, weight: .semibold))
                 
                 if let title = style.title {
-                    Text(title)
+                    // The title is a catalog key: translate it, or it shows in Portuguese.
+                    Text(L10n.tr(key: title))
                         .font(.system(size: 12, weight: .semibold))
                 }
             }
