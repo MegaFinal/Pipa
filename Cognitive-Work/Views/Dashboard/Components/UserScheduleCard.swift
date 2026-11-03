@@ -249,36 +249,6 @@ private struct ScheduleDayColumn: View {
             .capitalized(with: L10n.locale)
     }
     
-    /// A shape that shows a room's ``RoomTextureBackground``, clipped to an outline.
-    ///
-    /// Delegating to ``RoomTextureBackground`` keeps bars and legend dots identical to the
-    /// room cards (same color, pattern and texture opacity). A `nil` room is drawn as plain
-    /// gray, matching how unknown rooms are shown elsewhere.
-    private struct RoomTexturedShape<S: Shape>: View {
-        
-        /// The outline to clip to (a rounded rectangle for bars, a circle for legend dots).
-        let shape: S
-        
-        /// The room that provides the color and texture.
-        let room: RoomModel?
-        
-        /// Higher values draw bigger, fewer shapes.
-        var zoom: CGFloat = RoomTextureBackground.textureZoom
-        
-        /// Fixed size of the texture, forwarded to ``RoomTextureBackground``.
-        /// Use it so shapes of different sizes show the same artwork scale.
-        var fixedSize: CGFloat? = nil
-        
-        var body: some View {
-            if let room {
-                RoomTextureBackground(room: room, zoom: self.zoom, fixedSize: fixedSize)
-                    .clipShape(shape)
-            } else {
-                shape.fill(.gray)
-            }
-        }
-    }
-    
     /// A binding that is `true` only while `entry` is the selected one.
     private func isPresented(_ entry: DailyUsageEntry) -> Binding<Bool> {
         Binding(
@@ -296,11 +266,7 @@ private struct ScheduleDayColumn: View {
         let resolvedRoom = resolvedChore.flatMap(room)
         let maxBarHeight = UserScheduleCard.baseBarHeight
         
-        RoomTexturedShape(
-            shape: RoundedRectangle(cornerRadius: 15),
-            room: resolvedRoom,
-            zoom: 1.5
-        )
+        RoomTexturedShape(shape: RoundedRectangle(cornerRadius: 15), room: resolvedRoom)
         // 45 of 50 in the original layout: the bar keeps that share of the column.
         .frame(width: columnWidth * 0.9, height: maxBarHeight * CGFloat(entry.tier.heightRatio) * barScale)
         .contentShape(RoundedRectangle(cornerRadius: 15))
@@ -355,7 +321,14 @@ private struct ScheduleDayColumn: View {
 /// Delegating to ``RoomTextureBackground`` keeps bars and legend dots identical to the
 /// room cards (same color, pattern and texture opacity). A `nil` room is drawn as plain
 /// gray, matching how unknown rooms are shown elsewhere.
+///
+/// The texture is tiled at one fixed scale, so every bar and dot shows the pattern at the same
+/// size. Filling each shape instead made the pattern grow and shrink with the shape (tall bars
+/// looked zoomed in, short bars and dots zoomed out).
 private struct RoomTexturedShape<S: Shape>: View {
+    
+    /// Fraction of the texture's original size it is drawn at. Lower means smaller shapes.
+    static var textureScale: CGFloat { 0.2 }
     
     /// The outline to clip to (a rounded rectangle for bars, a circle for legend dots).
     let shape: S
@@ -363,12 +336,9 @@ private struct RoomTexturedShape<S: Shape>: View {
     /// The room that provides the color and texture.
     let room: RoomModel?
     
-    /// Higher values draw bigger, fewer shapes.
-    var zoom: CGFloat = RoomTextureBackground.textureZoom
-    
     var body: some View {
         if let room {
-            RoomTextureBackground(room: room, zoom: self.zoom)
+            RoomTextureBackground(room: room, tileScale: Self.textureScale)
                 .clipShape(shape)
         } else {
             shape.fill(.gray)
@@ -393,7 +363,7 @@ private struct RoomScheduleCaption: View {
         ) {
             ForEach(rooms, id: \.recordID) { room in
                 HStack(spacing: 6) {
-                    RoomTexturedShape(shape: Circle(), room: room, zoom: 1)
+                    RoomTexturedShape(shape: Circle(), room: room)
                         .frame(width: 14, height: 14)
                     
                     Text(room.name)

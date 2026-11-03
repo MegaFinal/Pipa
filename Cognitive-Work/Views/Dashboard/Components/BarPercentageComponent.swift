@@ -14,7 +14,7 @@ struct BarPercentageComponent: View {
     @State var viewModel: DashboardViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading) {
             cognitiveLoadContent
         }
         .padding()
@@ -39,25 +39,27 @@ struct BarPercentageComponent: View {
                 .accessibilityAddTraits(.isHeader)
             
             Text("O trabalho de notar, lembrar, decidir e acompanhar é tão importante quanto realizar uma tarefa")
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundStyle(.secondary)
             
             do {
-                myContribuitionPercentage
-                
-                ZStack(alignment: .leading) {
-                    baseBarChart
-                    myContributionChart
+                VStack(spacing: -10) {
+                    myContribuitionPercentage
                     
-                    // if the "ideal division is 0 or 100%, don't show the line
-                    if viewModel.idealCognitiveShare > 0 && viewModel.idealCognitiveShare < 1{
-                        averageLine
+                    ZStack(alignment: .leading) {
+                        baseBarChart
+                        myContributionChart
+                        
+                        // if the "ideal division is 0 or 100%, don't show the line
+                        if viewModel.idealCognitiveShare > 0 && viewModel.idealCognitiveShare < 1{
+                            averageLine
+                        }
                     }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: height * 0.05)
+                    // The percentage above already reads the whole bar (value, ideal and status).
+                    .accessibilityHidden(true)
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: height * 0.05)
-                // The percentage above already reads the whole bar (value, ideal and status).
-                .accessibilityHidden(true)
             }
             
             HStack(spacing: 16) {
@@ -152,14 +154,14 @@ struct BarPercentageComponent: View {
             let idealX = proxy.size.width * CGFloat(min(max(viewModel.idealCognitiveShare, 0), 1))
             
             Capsule()
-                .frame(width: 3, height: height * 0.045)
-                .foregroundStyle(Color.black.opacity(0.8))
+                .frame(width: 4, height: height * 0.037)
+                .foregroundStyle(Color.black.opacity(0.4))
                 .position(x: idealX, y: proxy.size.height / 2)
             
             Text("ideal \(viewModel.idealCognitiveShareText)")
-                .font(.caption2)
-                .foregroundStyle(.black.opacity(0.8))
-                .position(x: idealX, y: (height * 0.01) + (height * 0.018))
+                .font(.system(size: 12))
+                .foregroundStyle(.black)
+                .position(x: idealX, y: (height * 0.04) + (height * 0.018))
         }
     }
     
@@ -184,7 +186,7 @@ struct BarPercentageComponent: View {
     let viewModel = DashboardViewModel()
     viewModel.myCognitiveShare = 0.4
     viewModel.idealCognitiveShare = 0.5
-    viewModel.myCognitiveShareText = "100%"
+    viewModel.myCognitiveShareText = "25%"
     viewModel.idealCognitiveShareText = "50%"
     
     return BarPercentageComponent(viewModel: viewModel)

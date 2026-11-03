@@ -58,6 +58,12 @@ struct ChoresView: View {
         self._carouselVM = State(initialValue: carouselVM)
     }
     
+    /// `true` when the carousel ("Seu dia") shows its empty state. There is no card to focus
+    /// then, so the header can safely sit above the carousel.
+    private var isTodayEmpty: Bool {
+        carouselVM.layoutMode == .grid && carouselVM.visibleChores.isEmpty
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -86,6 +92,9 @@ struct ChoresView: View {
                     }
                 }
                 .accessibilityHidden(isOverlayShown || carouselVM.isShowingUnassignedList)
+                // The empty "Seu dia" fills the screen (so pulling down on it still switches to
+                // the list) and would sit over the progress cards, swallowing their taps.
+                .zIndex(isTodayEmpty ? 2.5 : 0)
                 
                 // MARK: - Floating buttons
                 VStack {

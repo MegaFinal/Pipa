@@ -313,6 +313,10 @@ struct ShopListView: View {
             .padding(.bottom, 120)
         }
         .scrollDismissesKeyboard(.immediately)
+        // MARK: - Pull to refresh (asks CloudKit again, skipping the cache)
+        .refreshable {
+            await viewModel.forceRefresh()
+        }
     }
 
     /// Space between the "to buy" stack and the "bought" line.

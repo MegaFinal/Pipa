@@ -21,6 +21,11 @@ struct RoomTextureBackground: View {
     /// of whoever uses it.
     let fixedSize: CGFloat?
     
+    /// When set, the texture is repeated (tiled) at this fraction of its original size instead
+    /// of being stretched over the frame, so shapes of any size show the pattern at one scale.
+    /// Takes the place of ``zoom`` and ``fixedSize``.
+    let tileScale: CGFloat?
+    
     /// The texture is always drawn at this opacity, over the room's color.
     var textureOpacity: Double = 0.2
     
@@ -29,20 +34,23 @@ struct RoomTextureBackground: View {
     
     /// Creates the background from a color and a texture.
     init(color: RoomColor, pattern: RoomTexturePattern,
-         zoom: CGFloat = textureZoom, fixedSize: CGFloat? = nil) {
+         zoom: CGFloat = textureZoom, fixedSize: CGFloat? = nil, tileScale: CGFloat? = nil) {
         self.color = color
         self.pattern = pattern
         self.zoom = zoom
         self.fixedSize = fixedSize
+        self.tileScale = tileScale
     }
     
-    /// Creates the background of `room` (its color and texture), optionally at a fixed size.
-    init(room: RoomModel, zoom: CGFloat = textureZoom, fixedSize: CGFloat? = nil) {
+    /// Creates the background of `room` (its color and texture), optionally at a fixed size or
+    /// tiled at a fixed scale.
+    init(room: RoomModel, zoom: CGFloat = textureZoom, fixedSize: CGFloat? = nil, tileScale: CGFloat? = nil) {
         self.init(
             color: room.color,
             pattern: room.texturePattern,
             zoom: zoom,
             fixedSize: fixedSize,
+            tileScale: tileScale
         )
     }
     
@@ -58,7 +66,7 @@ struct RoomTextureBackground: View {
             .clipped()
     }
     
-    /// The texture image, either at a fixed size or filling the available space.
+    /// The texture image: tiled, at a fixed size or filling the available space.
     @ViewBuilder
     private var texture: some View {
         let image = Image(pattern.assetName(for: color))
@@ -66,7 +74,10 @@ struct RoomTextureBackground: View {
             .scaledToFill()
         
         Group {
-            if let fixedSize {
+            if let tileScale {
+                Rectangle()
+                    .fill(ImagePaint(image: Image(pattern.assetName(for: color)), scale: tileScale))
+            } else if let fixedSize {
                 image
                     .frame(width: fixedSize, height: fixedSize)
                     .clipped()
@@ -74,7 +85,7 @@ struct RoomTextureBackground: View {
                 image
             }
         }
-        .scaleEffect(zoom)
+        .scaleEffect(tileScale == nil ? zoom : 1)
         .opacity(textureOpacity)
         .allowsHitTesting(false)
         // Purely decorative: the asset name ("purple.clouds") must not be read aloud.
