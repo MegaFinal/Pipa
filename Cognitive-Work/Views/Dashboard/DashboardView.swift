@@ -67,14 +67,16 @@ struct DashboardView: View {
             .refreshable {
                 await reloadAfterRemoteChange()
             }
-            // MARK: - Hidden while loading, with a spinner
+            // MARK: - Hidden while loading, with the loading animation
             .disabled(viewModel.isLoading)
             .opacity(viewModel.isLoading ? 0 : 1)
             // Invisible while loading, so VoiceOver must not reach it either.
             .accessibilityHidden(viewModel.isLoading)
             // Only on a cold start without data in memory; otherwise the cards draw at once.
             .overlay {
-                if viewModel.isLoading { ProgressView() }
+                if viewModel.isLoading {
+                    LoadingScreen(accessibilityTitle: L10n.tr("Carregando"))
+                }
             }
         }
         .overlay { PickUnassignedChoreOverlay(carouselViewModel: carouselViewModel) }
