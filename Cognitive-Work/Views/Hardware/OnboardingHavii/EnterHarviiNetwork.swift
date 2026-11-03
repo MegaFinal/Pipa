@@ -17,6 +17,9 @@ struct EnterHarviiNetwork: View {
     /// The device connection's view model.
     @Bindable var viewModel: HardwareViewModel
     
+    /// Closes the whole sheet, not just this step.
+    var onClose: () -> Void
+    
     /// Password of the Wi-Fi network the Harvii creates while it isn't configured.
     private let harviiPassword = "12345678"
     
@@ -29,7 +32,8 @@ struct EnterHarviiNetwork: View {
     private var sideMargin: CGFloat { width * 0.0565 }
     
     var body: some View {
-        NavigationStack {
+        // No NavigationStack here: this step is pushed inside WelcomeHarviiView's stack.
+        Group {
             VStack(alignment: .center, spacing: 45) {
                 
                 OnboardingHeader(
@@ -48,7 +52,7 @@ struct EnterHarviiNetwork: View {
                 
             }
             .navigationDestination(isPresented: $viewModel.navigateToWifiCredentialsView) {
-                EnterHarviiNetwork(viewModel: viewModel)
+                WifiCredentialsView(viewModel: viewModel, onClose: onClose)
             }
             .padding(.horizontal, sideMargin)
             .padding(.bottom, height * 0.02)
@@ -132,5 +136,7 @@ struct EnterHarviiNetwork: View {
 }
 
 #Preview {
-    EnterHarviiNetwork(viewModel: HardwareViewModel())
+    NavigationStack {
+        EnterHarviiNetwork(viewModel: HardwareViewModel(), onClose: {})
+    }
 }

@@ -19,6 +19,10 @@ struct HardwareHostNameModel: CloudKitSyncable {
     /// The device's network name (for example, `harvii.local`).
     var hostName: String
     
+    /// The home Wi-Fi the device is on, so every member's phone can show it.
+    /// `nil` on records saved before this field existed.
+    var wifiName: String?
+    
     /// The CloudKit record type.
     static let recordType: String = "HardwareIpModel"
     
@@ -35,16 +39,19 @@ struct HardwareHostNameModel: CloudKitSyncable {
         
         self.recordID = record.recordID
         self.hostName = ip
+        self.wifiName = record["wifiName"] as? String
     }
     
     /// Creates a new model, not saved yet.
-    init(hostName: String) {
+    init(hostName: String, wifiName: String? = nil) {
         self.hostName = hostName
+        self.wifiName = wifiName
     }
     
     /// Copies the model's fields into `record`, before saving it.
     func populate(record: CKRecord) {
         record["ip"] = hostName
+        record["wifiName"] = wifiName
     }
     
     

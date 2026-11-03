@@ -29,7 +29,7 @@ struct WelcomeHarviiView: View {
                 }
             }
             .navigationDestination(isPresented: $viewModel.navigateToEnterHarviiNetworkView) {
-                EnterHarviiNetwork(viewModel: viewModel)
+                EnterHarviiNetwork(viewModel: viewModel, onClose: { dismiss() })
             }
             .onAppear {
                 withAnimation(.easeOut(duration: 1)) {

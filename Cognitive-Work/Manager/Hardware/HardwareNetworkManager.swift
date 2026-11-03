@@ -113,6 +113,7 @@ class HardwareNetworkManager {
         // Saves the host (harvi) name
         guard let name = answer.name else { throw APIErrors.invalidData }
         self.host = name + ".local"
+        self.wifiName = ssid
         localPersistence.set(host, forKey: StorageKey.host)
         localPersistence.set(wifiName, forKey: StorageKey.wifiName)
         

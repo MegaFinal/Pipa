@@ -11,8 +11,8 @@ import SwiftUI
 struct WifiCredentialsView: View {
     /// The device connection's view model.
     @Bindable var viewModel: HardwareViewModel
-    /// Closes the sheet.
-    @Environment(\.dismiss) private var dismiss
+    /// Closes the whole sheet, not just this step.
+    var onClose: () -> Void
     
     /// Whether both fields are filled.
     private var canSubmit: Bool {
@@ -31,7 +31,8 @@ struct WifiCredentialsView: View {
     private var sideMargin: CGFloat { width * 0.0565 }
     
     var body: some View {
-        NavigationStack {
+        // No NavigationStack here: this step is pushed inside WelcomeHarviiView's stack.
+        Group {
             VStack (spacing: 64) {
                 // MARK: - Title and instructions
                 OnboardingHeader(
@@ -46,7 +47,7 @@ struct WifiCredentialsView: View {
                     // MARK: - Skip to pairing (Wi-Fi already sent), or the Wi-Fi fields
                     if wasWifiSent {
                         Button("Já enviei o WiFi, ir para o pareamento") {
-                            viewModel.navigateToEnterHarviiNetworkView = true
+                            viewModel.navigateToReturnHouseNetworkView = true
                         }
                         .voiceControlNames([
                             L10n.tr("Já enviei o WiFi, ir para o pareamento"),
@@ -102,14 +103,17 @@ struct WifiCredentialsView: View {
             .padding(.bottom, height * 0.02)
             .navigationBarTitleDisplayMode(.inline)
             
-            // TODO: back button to the previous Harvii step.
-            // MARK: - Pairing step, result alert and keyboard
-            .navigationDestination(isPresented: $viewModel.navigateToEnterHarviiNetworkView) {
-                DevicePairView(hardwareViewModel: viewModel, onClose: { dismiss() })
+            // No going back while the Wi-Fi is being sent.
+            .navigationBarBackButtonHidden(viewModel.isSending)
+            
+            // MARK: - Next step, result alert and keyboard
+            // Wi-Fi sent (or already sent before): back to the home network to pair.
+            .navigationDestination(isPresented: $viewModel.navigateToReturnHouseNetworkView) {
+                ReturnHouseNetwork(viewModel: viewModel, onClose: onClose)
             }
             .resultAlert($viewModel.wifiResult)
             .dismissKeyboardOnTap()
-            // Sending takes a few seconds behind a spinner; the result arrives as an alert.
+            // Sending takes a few seconds behind a spinner; a failure arrives as an alert.
             .onChange(of: viewModel.isSending) { _, isSending in
                 if isSending { VoiceOver.announce(L10n.tr("Enviando dados do WiFi para o Harvii…")) }
             }
@@ -118,12 +122,12 @@ struct WifiCredentialsView: View {
 }
 
 extension WifiCredentialsView {
-    /// Goes straight to pairing when the Wi-Fi was already sent; otherwise sends it to the
-    /// device (``HardwareViewModel/sendWifiCredentials()`` opens pairing when it works and
-    /// shows the error alert when it doesn't).
+    /// Moves on to ``ReturnHouseNetwork`` when the Wi-Fi was already sent; otherwise sends it to
+    /// the device (``HardwareViewModel/sendWifiCredentials()`` moves on when it works and shows
+    /// the error alert when it doesn't).
     func continueTapped() async {
         if wasWifiSent {
-            viewModel.navigateToEnterHArviiNetworkView = true
+            viewModel.navigateToReturnHouseNetworkView = true
         } else {
             await viewModel.sendWifiCredentials()
         }
@@ -175,7 +179,9 @@ struct LabeledInput<Content: View>: View {
 }
 
 #Preview {
-    WifiCredentialsView(viewModel: HardwareViewModel())
+    NavigationStack {
+        WifiCredentialsView(viewModel: HardwareViewModel(), onClose: {})
+    }
         .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
 }

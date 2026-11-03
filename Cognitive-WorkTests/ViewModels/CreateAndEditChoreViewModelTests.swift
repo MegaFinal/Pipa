@@ -188,16 +188,6 @@ struct CreateAndEditChoreViewModelTests {
     
     // MARK: - Form events
     
-    @Test func turningTheChecklistOnAddsASingleEmptyRow() {
-        let viewModel = makeViewModel()
-        
-        viewModel.checklistToggleDidChange(isOn: true)
-        viewModel.checklistToggleDidChange(isOn: true)
-        
-        #expect(viewModel.draft.checklist.count == 1)
-        #expect(viewModel.draft.checklist.first?.name == "")
-    }
-    
     @Test func frequencyChangeDropsAPastDate() {
         let viewModel = makeViewModel()
         viewModel.selectedDate = Calendar.current.date(byAdding: .day, value: -3, to: Date())

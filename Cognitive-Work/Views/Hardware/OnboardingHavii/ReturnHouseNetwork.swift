@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct ReturnHouseNetwork: View {
-    /// `true` for a moment after the password is copied.
-    @State private var isPasswordCopied = false
+    /// The device connection's view model.
+    @Bindable var viewModel: HardwareViewModel
+    
+    /// Closes the whole sheet, not just this step.
+    var onClose: () -> Void
+    
+    /// `true` while pairing and sending the first chart; ``LoadingHarvii`` covers the screen.
+    @State private var isConnecting = false
     
     @Environment(\.openURL) private var openURL
     
@@ -17,7 +23,8 @@ struct ReturnHouseNetwork: View {
     private var sideMargin: CGFloat { width * 0.0565 }
     
     var body: some View {
-        NavigationStack{
+        // No NavigationStack here: this step is pushed inside WelcomeHarviiView's stack.
+        Group {
             VStack(alignment: .center, spacing: 45) {
                 
                 OnboardingHeader(
@@ -43,13 +50,51 @@ struct ReturnHouseNetwork: View {
                     text: "chevron.right",
                     isSystemImage: true
                 ) {
-                    // TODO: go to the next Harvii step.
+                    await connect()
                 }
                 .padding(.bottom, height * 0.02)
                 .padding(.trailing, width * 0.061)
             }
             .frame(maxHeight: .infinity, alignment: .bottom)
+            
+            // MARK: - Loading while the Harvii pairs and gets the chores
+            .overlay {
+                if isConnecting {
+                    LoadingHarvii()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color(.onboardingBackground).ignoresSafeArea())
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut, value: isConnecting)
+            // No going back while the Harvii is still answering.
+            .navigationBarBackButtonHidden(isConnecting)
+            
+            // MARK: - Result
+            .navigationDestination(isPresented: $viewModel.navigateToConnectionHarviiView) {
+                ConnectionHarvii(
+                    didConnectionSucced: viewModel.conectionResult == .success,
+                    errorDetail: viewModel.pairingErrorDetail,
+                    onClose: onClose
+                )
+            }
         }
+    }
+    
+    // MARK: - Actions
+    
+    /// Behind ``LoadingHarvii``: pairs with the Harvii, then sends it the chores image and waits
+    /// for its answer (and for the e-paper to show it). Then opens ``ConnectionHarvii`` with the
+    /// result: success only when the image got there.
+    private func connect() async {
+        isConnecting = true
+        VoiceOver.announce(L10n.tr("Pareando com o Harvii…"))
+        await viewModel.pair(sendingChart: false)
+        if viewModel.conectionResult == .success {
+            await viewModel.sendFirstChart()
+        }
+        isConnecting = false
+        viewModel.navigateToConnectionHarviiView = true
     }
     
     // MARK: openConfigurationButton
@@ -75,5 +120,7 @@ struct ReturnHouseNetwork: View {
 }
 
 #Preview {
-    ReturnHouseNetwork()
+    NavigationStack {
+        ReturnHouseNetwork(viewModel: HardwareViewModel(), onClose: {})
+    }
 }

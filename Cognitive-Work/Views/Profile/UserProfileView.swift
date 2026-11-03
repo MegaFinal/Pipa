@@ -191,28 +191,30 @@ private struct SettingsButtonsSection: View {
         .sheet(isPresented: $isShowingPremium) {
             PremiumView()
         }
-        // MARK: - Hardware sheet
-        .sheet(item: $hardwareSheet) { sheet in
+        // MARK: - Hardware screens (full screen)
+        // Every opening starts the setup from its first step.
+        .fullScreenCover(item: $hardwareSheet, onDismiss: { viewModelHardware.resetNavigation() }) { sheet in
             Group {
                 switch sheet {
                 case .existing:
-                    ExistingIPView(
-                        viewModelHardware: $viewModelHardware,
-                        profileImage: viewModelUser.displayedImageData.flatMap { UIImage(data: $0) }
-                    )
-                case .pair:
                     NavigationStack {
-                        DevicePairView(
+                        PairedView(
+                            hardwareViewModel: viewModelHardware,
+                            onClose: { hardwareSheet = nil }
+                        )
+                    }
+                case .pair:
+                    // Wi-Fi set up but this phone isn't paired: PairedView shows "despareado" and "Parear".
+                    NavigationStack {
+                        PairedView(
                             hardwareViewModel: viewModelHardware,
                             onClose: { hardwareSheet = nil }
                         )
                     }
                 case .wifi:
-                    WifiCredentialsView(viewModel: viewModelHardware)
+                    WelcomeHarviiView(viewModel: viewModelHardware)
                 }
             }
-            .presentationDetents([.medium])
-            .presentationDragIndicator(.visible)
         }
     }
 }
