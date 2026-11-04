@@ -126,6 +126,27 @@ struct ShopListItemFormView: View {
         name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// The fields as they were when the sheet opened; `nil` until then.
+    @State private var loadedFields: ItemFormFields?
+
+    /// The form's fields now.
+    private var currentFields: ItemFormFields {
+        ItemFormFields(
+            name: trimmedName,
+            category: category,
+            quantity: quantity,
+            unit: unitMeasurement,
+            price: valueText.trimmingCharacters(in: .whitespacesAndNewlines),
+            userIDs: Set(relatedUsers.compactMap { $0.recordID?.recordName })
+        )
+    }
+
+    /// Nothing was changed since the sheet opened (AI drafts always go back to the review).
+    /// The checkmark then only closes the sheet.
+    private var isUnchanged: Bool {
+        !isDraft && loadedFields == currentFields
+    }
+
     /// Required fields still empty or invalid; the confirm button stays disabled until none is.
     private var missingFields: [ShopItemField] {
         ShopListViewModel.missingFields(
@@ -254,7 +275,7 @@ struct ShopListItemFormView: View {
                         }
                         .tint(.blue)
                         .buttonStyle(.glassProminent)
-                        .disabled(!missingFields.isEmpty || isReadingDescription)
+                        .disabled((!isUnchanged && !missingFields.isEmpty) || isReadingDescription)
                         .voiceOverLabel(isEditing || isDraft ? L10n.tr("Salvar") : L10n.tr("Adicionar item"))
                         .voiceControlNames(isEditing || isDraft
                             ? [L10n.tr("Confirmar"), L10n.tr("Salvar"), L10n.tr("OK")]
@@ -271,6 +292,7 @@ struct ShopListItemFormView: View {
         // MARK: - Loading, VoiceOver warnings, delete dialog and error alert
         .task {
             populateFromMode()
+            loadedFields = currentFields
             // No keyboard on open: the person taps the name (or the mic) when ready.
             // AI button only when creating, and only if the model can run here.
             canSuggest = !isEditing && !isDraft && viewModel.canSuggestItemDetails
@@ -1033,6 +1055,12 @@ struct ShopListItemFormView: View {
             return
         }
 
+        // Nothing changed: only close, without touching CloudKit.
+        if isUnchanged {
+            dismiss()
+            return
+        }
+
         isSaving = true
         defer { isSaving = false }
 
@@ -1129,4 +1157,14 @@ struct ShopListItemFormView: View {
                 viewModel: ShopListPreviewData.populatedViewModel
             )
         }
+}
+
+/// The editable fields of ``ShopListItemFormView``, compared to tell whether anything changed.
+private struct ItemFormFields: Equatable {
+    let name: String
+    let category: ShopItemCategory
+    let quantity: Int
+    let unit: UnitMeasurement
+    let price: String
+    let userIDs: Set<String>
 }

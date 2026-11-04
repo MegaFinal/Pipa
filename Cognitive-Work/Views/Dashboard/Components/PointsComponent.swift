@@ -36,7 +36,6 @@ struct PointsComponent: View {
             Text(subtitle)
                 .font(.system(size: 13))
                 .foregroundStyle(.subTitleGray)
-                .fontWeight(.light)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
         }
