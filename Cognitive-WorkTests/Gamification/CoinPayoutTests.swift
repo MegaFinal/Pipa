@@ -18,7 +18,8 @@ struct CoinPayoutTests {
     @Test func higherRanksNeverPayLess() {
         let amounts = Tier.allCases.map(\.cycleCoins)
         #expect(amounts == amounts.sorted())
-        #expect(amounts.allSatisfy { $0 > 0 })
+        #expect(Tier.novatoDaCasa.cycleCoins == 0)
+        #expect(amounts.dropFirst().allSatisfy { $0 > 0 })
         #expect(Tier.almaDaCasa.cycleCoins > Tier.novatoDaCasa.cycleCoins)
     }
 
@@ -26,6 +27,8 @@ struct CoinPayoutTests {
 
     private let alice = GamificationFixture.id("alice-house")
     private let bob = GamificationFixture.id("bob-house")
+    /// Points that put a member at ``Tier/escudeiroDaFaxina``.
+    private let escudeiroPoints = Tier.escudeiroDaFaxina.minimumPoints
 
     /// A member whose record, with `points`, is on the server (`store`).
     private func member(_ id: CKRecord.ID, points: Int, in store: InMemoryAtomicRecordStore) -> UserModel {
@@ -45,7 +48,7 @@ struct CoinPayoutTests {
 
         let created = await service.prepareClosedCycles(
             [closedCycle],
-            members: [member(alice, points: 650, in: store), member(bob, points: 0, in: store)],
+            members: [member(alice, points: escudeiroPoints, in: store), member(bob, points: 0, in: store)],
             houseID: GamificationFixture.houseID,
             today: afterCycle
         )
@@ -60,13 +63,13 @@ struct CoinPayoutTests {
         let history = store.storedRecords(ofType: RankHistoryModel.recordType)
             .compactMap(RankHistoryModel.init(record:))
         #expect(history.count == 2)
-        #expect(history.first { $0.user.recordID == alice }?.points == 650)
+        #expect(history.first { $0.user.recordID == alice }?.points == escudeiroPoints)
     }
 
     @Test func settlingResetsPointsAndRank() async {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
-        let local = member(alice, points: 650, in: store)
+        let local = member(alice, points: escudeiroPoints, in: store)
 
         await service.prepareClosedCycles([closedCycle], members: [local], houseID: GamificationFixture.houseID, today: afterCycle)
 
@@ -79,19 +82,19 @@ struct CoinPayoutTests {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
 
-        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: 650, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
+        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: escudeiroPoints, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
 
         let entry = store.storedRecords(ofType: RankHistoryModel.recordType)
             .compactMap(RankHistoryModel.init(record:)).first
         #expect(entry?.tier == .escudeiroDaFaxina)
-        #expect(entry?.points == 650)
+        #expect(entry?.points == escudeiroPoints)
     }
 
     @Test func usesTheServerPointsNotTheLocalCopy() async {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
         let stale = member(alice, points: 10, in: store)
-        store.seed(GamificationFixture.score(for: alice, points: 650))
+        store.seed(GamificationFixture.score(for: alice, points: escudeiroPoints))
 
         await service.prepareClosedCycles([closedCycle], members: [stale], houseID: GamificationFixture.houseID, today: afterCycle)
 
@@ -106,7 +109,7 @@ struct CoinPayoutTests {
 
         await service.prepareClosedCycles(
             [closedCycle, laterCycle],
-            members: [member(alice, points: 650, in: store)],
+            members: [member(alice, points: escudeiroPoints, in: store)],
             houseID: GamificationFixture.houseID,
             today: GamificationFixture.day(2026, 11, 5)
         )
@@ -114,13 +117,13 @@ struct CoinPayoutTests {
         let history = store.storedRecords(ofType: RankHistoryModel.recordType)
             .compactMap(RankHistoryModel.init(record:))
             .sorted { $0.cycleKey < $1.cycleKey }
-        #expect(history.map(\.points) == [650, 0])
+        #expect(history.map(\.points) == [escudeiroPoints, 0])
     }
 
     @Test func preparingAgainDoesNotResetAgain() async {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
-        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: 650, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
+        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: escudeiroPoints, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
 
         // Points earned after the reset, in the next cycle.
         store.seed(GamificationFixture.score(for: alice, points: 40))
@@ -134,10 +137,10 @@ struct CoinPayoutTests {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
 
-        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: 650, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
+        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: escudeiroPoints, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
 
         // Only the score is reset; the user's record keeps its (legacy) value.
-        #expect(store.stored(alice)?["points"] as? Int == 650)
+        #expect(store.stored(alice)?["points"] as? Int == escudeiroPoints)
         #expect(GamificationFixture.points(of: alice, in: store) == 0)
     }
 
@@ -147,7 +150,7 @@ struct CoinPayoutTests {
 
         let created = await service.prepareClosedCycles(
             [closedCycle],
-            members: [member(alice, points: 650, in: store)],
+            members: [member(alice, points: escudeiroPoints, in: store)],
             houseID: GamificationFixture.houseID,
             today: GamificationFixture.day(2026, 10, 16)
         )
@@ -159,7 +162,7 @@ struct CoinPayoutTests {
     @Test func preparingTwiceCreatesNothingNew() async {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
-        let members = [member(alice, points: 650, in: store)]
+        let members = [member(alice, points: escudeiroPoints, in: store)]
 
         await service.prepareClosedCycles([closedCycle], members: members, houseID: GamificationFixture.houseID, today: afterCycle)
         let second = await service.prepareClosedCycles([closedCycle], members: members, houseID: GamificationFixture.houseID, today: afterCycle)
@@ -170,7 +173,7 @@ struct CoinPayoutTests {
 
     @Test func twoDevicesPreparingAtOnceCreateOnePayoutEach() async {
         let store = InMemoryAtomicRecordStore()
-        let members = [member(alice, points: 650, in: store), member(bob, points: 10, in: store)]
+        let members = [member(alice, points: escudeiroPoints, in: store), member(bob, points: 10, in: store)]
         let deviceA = CycleSettlementService(store: store)
         let deviceB = CycleSettlementService(store: store)
         store.holdFetches(2)
@@ -191,7 +194,7 @@ struct CoinPayoutTests {
         let store = InMemoryAtomicRecordStore()
         store.seed(GamificationFixture.wallet(for: alice, balance: 5))
         let service = CycleSettlementService(store: store)
-        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: 650, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
+        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: escudeiroPoints, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
         let amount = Tier.escudeiroDaFaxina.cycleCoins
 
         let first = try await service.confirmPendingPayouts(for: alice, cycles: [closedCycle], houseID: GamificationFixture.houseID, legacyCoins: 0, today: afterCycle)
@@ -207,7 +210,7 @@ struct CoinPayoutTests {
     @Test func concurrentConfirmationsCreditOnce() async throws {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
-        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: 650, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
+        await service.prepareClosedCycles([closedCycle], members: [member(alice, points: escudeiroPoints, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
         let amount = Tier.escudeiroDaFaxina.cycleCoins
 
         store.holdFetches(2)
