@@ -33,7 +33,8 @@ struct LoadingScreen: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, width * 0.08)
-                    .padding(.top, height * 0.1)
+                    // Lower than the top edge, so the text sits closer to the middle of the screen.
+                    .padding(.top, height * 0.18)
             }
             
             Spacer()
