@@ -476,6 +476,7 @@ struct ChoresView: View {
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture { }
+                    .accessibilityDecorative()
                 
                 NewUserPopUp {
                     withAnimation(.easeInOut(duration: 0.25)) {

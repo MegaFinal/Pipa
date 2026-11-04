@@ -14,6 +14,9 @@ struct NewUserPopUp: View {
     var onPress: () -> Void
     /// Runs on "Dividir mais tarde".
     var onDismiss: () -> Void
+
+    /// Moves the VoiceOver cursor to the title when the pop-up appears.
+    @AccessibilityFocusState private var isTitleFocused: Bool
     
     var body: some View {
         VStack (alignment: .leading) {
@@ -27,6 +30,7 @@ struct NewUserPopUp: View {
                     .padding(.bottom, height * 0.04)
                     .foregroundStyle(.choreOrange)
                     .padding(.top, height * 0.04)
+                    .accessibilityDecorative()
                 Spacer()
             }
         
@@ -36,6 +40,8 @@ struct NewUserPopUp: View {
                     .bold()
                     .multilineTextAlignment(.leading)
                     .padding(.bottom, 8)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityFocused($isTitleFocused)
                 
                 Text("Clique no botão abaixo para dividir as tarefas novamente ou divida depois acessando a tela de notificações.")
                     .font(.title3)
@@ -78,6 +84,15 @@ struct NewUserPopUp: View {
                 .foregroundColor(.white)
                 .shadow(color: .black.opacity(0.2), radius: 3.2, x: 0, y: 4)
         )
+        // MARK: - Accessibility: a modal the user can close with the escape gesture
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isModal)
+        .accessibilityAction(.escape) { onDismiss() }
+        .task {
+            // Waits for the appear transition, otherwise the focus stays on the screen behind.
+            try? await Task.sleep(for: .seconds(0.4))
+            isTitleFocused = true
+        }
     }
 }
 
