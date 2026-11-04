@@ -67,6 +67,8 @@ struct ReceiptParserTests {
         #expect(result.printedItemCount == 52)
         // The one product cut between the two photos.
         #expect(result.missingItemNumbers == [35])
+        // Barcodes are kept, to remember the product next time.
+        #expect(result.lines.first { $0.itemNumber == 2 }?.barcode == "07898906925281")
         // 0,364 kg × 49,90: the total is computed, not the price per kg.
         #expect(result.lines.contains { $0.itemNumber == 25 && abs($0.total - 18.16) < 0.005 })
         // The footer's "S.DISP:452,51" never becomes a product's price.

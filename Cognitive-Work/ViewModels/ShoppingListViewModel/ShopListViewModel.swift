@@ -709,6 +709,9 @@ final class ShopListViewModel {
     struct ReceiptPurchase {
         let item: ShopListItem
         let total: Double
+        /// The weight actually bought, for a weighed product ("500 g" on the list, 0,364 kg on
+        /// the receipt): the item's quantity becomes it. `nil` keeps the quantity.
+        var amount: (quantity: Int, unit: UnitMeasurement)? = nil
     }
 
     /// A product read from a receipt that wasn't on the list, to add already bought.
@@ -717,19 +720,32 @@ final class ShopListViewModel {
         let total: Double
         let quantity: Int
         let unit: UnitMeasurement
+        /// Who it's for; empty means the whole house.
+        let consumers: [UserModel]
     }
 
-    /// The items a receipt line can be linked to: the ones still to buy, and bought ones with
-    /// no price yet (checked off in the store, priced now from the receipt).
+    /// What the house called products it scanned before (see ``ReceiptNameMemory``).
+    var receiptNameMemory: [String: String] {
+        list?.receiptNames ?? [:]
+    }
+
+    /// Remembers names for the next receipts. Failing only loses the shortcut, so it's silent.
+    func rememberReceiptNames(_ names: [String: String]) async {
+        guard !isPreview, !names.isEmpty else { return }
+        await list?.rememberReceiptNames(names)
+    }
+
+    /// The items a receipt line can be linked to: only the ones still to buy (what's already
+    /// in "Comprados" was bought before, not with this receipt).
     var receiptLinkableItems: [ShopListItem] {
-        pendingItems + boughtItems.filter { !$0.hasPrice }
+        pendingItems
     }
 
     /// Applies a receipt the person reviewed. List items are checked off by the signed-in user
-    /// with the price paid (already bought ones just get the price), and products that weren't
-    /// on the list are added already bought, for the whole house, like
-    /// ``addSuggestedItems(_:)``. A failed save doesn't stop the rest; ``errorMessage`` is set
-    /// at the end.
+    /// with the price paid (one a housemate bought meanwhile is left as it is), and products that weren't
+    /// on the list are added already bought, for who the person chose (the whole house when
+    /// nobody, like ``addSuggestedItems(_:)``). A failed save doesn't stop the rest;
+    /// ``errorMessage`` is set at the end.
     ///
     /// - Returns: How many purchases and new items were saved.
     func applyReceipt(purchases: [ReceiptPurchase], newItems: [ReceiptNewItem]) async -> Int {
@@ -747,6 +763,10 @@ final class ShopListViewModel {
 
             if isPreview {
                 if let price { item.totalPrice = price }
+                if let amount = purchase.amount, !item.isBought {
+                    item.quantity = amount.quantity
+                    item.unitMeasurement = amount.unit
+                }
                 if !item.isBought {
                     item.isBought = true
                     item.boughtAt = Date()
@@ -755,17 +775,25 @@ final class ShopListViewModel {
                 continue
             }
 
+            // Bought by a housemate while the receipt was being reviewed: theirs stays.
             if item.isBought {
-                // Already checked off: only the price is new.
-                guard let price else { continue }
-                guard await item.setTotalPrice(price) else { failed = true; continue }
-                points += ScoreValues.receiptScanned(itemCount: 1).points
-            } else {
-                guard await item.markBought(by: currentUser, totalPrice: price) else { failed = true; continue }
-                notifyItemBought(item, by: currentUser)
-                points += ScoreValues.shoppingItemBought.points
-                if price != nil { points += ScoreValues.receiptScanned(itemCount: 1).points }
+                saved += 1
+                continue
             }
+            // The weight bought goes in the same save as the purchase.
+            let previousAmount = (item.quantity, item.unitMeasurement)
+            if let amount = purchase.amount {
+                item.quantity = amount.quantity
+                item.unitMeasurement = amount.unit
+            }
+            guard await item.markBought(by: currentUser, totalPrice: price) else {
+                (item.quantity, item.unitMeasurement) = previousAmount
+                failed = true
+                continue
+            }
+            notifyItemBought(item, by: currentUser)
+            points += ScoreValues.shoppingItemBought.points
+            if price != nil { points += ScoreValues.receiptScanned(itemCount: 1).points }
             saved += 1
         }
 
@@ -775,6 +803,10 @@ final class ShopListViewModel {
         let me = currentUser.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
 
         for newItem in newItems {
+            let chosen = newItem.consumers.compactMap { user in
+                user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+            }
+            let people = chosen.isEmpty ? house : chosen
             let draft = ShopListItem(
                 name: newItem.name,
                 totalPrice: newItem.total > 0 ? newItem.total : nil,
@@ -782,7 +814,7 @@ final class ShopListViewModel {
                 unitMeasurement: newItem.unit,
                 isBought: true,
                 category: .other,
-                relatedUsers: house.isEmpty ? nil : house,
+                relatedUsers: people.isEmpty ? nil : people,
                 addedByUser: me,
                 buyerUser: me
             )

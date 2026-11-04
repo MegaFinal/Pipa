@@ -54,6 +54,19 @@ struct ReceiptItemMatcherTests {
         #expect(line(for: "Molho de tomate", in: list) == "MOLHO TOMATE POMAROLA 340G")
     }
 
+    @Test func aWordInTheMiddleIsNotTheProduct() {
+        // Seen on a Krill receipt: yogurt "BAT" (batido), beer "BR" (Brahma), margarine "C/SAL".
+        let names = ["IOG.BAT.NAT.IN.160g", "CE.BR.DU.MA.LT.269ml", "MA.QUALY C/SAL 250g", "BANANA PRATA kg"]
+            .map(ReceiptAbbreviations.expand)
+        let list = ["batata", "bombril", "sal", "iogurte", "banana"]
+        let pairs = ReceiptItemMatcher.match(receiptNames: names, listNames: list)
+        #expect(pairs[0] == nil)
+        #expect(pairs[1] == nil)
+        #expect(pairs[2] == nil)
+        #expect(pairs[3] == 0)
+        #expect(pairs[4] == 3)
+    }
+
     @Test func weighedProductsGoToTheListInGrams() {
         let cheese = ReceiptScanLine(itemNumber: 25, name: "Queijo", quantity: 1, weightKg: 0.364, total: 18.16, warning: nil)
         let cheeseAmount = ReceiptScanViewModel.listAmount(for: cheese)
@@ -64,13 +77,54 @@ struct ReceiptItemMatcherTests {
         let melonAmount = ReceiptScanViewModel.listAmount(for: melon)
         #expect(melonAmount.quantity == 2 && melonAmount.unit == .kilogram)
 
+        // A weight past the quantity field's 1000 g.
+        #expect(ReceiptScanViewModel.listAmount(weightKg: 0.364).quantity == 364)
+        #expect(ReceiptScanViewModel.listAmount(weightKg: 2.525).unit == .kilogram)
+
         let milk = ReceiptScanLine(itemNumber: 11, name: "Leite", quantity: 2, weightKg: 0, total: 13.18, warning: nil)
         let milkAmount = ReceiptScanViewModel.listAmount(for: milk)
         #expect(milkAmount.quantity == 2 && milkAmount.unit == .unit)
     }
 
-    @Test func receiptNamesLoseTheirCapitals() {
-        #expect(ReceiptScanViewModel.displayName("LTE COND.MOC.TP 395g") == "Lte cond.moc.tp 395g")
-        #expect(ReceiptScanViewModel.displayName("Suco Natural One") == "Suco Natural One")
+    @Test func abbreviationsAreSpelledOut() {
+        #expect(ReceiptAbbreviations.expand("LTE COND.MOC.TP 395g") == "Leite condensado moc tp 395g")
+        #expect(ReceiptAbbreviations.expand("QJ.MUSS.AUR.FAT.150g") == "Queijo muçarela aur fatiado 150g")
+        #expect(ReceiptAbbreviations.expand("PAP HIG NEVE 30M") == "Papel higiênico neve 30m")
+        // Restaurants print in mixed case: kept as is.
+        #expect(ReceiptAbbreviations.expand("Suco Natural One") == "Suco Natural One")
+    }
+
+    @Test func spelledOutNamesMatchTheList() {
+        let names = ["LTE COND.MOC.TP 395g", "DETERG LIQ YPE 500ML", "REFRIG GUARANA 2L"].map(ReceiptAbbreviations.expand)
+        let list = ["Detergente", "Refrigerante", "Leite condensado"]
+        let pairs = ReceiptItemMatcher.match(receiptNames: names, listNames: list)
+        #expect(pairs == [0: 1, 1: 2, 2: 0])
+    }
+
+    @Test func rememberedNamesComeBack() {
+        let cheese = ReceiptScanLine(itemNumber: 4, name: "Queijo muçarela", quantity: 1, weightKg: 0, total: 10.49,
+                                     warning: nil, barcode: "07891164027117", receiptName: "QJ.MUSS.AUR.FAT.150g")
+        #expect(ReceiptNameMemory.keys(for: cheese) == ["ean:07891164027117", "name:qj muss aur fat 150g"])
+
+        let stored = ReceiptNameMemory.merge(nil, with: ["ean:07891164027117": "Queijo"])
+        let memory = ReceiptNameMemory.decode(stored)
+        #expect(ReceiptNameMemory.name(for: cheese, in: memory) == "Queijo")
+
+        // Same product, another receipt where OCR misread the barcode: the name still finds it.
+        let byName = ReceiptNameMemory.decode(ReceiptNameMemory.merge(stored, with: ["name:qj muss aur fat 150g": "Queijo fatiado"]))
+        var misread = cheese
+        misread.barcode = "07891164027118"
+        #expect(ReceiptNameMemory.name(for: misread, in: byName) == "Queijo fatiado")
+    }
+
+    @Test func memoryKeepsTheNewestWithinItsLimit() {
+        var stored: [String] = []
+        for index in 0..<(ReceiptNameMemory.limit + 5) {
+            stored = ReceiptNameMemory.merge(stored, with: ["name:item \(index)": "Item \(index)"])
+        }
+        #expect(stored.count == ReceiptNameMemory.limit)
+        let memory = ReceiptNameMemory.decode(stored)
+        #expect(memory["name:item 0"] == nil)
+        #expect(memory["name:item \(ReceiptNameMemory.limit + 4)"] != nil)
     }
 }

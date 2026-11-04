@@ -35,6 +35,8 @@ nonisolated enum ReceiptParser {
         var computedTotal: Double
         /// The VL.ITEM value printed on the receipt closest to the computed total, when found.
         var printedTotal: Double?
+        /// The product's barcode (EAN), when printed and read.
+        var barcode: String? = nil
 
         /// Whether the printed total confirms the computed one (one cent of tolerance: some
         /// stores truncate instead of rounding).
@@ -243,7 +245,8 @@ nonisolated enum ReceiptParser {
                 weightKg: isWeight ? counted : 0,
                 unitPrice: unitPrice,
                 computedTotal: computed,
-                printedTotal: printed
+                printedTotal: printed,
+                barcode: owner.flatMap(barcodeValue)
             ))
             pending = carry
         }
@@ -276,7 +279,8 @@ nonisolated enum ReceiptParser {
                 weightKg: 0,
                 unitPrice: 0,
                 computedTotal: 0,
-                printedTotal: amountsFound.last
+                printedTotal: amountsFound.last,
+                barcode: barcodeValue(productRow)
             ))
         }
         return result
@@ -381,6 +385,22 @@ nonisolated enum ReceiptParser {
             parts.removeFirst()
         }
         return parts.joined(separator: " ")
+    }
+
+    /// The barcode at the start of a product row (after its item number), with OCR's letter
+    /// misreads of digits fixed ("0789:64027117" stays out: it isn't all digits). `nil` when
+    /// there is none or it's too short to be one.
+    private static func barcodeValue(_ row: String) -> String? {
+        let withoutNumber = hasItemNumber(row)
+            ? leadingItemNumber.stringByReplacingMatches(in: row, range: fullRange(row), withTemplate: "")
+            : row
+        guard let first = withoutNumber.split(whereSeparator: \.isWhitespace).first else { return nil }
+        let digits = String(first)
+            .replacingOccurrences(of: "O", with: "0")
+            .replacingOccurrences(of: "I", with: "1")
+            .replacingOccurrences(of: "l", with: "1")
+        guard digits.count >= 8, digits.allSatisfy(\.isNumber) else { return nil }
+        return digits
     }
 
     /// The product name: no item number, barcode, amounts or tax columns.

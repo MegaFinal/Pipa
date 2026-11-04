@@ -63,4 +63,49 @@ nonisolated enum ReceiptTotals {
             return Double(value)
         }
     }
+
+    // MARK: - Amounts in the text
+
+    /// How many Brazilian amounts ("18,16", "1.630,90") the text has. A card slip has one; a
+    /// receipt with products has several.
+    static func amountCount(in text: String) -> Int {
+        guard let regex = try? NSRegularExpression(pattern: #"(?<![\d,.])(\d{1,3}(?:\.\d{3})+,\d{2}|\d{1,5},\d{2})(?![\d,.%])"#) else { return 0 }
+        return regex.numberOfMatches(in: text, range: NSRange(text.startIndex..<text.endIndex, in: text))
+    }
+
+    /// Whether `value` is printed in `text` as a whole number: "18,16", "18.16" or "1.250,50"
+    /// ("8,16" inside "18,16" doesn't count). Spaces OCR sometimes puts in numbers ("18, 16")
+    /// are ignored.
+    static func isPrinted(_ value: Double, in text: String) -> Bool {
+        guard value > 0, value.isFinite else { return false }
+        let text = text
+            .replacingOccurrences(of: ", ", with: ",")
+            .replacingOccurrences(of: " ,", with: ",")
+            .replacingOccurrences(of: ". ", with: ".")
+        let cents = Int((value * 100).rounded())
+        let reais = cents / 100
+        let rest = String(format: "%02d", cents % 100)
+
+        var forms = ["\(reais),\(rest)", "\(reais).\(rest)"]
+        if reais >= 1000 {
+            let thousands = String(reais).reversed().enumerated()
+                .map { $0.offset > 0 && $0.offset % 3 == 0 ? "\($0.element)." : "\($0.element)" }
+                .joined()
+            forms.append("\(String(thousands.reversed())),\(rest)")
+        }
+        return forms.contains { containsWholeNumber($0, in: text) }
+    }
+
+    /// `token` with no digit, dot or comma right before or after it.
+    private static func containsWholeNumber(_ token: String, in text: String) -> Bool {
+        var searchRange = text.startIndex..<text.endIndex
+        while let found = text.range(of: token, range: searchRange) {
+            let before: Character = found.lowerBound > text.startIndex ? text[text.index(before: found.lowerBound)] : " "
+            let after: Character = found.upperBound < text.endIndex ? text[found.upperBound] : " "
+            let isBoundary: (Character) -> Bool = { !$0.isNumber && $0 != "," && $0 != "." }
+            if isBoundary(before) && isBoundary(after) { return true }
+            searchRange = found.upperBound..<text.endIndex
+        }
+        return false
+    }
 }

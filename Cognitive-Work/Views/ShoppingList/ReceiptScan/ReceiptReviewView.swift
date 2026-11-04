@@ -5,18 +5,20 @@
 //  Created by anshu Li on 04/11/26.
 //
 
+import Foundation
 import SwiftUI
 
-/// The products read from a scanned receipt, for the person to check before anything reaches
-/// the shopping list: whether their sum matches the receipt, the lines worth a look (orange),
-/// the item numbers that weren't read, and where each line goes (a list item to check off, a
-/// new item, or nowhere). Names and prices can be fixed and a line read by mistake swiped
-/// away. "Confirmar" saves it all at once.
+/// The products read from a scanned receipt, reviewed before anything reaches the shopping
+/// list. Laid out like the review step of ``AddMoreItensInteligence``: one white card per
+/// product with a checkbox in front (ticked ones go to the list), and the blue checkmark at the
+/// top right to confirm. Products whose name matches a list item come first and check that
+/// item off; below a line, the ones bought outside the list, added already bought for who the
+/// person picks (the whole house by default). On top, whether their sum matches the receipt.
 struct ReceiptReviewView: View {
 
     /// The scanned pages.
     let pages: [UIImage]
-    /// The shopping list the receipt is linked to.
+    /// The shopping list the receipt goes to.
     let shopList: ShopListViewModel
     /// Closes this sheet and opens the scanner (or the photo picker) again.
     let onScanAgain: () -> Void
@@ -48,17 +50,33 @@ struct ReceiptReviewView: View {
                         Image(systemName: "xmark")
                     }
                     .disabled(viewModel.isApplying)
-                    .voiceOverLabel(L10n.tr("Fechar"))
+                    .voiceOverLabel(L10n.tr("Cancelar"))
                     .voiceControlNames([L10n.tr("Fechar"), L10n.tr("Cancelar")])
                 }
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: onScanAgain) {
-                        Image(systemName: "arrow.clockwise")
+
+                if viewModel.phase == .review {
+                    // Like confirming the AI items: the blue checkmark at the top right.
+                    ToolbarItem(placement: .confirmationAction) {
+                        if viewModel.isApplying {
+                            ProgressView()
+                        } else {
+                            Button {
+                                Task { await confirm() }
+                            } label: {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 12))
+                                    .bold()
+                                    .foregroundColor(.white)
+                            }
+                            .tint(.blue)
+                            .buttonStyle(.glassProminent)
+                            .disabled(!viewModel.canConfirm)
+                            .voiceOverLabel(L10n.tr("Adicionar itens (\(viewModel.included.count))"))
+                            .voiceControlNames([L10n.tr("Adicionar"), L10n.tr("Confirmar"), L10n.tr("OK")])
+                        }
                     }
-                    .disabled(viewModel.phase == .reading || viewModel.isApplying)
-                    .voiceOverLabel(L10n.tr("Escanear de novo"))
-                    .voiceControlNames([L10n.tr("Escanear de novo"), L10n.tr("Escanear")])
                 }
+
                 // Closes the number pad of the price fields.
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -71,7 +89,12 @@ struct ReceiptReviewView: View {
         .presentationBackground(Color(.systemGray6))
         .interactiveDismissDisabled(viewModel.isApplying)
         .task {
-            await viewModel.read(pages, linking: shopList.receiptLinkableItems)
+            await viewModel.read(
+                pages,
+                linking: shopList.receiptLinkableItems,
+                houseUsers: shopList.houseUsers,
+                memory: shopList.receiptNameMemory
+            )
             switch viewModel.phase {
             case .review: VoiceOver.announce(L10n.tr("\(viewModel.lines.count) itens"))
             case .empty: VoiceOver.announce(L10n.tr("Nenhum item encontrado"))
@@ -100,6 +123,7 @@ struct ReceiptReviewView: View {
                 .accessibilityHidden(true)
             Text("Nenhum item encontrado")
                 .font(.system(size: 20, weight: .bold))
+                .foregroundStyle(.titleGray)
                 .accessibilityAddTraits(.isHeader)
             Text("Não encontramos itens nesta foto. Tente fotografar a nota de novo, reta e bem iluminada.")
                 .font(.system(size: 15))
@@ -110,136 +134,131 @@ struct ReceiptReviewView: View {
         .padding(32)
     }
 
+    /// Back to the camera (or the photos), like "Editar texto" on the AI items.
     private var scanAgainButton: some View {
         Button(action: onScanAgain) {
             Label("Escanear de novo", systemImage: "doc.text.viewfinder")
-                .font(.system(size: 16, weight: .semibold))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 4)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.titleGray)
+                .padding(.vertical, 6)
         }
-        .buttonStyle(.glassProminent)
-        .tint(.blue)
+        .buttonStyle(.plain)
+        .disabled(viewModel.isApplying)
     }
 
     // MARK: - Review
 
     private var review: some View {
-        List {
-            Section {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Revise os itens antes de adicionar.")
+                    .font(.system(size: 15))
+                    .foregroundStyle(.subTitleGray)
+
                 summary
-                if viewModel.looksHardToRead {
-                    hardToReadNotice
-                }
-            }
+                    .padding(.bottom, 4)
 
-            Section {
-                listLinking
-            } header: {
-                Text("Lista de compras")
-            }
+                let listLines = viewModel.listLines
+                let otherLines = viewModel.otherLines
 
-            Section {
-                ForEach(viewModel.lines) { line in
-                    row(for: line)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                withAnimation(.snappy) { viewModel.remove(line) }
-                            } label: {
-                                Label(L10n.tr("Remover"), systemImage: "trash")
-                            }
-                        }
-                        .accessibilityAction(named: Text(verbatim: L10n.tr("Remover"))) {
-                            withAnimation(.snappy) { viewModel.remove(line) }
-                        }
+                if !listLines.isEmpty {
+                    sectionTitle(L10n.tr("Da sua lista"))
+                    ForEach(listLines) { line in
+                        row(for: line)
+                    }
                 }
-            } header: {
-                Text(L10n.tr("\(viewModel.lines.count) itens"))
-            } footer: {
+
+                if !otherLines.isEmpty {
+                    if !listLines.isEmpty {
+                        // The same black line that separates "Comprados" on the list.
+                        Capsule()
+                            .fill(Color.black)
+                            .frame(height: 1.5)
+                            .padding(.vertical, 12)
+                            .accessibilityHidden(true)
+                    }
+                    HStack {
+                        sectionTitle(L10n.tr("Fora da lista"))
+                        Spacer()
+                        otherLinesConsumersMenu
+                    }
+                    ForEach(otherLines) { line in
+                        row(for: line)
+                    }
+                }
+
                 if !viewModel.missingItemNumbers.isEmpty {
                     let numbers = viewModel.missingItemNumbers.map { String(format: "%03d", $0) }.joined(separator: ", ")
                     Text(L10n.tr("Itens não lidos: \(numbers)"))
+                        .font(.system(size: 13))
+                        .foregroundStyle(.subTitleGray)
+                        .padding(.horizontal, 6)
                 }
+
+                scanAgainButton
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 8)
             }
+            .padding(22)
         }
         .scrollDismissesKeyboard(.interactively)
-        .safeAreaInset(edge: .bottom) { confirmBar }
     }
 
-    /// The products' sum, the receipt's total and whether they match.
+    /// The products' sum against the receipt's total, in a white card.
     private var summary: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            LabeledContent(L10n.tr("Soma dos itens"), value: ReceiptScanViewModel.money(viewModel.sum))
-                .font(.system(size: 16, weight: .semibold))
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Soma dos itens")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.titleGray)
+                Spacer()
+                Text(ReceiptScanViewModel.money(viewModel.sum))
+                    .font(.system(size: 17, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(.titleGray)
+            }
 
-            switch viewModel.totalCheck {
-            case .matches(let total):
-                LabeledContent(L10n.tr("Total da nota"), value: ReceiptScanViewModel.money(total))
-                Label(L10n.tr("Bate com o total da nota"), systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-            case .differs(let total, let difference):
-                LabeledContent(L10n.tr("Total da nota"), value: ReceiptScanViewModel.money(total))
-                Label(L10n.tr("Diferença de \(ReceiptScanViewModel.money(difference)) para o total da nota"),
-                      systemImage: "exclamationmark.triangle.fill")
+            Group {
+                switch viewModel.totalCheck {
+                case .matches:
+                    Label(L10n.tr("Bate com o total da nota"), systemImage: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                case .differs(let total, let difference):
+                    Label {
+                        Text(verbatim: "\(L10n.tr("Total da nota")) \(ReceiptScanViewModel.money(total)) · "
+                             + L10n.tr("Diferença de \(ReceiptScanViewModel.money(difference)) para o total da nota"))
+                    } icon: {
+                        Image(systemName: "exclamationmark.circle.fill")
+                    }
                     .foregroundStyle(.orange)
-            case .noPrintedTotal:
-                Label(L10n.tr("Total da nota não encontrado"), systemImage: "questionmark.circle")
+                case .noPrintedTotal:
+                    Label(L10n.tr("Total da nota não encontrado"), systemImage: "questionmark.circle")
+                        .foregroundStyle(.subTitleGray)
+                }
+            }
+            .font(.system(size: 13))
+
+            // The parser's sum didn't match, so the photo was read by the model instead.
+            if viewModel.readFromPhoto {
+                Label(L10n.tr("Lido pela foto com Apple Intelligence"), systemImage: "sparkles")
+                    .font(.system(size: 13))
                     .foregroundStyle(.subTitleGray)
             }
 
-            if viewModel.warningCount > 0 {
-                Text(L10n.tr("\(viewModel.warningCount) itens para conferir"))
-                    .font(.system(size: 14))
-                    .foregroundStyle(.orange)
+            if viewModel.looksHardToRead {
+                Text("Esta nota está difícil de ler. Confira os itens marcados ou escaneie de novo.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.subTitleGray)
             }
         }
-        .font(.system(size: 15))
-        .padding(.vertical, 4)
+        .padding(16)
+        .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 
-    /// Suggests scanning again when the receipt was hard to read.
-    private var hardToReadNotice: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Esta nota está difícil de ler. Confira os itens marcados ou escaneie de novo.")
-                .font(.system(size: 14))
-                .foregroundStyle(.titleGray)
-            Button(action: onScanAgain) {
-                Label("Escanear de novo", systemImage: "doc.text.viewfinder")
-                    .font(.system(size: 15, weight: .semibold))
-            }
-        }
-        .padding(.vertical, 4)
-    }
-
-    /// How many lines go to the list, the list items the receipt doesn't seem to have, and a
-    /// shortcut to add every left-out line as a new item.
-    @ViewBuilder
-    private var listLinking: some View {
-        Text(L10n.tr("\(viewModel.linkedCount) da lista, \(viewModel.newCount) novos"))
-            .font(.system(size: 15, weight: .semibold))
-
-        let unfound = viewModel.unfoundItems
-        if !unfound.isEmpty {
-            let names = ShopListViewModel.accessibilityList(unfound.map(\.name))
-            Text(L10n.tr("Não encontrados na nota: \(names)"))
-                .font(.system(size: 14))
-                .foregroundStyle(.subTitleGray)
-        }
-
-        if viewModel.skippedCount > 0 {
-            Button {
-                HapticsManager.selection()
-                withAnimation(.snappy) { viewModel.addSkippedAsNew() }
-            } label: {
-                Label(L10n.tr("Adicionar os outros \(viewModel.skippedCount) como novos"), systemImage: "plus.circle")
-                    .font(.system(size: 15, weight: .semibold))
-            }
-        }
-    }
-
-    /// One product: its name and amount on the left, the price on the right, where it goes
-    /// below, and the warning last in orange.
+    /// One product: the checkbox in front, then its name, amount and price, where it goes in
+    /// the list, and a warning in orange when the reading needs a look.
     private func row(for line: ReceiptScanLine) -> some View {
+        let isIncluded = viewModel.isIncluded(line)
         let nameBinding = Binding(
             get: { viewModel.lines.first(where: { $0.id == line.id })?.name ?? "" },
             set: { newValue in
@@ -254,144 +273,238 @@ struct ReceiptReviewView: View {
         )
         let amount = ReceiptScanViewModel.amountText(for: line)
 
-        return VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline, spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
+        return HStack(alignment: .top, spacing: 6) {
+            Button {
+                HapticsManager.selection()
+                withAnimation(.snappy) { viewModel.toggle(line) }
+            } label: {
+                Image(systemName: isIncluded ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 24))
+                    .foregroundStyle(isIncluded ? Color.blue : Color.gray.opacity(0.5))
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .voiceOverLabel(L10n.tr("Incluir \(line.name)"))
+            .voiceOverTraits(.isSelected, when: isIncluded)
+            .voiceControlNames([L10n.tr("Incluir \(line.name)")])
+
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline, spacing: 10) {
                     TextField("Nome do item", text: nameBinding, axis: .vertical)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(.titleGray)
                         .voiceOverLabel(L10n.tr("Nome do item"))
-                    if !amount.isEmpty {
-                        Text(amount)
-                            .font(.system(size: 13))
+
+                    HStack(spacing: 2) {
+                        Text("R$")
                             .foregroundStyle(.subTitleGray)
+                            .accessibilityHidden(true)
+                        TextField("0,00", text: priceBinding)
+                            .priceInput(text: priceBinding)
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 72)
+                            .voiceOverLabel(L10n.tr("Valor total"))
+                            .voiceOverValue(ShopListViewModel.accessibilityPrice(priceBinding.wrappedValue))
+                    }
+                    .font(.system(size: 17, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(.titleGray)
+                }
+
+                if !amount.isEmpty {
+                    infoLine("dumbbell.fill", amount)
+                }
+
+                if isIncluded {
+                    destination(for: line)
+                    // A weighed product changes the list's quantity to the weight bought: said
+                    // here, before confirming.
+                    if let change = viewModel.quantityChange(for: line) {
+                        Label(L10n.tr("Quantidade na lista: \(change.from) → \(change.to)"), systemImage: "scalemass.fill")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.blue)
+                    }
+                    if let item = viewModel.linkedItem(for: line) {
+                        // A list item already says who it's for.
+                        let names = shopList.relatedUsers(for: item).map(\.name)
+                        if !names.isEmpty {
+                            infoLine("person.2.fill", ShopListViewModel.accessibilityList(names))
+                        }
+                    } else {
+                        consumersMenu(for: line)
                     }
                 }
 
-                Spacer(minLength: 8)
-
-                HStack(spacing: 2) {
-                    Text("R$")
-                        .foregroundStyle(.subTitleGray)
-                        .accessibilityHidden(true)
-                    TextField("0,00", text: priceBinding)
-                        .priceInput(text: priceBinding)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: 80)
-                        .voiceOverLabel(L10n.tr("Valor total"))
-                        .voiceOverValue(ShopListViewModel.accessibilityPrice(priceBinding.wrappedValue))
+                if let warning = line.warning {
+                    Label(ReceiptScanViewModel.warningText(warning), systemImage: "exclamationmark.circle.fill")
+                        .font(.system(size: 13))
+                        .foregroundStyle(.orange)
                 }
-                .font(.system(size: 15).monospacedDigit())
             }
-
-            targetMenu(for: line)
-
-            if let warning = line.warning {
-                Label(ReceiptScanViewModel.warningText(warning), systemImage: "exclamationmark.triangle.fill")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.orange)
-            }
+            .padding(.top, 10)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 6)
+        .padding(.leading, 6)
+        .padding(.trailing, 14)
+        .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .opacity(isIncluded ? 1 : 0.5)
     }
 
-    // MARK: - Where a line goes
-
-    /// A chip with where the line goes; tapping it lists the list items, "new item" and "leave
-    /// out".
-    private func targetMenu(for line: ReceiptScanLine) -> some View {
-        let target = viewModel.targets[line.id] ?? .skip
+    /// Where a ticked product goes: the list item it checks off ("Já está na lista: banana"),
+    /// or a new item. The menu changes it, as plain options in a picker like the repeated-item
+    /// choice on the AI items.
+    private func destination(for line: ReceiptScanLine) -> some View {
+        let linked = viewModel.linkedItem(for: line)
+        let title = linked.map { L10n.tr("Já está na lista: \($0.name)") } ?? L10n.tr("Novo item")
 
         return Menu {
-            if !viewModel.linkableItems.isEmpty {
-                Section(L10n.tr("Itens da lista")) {
-                    ForEach(viewModel.linkableItems, id: \.id) { item in
-                        Button {
-                            HapticsManager.selection()
-                            viewModel.setTarget(.item(item.id), for: line)
-                        } label: {
-                            if target == .item(item.id) {
-                                Label(menuName(for: item), systemImage: "checkmark")
-                            } else {
-                                Text(menuName(for: item))
-                            }
-                        }
+            Picker(selection: Binding(
+                get: { viewModel.links[line.id] },
+                set: { newValue in
+                    HapticsManager.selection()
+                    // The card moves between "Da sua lista" and "Fora da lista".
+                    withAnimation(.snappy) { viewModel.link(line, to: newValue) }
+                }
+            )) {
+                Text(L10n.tr("Novo item")).tag(String?.none)
+                ForEach(viewModel.linkableItems, id: \.id) { item in
+                    Text(item.name)
+                        .tag(String?.some(item.id))
+                }
+            } label: {
+                EmptyView()
+            }
+        } label: {
+            HStack(spacing: 3) {
+                Image(systemName: linked == nil ? "plus.circle.fill" : "checkmark.circle.fill")
+                    .font(.system(size: 11))
+                    .frame(width: 16)
+                Text(title)
+                    .lineLimit(1)
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(linked == nil ? Color.subTitleGray : Color.green)
+        }
+        .buttonStyle(.plain)
+        .voiceOverLabel(L10n.tr("Na lista"))
+        .voiceOverValue(title)
+    }
+
+    // MARK: - Who it's for
+
+    /// "Da sua lista", "Fora da lista".
+    private func sectionTitle(_ title: String) -> some View {
+        Text(title)
+            .font(.system(size: 20, weight: .bold))
+            .foregroundStyle(.titleGray)
+            .padding(.horizontal, 6)
+            .accessibilityAddTraits(.isHeader)
+    }
+
+    /// Who a product bought outside the list is for: "Todos", or the names. The menu ticks
+    /// people in and out and stays open, so several can be changed at once.
+    private func consumersMenu(for line: ReceiptScanLine) -> some View {
+        let text = peopleText(for: line)
+
+        return Menu {
+            Button {
+                HapticsManager.selection()
+                viewModel.setConsumers(nil, for: line)
+            } label: {
+                if viewModel.isForEveryone(line) {
+                    Label(L10n.tr("Todos"), systemImage: "checkmark")
+                } else {
+                    Text(L10n.tr("Todos"))
+                }
+            }
+            Divider()
+            ForEach(viewModel.houseUsers) { user in
+                let isChosen = viewModel.consumers(for: line).contains { $0.id == user.id }
+                Button {
+                    HapticsManager.selection()
+                    viewModel.toggleConsumer(user, for: line)
+                } label: {
+                    if isChosen {
+                        Label(user.name, systemImage: "checkmark")
+                    } else {
+                        Text(user.name)
                     }
                 }
             }
-            Button {
-                HapticsManager.selection()
-                viewModel.setTarget(.newItem, for: line)
-            } label: {
-                Label("Adicionar como novo item", systemImage: "plus.circle")
-            }
-            Button {
-                HapticsManager.selection()
-                viewModel.setTarget(.skip, for: line)
-            } label: {
-                Label("Não adicionar", systemImage: "minus.circle")
-            }
         } label: {
-            let style = chip(for: target, line: line)
-            HStack(spacing: 5) {
-                Image(systemName: style.icon)
-                Text(style.title)
+            HStack(spacing: 3) {
+                Image(systemName: "person.2.fill")
+                    .font(.system(size: 11))
+                    .frame(width: 16)
+                Text(text)
                     .lineLimit(1)
                 Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 10, weight: .semibold))
+                    .imageScale(.small)
             }
             .font(.system(size: 13, weight: .semibold))
-            .foregroundStyle(style.color)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(style.color.opacity(0.12), in: Capsule())
+            .foregroundStyle(.subTitleGray)
         }
-        .buttonStyle(.borderless)
-        .voiceOverLabel(L10n.tr("Na lista"))
-        .voiceOverValue(chip(for: target, line: line).title)
+        .menuActionDismissBehavior(.disabled)
+        .buttonStyle(.plain)
+        .voiceOverLabel(L10n.tr("Responsável"))
+        .voiceOverValue(text)
     }
 
-    /// The chip's icon, text and color for a target.
-    private func chip(for target: ReceiptScanViewModel.Target, line: ReceiptScanLine) -> (icon: String, title: String, color: Color) {
-        switch target {
-        case .item(let id):
-            return ("checkmark.circle.fill", viewModel.item(withID: id)?.name ?? "", .green)
-        case .newItem:
-            return ("plus.circle.fill", L10n.tr("Novo item"), .blue)
-        case .skip:
-            return ("minus.circle", L10n.tr("Não adicionar"), .gray)
+    /// Sets who every product outside the list is for at once: the whole house, or one person.
+    private var otherLinesConsumersMenu: some View {
+        Menu {
+            Button(L10n.tr("Todos")) {
+                HapticsManager.selection()
+                viewModel.setConsumersForOtherLines(nil)
+            }
+            Divider()
+            ForEach(viewModel.houseUsers) { user in
+                Button(user.name) {
+                    HapticsManager.selection()
+                    viewModel.setConsumersForOtherLines([user])
+                }
+            }
+        } label: {
+            HStack(spacing: 3) {
+                Image(systemName: "person.2.fill")
+                Text(L10n.tr("Responsável"))
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(.titleGray)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(Color.white, in: Capsule())
         }
+        .buttonStyle(.plain)
+        .voiceOverLabel(L10n.tr("Responsável"))
+        .voiceOverHint(L10n.tr("Escolha para quem são todos os itens fora da lista."))
     }
 
-    /// A list item's name in the menu; a bought one without a price says so.
-    private func menuName(for item: ShopListItem) -> String {
-        item.isBought ? L10n.tr("\(item.name) (comprado sem preço)") : item.name
+    /// "Todos", or "Ana, Bruno".
+    private func peopleText(for line: ReceiptScanLine) -> String {
+        viewModel.isForEveryone(line)
+            ? L10n.tr("Todos")
+            : ShopListViewModel.accessibilityList(viewModel.consumers(for: line).map(\.name))
+    }
+
+    /// A small grey line with its icon in front, like on the AI items.
+    private func infoLine(_ systemImage: String, _ text: String) -> some View {
+        Label {
+            Text(text)
+        } icon: {
+            Image(systemName: systemImage)
+                .font(.system(size: 11))
+                .frame(width: 16)
+        }
+        .font(.system(size: 13))
+        .foregroundStyle(.subTitleGray)
     }
 
     // MARK: - Confirming
-
-    /// "Confirmar", pinned under the list.
-    private var confirmBar: some View {
-        Button {
-            Task { await confirm() }
-        } label: {
-            Group {
-                if viewModel.isApplying {
-                    ProgressView()
-                } else {
-                    Text("Confirmar")
-                }
-            }
-            .font(.system(size: 17, weight: .semibold))
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 6)
-        }
-        .buttonStyle(.glassProminent)
-        .tint(.blue)
-        .disabled(!viewModel.canConfirm)
-        .padding(.horizontal, 20)
-        .padding(.vertical, 10)
-        .voiceOverValue(L10n.tr("\(viewModel.linkedCount) da lista, \(viewModel.newCount) novos"))
-    }
 
     /// Saves into the list and closes. It closes on a failure too (the list shows the error),
     /// since part of it may already be saved and confirming again would repeat it.

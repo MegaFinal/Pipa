@@ -331,19 +331,6 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         return true
     }
 
-    /// Records what was paid for an item that was checked off without a price (it comes later,
-    /// from a scanned receipt). Rolled back if CloudKit rejects the update.
-    @discardableResult
-    func setTotalPrice(_ paid: Double) async -> Bool {
-        let previous = totalPrice
-        totalPrice = paid
-        guard await CloudKitManager.shared.update(self) else {
-            totalPrice = previous
-            return false
-        }
-        return true
-    }
-
     /// Records, in memory only, that `debtorID` paid their share (used by previews and as the
     /// first step of ``markSettled(for:)``).
     func settleLocally(for debtorID: CKRecord.ID) {

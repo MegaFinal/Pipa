@@ -16,6 +16,9 @@ nonisolated enum ReceiptLineWarning: Equatable {
     case quantityNotRead
     /// Neither a quantity nor a total was found (the product may be cut between two photos).
     case noAmount
+    /// Read from the photo by the model, but the price isn't printed anywhere on the receipt
+    /// (OCR reads digits exactly): probably misread.
+    case notOnReceipt
 }
 
 /// One product read from a receipt; the review screen lets the person fix it.
@@ -31,6 +34,10 @@ nonisolated struct ReceiptScanLine: Identifiable, Equatable {
     /// What was paid for the whole line.
     var total: Double
     var warning: ReceiptLineWarning?
+    /// The product's barcode, when read (see ``ReceiptNameMemory``).
+    var barcode: String? = nil
+    /// The name as printed, before it's spelled out or renamed; empty when it's ``name``.
+    var receiptName = ""
 }
 
 extension ReceiptScanLine {
@@ -58,7 +65,8 @@ extension ReceiptScanLine {
             quantity: item.quantity,
             weightKg: item.weightKg,
             total: total,
-            warning: warning
+            warning: warning,
+            barcode: item.barcode
         )
     }
 }
@@ -70,6 +78,9 @@ nonisolated struct ReceiptScanResult {
     var printedTotals: [Double]
     /// "QTD. TOTAL DE ITENS", when printed.
     var printedItemCount: Int?
+    /// Whether the products came from the photo reading (``ReceiptPhotoReading``) instead of
+    /// the parser.
+    var readFromPhoto = false
 
     /// Item numbers between 1 and the last one (or the printed count) that weren't read:
     /// products the reader lost, for the person to add.

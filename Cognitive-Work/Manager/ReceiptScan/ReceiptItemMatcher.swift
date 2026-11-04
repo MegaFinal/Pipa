@@ -14,7 +14,9 @@ import Foundation
 /// same word (or its plural), the start of it ("COND" -> "condensado"), or its letters in order
 /// with the same first letter ("LTE" -> "leite", "QJ" -> "queijo").
 /// The person confirms every pair on the review screen, so a near miss is cheap; a wrong pair
-/// is avoided by requiring every word of a short list name.
+/// is avoided by requiring every word of a short list name, and the list name's first word on
+/// the receipt name's first word: receipts print the product type first ("IOG.BAT.NAT" is a
+/// yogurt, not "batata"; "MA.QUALY C/SAL" is margarine, not "sal").
 nonisolated enum ReceiptItemMatcher {
 
     /// For each list item (by index), the receipt line (by index) that is the same product.
@@ -29,6 +31,8 @@ nonisolated enum ReceiptItemMatcher {
             guard !words.isEmpty else { continue }
 
             for (lineIndex, tokens) in receiptWords.enumerated() where !tokens.isEmpty {
+                guard let firstToken = tokens.first, let firstWord = words.first,
+                      quality(of: firstToken, for: firstWord) > 0 else { continue }
                 // How well each list word was found in the line (0 when it wasn't).
                 let qualities = words.map { word in tokens.map { quality(of: $0, for: word) }.max() ?? 0 }
                 let found = qualities.filter { $0 > 0 }.count
