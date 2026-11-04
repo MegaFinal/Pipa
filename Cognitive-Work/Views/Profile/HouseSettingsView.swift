@@ -182,6 +182,7 @@ struct HouseSettingsView: View {
             }
         } message: {
             Text("Você deixará de ver as tarefas desta casa. Os outros moradores continuam nela e você poderá entrar de novo com um convite.")
+                + Text(verbatim: PremiumManager.shared.leaveWarning.map { "\n\n" + $0 } ?? "")
         }
         // MARK: - Reset division alert and new division screen
         .alert("Deseja reiniciar a divisão de tarefas?", isPresented: $showChoreResetConfirmation) {

@@ -43,8 +43,11 @@ struct CreateAndEditChoreView: View {
     // spoken with the mic beside it, like the shopping item form. The AI fills room, frequency,
     // duration, priority and people; the person checks everything before saving.
 
-    /// Whether the name field takes descriptions; set when the form appears (new chores only).
+    /// Whether the name field takes descriptions; set when the form appears (new chores only,
+    /// Premium houses only).
     @State private var canSuggest = false
+    /// The Premium paywall, opened from the AI hint on free houses.
+    @State private var paywall: PremiumFeature?
     /// Speech-to-text for the mic beside the name (listens in the app's language).
     @State private var voice = VoiceInputManager()
     /// The description the form was filled from, typed in the name or spoken, shown above the
@@ -117,6 +120,11 @@ struct CreateAndEditChoreView: View {
             await viewModel.load()
             canSuggest = viewModel.canSuggest
         }
+        // Bought Premium from the hint: the AI turns on without reopening the form.
+        .onChange(of: PremiumManager.shared.isPremium) { _, _ in
+            canSuggest = viewModel.canSuggest
+        }
+        .premiumPaywall($paywall)
         // New checklist ideas when the chore's name or room settles.
         .onChange(of: checklistIdeasTrigger) { _, _ in
             scheduleChecklistIdeas()
@@ -248,6 +256,8 @@ struct CreateAndEditChoreView: View {
                         // Starts where the title starts; wrapped lines stay left-aligned.
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    } else if viewModel.mode == .create && PremiumAIHint.isNeeded {
+                        PremiumAIHint(text: "Descreva a tarefa e a IA preenche para você", paywall: $paywall)
                     }
                 }
                 .animation(.snappy, value: preview?.name)

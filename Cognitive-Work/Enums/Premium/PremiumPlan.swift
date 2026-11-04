@@ -114,6 +114,14 @@ struct PremiumPlan: Hashable {
         self.isStudent = isStudent
     }
 
+    /// The subscription of `tier` for `period` (the student one when `isStudent`), or `nil` for
+    /// combinations that don't exist (a student monthly plan, lifetime).
+    static func subscription(for tier: HouseSizeTier, period: Period, isStudent: Bool) -> PremiumPlan? {
+        allSubscriptions.first {
+            $0.tier == tier && $0.period == period && $0.isStudent == (isStudent && period == .yearly)
+        }
+    }
+
     /// Whether this plan pays for a house of `tier`. Lifetime covers every size.
     func covers(_ required: HouseSizeTier) -> Bool {
         guard let tier else { return true }

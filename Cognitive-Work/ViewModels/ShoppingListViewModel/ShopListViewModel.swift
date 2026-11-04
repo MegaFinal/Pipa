@@ -706,7 +706,7 @@ final class ShopListViewModel {
 
     /// Whether the add-item form should offer AI suggestions on this device and language.
     var canSuggestItemDetails: Bool {
-        IntelligenceManager.shared.isAvailable
+        IntelligenceManager.shared.isAvailable && PremiumManager.shared.allows(.intelligence)
     }
 
     /// Suggests name, quantity, unit, category, price and who splits the item from a description.
@@ -760,7 +760,7 @@ final class ShopListViewModel {
                 return candidate
             }
             // Comparing with AI is Premium; the free plan only matches identical names.
-            guard PremiumManager.shared.allows(.shopAI) else { continue }
+            guard PremiumManager.shared.allows(.intelligence) else { continue }
             if await IntelligenceManager.shared.isSameProduct(name, as: candidate.name) == true {
                 return candidate
             }

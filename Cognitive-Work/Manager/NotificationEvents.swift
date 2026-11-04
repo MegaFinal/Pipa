@@ -84,6 +84,22 @@ extension NotificationManager {
         )
     }
 
+    /// The member who paid for Premium is leaving: tells the others that the house is back on
+    /// the free plan and someone else needs to subscribe. Sent before leaving, while the house
+    /// can still be written to.
+    /// - Parameters:
+    ///   - payerName: The name of the person leaving.
+    ///   - members: The house members. The current user is left out by ``send(_:)``.
+    func notifyPremiumEnded(payerName: String, to members: [UserModel]) async {
+        await sendEvent(
+            kind: .premiumEnded,
+            titleKey: Notifications.premiumEnded.rawValue,
+            titleArgs: [payerName],
+            bodyKey: Notifications.premiumEnded.subTitle,
+            recipientIDs: members.map(\.ownerRecordName)
+        )
+    }
+
     // MARK: - Building
 
     /// Builds the notification and sends it. Does nothing without recipients.

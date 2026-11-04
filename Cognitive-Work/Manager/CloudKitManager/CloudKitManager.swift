@@ -613,9 +613,15 @@ class CloudKitManager {
             throw CloudKitErrors<Any>.currentHouseOwnerCannotLeaveTheHouse
         }
         
+        // If this user pays for the house's Premium, clear it and tell the others first: after
+        // leaving the house can't be written to anymore.
+        await PremiumManager.shared.releaseHouseBeforeLeaving(house)
+        
         // Removes this user's member record from the house *before* leaving the share, so no
         // ghost member is left behind
-        return await leaveSharedHouse(in: share.recordID.zoneID)
+        let left = await leaveSharedHouse(in: share.recordID.zoneID)
+        if !left { await PremiumManager.shared.leavingFailed() }
+        return left
     }
     
     /// Leaves the current house and accepts the invitation to another one.
