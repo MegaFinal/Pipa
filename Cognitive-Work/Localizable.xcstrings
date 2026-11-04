@@ -312,7 +312,8 @@
             "value" : "年度方案优惠 %@"
           }
         }
-      }
+      },
+      "extractionState" : "manual"
     },
     "%@ e %@" : {
       "localizations" : {
@@ -5634,6 +5635,28 @@
         }
       }
     },
+    "Sua casa está no teste grátis até %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your home is on the free trial until %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu casa está en la prueba gratuita hasta el %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta maison est en essai gratuit jusqu’au %@"
+          }
+        }
+      }
+    },
     "Sua rede" : {
       "localizations" : {
         "en" : {
@@ -5754,6 +5777,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Conditions d’utilisation"
+          }
+        }
+      }
+    },
+    "Teste grátis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Free trial"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prueba gratuita"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essai gratuit"
+          }
+        }
+      }
+    },
+    "Todos os recursos Premium estão liberados. Depois disso, alguém da casa precisa assinar para continuar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every Premium feature is unlocked. After that, someone in the home needs to subscribe to keep it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todas las funciones Premium están desbloqueadas. Después, alguien de la casa tiene que suscribirse para seguir."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toutes les fonctionnalités Premium sont débloquées. Ensuite, quelqu’un de la maison doit s’abonner pour continuer."
           }
         }
       }
@@ -9301,7 +9368,8 @@
             "value" : "学生年度"
           }
         }
-      }
+      },
+      "extractionState" : "manual"
     },
     "Ao apagar seu perfil, você também sairá da casa e perderá o acesso às tarefas e ao histórico. A casa continuará existindo para os outros moradores. Essa ação não pode ser desfeita." : {
       "localizations" : {
@@ -43771,7 +43839,8 @@
             "value" : "我是学生"
           }
         }
-      }
+      },
+      "extractionState" : "manual"
     },
     "Status" : {
       "localizations" : {

@@ -5,7 +5,7 @@
 
 import SwiftUI
 import StoreKit
-
+ 
 /// Pipa Premium: the plans when the house isn't Premium, or the subscription status when it is.
 ///
 /// The plans shown depend on the house size (``HouseSizeTier``): a house with 5 residents only
@@ -24,11 +24,11 @@ struct PremiumView: View {
     private var premium = PremiumManager.shared
     private var storeManager = StoreManager.shared
 
-    /// Uses the student yearly plan (-30%) in the "Premium Anual" card.
-    ///
-    /// - Important: Honor system for now — nothing checks that the person studies. See the notes
-    ///   on verifying students before shipping.
-    @AppStorage("premium.isStudent") private var isStudent = false
+    // Student plan: turned off for now. To bring it back, uncomment this, the toggle in
+    // `yearlyCard`, `studentDiscount`, the line in `planName` and the student plans in
+    // `PremiumPlan.allSubscriptions` (and add them back to Premium.storekit / App Store Connect).
+    // - Important: honor system — nothing checks that the person studies.
+    // @AppStorage("premium.isStudent") private var isStudent = false
 
     /// The card picked by the person. Annual by default: it's the best deal.
     @State private var selectedPeriod: PremiumPlan.Period = .yearly
@@ -46,7 +46,8 @@ struct PremiumView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if !premium.isPremium {
+                if !premium.isPremium || premium.isOnTrialOnly {
+                    // On the free trial nobody pays yet: the plans stay on screen.
                     store(isUpgrade: false)
                 } else if premium.isPaidByMe && premium.needsUpgrade {
                     // The house grew: same screen, now with the bigger bracket's prices. All
@@ -103,9 +104,8 @@ struct PremiumView: View {
         PremiumPlan.subscription(for: tier, period: .monthly, isStudent: false)
     }
 
-    /// The regular or the student yearly plan, depending on the toggle.
     private var yearlyPlan: PremiumPlan? {
-        PremiumPlan.subscription(for: tier, period: .yearly, isStudent: isStudent)
+        PremiumPlan.subscription(for: tier, period: .yearly, isStudent: false)
     }
 
     /// The plan of the selected card.
@@ -131,6 +131,10 @@ struct PremiumView: View {
                      : L10n.tr("Uma assinatura libera todos os benefícios para a casa inteira"))
                     .foregroundStyle(.subTitleGray)
                     .multilineTextAlignment(.center)
+
+                if premium.isOnTrialOnly, let endsAt = premium.houseTrialEndsAt {
+                    trialNotice(endsAt: endsAt)
+                }
 
                 if premium.hasSubscriptionElsewhere {
                     subscriptionElsewhereNotice
@@ -183,6 +187,27 @@ struct PremiumView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "Pipa Premium"))
         .accessibilityAddTraits(.isHeader)
+    }
+
+    /// "Sua casa está no teste grátis até 4 de janeiro": what happens when it ends.
+    private func trialNotice(endsAt: Date) -> some View {
+        let date = endsAt.formatted(.dateTime.day().month(.wide).locale(L10n.locale))
+        return VStack(alignment: .leading, spacing: 6) {
+            Label {
+                Text(L10n.tr("Sua casa está no teste grátis até \(date)"))
+                    .font(.headline)
+            } icon: {
+                Image(systemName: "gift.fill")
+                    .foregroundStyle(RoomColor.purple.uiColor)
+            }
+            Text("Todos os recursos Premium estão liberados. Depois disso, alguém da casa precisa assinar para continuar.")
+                .font(.subheadline)
+                .foregroundStyle(.subTitleGray)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.groupedBackground, in: .rect(cornerRadius: 24))
     }
 
     /// For someone who subscribed in another house and moved: the subscription stays with that
@@ -242,7 +267,6 @@ struct PremiumView: View {
         }
     }
 
-    /// The annual plan, with the student switch inside it.
     private var yearlyCard: some View {
         PremiumPlanCard(
             title: "Premium Anual",
@@ -250,23 +274,25 @@ struct PremiumView: View {
             isSelected: selectedPeriod == .yearly
         ) {
             selectedPeriod = .yearly
-        } extra: {
-            Divider()
-
-            Toggle(isOn: $isStudent.animation(.snappy)) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Sou estudante")
-                        .font(.headline)
-                    Text("\(Self.studentDiscount) de desconto no plano anual")
-                        .font(.footnote)
-                        .foregroundStyle(.subTitleGray)
-                }
-            }
-            .onChange(of: isStudent) { _, isOn in
-                // Turning the discount on is a choice for the annual plan.
-                if isOn { selectedPeriod = .yearly }
-            }
         }
+        // Student plan (turned off): the switch went in this card, under the price.
+        // } extra: {
+        //     Divider()
+        //
+        //     Toggle(isOn: $isStudent.animation(.snappy)) {
+        //         VStack(alignment: .leading, spacing: 2) {
+        //             Text("Sou estudante")
+        //                 .font(.headline)
+        //             Text("\(Self.studentDiscount) de desconto no plano anual")
+        //                 .font(.footnote)
+        //                 .foregroundStyle(.subTitleGray)
+        //         }
+        //     }
+        //     .onChange(of: isStudent) { _, isOn in
+        //         // Turning the discount on is a choice for the annual plan.
+        //         if isOn { selectedPeriod = .yearly }
+        //     }
+        // }
     }
 
     private var lifetimeCard: some View {
@@ -366,10 +392,10 @@ struct PremiumView: View {
         return formatter.string(from: components)
     }
 
-    /// "30%" written the way the app's language writes percentages.
-    private static var studentDiscount: String {
-        0.3.formatted(.percent.precision(.fractionLength(0)).locale(L10n.locale))
-    }
+    // Student plan (turned off): "30%" written the way the app's language writes percentages.
+    // private static var studentDiscount: String {
+    //     0.3.formatted(.percent.precision(.fractionLength(0)).locale(L10n.locale))
+    // }
 
     // MARK: Actions
 
@@ -486,13 +512,15 @@ struct PremiumView: View {
         .manageSubscriptionsSheet(isPresented: $isShowingManageSubscription)
     }
 
-    /// "Anual · até 3 moradores", "Anual Estudante · …" or "Vitalício".
+    /// "Anual · até 3 moradores" or "Vitalício".
     private func planName(_ plan: PremiumPlan) -> String {
         let period: String
         switch plan.period {
         case .lifetime: return L10n.tr("Vitalício")
         case .monthly: period = L10n.tr("Mensal")
-        case .yearly: period = plan.isStudent ? L10n.tr("Anual Estudante") : L10n.tr("Anual")
+        case .yearly: period = L10n.tr("Anual")
+        // Student plan (turned off):
+        // case .yearly: period = plan.isStudent ? L10n.tr("Anual Estudante") : L10n.tr("Anual")
         }
         guard let tier = plan.tier else { return period }
         return "\(period) · \(tier.title.lowercased())"
@@ -556,7 +584,7 @@ private struct PremiumFeatureRow: View {
 // MARK: - Plan card
 
 /// A plan to pick: gray rounded card with the title, the price line and a round check. The
-/// selected one gets a blue border. `extra` goes under the price (the student switch).
+/// selected one gets a blue border. `extra` goes under the price (it held the student switch).
 private struct PremiumPlanCard<Extra: View>: View {
     let title: LocalizedStringKey
     let subtitle: String
