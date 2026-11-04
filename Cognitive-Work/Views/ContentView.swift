@@ -63,6 +63,7 @@ struct ContentView: View {
             }
         } message: {
             Text("Se você aceitar, você sairá da sua casa atual todos os seus dados serão perdidos")
+                + Text(verbatim: PremiumManager.shared.leaveWarning.map { "\n\n" + $0 } ?? "")
         }
         // MARK: Errors and deleted house
         .alert("Ops", isPresented: Binding(

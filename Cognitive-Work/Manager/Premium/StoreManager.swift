@@ -44,6 +44,14 @@ final class StoreManager {
         return (activeTransaction.expirationDate ?? .distantFuture) > .now
     }
 
+    /// The house the active subscription was bought for (``PremiumManager/purchaseToken(for:)``),
+    /// kept by the App Store on every renewal. `nil` for purchases made before subscriptions were
+    /// tied to a house.
+    var activeAppAccountToken: UUID? {
+        guard hasActiveSubscription else { return nil }
+        return activeTransaction?.appAccountToken
+    }
+
     /// When the current period ends (it renews automatically unless cancelled). `nil` for the
     /// lifetime purchase, which never ends.
     var expirationDate: Date? { activeTransaction?.expirationDate }

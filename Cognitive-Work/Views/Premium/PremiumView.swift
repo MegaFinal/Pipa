@@ -132,6 +132,10 @@ struct PremiumView: View {
                     .foregroundStyle(.subTitleGray)
                     .multilineTextAlignment(.center)
 
+                if premium.hasSubscriptionElsewhere {
+                    subscriptionElsewhereNotice
+                }
+
                 houseBracket
 
                 VStack(alignment: .leading, spacing: 24) {
@@ -150,6 +154,7 @@ struct PremiumView: View {
             .padding(.bottom, 16)
         }
         .scrollIndicators(.hidden)
+        .manageSubscriptionsSheet(isPresented: $isShowingManageSubscription)
         .safeAreaInset(edge: .bottom) {
             purchaseFooter
         }
@@ -178,6 +183,26 @@ struct PremiumView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: "Pipa Premium"))
         .accessibilityAddTraits(.isHeader)
+    }
+
+    /// For someone who subscribed in another house and moved: the subscription stays with that
+    /// house, so it doesn't cover this one (and they keep being charged until they cancel it).
+    private var subscriptionElsewhereNotice: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Sua assinatura é da casa onde você assinou")
+                .font(.headline)
+            Text("Ela não vale para esta casa. Se não quiser mais ser cobrado por ela, cancele em Gerenciar assinatura.")
+                .font(.subheadline)
+                .foregroundStyle(.subTitleGray)
+                .fixedSize(horizontal: false, vertical: true)
+            Button("Gerenciar assinatura") {
+                isShowingManageSubscription = true
+            }
+            .font(.subheadline.weight(.semibold))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.groupedBackground, in: .rect(cornerRadius: 24))
     }
 
     /// "1 morador na casa · Preço para até 3 moradores".
@@ -353,10 +378,16 @@ struct PremiumView: View {
     /// through `Transaction.updates`.
     private func buySelectedPlan() async {
         guard let plan = selectedPlan, let product = storeManager.product(for: plan) else { return }
+        // The house's token goes with the purchase: the App Store keeps it on every renewal, so
+        // the subscription stays tied to this house (see ``PremiumManager``).
+        guard let houseToken = premium.currentHouseToken else {
+            purchaseErrorMessage = L10n.tr("Não foi possível encontrar sua casa. Tente novamente.")
+            return
+        }
         isPurchasing = true
         defer { isPurchasing = false }
         do {
-            if case .success(let verification) = try await purchase(product) {
+            if case .success(let verification) = try await purchase(product, options: [.appAccountToken(houseToken)]) {
                 await storeManager.handle(verification)
                 HapticsManager.notify(.success)
             }

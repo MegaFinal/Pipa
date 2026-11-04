@@ -439,6 +439,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         case .itemBought: return .shopList
         case .debtYouOwe, .debtOwedToYou: return .pendingPayments
         case .calendarSync: return .calendarSync
+        case .premiumEnded: return .premium
         case .yourDelayedChore, .noUserDelayedChore, .choreDoneForYou:
             guard let choreName = userInfo[UserInfoKey.choreRecordName] as? String else { return nil }
             let snapshot = await HouseDataStore.shared.load()

@@ -32,6 +32,8 @@ struct NotificationsView: View {
     @State private var isShowingRetro = false
     /// Opens the progress tab's screen.
     @State private var isShowingDashboard = false
+    /// Opens the Premium screen (from "a casa voltou ao plano grátis").
+    @State private var isShowingPremium = false
     /// Closes this screen.
     @Environment(\.dismiss) private var dismiss
     
@@ -80,6 +82,9 @@ struct NotificationsView: View {
         // MARK: - Destinations: progress screen and retrospective
         .navigationDestination(isPresented: $isShowingDashboard) {
             DashboardView()
+        }
+        .sheet(isPresented: $isShowingPremium) {
+            PremiumView()
         }
         .fullScreenCover(isPresented: $isShowingRetro) {
             RetroView(coinsViewModel: retroCoinsViewModel) {
@@ -184,6 +189,8 @@ struct NotificationsView: View {
         case .calendarSync:
             dismiss()
             onOpenCalendarSettings()
+        case .premium:
+            isShowingPremium = true
         }
     }
 }
