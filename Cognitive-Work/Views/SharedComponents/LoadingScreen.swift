@@ -9,8 +9,8 @@ import SwiftUI
 
 /// Full-screen loading state: a hand-drawn animation over its scenery or a sky with clouds.
 ///
-/// Shows no text unless a ``message`` is given (the blocking screens use it to say what is
-/// happening, e.g. "Excluindo sua casa...").
+/// A ``message`` above the animation says what is loading ("Carregando sua casa...",
+/// "Excluindo sua casa..."), in the same type as the onboarding titles (``OnboardingHeader``).
 struct LoadingScreen: View {
     /// Which animation plays (see ``LoadingAnimation``).
     var animation: LoadingAnimation = .kites
@@ -18,18 +18,21 @@ struct LoadingScreen: View {
     /// What VoiceOver reads for the whole screen.
     var accessibilityTitle: String = L10n.tr("Carregando sua casa...")
     
-    /// Optional text above the animation. `nil` keeps the screen text-free.
+    /// What is loading, shown above the animation. `nil` keeps the screen text-free.
     var message: LocalizedStringKey? = nil
     
     var body: some View {
         VStack {
             // MARK: - Message
             if let message {
+                // Same type as the onboarding titles (see ``OnboardingHeader``).
                 Text(message)
-                    .foregroundStyle(.choreBlue)
-                    .font(.custom("Alan Sans", size: 22))
+                    .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                    .bold()
+                    .foregroundStyle(.titleGray)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, width * 0.08)
                     .padding(.top, height * 0.1)
             }
             
@@ -85,11 +88,11 @@ struct LoadingScreen: View {
 }
 
 #Preview("Kites") {
-    LoadingScreen()
+    LoadingScreen(message: "Carregando sua casa...")
 }
 
 #Preview("Burst") {
-    LoadingScreen(animation: .burst, accessibilityTitle: "Carregando")
+    LoadingScreen(animation: .burst, accessibilityTitle: "Retomando de onde você parou...", message: "Retomando de onde você parou...")
 }
 
 #Preview("With message") {
