@@ -172,8 +172,11 @@ extension Tier {
 
     /// Coins paid at the end of each cycle to someone at this rank. A higher rank never pays
     /// less than a lower one.
+    ///
+    /// The lowest rank pays nothing: a member who didn't even finish one division of work in the
+    /// cycle earns no coins.
     var cycleCoins: Int {
-        let coins = [10, 12, 15, 18, 22, 26, 31, 37, 44, 52, 62, 74, 90]
+        let coins = [0, 4, 8, 12, 16, 20, 25, 30, 35, 41, 47, 54, 60]
         return coins[position]
     }
 }
