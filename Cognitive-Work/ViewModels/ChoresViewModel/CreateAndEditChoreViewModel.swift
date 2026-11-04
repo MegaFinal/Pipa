@@ -186,7 +186,7 @@ final class CreateAndEditChoreViewModel {
     /// Whether the name field can take a description: only for a new chore, and only when the
     /// on-device model can run here.
     var canSuggest: Bool {
-        mode == .create && IntelligenceManager.shared.isAvailable
+        mode == .create && IntelligenceManager.shared.isAvailable && PremiumManager.shared.allows(.intelligence)
     }
 
     /// Asks the on-device model to fill the form from `text` ("lavar a louça toda semana, eu e Ana").
@@ -271,6 +271,8 @@ final class CreateAndEditChoreViewModel {
 
         for candidate in ChoreDuplicateFinder.candidates(for: name, in: sameRoom) {
             if ChoreDuplicateFinder.isExactMatch(name, candidate.name) { return candidate }
+            // Comparing with AI is Premium; the free plan only matches identical names.
+            guard PremiumManager.shared.allows(.intelligence) else { continue }
             if await IntelligenceManager.shared.isSameChore(name, as: candidate.name) == true {
                 return candidate
             }
