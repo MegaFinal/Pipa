@@ -7,48 +7,91 @@
 
 import SwiftUI
 
-/// Full-screen loading state: a spinning icon and a message over a soft texture.
+/// Full-screen loading state: a hand-drawn animation over its scenery or a sky with clouds.
+///
+/// Shows no text unless a ``message`` is given (the blocking screens use it to say what is
+/// happening, e.g. "Excluindo sua casa...").
 struct LoadingScreen: View {
-    /// The message under the icon.
-    var title: LocalizedStringKey = "Carregando sua casa..."
+    /// Which animation plays (see ``LoadingAnimation``).
+    var animation: LoadingAnimation = .kites
     
-    /// The icon's angle; animated forever while on screen.
-    @State private var rotation = 0.0
+    /// What VoiceOver reads for the whole screen.
+    var accessibilityTitle: String = L10n.tr("Carregando sua casa...")
+    
+    /// Optional text above the animation. `nil` keeps the screen text-free.
+    var message: LocalizedStringKey? = nil
     
     var body: some View {
-        VStack(spacing: 24) {
-            // MARK: - Spinning icon
-            Image("loadingIcon")
-                .rotationEffect(.degrees(rotation))
-                .accessibilityDecorative()
-                .onAppear {
-                    withAnimation(.linear(duration: 1).speed(0.3).repeatForever(autoreverses: false)) {
-                        rotation = 360.0
-                    }
-                }
-            
+        VStack {
             // MARK: - Message
-            Text(title)
-                .font(.system(size: 28))
-                .bold()
+            if let message {
+                Text(message)
+                    .foregroundStyle(.choreBlue)
+                    .font(.custom("Alan Sans", size: 22))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                    .padding(.top, height * 0.1)
+            }
             
+            Spacer()
+            
+            // MARK: - Animation standing on the ground (when it doesn't fill the screen)
+            if !animation.fillsScreen {
+                FrameAnimationView(animation: animation)
+                    .frame(width: width * 0.75)
+            } else {
+                Spacer()
+            }
         }
-        .padding(.horizontal, 32)
+        .padding(.bottom, height * animation.groundLevel)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // MARK: - Background texture
-        .background(
-            Image("yellow.sparkles")
-                .resizable()
-                .opacity(0.2)
-                .frame(width: width * 1.6)
-                .ignoresSafeArea()
-                .accessibilityDecorative()
-        )
-        .accessibilityElement(children: .combine)
+        .background { background }
+        // The ground level is measured from the screen's real bottom, like the background.
+        .ignoresSafeArea()
+        .accessibilityElement(children: .ignore)
+        .voiceOverLabel(accessibilityTitle)
         .accessibilityAddTraits(.updatesFrequently)
+    }
+    
+    /// The scenery or the sky and, for animations that cover the screen, the animation itself.
+    private var background: some View {
+        ZStack {
+            Color(.systemBackground)
+            
+            // MARK: - Scenery or sky with drifting clouds
+            switch animation.background {
+            case .scenery(let imageName):
+                filling(Image(imageName).resizable().scaledToFill())
+            case .driftingClouds:
+                Color(.lowOpacityBlue.opacity(0.35))
+                DriftingClouds()
+            }
+            
+            // MARK: - Full-screen animation
+            if animation.fillsScreen {
+                filling(FrameAnimationView(animation: animation))
+            }
+        }
+        .accessibilityDecorative()
+    }
+    
+    /// Fills the screen with `content`, cropping its edges instead of pushing the layout past
+    /// the screen.
+    private func filling(_ content: some View) -> some View {
+        Color.clear
+            .overlay { content }
+            .clipped()
     }
 }
 
-#Preview {
+#Preview("Kites") {
     LoadingScreen()
+}
+
+#Preview("Burst") {
+    LoadingScreen(animation: .burst, accessibilityTitle: "Carregando")
+}
+
+#Preview("With message") {
+    LoadingScreen(accessibilityTitle: "Excluindo sua casa...", message: "Excluindo sua casa...")
 }

@@ -18,6 +18,8 @@ class HardwareViewModel {
     /// The host name  of the target hardware device.
     var hostName = ""
     
+    var wifiName: String = ""
+    
     /// The device's host name as saved in CloudKit for the house.
     var hardwareHostName: HardwareHostNameModel?
     
@@ -33,8 +35,17 @@ class HardwareViewModel {
     /// A boolean value indicating whether the Wi-Fi password is visible in the UI.
     var isPasswordVisible = false
     
-    /// A flag indicating whether to navigate to the pairing view.
-    var navigateToParingView: Bool = false
+    /// A flag indicating whether to navigate to the EnterHArviiNetwork view.
+    var navigateToEnterHarviiNetworkView: Bool = false
+    
+    /// A flag indicating whether to navigate to the WifiCredentials view.
+    var navigateToWifiCredentialsView: Bool = false
+    
+    /// A flag indicating whether to navigate to the ReturnHouseNetwork view.
+    var navigateToReturnHouseNetworkView: Bool = false
+    
+    /// A flag indicating whether to navigate to the ConnectionHarvii view (after pairing).
+    var navigateToConnectionHarviiView: Bool = false
     
     /// An optional error message capturing the latest failure state.
     var errorMessage: String?
@@ -43,6 +54,8 @@ class HardwareViewModel {
     var isPairing = false
     /// Result of the last pairing attempt, shown on the pairing screen.
     var conectionResult: ConectionResult?
+    /// Why the last pairing failed, in words the user can act on; `nil` when it worked.
+    var pairingErrorDetail: String?
     /// `true` while sending data to the device.
     var isSending = false
 
@@ -58,11 +71,13 @@ class HardwareViewModel {
     /// Loads the saved device address.
     init() {
         hostName = hardwareNetworkManager.host
+        wifiName = hardwareNetworkManager.wifiName
     }
     
     //MARK: - Connection with Esp32
     
-    /// Sends the WiFi credentials over the ESP32 network, keeps the returned host name and moves to pairing.
+    /// Sends the WiFi credentials over the ESP32 network, keeps the returned host name and moves on
+    /// to ``ReturnHouseNetwork`` (the error alert shows when it fails).
     func sendWifiCredentials() async {
         isSending = true
         defer { isSending = false }
@@ -72,14 +87,38 @@ class HardwareViewModel {
                 ssid: userWifiName,
                 password: userWifiPassord
             )
-            navigateToParingView = true
+            wifiName = hardwareNetworkManager.wifiName
+            navigateToReturnHouseNetworkView = true
         } catch {
             wifiResult = .failureWiFi
         }
     }
+    
+    /// Waits until the Harvii finishes drawing the last image on the e-paper.
+    ///
+    /// The device answers the image upload *before* the refresh (which takes a few seconds) and
+    /// serves one request at a time, so a status request only comes back once the screen is done.
+    func waitForDeviceToFinishDrawing() async {
+        _ = try? await hardwareNetworkManager.deviceNeedsRefresh()
+    }
+    
+    /// Clears the setup navigation and the last results, so the next time the sheet opens it
+    /// starts from the first step.
+    func resetNavigation() {
+        navigateToEnterHarviiNetworkView = false
+        navigateToWifiCredentialsView = false
+        navigateToReturnHouseNetworkView = false
+        navigateToConnectionHarviiView = false
+        conectionResult = nil
+        pairingErrorDetail = nil
+        wifiResult = nil
+    }
 
     /// Asks the device for its hash, saves the host name for the other users and shows the result alert.
-    func pair() async {
+    ///
+    /// - Parameter sendingChart: Whether to deliver the chart right after (through the queue).
+    ///   The setup passes `false` and sends it itself with ``sendFirstChart()``.
+    func pair(sendingChart: Bool = true) async {
         isPairing = true
 
         do {
@@ -90,14 +129,59 @@ class HardwareViewModel {
                 print("Paired, but the host name was not saved to CloudKit")
             }
             conectionResult = .success
+            pairingErrorDetail = nil
         } catch {
             conectionResult = .failureParing
+            pairingErrorDetail = Self.pairingErrorMessage(for: error)
         }
         isPairing = false
 
-        if conectionResult == .success {
+        if sendingChart && conectionResult == .success {
             await HardwareViewModel.deliverNow()
         }
+    }
+    
+    /// Sends the chores chart right after pairing and waits until the e-paper shows it.
+    ///
+    /// If the image doesn't get through, the setup is not done: the result turns into a failure,
+    /// with the reason.
+    func sendFirstChart() async {
+        do {
+            try await sendChartToESP32()
+            UserDefaults.standard.set(false, forKey: Self.pendingUpdateKey)
+            await waitForDeviceToFinishDrawing()
+        } catch {
+            conectionResult = .failureParing
+            pairingErrorDetail = error is URLError
+                ? Self.pairingErrorMessage(for: error)
+                : L10n.tr("O celular pareou com o Harvii, mas a imagem das tarefas não chegou nele. Tente de novo.")
+        }
+    }
+    
+    /// The specific reason a pairing failed, translated and in words the user can act on.
+    static func pairingErrorMessage(for error: Error) -> String {
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost:
+                return L10n.tr("O celular está sem conexão com a rede. Conecte-se ao Wi-Fi da sua casa e confira se o Pipa tem permissão de Rede Local nos Ajustes.")
+            case .timedOut, .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
+                return L10n.tr("O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado e mostrando que se conectou ao Wi-Fi.")
+            default:
+                return L10n.tr("Não foi possível falar com o Harvii (código \(urlError.errorCode)).")
+            }
+        }
+        if let apiError = error as? APIErrors {
+            switch apiError {
+            case .invalidURL:
+                // No host name yet: the Wi-Fi never reached the Harvii.
+                return L10n.tr("O Harvii ainda não recebeu o Wi-Fi da sua casa. Volte e envie o Wi-Fi de novo.")
+            case .invalidResponse, .invalidData:
+                return L10n.tr("O Harvii respondeu, mas não aceitou o pareamento. Tente de novo; se continuar, segure o botão BOOT por 5 segundos para resetar o Harvii.")
+            default:
+                return apiError.errorDescription ?? L10n.tr("Erro desconhecido.")
+            }
+        }
+        return error.localizedDescription
     }
     
     /// Outcome of a pairing attempt, used to drive the result alert.
@@ -286,6 +370,14 @@ class HardwareViewModel {
         if let existing = try? await CloudKitManager.shared.fetchFirst(HardwareHostNameModel.self) {
             if existing.hostName == hostName {
                 hardwareHostName = existing
+                // This phone sent the Wi-Fi: share its name too (older records don't have it).
+                if !wifiName.isEmpty, existing.wifiName != wifiName {
+                    var updated = existing
+                    updated.wifiName = wifiName
+                    if await CloudKitManager.shared.update(updated) {
+                        hardwareHostName = updated
+                    }
+                }
                 return true
             }
             await CloudKitManager.shared.delete(existing)
@@ -299,7 +391,8 @@ class HardwareViewModel {
         }
 
         let houseReference = CKRecord.Reference(recordID: houseRecordID, action: .none)
-        let model = HardwareHostNameModel(hostName: hostName)
+        // Only the phone that sent the Wi-Fi knows its name; the others leave it empty.
+        let model = HardwareHostNameModel(hostName: hostName, wifiName: wifiName.isEmpty ? nil : wifiName)
 
         guard let created = await CloudKitManager.shared.create(
             model,
@@ -314,14 +407,21 @@ class HardwareViewModel {
         return true
     }
     
-    /// Loads the host name saved by whoever set up the device. Skipped when it is already known.
+    /// Loads the host name and the Wi-Fi name saved by whoever set up the device. Skipped when both
+    /// are already known.
     func fetchHostName() async {
-        guard hostName.isEmpty else { return }
+        // The Wi-Fi name is also read here, for the phones that didn't send the Wi-Fi.
+        guard hostName.isEmpty || wifiName.isEmpty else { return }
         errorMessage = nil
 
         do {
             hardwareHostName = try await CloudKitManager.shared.fetchFirst(HardwareHostNameModel.self)
-            hostName = hardwareHostName?.hostName ?? ""
+            if hostName.isEmpty {
+                hostName = hardwareHostName?.hostName ?? ""
+            }
+            if wifiName.isEmpty, let savedWifiName = hardwareHostName?.wifiName {
+                wifiName = savedWifiName
+            }
         } catch {
             errorMessage = UserFacingError.message(for: error, doing: .load)
         }

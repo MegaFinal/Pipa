@@ -33,24 +33,15 @@ private struct BlockingOperationView: View {
     let message: String
     
     var body: some View {
-        VStack(spacing: 20) {
-            // MARK: - Spinner and message
-            ProgressView()
-                .scaleEffect(1.5)
-                .padding(.bottom, 8)
-            // `message` is a localization key ("Excluindo sua casa...").
-            Text(LocalizedStringKey(message))
-                .foregroundStyle(.gray)
-                .multilineTextAlignment(.center)
-        }
-        .padding(.horizontal, 10)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
+        // MARK: - Loading animation and message
+        // `message` is a localization key ("Excluindo sua casa...").
+        LoadingScreen(
+            accessibilityTitle: L10n.tr(key: message),
+            message: LocalizedStringKey(message)
+        )
         .interactiveDismissDisabled()
         // One modal element announcing the operation; VoiceOver can't reach the screen behind.
-        .accessibilityElement(children: .ignore)
-        .voiceOverLabel(L10n.tr(key: message))
-        .accessibilityAddTraits([.isModal, .updatesFrequently])
+        .accessibilityAddTraits(.isModal)
         .onAppear {
             VoiceOver.announce(L10n.tr(key: message))
         }

@@ -488,9 +488,17 @@ struct RoomFormSheet: View {
         RoomsManagementViewModel.isReservedName(trimmedName)
     }
     
-    /// Whether the form can be saved.
+    /// Nothing changed since the sheet opened: the checkmark only closes it.
+    private var isUnchanged: Bool {
+        trimmedName == (room?.name ?? "")
+            && selectedColor == (room?.color ?? .purple)
+            && selectedSymbol == (room?.symbol ?? RoomsManagementViewModel.customRoomSymbol)
+            && pattern == (room?.texturePattern ?? .fallback).resolved(for: selectedColor)
+    }
+    
+    /// Whether the checkmark is enabled: valid changes, or no changes at all (it just closes).
     private var canSave: Bool {
-        !trimmedName.isEmpty && !isReservedName && !isSaving
+        !isSaving && (isUnchanged || (!trimmedName.isEmpty && !isReservedName))
     }
     
     var body: some View {
@@ -749,6 +757,10 @@ struct RoomFormSheet: View {
     private func save() {
         guard !isSaving else { return }
         isNameFocused = false
+        guard !isUnchanged else {
+            dismiss()
+            return
+        }
         Task { @MainActor in
             isSaving = true
             didFailToSave = false

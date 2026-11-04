@@ -36,6 +36,8 @@ class HardwareNetworkManager {
     /// come from this app and not from another machine on the same network.
     private var hash: String = ""
     
+    private(set) var wifiName = ""
+    
     /// Whether the phone is paired with the device (it has a pairing code).
     private(set) var isConnected: Bool = false
     
@@ -48,6 +50,7 @@ class HardwareNetworkManager {
     private enum StorageKey {
         static let hash = "hardware.hash"
         static let host = "hardware.host"
+        static let wifiName = "hardware.name"
     }
     
     /// Restores the saved device address and pairing code, if any.
@@ -59,6 +62,9 @@ class HardwareNetworkManager {
         if let savedHash = localPersistence.string(forKey: StorageKey.hash), !host.isEmpty {
             self.hash = savedHash
             self.isConnected = true
+        }
+        if let savedWifiName = localPersistence.string(forKey: StorageKey.wifiName) {
+            self.wifiName = savedWifiName
         }
     }
     
@@ -107,7 +113,9 @@ class HardwareNetworkManager {
         // Saves the host (harvi) name
         guard let name = answer.name else { throw APIErrors.invalidData }
         self.host = name + ".local"
+        self.wifiName = ssid
         localPersistence.set(host, forKey: StorageKey.host)
+        localPersistence.set(wifiName, forKey: StorageKey.wifiName)
         
         return self.host
     }
