@@ -21,6 +21,8 @@ struct RetroCoinsView: View {
     @State private var showCoinPig = false
     /// `true` once the coins float around the pig.
     @State private var showFloatingCoins = false
+    /// When on, the pig swaps with a fade instead of bouncing.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// This page's content, built from the cycle's coins.
     private var content: RetroCoinsContent {
@@ -72,7 +74,7 @@ struct RetroCoinsView: View {
                 showFloatingCoins = false
                 guard isActive, coinsViewModel.isLoaded, content.hasCoinPig else { return }
                 try? await Task.sleep(for: .seconds(0.6))
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.5)) {
+                withAnimation(reduceMotion ? Animation.easeInOut(duration: 0.3) : Animation.spring(response: 0.5, dampingFraction: 0.5)) {
                     showCoinPig = true
                 }
                 guard content.hasFloatingCoins else { return }
