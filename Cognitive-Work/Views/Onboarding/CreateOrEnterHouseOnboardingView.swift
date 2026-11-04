@@ -8,9 +8,8 @@
 import SwiftUI
 import CloudKit
 
-/// The step where the user chooses whether to join an existing house
-/// or create a new one
-/// On success the flow advances to ``FourthOnboardingView``
+/// The onboarding step where the user chooses to create a new house (becoming its admin) or to
+/// join one that already exists.
 struct CreateOrEnterHouseOnboardingView: View {
     
     // MARK: - Properties
@@ -18,11 +17,13 @@ struct CreateOrEnterHouseOnboardingView: View {
     /// The shared onboarding view model, read from the environment
     @Binding var viewModel: OnboardingViewModel
     
+    /// `true` while the new house is being created.
     @State private var isCreatingHouse = false
     
     /// An invite is being accepted or the house joined (shown on the "Entrar" card).
     private var isEnteringHouse: Bool { viewModel.isAcceptingInvite || viewModel.isJoiningHouse }
     
+    /// Whether any action is running (blocks the buttons and going back).
     private var isBusy: Bool { isCreatingHouse || isEnteringHouse || viewModel.isLoading }
     
     // MARK: - Body
@@ -32,6 +33,7 @@ struct CreateOrEnterHouseOnboardingView: View {
     
     var body: some View {
         VStack(alignment: .center) {
+            // MARK: - Header
             OnboardingHeader(
                 title: "Bem vindo, \(viewModel.currentUser?.name ?? viewModel.userName)!",
                 description: "Sua casa já está no Pipa?"
@@ -40,6 +42,7 @@ struct CreateOrEnterHouseOnboardingView: View {
             
             Spacer()
             
+            // MARK: - "Criar uma casa" card
             Button {
                 Task {
                     isCreatingHouse = true
@@ -95,6 +98,7 @@ struct CreateOrEnterHouseOnboardingView: View {
             .voiceOverValue(isCreatingHouse ? L10n.tr("Carregando") : "")
             .accessibilityHint(Text(L10n.tr("Você será o administrador")))
             
+            // MARK: - "Entrar em uma casa" card
             Button {
                 viewModel.stateMachine.flow = .invitedWithProfile
                 viewModel.goToNextView()
@@ -150,6 +154,7 @@ struct CreateOrEnterHouseOnboardingView: View {
             Spacer()
         }
         .onboardingBackButton(viewModel: viewModel, isDisabled: isBusy)
+        // MARK: - Error alert
         .alert("Não deu para criar a casa", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }

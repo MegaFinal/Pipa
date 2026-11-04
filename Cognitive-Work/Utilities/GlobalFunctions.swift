@@ -139,7 +139,8 @@ func scheduleRecurringChores(
     context: ScheduleContext,
     now: Date,
     remainingCapacity: inout [CKRecord.ID: Double],
-    userAssignedMinutes: inout [CKRecord.ID: Int]
+    userAssignedMinutes: inout [CKRecord.ID: Int],
+    excludedUsersByChore: [CKRecord.ID: Set<CKRecord.ID>] = [:]
 ) -> [ScheduleResult] {
     
     let calendar = Calendar.current
@@ -161,15 +162,22 @@ func scheduleRecurringChores(
         guard let choreID = chore.recordID else { continue }
         var result = ScheduleResult(chore: chore)
         
+        // Users holding this chore's coupon are left out (see `CouponExemption`).
+        let excluded = excludedUsersByChore[choreID] ?? []
+        let isEligible: (UserModel) -> Bool = { user in
+            user.recordID.map { !excluded.contains($0) } ?? true
+        }
+        let eligibleUsers = users.filter(isEligible)
+        
         let targetUsers: [UserModel]
         if let assignedUserRefs = chore.allResponsibleUsersReference, !assignedUserRefs.isEmpty {
             let assignedIDs = Set(assignedUserRefs.map(\.recordID))
-            let filtered = users.filter { $0.recordID.map { assignedIDs.contains($0) } ?? false }
-            targetUsers = filtered.isEmpty ? users : filtered
-        } else if let fixedUser = context.choreResponsibleMap[choreID] {
+            let filtered = eligibleUsers.filter { $0.recordID.map { assignedIDs.contains($0) } ?? false }
+            targetUsers = filtered.isEmpty ? eligibleUsers : filtered
+        } else if let fixedUser = context.choreResponsibleMap[choreID], isEligible(fixedUser) {
             targetUsers = [fixedUser]
         } else {
-            targetUsers = users
+            targetUsers = eligibleUsers
         }
         
         let phase = choreID.recordName.utf8.reduce(0) { $0 &+ Int($1) }
@@ -341,7 +349,6 @@ func scheduleNewRecurringChore(
 ///   - remainingCapacity: Mutable slot capacity dictionary.
 ///   - userAssignedMinutes: Mutable user assigned minutes dictionary.
 /// - Returns: An array of ``ScheduleResult``.
-
 func scheduleAssignedChores(
     _ assignedChores: [ChoreModel],
     context: ScheduleContext,
@@ -431,7 +438,8 @@ func scheduleFreeChores(
     now: Date,
     windowEnd: Date,
     remainingCapacity: inout [CKRecord.ID: Double],
-    userAssignedMinutes: inout [CKRecord.ID: Int]
+    userAssignedMinutes: inout [CKRecord.ID: Int],
+    excludedUsersByChore: [CKRecord.ID: Set<CKRecord.ID>] = [:]
 ) -> [ScheduleResult] {
     
     let calendar = Calendar.current
@@ -457,9 +465,13 @@ func scheduleFreeChores(
         var bestBaseline: (user: UserModel, slot: AvailableTimeModel, remaining: Double, assigned: Int)? = nil
         var bestFallback: (user: UserModel, slot: AvailableTimeModel, remaining: Double, assigned: Int)? = nil
         
+        // Users holding this chore's coupon are left out (see `CouponExemption`).
+        let excluded = chore.recordID.flatMap { excludedUsersByChore[$0] } ?? []
+        
         // Iterate through all users and their preprocessed time slots (single pass, filtering and finding the optimal simultaneously)
         for user in users {
             guard let userID = user.recordID,
+                  !excluded.contains(userID),
                   let dayMap = slotsByUserAndDay[userID] else { continue }
             
             let assigned = userAssignedMinutes[userID] ?? 0

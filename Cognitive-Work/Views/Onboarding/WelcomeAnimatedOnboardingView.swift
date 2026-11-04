@@ -8,10 +8,13 @@
 import SwiftUI
 import Foundation
 
-/// The animated background of the welcome screen.
+/// The welcome screen: columns of chore cards scrolling in the background and a white panel that
+/// slides up with the app's pitch and a "Continuar" button.
 struct WelcomeAnimatedOnboardingView: View{
+    /// The onboarding's view model.
     @Binding var viewModel: OnboardingViewModel
     
+    /// Whether the white panel is up (it slides in when the screen appears).
     @State var showSheet: Bool = false
     
     /// Mock columns, built only once since ``ChoreDTO`` is a class.
@@ -25,8 +28,10 @@ struct WelcomeAnimatedOnboardingView: View{
     
     var body: some View {
         ZStack {
+            // MARK: - Background color
             Color(.onboardingBackground)
             
+            // MARK: - Scrolling columns of chore cards
             HStack(alignment: .top, spacing: 16) {
                 ForEach(columns.indices, id: \.self) { index in
                     InfinityRow(cards: columns[index],
@@ -40,10 +45,12 @@ struct WelcomeAnimatedOnboardingView: View{
             .clipped()
             .accessibilityDecorative()
             
+            // MARK: - White panel: pitch texts
             if showSheet {
                 
                 VStack(alignment: .leading){
                     Text("Dividir a casa vai além da faxina")
+                        .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
                         .bold()
                         .font(.largeTitle)
                         .fixedSize(horizontal: false, vertical: true)
@@ -71,6 +78,7 @@ struct WelcomeAnimatedOnboardingView: View{
                 .clipShape (
                     UnevenRoundedRectangle(topLeadingRadius: 32,topTrailingRadius: 32,style: .continuous)
                 )
+                // MARK: Round "Continuar" button
                 .overlay(alignment: .bottomTrailing) {
                     
                     Button("Continuar", systemImage: "chevron.right") {

@@ -26,7 +26,7 @@ struct UserScheduleCard: View {
     /// The user's entries; entries from other residents should be filtered out beforehand.
     let entries: [DailyUsageEntry]
     
-    /// First day shown in the chart.
+    /// Fallback first day, used only when there are no entries (the chart starts on the first day with chores).
     let startDate: Date
     
     /// Rooms listed in the legend.
@@ -102,6 +102,7 @@ struct UserScheduleCard: View {
         // Figma (iPhone 16): card 361 × 476, padding 16 top/bottom and 8 on the sides,
         // 12 between title, chart and legend.
         VStack(alignment: .leading, spacing: designHeight(12)) {
+            // MARK: - Title, chart and room legend
             header
             
             chart
@@ -121,6 +122,7 @@ struct UserScheduleCard: View {
     
     // MARK: Subviews
     
+    /// The card's title.
     private var header: some View {
         HStack(alignment: .top) {
             Text("Sua divisão atual")
@@ -132,9 +134,12 @@ struct UserScheduleCard: View {
         }
     }
     
+    /// The scrollable chart: one column per day, sized to fill the space left in the card.
     private var chart: some View {
         let calendar = Calendar.current
-        let firstDay = calendar.startOfDay(for: startDate)
+        // The chart starts on the first day that has chores (or on the period start if none).
+        let firstDay = entries.map { calendar.startOfDay(for: $0.day) }.min()
+            ?? calendar.startOfDay(for: startDate)
         
         // GeometryReader is greedy: it takes all the space the card has left after the
         // title and the legend, and tells us how much that is.
@@ -176,7 +181,7 @@ struct UserScheduleCard: View {
     
     /// "Gráfico da sua divisão, 12 tarefas em 14 dias".
     private var chartAccessibilityLabel: String {
-        L10n.tr("Gráfico da sua divisão, %lld tarefas em %lld dias", entries.count, daysToShow)
+        L10n.tr("Gráfico da sua divisão, \(entries.count) tarefas em \(daysToShow) dias")
     }
 }
 
@@ -203,22 +208,29 @@ private struct ScheduleDayColumn: View {
     /// Width of the column; the bar uses most of it.
     let columnWidth: CGFloat
     
+    /// The resident shown in the popover.
     let user: UserModel?
+    /// Finds the chore of an entry.
     let chore: (DailyUsageEntry) -> ChoreModel?
+    /// Finds the room of a chore.
     let room: (ChoreModel) -> RoomModel?
     
     var body: some View {
         VStack(spacing: UserScheduleCard.labelToBarsSpacing) {
+            // MARK: - Weekday label
             Text(weekdayText)
                 .font(.system(size: 16.35, weight: .medium))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .frame(height: UserScheduleCard.weekdayLabelHeight)
                 .voiceOverLabel(ChartA11y.weekdayDayMonth(day))
                 .accessibilityValue(
                     entries.isEmpty
                         ? L10n.tr("Sem tarefas")
-                        : L10n.tr("%lld tarefas", entries.count)
+                        : L10n.tr("\(entries.count) tarefas")
                 )
             
+            // MARK: - The day's bars
             VStack(spacing: UserScheduleCard.barSpacing) {
                 ForEach(Array(entries.enumerated()), id: \.offset) { _, entry in
                     bar(for: entry)
@@ -235,36 +247,6 @@ private struct ScheduleDayColumn: View {
         day.formatted(.dateTime.weekday(.abbreviated).locale(L10n.locale))
             .replacingOccurrences(of: ".", with: "")
             .capitalized(with: L10n.locale)
-    }
-    
-    /// A shape that shows a room's ``RoomTextureBackground``, clipped to an outline.
-    ///
-    /// Delegating to ``RoomTextureBackground`` keeps bars and legend dots identical to the
-    /// room cards (same color, pattern and texture opacity). A `nil` room is drawn as plain
-    /// gray, matching how unknown rooms are shown elsewhere.
-    private struct RoomTexturedShape<S: Shape>: View {
-        
-        /// The outline to clip to (a rounded rectangle for bars, a circle for legend dots).
-        let shape: S
-        
-        /// The room that provides the color and texture.
-        let room: RoomModel?
-        
-        /// Higher values draw bigger, fewer shapes.
-        var zoom: CGFloat = RoomTextureBackground.textureZoom
-        
-        /// Fixed size of the texture, forwarded to ``RoomTextureBackground``.
-        /// Use it so shapes of different sizes show the same artwork scale.
-        var fixedSize: CGFloat? = nil
-        
-        var body: some View {
-            if let room {
-                RoomTextureBackground(room: room, zoom: self.zoom, fixedSize: fixedSize)
-                    .clipShape(shape)
-            } else {
-                shape.fill(.gray)
-            }
-        }
     }
     
     /// A binding that is `true` only while `entry` is the selected one.
@@ -284,12 +266,7 @@ private struct ScheduleDayColumn: View {
         let resolvedRoom = resolvedChore.flatMap(room)
         let maxBarHeight = UserScheduleCard.baseBarHeight
         
-        RoomTexturedShape(
-            shape: RoundedRectangle(cornerRadius: 15),
-            room: resolvedRoom,
-            zoom: 1.5,
-            fixedSize: maxBarHeight
-        )
+        RoomTexturedShape(shape: RoundedRectangle(cornerRadius: 15), room: resolvedRoom)
         // 45 of 50 in the original layout: the bar keeps that share of the column.
         .frame(width: columnWidth * 0.9, height: maxBarHeight * CGFloat(entry.tier.heightRatio) * barScale)
         .contentShape(RoundedRectangle(cornerRadius: 15))
@@ -344,7 +321,14 @@ private struct ScheduleDayColumn: View {
 /// Delegating to ``RoomTextureBackground`` keeps bars and legend dots identical to the
 /// room cards (same color, pattern and texture opacity). A `nil` room is drawn as plain
 /// gray, matching how unknown rooms are shown elsewhere.
+///
+/// The texture is tiled at one fixed scale, so every bar and dot shows the pattern at the same
+/// size. Filling each shape instead made the pattern grow and shrink with the shape (tall bars
+/// looked zoomed in, short bars and dots zoomed out).
 private struct RoomTexturedShape<S: Shape>: View {
+    
+    /// Fraction of the texture's original size it is drawn at. Lower means smaller shapes.
+    static var textureScale: CGFloat { 0.2 }
     
     /// The outline to clip to (a rounded rectangle for bars, a circle for legend dots).
     let shape: S
@@ -352,12 +336,9 @@ private struct RoomTexturedShape<S: Shape>: View {
     /// The room that provides the color and texture.
     let room: RoomModel?
     
-    /// Higher values draw bigger, fewer shapes.
-    var zoom: CGFloat = RoomTextureBackground.textureZoom
-    
     var body: some View {
         if let room {
-            RoomTextureBackground(room: room, zoom: self.zoom)
+            RoomTextureBackground(room: room, tileScale: Self.textureScale)
                 .clipShape(shape)
         } else {
             shape.fill(.gray)
@@ -373,6 +354,7 @@ private struct RoomScheduleCaption: View {
     /// Rooms to list.
     let rooms: [RoomModel]
     
+    // MARK: - Room dots and names
     var body: some View {
         LazyVGrid(
             columns: [GridItem(.adaptive(minimum: 90), alignment: .leading)],
@@ -381,7 +363,7 @@ private struct RoomScheduleCaption: View {
         ) {
             ForEach(rooms, id: \.recordID) { room in
                 HStack(spacing: 6) {
-                    RoomTexturedShape(shape: Circle(), room: room, zoom: 1)
+                    RoomTexturedShape(shape: Circle(), room: room)
                         .frame(width: 14, height: 14)
                     
                     Text(room.name)
@@ -392,7 +374,7 @@ private struct RoomScheduleCaption: View {
         // The swatches only matter visually (each bar already says its room): one summary line.
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
-            L10n.tr("Cômodos na legenda: %@", ChartA11y.list(rooms.map { $0.name.localizedDefault }))
+            L10n.tr("Cômodos na legenda: \(ChartA11y.list(rooms.map { $0.name.localizedDefault }))")
         )
     }
 }

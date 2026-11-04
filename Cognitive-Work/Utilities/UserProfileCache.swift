@@ -21,8 +21,10 @@ actor UserProfileCache {
     /// In-flight loads, so simultaneous requests for the same avatar coalesce into one.
     private var inFlight: [CKRecord.ID: Task<UIImage?, Never>] = [:]
 
+    /// Use ``shared``.
     private init() {}
 
+    /// `true` inside Xcode previews, where CloudKit can't be reached.
     private static let isRunningForPreviews =
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
 

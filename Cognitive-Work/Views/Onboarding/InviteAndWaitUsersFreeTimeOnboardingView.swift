@@ -8,11 +8,11 @@
 import CloudKit
 import SwiftUI
 
-/// Onboarding step where the house owner waits for every member to finish
-/// filling their free time availability.
-/// - `updateUsers()` can now run several times concurrently (push + foreground + poll). Each
-///   run performs slow network reads, so an older run could finish *after* a newer one and
-///   overwrite fresh data with a stale roster. Only the latest run may publish its result.
+/// The step where the house creator invites the roomies and waits until every member has set
+/// their free time. Also opened from the house settings ("Adicionar moradores").
+///
+/// The member list is refreshed by polling, by CloudKit pushes and when the app comes back. Those
+/// refreshes can overlap, so only the latest one is allowed to show its result.
 struct InviteAndWaitUsersFreeTimeOnboardingView: View {
     
     // MARK: - Properties
@@ -20,20 +20,29 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
     /// State shared by every step of the flow.
     @Binding var viewModel: OnboardingViewModel
     
+    /// Every member of the house.
     @State private var houseUsers: [UserModel] = []
+    /// Members who already set their free time.
     @State private var completedUsers: [UserModel] = []
+    /// Members who still need to set their free time.
     @State private var pendingUsers: [UserModel] = []
     
+    /// Grows on each refresh, so an older refresh can't overwrite a newer one.
     @State private var refreshGeneration: Int = 0
+    /// `true` while the invite link is being prepared.
     @State private var resolveShare = true
+    /// The invite link, once ready.
     @State private var shareURL: URL? = nil
+    /// Shows the "Tentar novamente" button when the link couldn't be made.
     @State private var didFailToPrepareInvite = false
+    /// The house's CloudKit share.
     @State private var houseShare: CKShare? = nil
     
     
-    /// `false` until the first fetch returns;
+    /// `false` until the first fetch returns.
     @State private var hasLoadedUsers = false
     
+    /// How often the member list is refreshed.
     private let pollingInterval: Duration = .seconds(5)
     
     /// Maximum number of residents shown on each row.
@@ -54,7 +63,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // The view is already inset by `width * 0.84`, which is the header's own side margin.
+            // MARK: - Title and description (the view is already inset by `width * 0.84`, the header's own side margin)
             OnboardingHeader(
                 title: "Adicione seus roomies!",
                 description: "Envie o convite para quem mora com você",
@@ -62,12 +71,13 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             )
             .padding(.bottom, height * 0.028)
             
+            // MARK: - Member count and loading
             Text("Na casa \(Text("\(houseUsers.count)").fontWeight(.black))")
                 .font(.body)
                 .frame(width: width * 0.84, alignment: .leading)
                 .padding(.top, 30)
                 .padding(.bottom, width * 0.02)
-                .accessibilityLabel(Text(L10n.tr("%lld moradores na casa", houseUsers.count)))
+                .accessibilityLabel(Text(L10n.tr("\(houseUsers.count) moradores na casa")))
             
             if !hasLoadedUsers {
                 ProgressView()
@@ -75,6 +85,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                     .accessibilityLabel(Text(L10n.tr("Carregando moradores")))
             }
                     
+            // MARK: - Pending and ready members
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
                     if !pendingUsers.isEmpty {
@@ -97,6 +108,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             }
             .scrollIndicators(.hidden)
 
+            // MARK: - Hint, invite button and "Continuar"
             VStack {
                 if !isFromSettings {
                     Text("Certifique-se de que todos os moradores estão dentro do app antes de continuar")
@@ -129,6 +141,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
         }
         .frame(width: width * 0.84)
         .navigationBarBackButtonHidden(!isFromSettings)
+        // MARK: - Back button
         // Going back deletes the house created in the previous step; ask first when roomies
         // already joined it, since they lose access too.
         .onboardingBackButton(
@@ -138,6 +151,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                 : nil,
             isHidden: isFromSettings
         )
+        // MARK: - Prepares the invite and keeps the member list fresh
         .task(id: viewModel.currentHouse?.recordID) {
             await prepareInvite()
         }
@@ -183,7 +197,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                             UserProfilePictureTag(user: user, widthMultiplier: 0.15)
                         }
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(Text(L10n.tr("%@, pronto", user.name)))
+                        .accessibilityLabel(Text(L10n.tr("\(user.name), pronto")))
                     }
                 }
             }
@@ -204,15 +218,15 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                             UserProfilePictureTag(user: user, widthMultiplier: 0.15)
                         }
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(Text(L10n.tr("%@, ainda configurando o tempo livre", user.name)))
+                        .accessibilityLabel(Text(L10n.tr("\(user.name), ainda configurando o tempo livre")))
                     }
                 }
             }
         }
     }
     
-    // MARK: - Subviews
     
+    /// The invite button: share the link, try again, or a spinner while it's being made.
     @ViewBuilder
     private var inviteButton: some View {
         if let shareURL, !resolveShare {
@@ -240,6 +254,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
         }
     }
     
+    /// The black (or gray) capsule shared by the invite button's states.
     private func inviteCapsule<Content: View>(color: Color, @ViewBuilder label: () -> Content) -> some View {
         label()
             .font(.system(size: 17))
@@ -288,6 +303,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
         didFailToPrepareInvite = shareURL == nil
     }
     
+    /// Fetches the members and splits them into ready and pending.
     private func updateUsers() async {
         guard !isRunningForPreviews else {
             hasLoadedUsers = true
@@ -332,7 +348,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
         if pendingUsers.isEmpty {
             VoiceOver.announce(L10n.tr("Todos os moradores estão prontos"))
         } else {
-            VoiceOver.announce(L10n.tr("Aguardando os moradores: %lld de %lld prontos", completedUsers.count, houseUsers.count))
+            VoiceOver.announce(L10n.tr("Aguardando os moradores: \(completedUsers.count) de \(houseUsers.count) prontos"))
         }
     }
 }

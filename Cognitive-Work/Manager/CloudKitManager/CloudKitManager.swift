@@ -99,6 +99,7 @@ class CloudKitManager {
         }
     }
     
+    /// Connects to the app's iCloud container. Use ``shared``.
     private init() {
         container = CKContainer(
             identifier: "iCloud.JonasMelo.Cognitive-Work"
@@ -116,6 +117,8 @@ class CloudKitManager {
     }
     
     
+    /// A copy of `asset` in a new temporary file, so the same image can be saved in another record.
+    /// - Throws: When the file can't be copied.
     private func duplicateCKAsset(_ asset: CKAsset) throws -> CKAsset? {
         guard let origem = asset.fileURL else { return nil }
         
@@ -379,6 +382,7 @@ class CloudKitManager {
         return recordName.hasSuffix(houseUserSuffix)
     }
     
+    /// The record ID of the signed-in iCloud account, or `nil` when it can't be read.
     func fetchCurrentUserRecordID() async -> CKRecord.ID? {
         return try? await container.userRecordID()
     }
@@ -457,6 +461,10 @@ class CloudKitManager {
         }
     }
     
+    /// The share (invite link) of `houseModel`, creating it the first time.
+    ///
+    /// The share lets anyone with the link join and edit the house.
+    /// - Returns: `nil` when the house can't be read or the share can't be saved (see ``errorMessage``).
     func resolveShare(for houseModel: HouseModel) async -> CKShare? {
         guard let house = await fetchRecord(for: houseModel)
         else {
@@ -541,6 +549,8 @@ class CloudKitManager {
         return accepted
     }
     
+    /// Creates the signed-in user's member record inside the current house, copying their profile.
+    /// - Returns: `false` when the house or the profile can't be found, or the save fails.
     private func addMyselfToCurrentHouse() async -> Bool {
         var found: HouseModel?
         for _ in 0..<3 where found == nil {
@@ -563,9 +573,8 @@ class CloudKitManager {
             name: profile.name,
             profilePicture: profilePictureDuplicate,
             banner: profile.banner,
-            tier: profile.tier,
+            tier: .novatoDaCasa,
             coins: profile.coins,
-            points: profile.points,
             house: CKRecord.Reference(recordID: houseID, action: .none),
             couponLimit: profile.couponLimit,
             ownerRecordName: ownerName
@@ -579,9 +588,16 @@ class CloudKitManager {
         
         await house.appendUsers([saved])
         clearPendingJoin(ifMatching: houseID.zoneID)
+        
+        // Tells the admin, who can redo the automatic division.
+        let memberName = profile.name
+        Task { await NotificationManager.shared.notifyNewMember(named: memberName, houseID: houseID) }
         return true
     }
     
+    /// Leaves the shared house the user is in, removing their member record first.
+    /// - Returns: `false` when there is no shared house to leave.
+    /// - Throws: ``CloudKitErrors/currentHouseOwnerCannotLeaveTheHouse`` when the user created the house.
     @discardableResult
     func leaveCurrentHouse() async throws -> Bool {
         guard let house = try? await fetchFirst(HouseModel.self),
@@ -597,11 +613,20 @@ class CloudKitManager {
             throw CloudKitErrors<Any>.currentHouseOwnerCannotLeaveTheHouse
         }
         
+        // If this user pays for the house's Premium, clear it and tell the others first: after
+        // leaving the house can't be written to anymore.
+        await PremiumManager.shared.releaseHouseBeforeLeaving(house)
+        
         // Removes this user's member record from the house *before* leaving the share, so no
         // ghost member is left behind
-        return await leaveSharedHouse(in: share.recordID.zoneID)
+        let left = await leaveSharedHouse(in: share.recordID.zoneID)
+        if !left { await PremiumManager.shared.leavingFailed() }
+        return left
     }
     
+    /// Leaves the current house and accepts the invitation to another one.
+    /// - Parameter metadata: The invitation of the new house.
+    /// - Returns: `false` when leaving or accepting fails.
     @discardableResult
     func switchHouse(to metadata: CKShare.Metadata) async -> Bool {
         do {
@@ -702,6 +727,8 @@ class CloudKitManager {
         return url
     }
     
+    /// A `CKAsset` for `data` (for example, a profile picture), written to a temporary file.
+    /// - Returns: `nil` when the file can't be written.
     func createAsset(from data: Data) -> CKAsset? {
         //Create a temporary file URL
         let temporaryDirectory = FileManager.default.temporaryDirectory
@@ -762,6 +789,8 @@ class CloudKitManager {
         }
     }
     
+    /// Saves changes to several models at once, grouped by database (private or shared).
+    /// - Returns: `true` when every group was saved.
     @discardableResult
     func batchUpdate<T: CloudKitSyncable>(_ items: [T]) async -> Bool {
         guard !items.isEmpty else { return true }

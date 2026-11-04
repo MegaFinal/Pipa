@@ -26,18 +26,25 @@ struct TermsOfUse {
         case link(label: String, value: String, url: String)
     }
 
+    /// One numbered section of the terms.
     struct Section: Identifiable {
+        /// The section's number (`0` for the introduction).
         let id: Int
         /// `nil` for the introduction.
         let title: String?
         let paragraphs: [Paragraph]
     }
 
+    /// The app's name shown in the terms.
     let appName: String
+    /// Version of the terms. Accepting an older version asks the user to accept again.
     let version: String
+    /// The date the terms were last changed, as shown to the user.
     let lastUpdated: String
+    /// Every section, in order.
     let sections: [Section]
 
+    /// The terms the app currently asks users to accept.
     static let current = TermsOfUse(
         appName: "Pipa",
         version: "1.1",
@@ -45,6 +52,7 @@ struct TermsOfUse {
         sections: allSections
     )
 
+    /// The text of every section.
     private static let allSections: [Section] = [
         Section(
             id: 0,

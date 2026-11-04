@@ -9,7 +9,7 @@ import Foundation
 
 
 extension Calendar{
-    /// List the hour of a day
+    /// The 24 hours of `day`, from midnight to 11 PM.
     func arrayHours(day: Date) -> [Date]{
         let startTime = self.startOfDay(for: day) //Returns the first moment of a given Date
         var hours: [Date] = []
@@ -21,6 +21,7 @@ extension Calendar{
         return hours
     }
     
+    /// The 24 hours of today, from midnight to 11 PM.
     var hourOfDay:[Date]{
         let startTime = self.startOfDay(for: Date()) //Returns the first moment of a given Date
         var hours: [Date] = []

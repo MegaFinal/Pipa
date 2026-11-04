@@ -57,10 +57,12 @@ extension View {
         accessibilityLabel(Text(verbatim: label))
     }
 
+    /// `accessibilityValue` with a plain `String` (see ``voiceOverLabel(_:)``).
     func voiceOverValue(_ value: String) -> some View {
         accessibilityValue(Text(verbatim: value))
     }
 
+    /// `accessibilityHint` with a plain `String` (see ``voiceOverLabel(_:)``).
     func voiceOverHint(_ hint: String) -> some View {
         accessibilityHint(Text(verbatim: hint))
     }

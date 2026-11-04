@@ -19,12 +19,18 @@ struct InviteUsersOnboardingView: View {
     /// State shared by every step of the flow.
     @Binding var viewModel: OnboardingViewModel
     
+    /// The house's share, once resolved.
     @State private var houseShare: CKShare? = nil
+    /// `true` while the share and its link are being prepared.
     @State private var resolvendoShare = true
+    /// `true` when the invite couldn't be prepared (shows "Tentar novamente").
     @State private var didFailToPrepareInvite = false
+    /// The invite link.
     @State private var shareURL: URL? = nil
+    /// Members who already joined.
     @State private var houseUsers: [UserModel] = []
     
+    /// `true` when opened from the house settings (no "next" button, system back button).
     var isFromSettings: Bool
     
     // MARK: - Body
@@ -33,17 +39,20 @@ struct InviteUsersOnboardingView: View {
         VStack {
             Spacer()
             
+            // MARK: - Members who joined
             if !houseUsers.isEmpty {
                 joinedUsers
             }
             
             Spacer()
             
+            // MARK: - Instructions
             Text("Assim que todos os moradores estiverem no app, clique em continuar.")
                 .frame(width: width * 0.8)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.gray)
             
+            // MARK: - Invite button and "next"
             HStack {
                 inviteButton
                 
@@ -58,6 +67,7 @@ struct InviteUsersOnboardingView: View {
         .frame(width: width * 0.84)
         .navigationBarBackButtonHidden(!isFromSettings)
         .onboardingBackButton(viewModel: viewModel, isHidden: isFromSettings)
+        // MARK: - Keeping the members up to date and preparing the invite
         .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
             Task {
                 houseUsers = await viewModel.fetchHouseUsers()
@@ -69,7 +79,7 @@ struct InviteUsersOnboardingView: View {
         .onChange(of: houseUsers.count) { oldCount, newCount in
             // Someone accepted the invite while the user waits on this screen.
             if newCount > oldCount && oldCount > 0 {
-                VoiceOver.announce(L10n.tr("%lld moradores na casa", newCount))
+                VoiceOver.announce(L10n.tr("\(newCount) moradores na casa"))
             }
         }
         .onChange(of: didFailToPrepareInvite) { _, didFail in
@@ -114,6 +124,7 @@ struct InviteUsersOnboardingView: View {
     
     // MARK: - Subviews
     
+    /// The share button, a retry button, or a spinner while the link is prepared.
     @ViewBuilder
     private var inviteButton: some View {
         if let shareURL, !resolvendoShare {
@@ -141,6 +152,7 @@ struct InviteUsersOnboardingView: View {
         }
     }
     
+    /// The capsule style shared by the invite button's states.
     private func inviteCapsule<Content: View>(color: Color, @ViewBuilder label: () -> Content) -> some View {
         label()
             .font(.system(size: 17))
@@ -152,6 +164,7 @@ struct InviteUsersOnboardingView: View {
                     .glassEffect()
             }
     }
+    /// The avatars of the members who already joined, each in a green circle.
     private var joinedUsers: some View {
         HStack(spacing: 20) {
             ForEach(houseUsers) { user in

@@ -11,6 +11,7 @@ import CloudKit
 /// A single house member's chores for the dashboard's target day, together with their share of
 /// that day's total workload.
 struct UserDailyChoresGroup: Identifiable {
+    /// The member.
     var user: UserModel
 
     /// This user's chores due on the target day, in display order.
@@ -20,11 +21,12 @@ struct UserDailyChoresGroup: Identifiable {
     /// from `0.0` to `1.0`.
     var shareOfDay: Double
 
+    /// Identifier for SwiftUI lists (the member's ID).
     var id: String { user.id }
 
     /// ``shareOfDay`` formatted (e.g. `"45%"`).
     var shareOfDayFormatted: String {
-        "\(Int((shareOfDay * 100).rounded()))%"
+        ChartA11y.percent(shareOfDay)
     }
 }
 
@@ -55,8 +57,11 @@ class HardwareDailyChoresViewModel {
 
     // MARK: - Core Data
 
+    /// Every chore of the house.
     private var allChores: [ChoreModel] = []
+    /// Every room of the house.
     private var roomModels: [RoomModel] = []
+    /// Every chore occurrence of the house.
     private var dailyAssignments: [RecurrentAssignmentModel] = []
 
     // MARK: - Display Data
@@ -77,6 +82,7 @@ class HardwareDailyChoresViewModel {
     }
 
     // MARK: - Initialization
+    /// Creates the view model with data already loaded (or empty, to load later).
     init(
         chores: [ChoreModel] = [],
         users: [UserModel] = [],

@@ -8,27 +8,32 @@
 import SwiftUI
 
 /// Guest screen shown while the admin generates the chore division.
-/// If the admin finished while the guest's app was in the background, nothing ever triggered a
-/// new check, so the guest waited forever. Two completion paths were added, both calling the
-/// same, now re-entrancy-safe, `checkAndAdvanceIfScheduleReady()`:
-/// - a re-check whenever the app becomes active again;
-/// - a low-frequency polling fallback, tied to the view's lifetime (cancelled on disappear).
+///
+/// Moves on as soon as the division exists. It checks again when the app comes back to the
+/// foreground, when CloudKit reports a change, and every few seconds while the screen is open.
 struct WaitHouseCreatorSheduleView: View {
     /// State shared by every step of the flow.
     @Binding var viewModel: OnboardingViewModel
 
+    /// How often the screen checks whether the division exists.
     private let pollingInterval: Duration = .seconds(5)
     
     // `LocalizedStringKey` (not `String`) so `Text` translates them.
+    /// First line of the explanation.
     let description1: LocalizedStringKey = "O criador da casa vai gerar a divisão assim que todos definirem seu tempo livre"
+    /// Second line of the explanation.
     let description2: LocalizedStringKey = "Enviaremos uma notificação quando a divisão estiver pronta"
     
     /// Scrolling chore cards behind the card, same as ``WaitingAlgorithmView``.
     private let columns = ChoreDTO.columnsMock
+    /// The icon's angle; animated forever.
     @State private var isRotating = 0.0
+    /// When on, the animation is replaced by a still or faded version.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         ZStack {
+            // MARK: - Background: columns of sample chore cards
             HStack(alignment: .top, spacing: 16) {
                 ForEach(columns.indices, id: \.self) { index in
                     InfinityRow(
@@ -45,11 +50,14 @@ struct WaitHouseCreatorSheduleView: View {
             .opacity(0.6)
             .accessibilityDecorative()
             
+            // MARK: - Card: spinning icon, title and explanation
             VStack(spacing: 30) {
                 Image("loadingIcon")
                     .rotationEffect(.degrees(isRotating))
                     .accessibilityDecorative()
                     .onAppear {
+                        // Reduce Motion: the icon stays still; the text already says it is loading.
+                        guard !reduceMotion else { return }
                         withAnimation(.linear(duration: 1)
                             .speed(0.1).repeatForever(autoreverses: false)) {
                                 isRotating = 360.0
@@ -57,9 +65,10 @@ struct WaitHouseCreatorSheduleView: View {
                     }
                 
                 Text("Aguardando divisão de tarefas...")
-                    .font(.system(size: 30))
+                    .font(.custom("Alan Sans", size: 32, relativeTo: .body))
                     .bold()
                     .accessibilityAddTraits(.isHeader)
+                    .foregroundStyle(.titleGray)
                 
                 VStack(spacing: 15) {
                     Text(description1)
@@ -88,6 +97,7 @@ struct WaitHouseCreatorSheduleView: View {
         }
         .ignoresSafeArea()
         .navigationBarBackButtonHidden()
+        // MARK: - Checks for the division: on open, every few seconds, on CloudKit changes and on return
         .task {
             await viewModel.checkAndAdvanceIfScheduleReady()
             

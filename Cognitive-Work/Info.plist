@@ -52,8 +52,12 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>
-		<false/>
+		<true/>
 	</dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>AlanSans-VariableFont_wght.ttf</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

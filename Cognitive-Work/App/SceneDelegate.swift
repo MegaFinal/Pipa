@@ -8,10 +8,17 @@
 import UIKit
 import CloudKit
 
+/// Handles house invites opened while the app is running.
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
+    /// The scene's window.
     var window: UIWindow?
     
+    /// Accepts a house invite.
+    ///
+    /// If the user is already in a house, posts `.notAcceptShare` instead, so the app asks whether
+    /// they want to switch houses. Houses the account is linked to without a member record are
+    /// cleaned up first, so they don't block the invite.
     func windowScene(_ windowScene: UIWindowScene, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
         Task {
             NotificationCenter.default.post(name: .willAcceptShare, object: nil)

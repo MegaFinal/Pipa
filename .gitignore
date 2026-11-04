@@ -66,3 +66,4 @@ _to_delete/
 
 # Local-only CloudKit debug/cleanup utilities — destructive, dev-machine only
 Cognitive-Work/Manager/CloudKitManager/DebugExtension.swift
+Tools/

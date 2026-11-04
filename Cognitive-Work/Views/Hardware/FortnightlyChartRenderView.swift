@@ -29,6 +29,7 @@ struct FortnightlyChartRenderView: View {
         let tomorrowStartDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: startDate)) ?? startDate
         
         VStack(spacing: 16) {
+            // MARK: - Week bar chart (starting tomorrow)
             FortnightlyBarChart(
                 users: users,
                 entries: usageEntries,
@@ -38,6 +39,7 @@ struct FortnightlyChartRenderView: View {
                 daysToShow: 7
             )
              
+            // MARK: - Members legend
             legend
         }
         .frame(maxWidth: 350, maxHeight: 200, alignment: .top)

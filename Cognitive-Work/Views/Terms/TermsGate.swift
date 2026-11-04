@@ -14,12 +14,17 @@ extension View {
     }
 }
 
+/// Shows the app, the terms sheet or the farewell screen, depending on the user's decision.
+/// See ``SwiftUI/View/requiresTermsAcceptance()``.
 private struct TermsGate: ViewModifier {
 
+    /// The user's decision about the terms.
     @State private var viewModel = TermsViewModel()
 
+    /// Wraps the app with the farewell screen and the terms sheet.
     func body(content: Content) -> some View {
         Group {
+            // MARK: - Farewell screen after declining, otherwise the app
             if viewModel.decision == .declined {
                 TermsDeclinedView(
                     title: viewModel.farewellTitle,
@@ -32,6 +37,7 @@ private struct TermsGate: ViewModifier {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: viewModel.decision)
+        // MARK: - Terms sheet (can't be swiped away)
         .sheet(isPresented: Binding(
             get: { viewModel.isShowingTerms },
             set: { _ in }

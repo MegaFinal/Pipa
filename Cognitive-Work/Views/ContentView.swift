@@ -15,24 +15,38 @@ import CloudKit
 struct ContentView: View {
     
     // MARK: - Properties
+    /// Runs the app-level work (loading, house checks, invites, retrospective).
     @State private var viewModel: ContentViewModel = ContentViewModel()
     
     /// Shared by every tab so pushed screens can hide the tab bar and animate it back.
     @State private var tabBarVisibility = TabBarVisibilityController()
     
+    /// Whether the app is active (re-checks the house and the retrospective when it comes back).
     @Environment(\.scenePhase) private var scenePhase
     
     // MARK: - Body
     
     var body: some View {
         Group {
+            // MARK: Loading screen, then the tabs
             if viewModel.isLoading {
-                LoadingScreen()
+                LoadingScreen(message: "Carregando sua casa...")
             } else {
                 tabs
             }
         }
         .environment(tabBarVisibility)
+        // Over the whole TabView (tab bar included) once the last division's period is over.
+        // MARK: Retrospective over everything
+        .overlay {
+            if viewModel.showRetro {
+                RetroView {
+                    withAnimation(.easeInOut) { viewModel.showRetro = false }
+                }
+                .transition(.opacity)
+            }
+        }
+        // MARK: Invite while already in a house
         .onReceive(NotificationCenter.default.publisher(for: .notAcceptShare)) { cloudMetadata in
             viewModel.showInviteAcceptAlert = true
             viewModel.shareMetadata = cloudMetadata.object as? CKShare.Metadata
@@ -49,7 +63,9 @@ struct ContentView: View {
             }
         } message: {
             Text("Se você aceitar, você sairá da sua casa atual todos os seus dados serão perdidos")
+                + Text(verbatim: PremiumManager.shared.leaveWarning.map { "\n\n" + $0 } ?? "")
         }
+        // MARK: Errors and deleted house
         .alert("Ops", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
@@ -67,24 +83,32 @@ struct ContentView: View {
             Text("Você será redirecionado ao início do aplicativo.")
         }
         
+        // MARK: Blocking screens
         .blockingOperation(isPresented: $viewModel.isSwitchingHouse, message: "Trocando de casa...")
         .blockingWhileUnlinkingOrphanedHouse()
         
+        // MARK: Loading and refreshing
         .task {
             await viewModel.bootstrap()
+            await viewModel.checkRetro()
         }
         .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
             Task { await viewModel.fetchHouse() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
-                Task { await viewModel.fetchHouse() }
+                Task {
+                    await viewModel.fetchHouse()
+                    await viewModel.checkRetro()
+                }
             }
         }
     }
     
     // MARK: - Tabs
     
+    /// The four tabs: Tarefas, Compras, Recompensas and Perfil. The progress screen is opened from
+    /// the progress cards on Tarefas.
     private var tabs: some View {
         TabView {
             ChoresView()
@@ -97,9 +121,9 @@ struct ContentView: View {
                     Label("Compras", systemImage: "basket")
                 }
             
-            DashboardView()
+            GamificationView(viewModel: viewModel.gamification)
                 .tabItem {
-                    Label("Progresso", systemImage: "figure.2")
+                    Label("Recompensas", systemImage: "gift")
                 }
             
             UserProfileView()

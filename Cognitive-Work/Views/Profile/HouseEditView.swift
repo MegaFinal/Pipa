@@ -8,12 +8,14 @@
 import SwiftUI
 import CloudKit
 
-/// Button view that allows admin to delete the house
+/// The "Deletar Casa" button, shown only to the house admin.
 struct HouseEditView: View {
+    /// Loads the house, checks if the user is the admin and deletes the house.
     @State var viewModel: HouseEditViewModel
     
     var body: some View {
         VStack {
+            // MARK: - Loading, delete button (admin only) or "no house" message
             if viewModel.isLoading {
                 ProgressView()
                     .voiceOverLabel(L10n.tr("Carregando"))
@@ -41,6 +43,7 @@ struct HouseEditView: View {
             }
         }
         .padding()
+        // MARK: - Checks whether the user is the admin
         .task {
             await viewModel.checkAdminStatus()
         }

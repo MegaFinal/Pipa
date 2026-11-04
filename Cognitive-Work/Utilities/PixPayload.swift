@@ -75,6 +75,7 @@ enum PixPayload {
 
     // MARK: - Internals
 
+    /// One field of the Pix code: its ID, the value's length (two digits) and the value.
     private static func field(_ id: String, _ value: String) -> String {
         id + String(format: "%02d", value.count) + value
     }

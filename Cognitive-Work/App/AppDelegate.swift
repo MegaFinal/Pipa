@@ -8,8 +8,10 @@
 import UIKit
 import CloudKit
 
+/// Handles app-level events: launch, CloudKit invites and silent pushes.
 @MainActor
 class AppDelegate: NSObject, UIApplicationDelegate {
+    /// Uses ``SceneDelegate`` for every window, so invites opened from a link reach it.
     func application(
         _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
@@ -21,6 +23,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return config
     }
     
+    /// Accepts a house invite opened while the app had no window yet.
+    ///
+    /// Posts `.willAcceptShare` before and `.didAcceptShare` or `.shareAcceptFailed` after.
     func application(
         _ application: UIApplication,
         userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata
@@ -36,6 +41,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
     }
     
+    /// Receives CloudKit's silent pushes. When something changed in the house, posts
+    /// `.cloudKitDidChange` (screens reload) and updates the Harvii device if the phone is at home.
     func application(
         _ application: UIApplication,
         didReceiveRemoteNotification userInfo: [AnyHashable : Any]
@@ -45,14 +52,19 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         if notification?.subscriptionID == "shared-changes" || notification?.subscriptionID == "private-changes" {
             NotificationCenter.default.post(name: .cloudKitDidChange, object: nil)
             
-            // Something changed in the house: bring the device up to date if this phone is at home
-            print("Silent push received")
+            // Notifications go first: a silent push only gives the app a short background
+            // window, and waiting on the Harvii delivery before this could use all of it.
+            await NotificationManager.shared.processIncoming()
+            await NotificationManager.shared.refreshReminders()
+            await NotificationManager.shared.refreshUnseenNotifications(force: true)
+            
             HardwareViewModel.notifyDataChanged()
             await HardwareViewModel.waitForPendingDelivery()
         }
         return .newData
     }
     
+    /// Registers for pushes and makes sure the CloudKit zone and subscriptions exist.
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
@@ -67,10 +79,15 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             // Warm the memoised zone check once, at launch, so the first record the user
             // creates doesn't pay for it. `createZoneIfNeeded()` is a no-op afterwards — it
             // used to issue a full `CKRecordZone` save before *every single* `create()`.
+            NotificationManager.shared.configure()
             await CloudKitManager.shared.createZoneIfNeeded()
             try? await CloudKitManager.shared.createSharedSubscription()
         }
         
         return true
+    }
+    
+    func applicationDidFinishLaunching(_ application: UIApplication) {
+        NotificationManager.shared.configure()
     }
 }

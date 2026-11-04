@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-/// Onboarding step where the user sets how much free time they have on each
-/// day of the week.
+/// The step where the user sets how much free time they have for house chores on each day of
+/// the week. Also opened from the profile ("Alterar Tempo Livre").
 ///
-/// Each row is an ``OnboardingCustomSliderComponent``; the selection is written
-/// to the user record before advancing.
+/// Each row is an ``OnboardingCustomSliderComponent``; the week is saved on the user and the
+/// house before moving on.
 struct SelectFreeTimeOnboardingView: View {
     
     // MARK: - Properties
@@ -19,8 +19,10 @@ struct SelectFreeTimeOnboardingView: View {
     /// State shared by every step of the flow.
     @Binding var viewModel: OnboardingViewModel
     
+    /// `true` when opened from the profile: loads the saved week and goes back after saving.
     var isFromSettings: Bool = false
     
+    /// Goes back (settings).
     @Environment(\.dismiss) private var dismiss
     
     /// The seven days rendered as rows, each holding its own free-time choice.
@@ -33,6 +35,7 @@ struct SelectFreeTimeOnboardingView: View {
         DayOfWeekDTO(name: "Sábado ", nameAbbreviation: "Sáb"),
         DayOfWeekDTO(name: "Domingo ",nameAbbreviation: "Dom")
     ]
+    /// Not used.
     @State var showAllert: Bool = false
 
     /// The free time was saved on the profile but not on the house yet (see `save()`).
@@ -68,6 +71,7 @@ struct SelectFreeTimeOnboardingView: View {
         await continueAfterSaving()
     }
 
+    /// Goes back (settings) or to the next onboarding step.
     private func continueAfterSaving() async {
         if isFromSettings {
             dismiss()
@@ -80,6 +84,7 @@ struct SelectFreeTimeOnboardingView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
+            // MARK: - Title and description
             OnboardingHeader(
                 title: "Quanto tempo você tem para a casa?",
                 description: "Arraste em cada dia para definir seu tempo livre para as tarefas da casa",
@@ -87,6 +92,7 @@ struct SelectFreeTimeOnboardingView: View {
             )
             .padding(.bottom, 20)
             
+            // MARK: - Hour scale and one slider per day
             VStack {
                 HStack(spacing: width * 0.07) {
                     Spacer()
@@ -110,6 +116,7 @@ struct SelectFreeTimeOnboardingView: View {
             }
             .padding(.horizontal)
             
+            // MARK: - Next / save button
             Spacer()
             HStack {
                 Spacer()
@@ -121,6 +128,7 @@ struct SelectFreeTimeOnboardingView: View {
             }
         }
         .padding(.horizontal, width * 0.0565)
+        // MARK: - Spinner while loading the saved week (settings)
         .opacity(isFetchingSavedTime ? 0 : 1)
         .overlay {
             if isFetchingSavedTime {
@@ -129,6 +137,7 @@ struct SelectFreeTimeOnboardingView: View {
                     .accessibilityLabel(Text(L10n.tr("Carregando")))
             }
         }
+        // MARK: - Back button (disabled while saving)
         .navigationBarBackButtonHidden(!isFromSettings || viewModel.isLoading)
         .toolbar {
             // While saving, the system back button is hidden; a disabled one takes its place.
@@ -147,6 +156,7 @@ struct SelectFreeTimeOnboardingView: View {
         }
         .onboardingBackButton(viewModel: viewModel, isHidden: isFromSettings)
         .hidesTabBar()
+        // MARK: - Error and "saved only on your profile" alerts
         .alert("Não deu para salvar seus horários", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
@@ -167,6 +177,7 @@ struct SelectFreeTimeOnboardingView: View {
         } message: {
             Text(viewModel.freeTimeSyncWarning ?? "")
         }
+        // MARK: - Loads the saved week (settings) or restores the onboarding choice
         .task {
             guard isFromSettings else {
                 // Restores a choice already made in onboarding (kept until the house exists).
@@ -232,28 +243,34 @@ private struct OnboardingCustomSliderComponent: View {
         width * Layout.abbreviationWidthRatio
     }
     
+    /// `true` while saving: the slider can't be changed.
     @Binding var isLoading: Bool
     
     // MARK: - Body
     
     var body: some View {
         HStack(spacing: 10) {
+            // MARK: - Day abbreviation
             Text(LocalizedStringKey(dayOfWeek.nameAbbreviation))
                 .font(.system(size: Layout.abbreviationFontSize))
                 .fontWeight(.medium)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
                 .frame(width: abbreviationWidth, alignment: .leading)
                 .padding(.bottom)
             
+            // MARK: - Slider and its caption
             VStack(spacing: 8) {
                 FreeTimeSlider(rating: $selectedFreeTimeLevel, isLoading: $isLoading)
                 
                 caption
             }
         }
+        // MARK: - Accessibility
         // VoiceOver: each day is one adjustable element — "Segunda-feira, 2 horas", swipe up or
         // down to change it — instead of a drag-only row.
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(L10n.tr(dayOfWeek.name.trimmingCharacters(in: .whitespaces))))
+        .accessibilityLabel(Text(L10n.tr(key: dayOfWeek.name.trimmingCharacters(in: .whitespaces))))
         .accessibilityValue(Text(FreeTimeSlider.accessibilityValue(for: selectedFreeTimeLevel)))
         .accessibilityAdjustableAction { direction in
             guard !isLoading else { return }
@@ -266,8 +283,8 @@ private struct OnboardingCustomSliderComponent: View {
         // Voice Control: "Mostrar ações para Segunda-feira" → "Aumentar"/"Diminuir", since it
         // can't swipe-adjust. The visible abbreviation ("Seg") comes first.
         .voiceControlNames([
-            L10n.tr(dayOfWeek.nameAbbreviation),
-            L10n.tr(dayOfWeek.name.trimmingCharacters(in: .whitespaces))
+            L10n.tr(key: dayOfWeek.nameAbbreviation),
+            L10n.tr(key: dayOfWeek.name.trimmingCharacters(in: .whitespaces))
         ])
         .accessibilityAction(named: Text(L10n.tr("Aumentar"))) {
             guard !isLoading else { return }
@@ -277,6 +294,7 @@ private struct OnboardingCustomSliderComponent: View {
             guard !isLoading else { return }
             selectedFreeTimeLevel = max(0, selectedFreeTimeLevel - 1)
         }
+        // MARK: - Keeps the slider and the day in sync
         .onChange(of: selectedFreeTimeLevel) { _, newValue in
             withAnimation(.easeInOut(duration: 0.1)) {
                 dayOfWeek.freeTime = FreeTimeEnum(newValue)
@@ -294,8 +312,7 @@ private struct OnboardingCustomSliderComponent: View {
     
     // MARK: - Subviews
     
-    /// The caption shown below the slider, combining the full day name with the
-    /// label of the currently selected free time.
+    /// The caption shown below the slider: the selected free time (e.g. "2 horas").
     private var caption: some View {
         HStack {
             Text(dayOfWeek.freeTime.displayName)

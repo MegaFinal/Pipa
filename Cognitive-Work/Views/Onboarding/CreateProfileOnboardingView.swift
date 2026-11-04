@@ -9,31 +9,23 @@ import SwiftUI
 import PhotosUI
 
 /// Onboarding step where the user picks a profile picture and a display name.
-///
-/// Saves the profile to CloudKit on "Continuar" and only advances once the
-/// record actually comes back.
 struct CreateProfileOnboardingView: View {
     
     // MARK: - Properties
     
-    /// State shared by every step of the flow.
     @Binding var viewModel: OnboardingViewModel
-    
     @State private var usernameText: String = ""
+    @State private var isLoadingImage = false
+    @State private var isPickingBanner = false
     
     /// Image chosen through the system photo picker, before it is converted.
     @State private var selectedItem: PhotosPickerItem? = nil
-    
-    /// `true` while the picked photo is being loaded and converted.
-    @State private var isLoadingImage = false
-    
-    /// Whether the banner picker sheet is open.
-    @State private var isPickingBanner = false
     
     // MARK: - Body
     
     var body: some View {
         VStack(spacing: 0) {
+            // MARK: - Header
             OnboardingHeader(
                 title: "Quem é você na casa?",
                 description: "Escolha uma foto e um nome para utilizar no app",
@@ -42,9 +34,10 @@ struct CreateProfileOnboardingView: View {
             
             Spacer(minLength: 16)
             
+            // MARK: - Photo with banner
             EditableProfileImage(
                 image: viewModel.userProfilePicture,
-                isEditing: true,
+                isEditing: false,
                 selection: $selectedItem,
                 isLoading: isLoadingImage,
                 banner: viewModel.userBanner,
@@ -52,6 +45,7 @@ struct CreateProfileOnboardingView: View {
             )
             .disabled(viewModel.isLoading)
             
+            // MARK: - Name field
             TextField("Nome", text: $viewModel.userName)
                 .textFieldStyle(.plain)
                 .font(.system(size: 43, weight: .bold))
@@ -67,6 +61,7 @@ struct CreateProfileOnboardingView: View {
             
             Spacer(minLength: 16)
             
+            // MARK: - "Continuar": saves the profile (and joins the house when invited)
             OnboardingProgressButton(text: "Continuar", isLoading: viewModel.isLoading, isDisabled: viewModel.userName.trimmingCharacters(in: .whitespaces).isEmpty) {
                 Task {
                     viewModel.isLoading = true
@@ -86,6 +81,7 @@ struct CreateProfileOnboardingView: View {
             .padding(.bottom, height * 0.02)
         }
         .padding(.horizontal, width * 0.0565)
+        // MARK: - Error alert
         .alert("Não deu para criar o perfil", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
@@ -94,6 +90,7 @@ struct CreateProfileOnboardingView: View {
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
+        // MARK: - Loading the picked photo
         .onChange(of: isLoadingImage) { wasLoading, isLoading in
             if wasLoading && !isLoading { VoiceOver.announce(L10n.tr("Foto atualizada")) }
         }
@@ -112,15 +109,20 @@ struct CreateProfileOnboardingView: View {
                 }
             }
         }
+        // MARK: - Banner picker
         .sheet(isPresented: $isPickingBanner) {
-            ProfileBannerSheet(banner: viewModel.userBanner, image: viewModel.userProfilePicture) { banner in
+            ProfileBannerSheet(
+                banner: viewModel.userBanner,
+                image: viewModel.userProfilePicture,
+                photoSelection: $selectedItem,
+                photoPickerStyle: .avatar
+            ) { banner in
                 viewModel.userBanner = banner
             }
         }
         .dismissKeyboardOnTap()
         .onboardingBackButton(viewModel: viewModel)
         .onAppear {
-            // Coming back to this step with a profile kept from an earlier run: show its name.
             if viewModel.userName.isEmpty, let user = viewModel.currentUser {
                 viewModel.userName = user.name
                 viewModel.userBanner = user.banner

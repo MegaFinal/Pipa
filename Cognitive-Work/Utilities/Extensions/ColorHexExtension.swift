@@ -105,3 +105,8 @@ extension Color {
         return String(format: "#%02X%02X%02X%02X", r, g, b, a)
     }
 }
+
+extension Color {
+    /// Background of the profile screens and sheets (the iOS grouped gray, `#F2F2F7`).
+    static let groupedBackground = Color(hex: 0xF2F2F7)
+}

@@ -7,16 +7,21 @@
 
 import SwiftUI
 
+/// The onboarding step that introduces the chore division to the admin, in three steps:
+/// rooms, chores, and the app divides.
 struct StartChoreDivisionOnboardingView: View {
+    /// The onboarding's view model.
     @Binding var viewModel: OnboardingViewModel
     
     var body: some View {
         VStack(spacing: 30) {
+            // MARK: - Header
             OnboardingHeader(
                 title: "Hora de começar a divisão de tarefas",
                 description: "Como administrador, você deverá selecionar as tarefas que serão divididas entre todos"
             )
             
+            // MARK: - Three step cards
             VStack(spacing: 15) {
                 InfoCard(
                     number: "1",
@@ -45,6 +50,7 @@ struct StartChoreDivisionOnboardingView: View {
             
             Spacer()
             
+            // MARK: - "Iniciar divisão" button
             OnboardingProgressButton(
             text: "Iniciar divisão"
             ) {
@@ -55,15 +61,22 @@ struct StartChoreDivisionOnboardingView: View {
     }
 }
 
+/// A numbered step card: a colored number, a title and a description.
 private struct InfoCard: View {
+    /// The step's number.
     var number: String
+    /// The step's title.
     var title: LocalizedStringKey
+    /// The step's description.
     var description: LocalizedStringKey
+    /// The number circle's color.
     var tagColor: Color
+    /// The card's background color.
     var backgroundColor: Color
     
     var body: some View {
         HStack(spacing: 15) {
+            // MARK: Number
             Text(number)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
@@ -72,8 +85,9 @@ private struct InfoCard: View {
                     Circle()
                         .foregroundStyle(tagColor)
                 )
-                .accessibilityLabel(Text(L10n.tr("Etapa %@ de %lld", number, 3)))
+                .accessibilityLabel(Text(L10n.tr("Etapa \(number) de \(3)")))
             
+            // MARK: Title and description
             VStack(alignment: .leading, spacing: 10) {
                 Text(title)
                     .font(.system(size: 20))

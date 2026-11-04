@@ -26,15 +26,18 @@ import CloudKit
 /// > not run `.task`. The modifier below is a fallback for presenting the dashboard on screen;
 /// > it is not what fills the image sent to the device.
 struct HardwareDailyChoresView: View {
+    /// Loads the target day's chores, members and rooms.
     var viewModel = HardwareDailyChoresViewModel()
 //    var weatherViewModel = WeatherViewModel() // WeatherKit desativado
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            // MARK: - Title and one column per member
             header
             userColumns
         }
         .padding(.vertical)
+        // MARK: - E-paper colors, hidden from VoiceOver, fallback loading
         .foregroundStyle(EInkShade.black)
         .environment(\.colorScheme, .light)
         .accessibilityHidden(true)
@@ -46,7 +49,7 @@ struct HardwareDailyChoresView: View {
 
     // MARK: - Subviews
 
-    /// Title, Date and Weather Forecast
+    /// The title and the target day's date. (The weather forecast is turned off.)
     private var header: some View {
         HStack {
             HStack(alignment: .firstTextBaseline) {
@@ -72,7 +75,7 @@ struct HardwareDailyChoresView: View {
         .padding(.horizontal)
     }
 
-    /// One column per house member, each showing their chores for today.
+    /// One column per house member, each showing their chores for the target day.
     private var userColumns: some View {
         GeometryReader { geometry in
             HStack(alignment: .top, spacing: 12) {
@@ -85,7 +88,7 @@ struct HardwareDailyChoresView: View {
         .padding(.horizontal)
     }
 
-    /// Room legend, with the same shade as the cards.
+    /// Room legend, with the same shade as the cards. Not shown right now.
     private var legend: some View {
         HStack(spacing: 20) {
             ForEach(viewModel.roomsInUse) { room in
@@ -104,9 +107,11 @@ struct HardwareDailyChoresView: View {
 
 // MARK: - Private subviews
 
-/// One user's chores cards for today with header
+/// One member's column: their name and share of the day on top, then their chore cards.
 private struct UserDailyChoresColumn: View {
+    /// The member and their chores.
     var group: UserDailyChoresGroup
+    /// Finds the room of a chore (for its shade).
     var roomProvider: (ChoreModel) -> RoomModel?
 
     /// Caps how many chore cards a column renders, so a user with a long list doesn't demand
@@ -114,16 +119,19 @@ private struct UserDailyChoresColumn: View {
     /// "+N tarefas" strip instead of a full card.
     static let maxVisibleChores = 3
 
+    /// The chores that get a card.
     private var visibleChores: [ChoreModel] {
         Array(group.chores.prefix(Self.maxVisibleChores))
     }
 
+    /// How many chores didn't fit (the "+N tarefas" strip).
     private var overflowCount: Int {
         max(0, group.chores.count - Self.maxVisibleChores)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
+            // MARK: - Name and share of the day
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(group.user.name)
                     .font(.title3)
@@ -137,6 +145,7 @@ private struct UserDailyChoresColumn: View {
             }
             .padding(.trailing, 5)
 
+            // MARK: - Chore cards, "+N" strip or empty state
             if group.chores.isEmpty {
                 emptyState
             } else {
@@ -174,11 +183,14 @@ private struct UserDailyChoresColumn: View {
     }
 }
 
-/// A single chore, styled with the e-ink style of the room it belongs to
+/// A single chore card, shaded with the e-paper tone of its room.
 private struct DailyChoreCard: View {
+    /// The chore shown.
     var chore: ChoreModel
+    /// The chore's room, or `nil`.
     var room: RoomModel?
 
+    /// The card's tones.
     private var style: EInkRoomStyle { EInkRoomStyle(room: room) }
 
     var body: some View {
@@ -204,12 +216,13 @@ private struct DailyChoreCard: View {
     }
 }
 
-/// Card with the number of chores that were not rendered on the list
+/// A thin strip with the number of chores that didn't get a card.
 private struct OverflowStrip: View {
+    /// How many chores are hidden.
     var count: Int
 
     var body: some View {
-        Text(verbatim: "+" + L10n.tr("%lld tarefas", count))
+        Text(verbatim: "+" + L10n.tr("\(count) tarefas"))
             .font(.title3)
             .fontWeight(.semibold)
             .foregroundColor(EInkShade.darkGray)
@@ -225,15 +238,22 @@ private struct OverflowStrip: View {
 /// snaps any other gray to the nearest one. The in-between tones come out on the panel as a
 /// fine checkerboard of the two neighbouring levels.
 private enum EInkShade {
+    /// The darkest tone.
     static let black = tone(0)
+    /// Between black and dark gray.
     static let blackDarkGray = tone(1)
+    /// Dark gray.
     static let darkGray = tone(2)
+    /// The middle tone (not used by any room).
     static let darkLightGray = tone(3)
+    /// Light gray.
     static let lightGray = tone(4)
     /// The lightest shade that still stands out from the white background.
     static let lightGrayWhite = tone(5)
+    /// White (the background).
     static let white = tone(6)
 
+    /// The color of tone `index` from the e-paper's 7 tones.
     private static func tone(_ index: Int) -> Color {
         Color(white: Double(UIImage.eInkHalfTones[index].brightness) / 255)
     }
@@ -244,9 +264,12 @@ private enum EInkShade {
 /// Every room color gets its own tone, ordered by how dark the app color is, so the dashboard
 /// keeps a similar feel. Text is white on every tone except the lightest (light gray / white).
 private struct EInkRoomStyle {
+    /// The card's background tone.
     let fill: Color
+    /// The card's text tone.
     let text: Color
 
+    /// The style for a room, by its app color. Rooms without color use the middle tone.
     init(room: RoomModel?) {
         guard let color = room?.color else {
             // The middle tone, unused by the rooms.
@@ -262,6 +285,7 @@ private struct EInkRoomStyle {
         }
     }
 
+    /// Creates a style from two tones.
     private init(fill: Color, text: Color) {
         self.fill = fill
         self.text = text
@@ -270,6 +294,7 @@ private struct EInkRoomStyle {
 
 /// Legend dot with a room's tone.
 private struct EInkRoomSwatch: View {
+    /// The room's tones.
     let style: EInkRoomStyle
 
     var body: some View {
@@ -279,9 +304,11 @@ private struct EInkRoomSwatch: View {
     }
 }
 
+/// Sample data for the previews: five rooms, five members and their chores.
 @MainActor
 private enum HardwareDailyChoresPreviewData {
 
+    /// Builds a view model filled with the sample data.
     static func makeViewModel() -> HardwareDailyChoresViewModel {
         // MARK: rooms
         func makeRoom(_ name: String, color: RoomColor, id: String) -> RoomModel {

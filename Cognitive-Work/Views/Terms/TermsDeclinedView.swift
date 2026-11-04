@@ -9,16 +9,23 @@ import SwiftUI
 /// style, with a way to review the terms again. Rendering only.
 struct TermsDeclinedView: View {
 
+    /// The goodbye title.
     let title: String
+    /// The goodbye message.
     let message: String
+    /// Runs on "Rever os Termos de Uso" (shows the terms again).
     let onReviewTerms: () -> Void
 
+    /// Drives the mascot's rocking and the sparkles' pulse.
     @State private var isAnimating = false
+    /// When on, the animation is replaced by a still or faded version.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 28) {
             Spacer()
 
+            // MARK: - Mascot with sparkles
             ZStack {
                 Circle()
                     .fill(RoomColor.yellow.lowOpacityColor.opacity(0.3))
@@ -39,6 +46,7 @@ struct TermsDeclinedView: View {
             }
             .accessibilityHidden(true)
 
+            // MARK: - Title and message
             VStack(spacing: 10) {
                 Text(title)
                     .font(.system(size: 28, weight: .bold))
@@ -55,6 +63,7 @@ struct TermsDeclinedView: View {
 
             Spacer()
 
+            // MARK: - "Rever os Termos de Uso" button
             Button(action: onReviewTerms) {
                 Text("Rever os Termos de Uso")
                     .font(.system(size: 18, weight: .semibold))
@@ -72,13 +81,15 @@ struct TermsDeclinedView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.ignoresSafeArea())
         .onAppear {
-            isAnimating = true
+            // Reduce Motion: the mascot and sparkles stay still.
+            isAnimating = !reduceMotion
             // Replaces the whole app: VoiceOver starts reading from the goodbye title.
             VoiceOver.screenChanged()
         }
         .animation(.easeInOut(duration: 1.4).repeatForever(autoreverses: true), value: isAnimating)
     }
 
+    /// A sparkle that pulses with the mascot.
     private func sparkle(size: CGFloat) -> some View {
         Image(systemName: "sparkle")
             .font(.system(size: size, weight: .bold))

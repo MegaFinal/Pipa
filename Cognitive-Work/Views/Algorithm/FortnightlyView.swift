@@ -8,26 +8,36 @@
 import SwiftUI
 import CloudKit
 
+/// The schedule chart of the generated division: a bar chart of who does what each day, a
+/// legend, and the details card of the selected chore.
 struct FortnightlyView: View {
+    /// The house members.
     let users: [UserModel]
+    /// Every chore of the house.
     let chores: [ChoreModel]
     
     /// Assignments and rooms already in memory. When both are given nothing is fetched.
     var assignments: [RecurrentAssignmentModel]? = nil
+    /// The house's rooms, when already in memory.
     var rooms: [RoomModel]? = nil
     
+    /// Builds the chart's data.
     @State private var viewModel = FortnightlyViewModel()
+    /// The bar the user selected.
     @State private var selectedEntry: DailyUsageEntry?
+    /// The member of the selected bar.
     @State private var selectedUser: UserModel?
     
+    /// The explanation under the title.
     let description: LocalizedStringKey = "Dividimos as tarefas escolhidas pelos moradores pensando nas cargas horárias que cada um tem disponível."
     
     var body: some View {
         VStack {
+            // MARK: - Title and explanation
             VStack(alignment: .leading, spacing: 20) {
                 Text("Escala quinzenal")
                     .bold()
-                    .font(.system(size: 30))
+                    .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
                     .foregroundStyle(.titleGray)
                     .accessibilityAddTraits(.isHeader)
                 
@@ -43,6 +53,7 @@ struct FortnightlyView: View {
             .foregroundColor(.secondary)
             .frame(width: width * 0.888)
             
+            // MARK: - Chart, legend and selected chore
             ScrollView(showsIndicators: false) {
                 chart
             }
@@ -54,6 +65,7 @@ struct FortnightlyView: View {
         
     }
     
+    /// Loading, error, or the chart with its legend and the selected chore's card.
     private var chart: some View {
         VStack(spacing: 16) {
             if viewModel.isLoading {
@@ -100,13 +112,14 @@ struct FortnightlyView: View {
     
     // MARK: - Selection
     
+    /// Selects `entry` (and its member), announcing the change to VoiceOver.
     private func select(_ entry: DailyUsageEntry) {
         let changed = selectedEntry != nil && selectedEntry != entry
         selectedEntry = entry
         selectedUser = viewModel.users.first { $0.recordID == entry.userID }
         // The card below the chart changes out of VoiceOver's focus: say what it now shows.
         if changed {
-            VoiceOver.announce(L10n.tr("Detalhes de %@ abaixo do gráfico", entry.choreName.localizedDefault))
+            VoiceOver.announce(L10n.tr("Detalhes de \(entry.choreName.localizedDefault) abaixo do gráfico"))
         }
     }
     
@@ -121,6 +134,7 @@ struct FortnightlyView: View {
         select(first)
     }
     
+    /// The members and their colors.
     private var legend: some View {
         HStack {
             ForEach(Array(viewModel.users.enumerated()), id: \.offset) { index, user in
@@ -137,7 +151,7 @@ struct FortnightlyView: View {
         }
         // Colors only matter visually: every bar already reads its resident's name.
         .accessibilityElement(children: .ignore)
-        .voiceOverLabel(L10n.tr("Moradores na legenda: %@", ChartA11y.list(viewModel.users.map(\.name))))
+        .voiceOverLabel(L10n.tr("Moradores na legenda: \(ChartA11y.list(viewModel.users.map(\.name)))"))
     }
 }
 

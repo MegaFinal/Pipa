@@ -33,7 +33,7 @@ struct WaitAcceptLinkOnboardingView: View {
         guard !name.isEmpty else {
             return L10n.tr("Oi! Baixei o Pipa e quero entrar na nossa casa. Pode me mandar o link de convite? 🏠")
         }
-        return L10n.tr("Oi, aqui é %@! Baixei o Pipa e quero entrar na nossa casa. Pode me mandar o link de convite? 🏠", name)
+        return L10n.tr("Oi, aqui é \(name)! Baixei o Pipa e quero entrar na nossa casa. Pode me mandar o link de convite? 🏠")
     }
     
     // MARK: - Body
@@ -41,6 +41,7 @@ struct WaitAcceptLinkOnboardingView: View {
     var body: some View {
         NavigationStack {
             VStack {
+                // MARK: - Illustration and header
                 Image("TocTocPurple")
                     .frame(width: width * 0.64, height: height * 0.19)
                     .accessibilityDecorative()
@@ -56,6 +57,7 @@ struct WaitAcceptLinkOnboardingView: View {
                 
                 
                 
+                // MARK: - "Entrando na casa..." or the button to ask for the invite
                 if isEnteringHouse {
                     VStack(spacing: 12) {
                         ProgressView()
@@ -82,6 +84,7 @@ struct WaitAcceptLinkOnboardingView: View {
                 
             }
             .ignoresSafeArea()
+            // MARK: - Background texture
             .background{
                 Image("purple.worms")
                     .resizable()
@@ -95,6 +98,7 @@ struct WaitAcceptLinkOnboardingView: View {
                 if isEntering { VoiceOver.announce(L10n.tr("Entrando na casa...")) }
             }
             .navigationBarBackButtonHidden()
+            // MARK: - Joins right away if the invite was accepted while the app was closed
             .task {
                 // Covers the case where the invite was already accepted while the app was closed.
                 // Check whether the house is already reachable (only true once the share
@@ -111,6 +115,7 @@ struct WaitAcceptLinkOnboardingView: View {
                 guard await viewModel.joinHouse() else { return }
                 await viewModel.advanceAfterJoiningHouse()
             }
+            // MARK: - Back button (locked while entering the house)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {

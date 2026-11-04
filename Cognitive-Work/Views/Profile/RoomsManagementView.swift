@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// Shows the house's rooms as textured cards (same look as the onboarding room selection) and
+/// Shows the house's rooms as textured cards and
 /// lets the user create, edit and delete them.
 ///
 /// - Tapping a card opens ``RoomFormSheet``, zooming out of the card.
@@ -17,15 +17,12 @@ import SwiftUI
 struct RoomsManagementView: View {
     @State private var viewModel: RoomsManagementViewModel
     
-    /// Room being edited, or `nil` when the edit sheet is closed.
     @State private var roomBeingEdited: RoomModel?
     @State private var isCreatingRoom = false
     @State private var roomPendingDeletion: RoomModel?
     
-    /// Delete mode: cards wiggle and show a delete badge.
     @State private var isEditing = false
     
-    /// Drives the staggered entrance of the cards after the first load.
     @State private var hasAppeared = false
     
     private let columns = [GridItem(spacing: 16), GridItem(spacing: 16)]
@@ -37,6 +34,7 @@ struct RoomsManagementView: View {
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 24) {
+                // MARK: - Title, then the loading grid or the rooms
                 header
                 
                 if viewModel.isLoading && viewModel.rooms.isEmpty {
@@ -47,12 +45,14 @@ struct RoomsManagementView: View {
             }
             .padding(.bottom, 30)
         }
+        // MARK: - Pull to refresh and title
         .refreshable {
             await viewModel.load()
         }
         .navigationTitle("Seus cômodos")
         .navigationBarTitleDisplayMode(.inline)
         .hidesTabBar()
+        // MARK: - "Editar" / "OK" and "+" buttons
         .toolbar {
             if !viewModel.rooms.isEmpty {
                 ToolbarItem(placement: .primaryAction) {
@@ -61,7 +61,6 @@ struct RoomsManagementView: View {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
                             isEditing.toggle()
                         }
-                        // The header instruction changes with the mode; read the new one.
                         VoiceOver.announce(isEditing
                             ? L10n.tr("Toque no ícone vermelho para excluir um cômodo.")
                             : L10n.tr("Toque em um cômodo para editá-lo ou no + para criar um novo."))
@@ -73,6 +72,7 @@ struct RoomsManagementView: View {
                 }
             }
         }
+        // MARK: - Loading (and leaving delete mode when there are no rooms)
         .task {
             await viewModel.load()
             hasAppeared = true
@@ -80,6 +80,7 @@ struct RoomsManagementView: View {
         .onChange(of: viewModel.rooms.isEmpty) { _, isEmpty in
             if isEmpty { isEditing = false }
         }
+        // MARK: - New room and edit room sheets
         .sheet(isPresented: $isCreatingRoom) {
             RoomFormSheet(room: nil) { name, color, symbol, pattern in
                 let didSave = await viewModel.createRoom(name: name, color: color, symbol: symbol, pattern: pattern)
@@ -95,6 +96,7 @@ struct RoomsManagementView: View {
                 return didSave
             }
         }
+        // MARK: - Delete confirmation and error alerts
         .alert(
             deletionTitle,
             isPresented: Binding(
@@ -128,11 +130,13 @@ struct RoomsManagementView: View {
         } message: {
             Text(viewModel.errorMessage ?? "")
         }
+        // MARK: - Deleting overlay
         .blockingOperation(isPresented: $viewModel.isDeleting, message: "Excluindo cômodo...")
     }
     
     // MARK: - Header
     
+    /// The text above the grid (it changes in delete mode).
     private var header: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(isEditing
@@ -148,9 +152,11 @@ struct RoomsManagementView: View {
     
     // MARK: - Grid
     
+    /// The room cards and the "Novo cômodo" card.
     private var roomsGrid: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             ForEach(Array(viewModel.rooms.enumerated()), id: \.element.id) { index, room in
+                // MARK: Room cards
                 RoomCard(
                     room: room,
                     choreCount: viewModel.choreCount(for: room),
@@ -179,6 +185,7 @@ struct RoomsManagementView: View {
                 .transition(.scale(scale: 0.6).combined(with: .opacity))
             }
             
+            // MARK: "Novo cômodo" card
             AddRoomCard()
                 .onTapGesture {
                     HapticsManager.selection()
@@ -213,16 +220,19 @@ struct RoomsManagementView: View {
     
     // MARK: - Deletion
     
+    /// Asks the user to confirm deleting a room.
     private func askToDelete(_ room: RoomModel) {
         HapticsManager.notify(.warning)
         roomPendingDeletion = room
     }
     
+    /// The delete alert's title: "Excluir \"<room>\"?".
     private var deletionTitle: String {
         guard let roomPendingDeletion else { return "" }
-        return L10n.tr("Excluir \"%@\"?", roomPendingDeletion.name.localizedDefault)
+        return L10n.tr("Excluir \"\(roomPendingDeletion.name.localizedDefault)\"?")
     }
     
+    /// The delete alert's message, saying how many chores go with the room.
     private func deletionMessage(for room: RoomModel) -> String {
         let count = viewModel.choreCount(for: room)
         switch count {
@@ -231,7 +241,7 @@ struct RoomsManagementView: View {
         case 1:
             return L10n.tr("A tarefa deste cômodo também será excluída. Esta ação não pode ser desfeita.")
         default:
-            return L10n.tr("As %lld tarefas deste cômodo também serão excluídas. Esta ação não pode ser desfeita.", count)
+            return L10n.tr("As \(count) tarefas deste cômodo também serão excluídas. Esta ação não pode ser desfeita.")
         }
     }
 }
@@ -241,24 +251,32 @@ struct RoomsManagementView: View {
 /// A room as a textured card in its color, with its icon, name and chore count — the same
 /// visual language as the onboarding room cards.
 private struct RoomCard: View {
+    /// The room shown.
     let room: RoomModel
+    /// How many chores the room has.
     let choreCount: Int
+    /// Whether delete mode is on (wiggle and delete badge).
     let isEditing: Bool
     /// 1 or -1, so neighbouring cards wiggle in opposite directions.
     let wiggleDirection: Double
+    /// Asks to delete the room.
     let onDelete: () -> Void
     /// Opens the edit sheet; used as the card's VoiceOver default action.
     var onEdit: (() -> Void)? = nil
     
+    /// Flips back and forth to make the card wiggle.
     @State private var isWiggling = false
+    /// When on, delete mode shows only the badge, without the wiggle.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
-    /// How far the card tilts while wiggling (0 when not in delete mode).
+    /// How far the card tilts while wiggling (0 when not in delete mode or with Reduce Motion).
     private var wiggleAmplitude: Double {
-        isEditing ? 1.6 * wiggleDirection : 0
+        isEditing && !reduceMotion ? 1.6 * wiggleDirection : 0
     }
     
     var body: some View {
         ZStack(alignment: .topLeading) {
+            // MARK: - Card (wiggling in delete mode)
             card
                 .rotationEffect(.degrees(isWiggling ? wiggleAmplitude : -wiggleAmplitude))
                 .animation(
@@ -272,6 +290,7 @@ private struct RoomCard: View {
                     isWiggling = editing
                 }
             
+            // MARK: - Delete badge
             if isEditing {
                 Button(action: onDelete) {
                     Image(systemName: "minus")
@@ -284,20 +303,18 @@ private struct RoomCard: View {
                 .buttonStyle(.plain)
                 .offset(x: -8, y: -8)
                 .transition(.scale.combined(with: .opacity))
-                .voiceOverLabel(L10n.tr("Excluir %@", room.name.localizedDefault))
-                .voiceControlNames([L10n.tr("Excluir %@", room.name.localizedDefault), L10n.tr("Excluir"), L10n.tr("Apagar")])
+                .voiceOverLabel(L10n.tr("Excluir \(room.name.localizedDefault)"))
+                .voiceControlNames([L10n.tr("Excluir \(room.name.localizedDefault)"), L10n.tr("Excluir"), L10n.tr("Apagar")])
             }
         }
     }
     
+    /// The textured card: icon, name and the chore count tag.
     private var card: some View {
         ZStack {
             VStack(spacing: 14) {
-                Image(systemName: room.symbol)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 52, height: 52)
-                    .fontWeight(.light)
+                SymbolImage(name: room.symbol)
+                    .frame(width: 84, height: 84)
                     .accessibilityHidden(true)
                 
                 Text(room.name.localizedDefault)
@@ -336,14 +353,15 @@ private struct RoomCard: View {
             onDelete()
         }
         // Voice Control: "Toque em Quarto" / "Mostrar ações para Quarto", not the chore count.
-        .voiceControlNames([room.name.localizedDefault, L10n.tr("Editar %@", room.name.localizedDefault)])
+        .voiceControlNames([room.name.localizedDefault, L10n.tr("Editar \(room.name.localizedDefault)")])
     }
     
+    /// "Nenhuma tarefa", "1 tarefa" or "N tarefas".
     private var choreCountText: String {
         switch choreCount {
         case 0: L10n.tr("Nenhuma tarefa")
         case 1: L10n.tr("1 tarefa")
-        default: L10n.tr("%lld tarefas", choreCount)
+        default: L10n.tr("\(choreCount) tarefas")
         }
     }
 }
@@ -406,24 +424,38 @@ private extension View {
 ///
 /// Also used by the onboarding (see ``NewRoomSheet``), so both screens create rooms the same way.
 struct RoomFormSheet: View {
+    /// Closes the sheet.
     @Environment(\.dismiss) private var dismiss
     
+    /// The room to edit, or `nil` to create one.
     let room: RoomModel?
     /// Persists the form. Returns `true` when the sheet can close.
     let onSave: @MainActor (_ name: String, _ color: RoomColor, _ symbol: String, _ pattern: RoomTexturePattern) async -> Bool
     
+    /// The name being typed.
     @State private var name: String
+    /// The color picked.
     @State private var selectedColor: RoomColor
+    /// The icon picked.
     @State private var selectedSymbol: String
+    /// The texture picked.
     @State private var selectedPattern: RoomTexturePattern
+    /// `true` while saving.
     @State private var isSaving = false
+    /// Shows the "couldn't save" message.
     @State private var didFailToSave = false
     /// Bumped on every save failure to shake the name field.
     @State private var failureCount = 0
+    /// Focuses the name field when creating a room.
     @FocusState private var isNameFocused: Bool
     
+    /// Six columns for the icon grid.
     private let symbolColumns = Array(repeating: GridItem(spacing: 12), count: 6)
     
+    /// Creates the sheet.
+    /// - Parameters:
+    ///   - room: The room to edit, or `nil` to create one.
+    ///   - onSave: Saves the form. Returns `true` when the sheet can close.
     init(room: RoomModel?, onSave: @escaping @MainActor (_ name: String, _ color: RoomColor, _ symbol: String, _ pattern: RoomTexturePattern) async -> Bool) {
         self.room = room
         self.onSave = onSave
@@ -433,8 +465,10 @@ struct RoomFormSheet: View {
         _selectedPattern = State(initialValue: room?.texturePattern ?? .fallback)
     }
     
+    /// Whether it edits an existing room.
     private var isEditingRoom: Bool { room != nil }
     
+    /// Default room types (Quarto, Cozinha…) can only change their name.
     private var isLookLocked: Bool {
         guard let room else { return false }
         return RoomsManagementViewModel.isDefaultType(room)
@@ -446,22 +480,34 @@ struct RoomFormSheet: View {
         selectedPattern.resolved(for: selectedColor)
     }
     
+    /// The name without spaces at the ends.
     private var trimmedName: String {
         name.trimmingCharacters(in: .whitespaces)
     }
     
+    /// Whether the name is reserved for the house-wide room.
     private var isReservedName: Bool {
         RoomsManagementViewModel.isReservedName(trimmedName)
     }
     
+    /// Nothing changed since the sheet opened: the checkmark only closes it.
+    private var isUnchanged: Bool {
+        trimmedName == (room?.name ?? "")
+            && selectedColor == (room?.color ?? .purple)
+            && selectedSymbol == (room?.symbol ?? RoomsManagementViewModel.customRoomSymbol)
+            && pattern == (room?.texturePattern ?? .fallback).resolved(for: selectedColor)
+    }
+    
+    /// Whether the checkmark is enabled: valid changes, or no changes at all (it just closes).
     private var canSave: Bool {
-        !trimmedName.isEmpty && !isReservedName && !isSaving
+        !isSaving && (isUnchanged || (!trimmedName.isEmpty && !isReservedName))
     }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 28) {
+                    // MARK: - Preview, name, and look pickers (locked for default rooms)
                     hero
                     nameField
                     
@@ -483,6 +529,7 @@ struct RoomFormSheet: View {
             .scrollBounceBehavior(.basedOnSize)
             .navigationTitle(isEditingRoom ? "Editar Cômodo" : "Novo Cômodo")
             .navigationBarTitleDisplayMode(.inline)
+            // MARK: - Cancel and save buttons
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button {
@@ -528,14 +575,11 @@ struct RoomFormSheet: View {
                 .id("\(selectedColor.rawValue).\(pattern.rawValue)")
                 .transition(.opacity)
             
-            Image(systemName: selectedSymbol)
-                .resizable()
-                .scaledToFit()
-                .fontWeight(.light)
+            SymbolImage(name: selectedSymbol)
                 .foregroundStyle(.white)
-                .frame(width: 70, height: 70)
-                .contentTransition(.symbolEffect(.replace))
-                .symbolEffect(.bounce, value: selectedColor)
+                .frame(width: 96, height: 96)
+                .id(selectedSymbol)
+                .transition(.opacity)
                 .frame(width: 140, height: 140)
                 .background(
                     RoundedRectangle(cornerRadius: 14)
@@ -555,15 +599,13 @@ struct RoomFormSheet: View {
         .animation(.easeInOut(duration: 0.3), value: pattern)
         // One summary of the live preview instead of an unlabeled icon.
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(L10n.tr("Pré-visualização do cômodo: %@, %@, %@",
-                                    ProfileAccessibility.symbolName(selectedSymbol),
-                                    selectedColor.voiceOverName,
-                                    pattern.displayName))
+        .accessibilityLabel(L10n.tr("Pré-visualização do cômodo: \(ProfileAccessibility.symbolName(selectedSymbol)), \(selectedColor.voiceOverName), \(pattern.displayName)"))
         .accessibilityAddTraits(.isImage)
     }
     
     // MARK: - Name
     
+    /// The big name field with its underline and error messages; shakes when saving fails.
     private var nameField: some View {
         VStack(spacing: 6) {
             TextField("Nome do Cômodo", text: $name)
@@ -606,13 +648,14 @@ struct RoomFormSheet: View {
     
     // MARK: - Color
     
+    /// One textured circle per room color.
     private var colorPicker: some View {
         VStack(alignment: .leading, spacing: 14) {
             sectionTitle("Cor")
             
             HStack(spacing: 0) {
                 ForEach(RoomColor.allCases) { color in
-                    ColorSwatch(color: color, pattern: pattern, isSelected: selectedColor == color) {
+                    ColorSwatch(color: color, isSelected: selectedColor == color) {
                         HapticsManager.selection()
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.6)) {
                             selectedColor = color
@@ -658,6 +701,7 @@ struct RoomFormSheet: View {
     
     // MARK: - Symbol
     
+    /// The grid of icons a custom room can use.
     private var symbolPicker: some View {
         VStack(alignment: .leading, spacing: 14) {
             sectionTitle("Ícone")
@@ -666,11 +710,9 @@ struct RoomFormSheet: View {
                 ForEach(RoomsManagementViewModel.customRoomSymbols, id: \.self) { symbol in
                     let isSelected = selectedSymbol == symbol
                     
-                    Image(systemName: symbol)
-                        .resizable()
-                        .scaledToFit()
-                        // Wide glyphs (car, gamecontroller…) shrink to fit instead of overflowing.
-                        .frame(width: 24, height: 24)
+                    SymbolImage(name: symbol)
+                        // Wide glyphs shrink to fit instead of overflowing.
+                        .frame(width: 36, height: 36)
                         .foregroundStyle(isSelected ? Color.white : Color.primary)
                         // Fill the whole grid cell as a square so the circle behind is full size.
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -704,6 +746,7 @@ struct RoomFormSheet: View {
         .padding(.horizontal, 24)
     }
     
+    /// A section's bold title.
     private func sectionTitle(_ title: LocalizedStringKey) -> some View {
         Text(title)
             .font(.system(size: 20, weight: .bold))
@@ -712,9 +755,14 @@ struct RoomFormSheet: View {
     
     // MARK: - Save
     
+    /// Saves the form; closes the sheet on success, or shakes and shows the error.
     private func save() {
         guard !isSaving else { return }
         isNameFocused = false
+        guard !isUnchanged else {
+            dismiss()
+            return
+        }
         Task { @MainActor in
             isSaving = true
             didFailToSave = false
@@ -736,13 +784,16 @@ struct RoomFormSheet: View {
 
 /// Horizontal shake used when saving fails. Animating `shakes` by 1 plays one shake.
 nonisolated private struct ShakeEffect: GeometryEffect {
+    /// How many shakes have played (animated).
     var shakes: CGFloat
     
+    /// Lets SwiftUI animate `shakes`.
     var animatableData: CGFloat {
         get { shakes }
         set { shakes = newValue }
     }
     
+    /// Moves the view sideways following a sine wave.
     func effectValue(size: CGSize) -> ProjectionTransform {
         let offset = 10 * sin(shakes * .pi * 4)
         return ProjectionTransform(CGAffineTransform(translationX: offset, y: 0))
@@ -751,7 +802,9 @@ nonisolated private struct ShakeEffect: GeometryEffect {
 
 /// Gray card that pulses while the rooms load.
 private struct PulsingPlaceholder: View {
+    /// Seconds before this card starts pulsing (so they pulse one after the other).
     let delay: Double
+    /// Flips to make the card pulse.
     @State private var isDimmed = false
     
     var body: some View {
@@ -776,32 +829,29 @@ extension RoomTextureBackground {
 /// A color option shown as a small textured circle of that color.
 struct ColorSwatch: View {
     let color: RoomColor
-    let pattern: RoomTexturePattern
     let isSelected: Bool
     let action: () -> Void
     
     var body: some View {
-        RoomTextureBackground(color: color, pattern: pattern, zoom: 1.5)
-            .withTextureOpacity(0.35)
+            Circle()
+            .foregroundColor(color.uiColor)
             .frame(width: 40, height: 40)
-            .clipShape(Circle())
             .overlay {
                 Circle()
                     .stroke(color.uiColor, lineWidth: 3)
-                    .padding(-5)
+                    .padding(-4)
                     .opacity(isSelected ? 1 : 0)
                     .scaleEffect(isSelected ? 1 : 0.7)
             }
             .overlay {
                 if isSelected {
                     Image(systemName: "checkmark")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.system(size: 20, weight: .medium))
                         .foregroundStyle(.white)
                         .transition(.scale.combined(with: .opacity))
                 }
             }
             .scaleEffect(isSelected ? 1.1 : 1)
-            .shadow(color: .black.opacity(isSelected ? 0.2 : 0.08), radius: 4, y: 2)
             .contentShape(Circle())
             .onTapGesture(perform: action)
             .accessibilityElement(children: .ignore)
@@ -815,22 +865,28 @@ struct ColorSwatch: View {
 
 /// A texture option: a rounded tile of the selected color with that texture, and its name.
 struct PatternSwatch: View {
+    /// The color of the tile.
     let color: RoomColor
+    /// The texture shown.
     let pattern: RoomTexturePattern
+    /// Whether this texture is picked.
     let isSelected: Bool
+    /// Whether this texture exists in the color (otherwise it's faded and can't be picked).
     let isAvailable: Bool
+    /// Picks this texture.
     let action: () -> Void
     
     var body: some View {
-        VStack(spacing: 6) {
-            RoomTextureBackground(color: color, pattern: pattern, zoom: 1.2)
+        VStack {
+            RoomTextureBackground(color: color, pattern: pattern, zoom: 3.5)
                 .withTextureOpacity(0.45)
-                .aspectRatio(1, contentMode: .fit)
+//                .aspectRatio(1, contentMode: .fit)
+                
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay {
-                    RoundedRectangle(cornerRadius: 12)
+                    RoundedRectangle(cornerRadius: 16)
                         .stroke(color.uiColor, lineWidth: 3)
-                        .padding(-4)
+                        .padding(-4.5)
                         .opacity(isSelected ? 1 : 0)
                 }
                 .overlay {
@@ -842,12 +898,7 @@ struct PatternSwatch: View {
                     }
                 }
                 .scaleEffect(isSelected ? 1.06 : 1)
-            
-            Text(pattern.displayName)
-                .font(.caption)
-                .foregroundStyle(isSelected ? Color.primary : Color.secondary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                .frame(width: 50, height: 50)
         }
         .opacity(isAvailable ? 1 : 0.3)
         .contentShape(Rectangle())

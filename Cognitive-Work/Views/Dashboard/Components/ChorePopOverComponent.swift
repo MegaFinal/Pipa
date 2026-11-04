@@ -8,19 +8,25 @@
 import SwiftUI
 import CloudKit
 
+/// The pop-over shown when a bar of the week chart is tapped: the chore's room and name, and its
+/// frequency, priority and duration tags.
 struct ChorePopOverComponent: View {
     
+    /// The chore shown.
     let chore: ChoreModel
+    /// The member responsible (not shown at the moment).
     let user: UserModel?
+    /// The chore's room, if known.
     let room: RoomModel?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            // MARK: - Room and chore name, then the tags
             title
             ChorePriority(chore: chore, user: user)
         }
         .foregroundColor(.black)
-        .frame(width: width * 0.55, alignment: .leading)
+        .frame(minWidth: width * 0.55, alignment: .leading)
         .frame(minHeight: height * 0.1)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         // Room, chore name and the three tags read as one sentence.
@@ -31,16 +37,11 @@ struct ChorePopOverComponent: View {
     /// "Cozinha: Lavar a louça. Semanal, prioridade alta, duração curta".
     private var accessibilityText: String {
         let tier = ChoreDurationTier.from(minutes: chore.duration)
-        return L10n.tr(
-            "%@: %@. %@, prioridade %@, duração %@",
-            room?.name.localizedDefault ?? L10n.tr("Cômodo"),
-            chore.localizedName,
-            chore.frequency.displayName,
-            chore.priorityTag.displayName,
-            tier.displayText
-        )
+        let roomName = room?.name.localizedDefault ?? L10n.tr("Cômodo")
+        return L10n.tr("\(roomName): \(chore.localizedName). \(chore.frequency.displayName), prioridade \(chore.priorityTag.displayName), duração \(tier.displayText)")
     }
     
+    /// Room name over the chore name.
     private var title: some View {
         VStack(alignment: .leading) {
             Text(room?.name.localizedDefault ?? L10n.tr("Cômodo"))
@@ -57,12 +58,16 @@ struct ChorePopOverComponent: View {
     }
 }
 
+/// The pop-over's tags: frequency, priority and duration.
 private struct ChorePriority: View {
+    /// The chore whose tags are shown.
     let chore: ChoreModel
+    /// The member responsible (not shown at the moment).
     let user: UserModel?
     
     var body: some View {
         HStack() {
+            // MARK: Frequency, priority and duration tags
             CapsuleTag(
                 tagName: chore.frequency.displayName,
                 tagColor: chore.frequency.color,
@@ -86,6 +91,7 @@ private struct ChorePriority: View {
         }
     }
     
+    /// The chore's duration group.
     private var tier: ChoreDurationTier {
         ChoreDurationTier.from(minutes: chore.duration)
     }

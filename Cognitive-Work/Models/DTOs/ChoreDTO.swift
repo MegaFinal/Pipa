@@ -18,6 +18,7 @@ final class ChoreDTO: Identifiable {
 
     // MARK: - Properties
 
+    /// Local identifier for SwiftUI lists.
     let id = UUID()
     
     /// Identifier of the original stored record, if this DTO is editing an existing chore.
@@ -50,6 +51,7 @@ final class ChoreDTO: Identifiable {
     /// Reference to the room this chore belongs to.
     var roomDTO: RoomDTO
     
+    /// The saved room the chore belongs to. Setting it also updates ``roomReference``.
     var room: RoomModel? {
         didSet {
             if let roomRecordID = room?.recordID {
@@ -59,6 +61,7 @@ final class ChoreDTO: Identifiable {
             }
         }
     }
+    /// Reference to ``room``, ready to be saved in the chore's record.
     var roomReference: CKRecord.Reference?
     
     /// Every user assigned to this chore or occurrence.
@@ -70,6 +73,7 @@ final class ChoreDTO: Identifiable {
     /// Whether the chore currently has a checklist enabled in the UI.
     var hasChecklist: Bool = false
     
+    /// The chore's occurrences, kept when editing so they are not lost on save.
     var dailyAssignmentsReference: [CKRecord.Reference]? = nil
     
     /// Returns CloudKit references for all selected responsible users.

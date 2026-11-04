@@ -34,6 +34,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Resources/Premium.storekit,
 			);
 			target = 910DAAE23026477D00F899C0 /* Cognitive-Work */;
 		};
@@ -206,6 +207,11 @@
 				en,
 				Base,
 				"pt-BR",
+				es,
+				fr,
+				"zh-Hans",
+				ko,
+				ja,
 			);
 			mainGroup = 910DAADA3026477D00F899C0;
 			minimizedProjectReferenceProxies = 1;
@@ -503,6 +509,8 @@
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Precisamos de acesso ao seu calendário para sincronizar e atualizar as suas tarefas domésticas atribuídas.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Usamos a rede local para encontrar e se comunicar com o Harvi.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Usamos o microfone para você adicionar itens falando.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Usamos o reconhecimento de fala para transformar o que você diz em itens da lista.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -547,6 +555,8 @@
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Precisamos de acesso ao seu calendário para sincronizar e atualizar as suas tarefas domésticas atribuídas.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Usamos a rede local para encontrar e se comunicar com o Harvi.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Usamos o microfone para você adicionar itens falando.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Usamos o reconhecimento de fala para transformar o que você diz em itens da lista.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

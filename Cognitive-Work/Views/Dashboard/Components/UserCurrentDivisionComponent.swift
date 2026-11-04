@@ -8,13 +8,14 @@
 import SwiftUI
 import CloudKit
 
-/// The current user's share of the fortnightly schedule, ready to drop into a screen.
+/// The "current division" card: the signed-in member's share of the schedule (a chart of their
+/// chores per day), ready to drop into a screen.
 ///
-/// This view owns a ``MyScheduleViewModel`` and shows a ``UserScheduleCard`` once it has
-/// loaded. All parameters are optional:
+/// Uses a ``CurrentScheduleViewModel`` and shows a ``UserScheduleCard`` once it has loaded.
+/// All parameters are optional:
 /// - Pass nothing and the view fetches everything from CloudKit.
 /// - Pass `users` and `chores` and only the rest is fetched.
-
+/// - Pass `sharedViewModel` (the dashboard does) and the view only displays it.
 struct UserCurrentDivisionComponent: View {
     
     /// Every resident of the house. When `nil`, data is fetched from CloudKit.
@@ -40,8 +41,10 @@ struct UserCurrentDivisionComponent: View {
     /// When set, this view only displays it and does no loading of its own.
     var sharedViewModel: CurrentScheduleViewModel? = nil
     
+    /// The view model used when no shared one is given.
     @State private var ownViewModel = CurrentScheduleViewModel()
     
+    /// The view model in use: the shared one, or the view's own.
     private var viewModel: CurrentScheduleViewModel { sharedViewModel ?? ownViewModel }
     
     /// `CloudKitManager.dataRevision` the schedule was last loaded at.
@@ -49,6 +52,7 @@ struct UserCurrentDivisionComponent: View {
     
     var body: some View {
         Group {
+            // MARK: - Empty space while loading, then the schedule card
             if viewModel.isLoading {
                 // Only seen standalone; inside the dashboard the parent overlay covers loading.
                 Color.clear.frame(height: 200)
@@ -63,6 +67,7 @@ struct UserCurrentDivisionComponent: View {
                 )
             }
         }
+        // MARK: - Loads (again) when the data changes, unless a parent loads it
         .task(id: CloudKitManager.shared.dataRevision) {
             guard sharedViewModel == nil else { return }
             let revision = CloudKitManager.shared.dataRevision

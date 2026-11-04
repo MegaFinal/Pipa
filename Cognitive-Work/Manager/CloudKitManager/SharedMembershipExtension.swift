@@ -14,8 +14,11 @@ import SwiftUI
 /// blocked with ``BlockingOperationOverlay`` for the duration of the unlink.
 @Observable
 final class SharedMembershipCleanup {
+    /// The single instance the UI observes.
     static let shared = SharedMembershipCleanup()
+    /// `true` while a membership is being removed. Only changed by ``CloudKitManager``.
     fileprivate(set) var isUnlinking = false
+    /// Use ``shared``.
     private init() {}
 }
 
@@ -59,6 +62,7 @@ extension CloudKitManager {
         defaults.removeObject(forKey: PendingJoinKey.date)
     }
     
+    /// Whether `zoneID` is the house the user saved as "joining" in `UserDefaults`.
     private func isPendingJoinZone(_ zoneID: CKRecordZone.ID) -> Bool {
         let defaults = UserDefaults.standard
         return defaults.string(forKey: PendingJoinKey.zoneName) == zoneID.zoneName
@@ -103,6 +107,8 @@ extension CloudKitManager {
         return removed
     }
     
+    /// Leaves every shared house zone where the user has no member record (and isn't still joining).
+    /// - Returns: How many houses were left.
     private func performMembershipPrune() async -> Int {
         let zones: [CKRecordZone]
         do {
@@ -374,9 +380,20 @@ extension CloudKitManager {
     ///
     /// - Returns: `true` on success; otherwise ``errorMessage`` says why.
     func deleteCurrentAccount() async -> Bool {
+        // A member who pays for the house's Premium releases it (and tells the others) while the
+        // house can still be written to. The admin's house is deleted with the account instead.
+        if let house = try? await currentHouse(forceRefresh: true),
+           let houseID = house.recordID,
+           houseID.zoneID.ownerName != CKCurrentUserDefaultName {
+            await PremiumManager.shared.releaseHouseBeforeLeaving(house)
+        }
+        
         invalidateSessionCache()
         
-        guard await unlinkFromAllSharedZones() else { return false }
+        guard await unlinkFromAllSharedZones() else {
+            await PremiumManager.shared.leavingFailed()
+            return false
+        }
         
         do {
             _ = try await privateDB.deleteRecordZone(withID: houseZoneID)
@@ -485,6 +502,7 @@ extension CloudKitManager {
         )
     }
     
+    /// Deletes `recordIDs`, treating records that are already gone as deleted.
     private func deleteRecordsIgnoringMissing(_ recordIDs: [CKRecord.ID], in database: CKDatabase) async throws {
         guard !recordIDs.isEmpty else { return }
         

@@ -329,6 +329,7 @@ extension CloudKitManager {
         return try await fetchAllOrThrow(UserModel.self, predicate: predicate)
     }
     
+    /// Every `T` in the private database that matches `predicate`. Throws on failure.
     private func fetchPrivateOrThrow<T: CloudKitSyncable>(
         _ type: T.Type,
         predicate: NSPredicate,
@@ -343,6 +344,7 @@ extension CloudKitManager {
         ).compactMap(T.init(record:))
     }
     
+    /// Every `T` in every shared zone that matches `predicate`. Throws on failure.
     private func fetchSharedOrThrow<T: CloudKitSyncable>(
         _ type: T.Type,
         predicate: NSPredicate,
@@ -369,6 +371,7 @@ extension CloudKitManager {
         }
     }
     
+    /// Every record that matches `query` in `zoneID`, reading all pages of results.
     private func allRecords(
         matching query: CKQuery,
         in database: CKDatabase,
@@ -432,6 +435,8 @@ extension CloudKitManager {
         }
     }
     
+    /// Saves a raw record, in the private or shared database depending on its zone.
+    /// - Returns: `false` when the save fails (see ``errorMessage``).
     func update(record: CKRecord) async -> Bool {
         let database = record.recordID.zoneID.ownerName == CKCurrentUserDefaultName ? privateDB : sharedDB
         
@@ -476,6 +481,8 @@ extension CloudKitManager {
         }
     }
     
+    /// Deletes the record `recordID` of type `T`.
+    /// - Returns: `false` when the delete fails (see ``errorMessage``).
     @discardableResult
     func delete<T: CloudKitSyncable>(_ type: T.Type, recordID: CKRecord.ID) async -> Bool {
         let database = recordID.zoneID.ownerName == CKCurrentUserDefaultName ? privateDB : sharedDB
@@ -678,6 +685,7 @@ extension CloudKitManager {
         return findings
     }
     
+    /// A readable name of a reference action, for logs.
     private func describe(_ action: CKRecord.ReferenceAction) -> String {
         switch action {
         case .none: return "action: none"
@@ -686,6 +694,7 @@ extension CloudKitManager {
         }
     }
     
+    /// Whether the signed-in user owns the zone of `recordID` (for a house: whether they are its admin).
     func isOwner<T: CloudKitSyncable>(_ type: T.Type, recordID: CKRecord.ID) -> Bool {
         return recordID.zoneID.ownerName == CKCurrentUserDefaultName ? true : false
     }
@@ -698,6 +707,7 @@ enum DesiredKeys {
     /// Every field on the record.
     case all
     
+    /// The field names to request for `type`, or `nil` for every field.
     func resolve<T: CloudKitSyncable>(for type: T.Type) -> [CKRecord.FieldKey]? {
         switch self {
         case .list: return T.listDesiredKeys

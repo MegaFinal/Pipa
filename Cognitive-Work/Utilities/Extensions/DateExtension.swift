@@ -125,12 +125,14 @@ extension Date {
     }
     
     /// Day and abbreviated month in the app's language, without a dot.
-    /// Ex.: Sep 28, 2026 → "28 set" (pt-BR) | "Sep 28" (en)
+    /// Ex.: Sep 28, 2026 → "28 set" (pt-BR) | "28 sept" (es) | "Sep 28" (en)
     var shortDayMonth: String {
         let formatter = DateFormatter.dayMonth
         if formatter.locale != L10n.locale {
             formatter.locale = L10n.locale
-            if L10n.locale.language.languageCode == .portuguese {
+            // Portuguese and Spanish put the day first ("28 set", "28 sept").
+            let language = L10n.locale.language.languageCode
+            if language == .portuguese || language == .spanish {
                 formatter.dateFormat = "d MMM"
             } else {
                 formatter.setLocalizedDateFormatFromTemplate("MMMd")

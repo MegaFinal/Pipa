@@ -26,6 +26,7 @@ struct SelectChoresOnboardingView: View {
     /// The house's rooms, in the order they are offered.
     @State private var rooms: [RoomModel] = []
     
+    /// `true` while the rooms are being fetched.
     @State private var isLoadingRooms: Bool = true
     
     /// The room whose chores are listed.
@@ -40,6 +41,7 @@ struct SelectChoresOnboardingView: View {
     /// Whether the sheet for creating a chore outside the default list is shown.
     @State private var isCreatingChore = false
     
+    /// Creates the step.
     /// - Parameters:
     ///   - viewModel: State shared by every step of the flow.
     ///   - rooms: Rooms to show without fetching them. Leave empty to load the house's rooms.
@@ -51,6 +53,7 @@ struct SelectChoresOnboardingView: View {
         self._selectedRoomID = State(initialValue: rooms.first?.id)
     }
     
+    /// The room picked, or `nil`.
     private var selectedRoom: RoomModel? {
         rooms.first { $0.id == selectedRoomID }
     }
@@ -64,8 +67,10 @@ struct SelectChoresOnboardingView: View {
             let horizontalMargin = width * 0.06
             
             VStack(alignment: .leading, spacing: 20) {
+                // MARK: - Title
                 header
                 
+                // MARK: - Loading, no rooms, or the room capsules and their chores
                 VStack {
                     if isLoadingRooms {
                         ProgressView("Carregando Comodos e Tarefas...")
@@ -88,6 +93,7 @@ struct SelectChoresOnboardingView: View {
             .navigationBarBackButtonHidden()
         }
         .overlay {
+            // MARK: - Next button: saves the marked chores
             OnboardingProgressButton(width: width * 0.12, height: width * 0.12, text: "chevron.forward", isSystemImage: true, isLoading: viewModel.isLoading ,isDisabled: viewModel.selectedChores.isEmpty) {
                 viewModel.isLoading = true
                 await viewModel.createDefaultChores()
@@ -101,6 +107,7 @@ struct SelectChoresOnboardingView: View {
             .frame(maxWidth: .infinity,maxHeight: .infinity,alignment: .bottomTrailing)
             .padding(.trailing, 20)
         }
+        // MARK: - Loads the rooms (the house-wide room goes last)
         .task(id: viewModel.currentHouse?.recordID) {
             guard injectedRooms.isEmpty else { return }
             isLoadingRooms = true
@@ -115,9 +122,11 @@ struct SelectChoresOnboardingView: View {
             }
             isLoadingRooms = false
         }
+        // MARK: - Builds the chores of the room picked
         .task(id: selectedRoomID) {
             loadChoresIfNeeded(for: selectedRoom)
         }
+        // MARK: - New chore sheet, back button and error alert
         .sheet(isPresented: $isCreatingChore) {
             OnboardingNewChoreSheet(rooms: rooms, initialRoom: selectedRoom) { chore, room in
                 add(chore, to: room)
@@ -136,6 +145,7 @@ struct SelectChoresOnboardingView: View {
     
     // MARK: - Subviews
     
+    /// The step's title and description.
     private var header: some View {
         OnboardingHeader(
             title: "O que a casa divide?",
@@ -235,6 +245,7 @@ struct SelectChoresOnboardingView: View {
         return viewModel.selectedChores.filter { $0.roomReference?.recordID == recordID }.count
     }
     
+    /// Marks or unmarks a chore (and links it to its room).
     private func toggle(_ chore: ChoreDTO, in room: RoomModel) {
         guard !viewModel.isLoading else { return }
         
@@ -258,9 +269,13 @@ struct SelectChoresOnboardingView: View {
 /// A room capsule. Selected, it is filled with the room's color; the count of marked chores
 /// shows inside it.
 private struct RoomCapsule: View {
+    /// The room shown.
     let room: RoomModel
+    /// How many of its chores are marked.
     let selectedCount: Int
+    /// Whether this is the room picked.
     let isSelected: Bool
+    /// Picks this room.
     let action: () -> Void
     
     var body: some View {
@@ -288,7 +303,7 @@ private struct RoomCapsule: View {
         .animation(.snappy(duration: 0.25), value: selectedCount)
         .accessibilityLabel(Text(room.name.localizedDefault))
         .voiceControlNames([room.name.localizedDefault])
-        .voiceOverValue(selectedCount > 0 ? L10n.tr("%lld tarefas marcadas", selectedCount) : "")
+        .voiceOverValue(selectedCount > 0 ? L10n.tr("\(selectedCount) tarefas marcadas") : "")
         .voiceOverHint(isSelected ? "" : L10n.tr("Mostra as tarefas deste cômodo"))
         .voiceOverTraits(.isSelected, when: isSelected)
     }
@@ -296,7 +311,9 @@ private struct RoomCapsule: View {
 
 /// Last row of a room's list: opens the sheet to create a chore that isn't suggested.
 private struct NewChoreRow: View {
+    /// The room's color.
     let color: RoomColor
+    /// Opens the new chore sheet.
     let action: () -> Void
     
     var body: some View {
@@ -330,9 +347,13 @@ private struct NewChoreRow: View {
 /// One selectable chore: a rounded row with a check circle, tinted with the room's color once
 /// marked.
 private struct ChoreSelectionRow: View {
+    /// The chore shown.
     let chore: ChoreDTO
+    /// The room's color.
     let color: RoomColor
+    /// Whether the chore is marked.
     let isSelected: Bool
+    /// Marks or unmarks the chore.
     let action: () -> Void
     
     var body: some View {

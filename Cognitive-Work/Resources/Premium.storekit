@@ -1,0 +1,306 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "6F1C2A7E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "249.90",
+      "familyShareable" : false,
+      "internalID" : "6739000300",
+      "localizations" : [
+        {
+          "description" : "Pague uma vez e tenha o Premium para sempre.",
+          "displayName" : "Premium Vitalício",
+          "locale" : "pt_BR"
+        }
+      ],
+      "productID" : "JonasMelo.CognitiveWork.premium.lifetime",
+      "referenceName" : "Premium Vitalício",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "pt_BR",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "BRA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionBundleGroups" : [
+
+  ],
+  "subscriptionGroups" : [
+    {
+      "id" : "21571301",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "Pipa Premium",
+          "locale" : "pt_BR"
+        }
+      ],
+      "name" : "Pipa Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "12.90",
+              "displayPrice" : "12.90",
+              "internalID" : "B7390001",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "12.90",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6739000111",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Premium para a casa inteira (até 3 moradores).",
+              "displayName" : "Premium Mensal",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "JonasMelo.CognitiveWork.premium.small.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Mensal (Até 3 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "99.90",
+              "displayPrice" : "99.90",
+              "internalID" : "B7390002",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "99.90",
+          "familyShareable" : false,
+          "groupNumber" : 3,
+          "internalID" : "6739000112",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Premium para a casa inteira (até 3 moradores).",
+              "displayName" : "Premium Anual",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "JonasMelo.CognitiveWork.premium.small.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual (Até 3 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "16.90",
+              "displayPrice" : "16.90",
+              "internalID" : "B7390004",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "16.90",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6739000114",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Premium para a casa inteira (4 a 6 moradores).",
+              "displayName" : "Premium Mensal",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "JonasMelo.CognitiveWork.premium.medium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Mensal (4 a 6 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "129.90",
+              "displayPrice" : "129.90",
+              "internalID" : "B7390005",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "129.90",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6739000115",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Premium para a casa inteira (4 a 6 moradores).",
+              "displayName" : "Premium Anual",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "JonasMelo.CognitiveWork.premium.medium.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual (4 a 6 moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "21.90",
+              "displayPrice" : "21.90",
+              "internalID" : "B7390007",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "21.90",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6739000117",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Premium para a casa inteira (7 ou mais moradores).",
+              "displayName" : "Premium Mensal",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "JonasMelo.CognitiveWork.premium.large.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Mensal (7 ou mais moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "169.90",
+              "displayPrice" : "169.90",
+              "internalID" : "B7390008",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "169.90",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6739000118",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "Premium para a casa inteira (7 ou mais moradores).",
+              "displayName" : "Premium Anual",
+              "locale" : "pt_BR"
+            }
+          ],
+          "productID" : "JonasMelo.CognitiveWork.premium.large.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Anual (7 ou mais moradores)",
+          "subscriptionGroupID" : "21571301",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "subscriptionSuiteGroups" : [
+
+  ],
+  "version" : {
+    "major" : 6,
+    "minor" : 3
+  }
+}

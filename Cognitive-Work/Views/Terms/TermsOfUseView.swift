@@ -10,10 +10,12 @@ import SwiftUI
 /// Rendering only; the decision lives in ``TermsViewModel``.
 struct TermsOfUseView: View {
 
+    /// The terms and the user's decision.
     @Bindable var viewModel: TermsViewModel
 
     var body: some View {
         NavigationStack {
+            // MARK: - Header and sections
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     header
@@ -28,6 +30,7 @@ struct TermsOfUseView: View {
             .background(Color.white.ignoresSafeArea())
             .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
+            // MARK: - "Discordar" / "Concordar"
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Discordar") {
@@ -46,6 +49,7 @@ struct TermsOfUseView: View {
                     .voiceControlNames([L10n.tr("Concordar"), L10n.tr("Aceitar")])
                 }
             }
+            // MARK: - Confirmation before accepting
             .alert(viewModel.confirmationTitle, isPresented: $viewModel.isConfirmingAcceptance) {
                 Button("Cancelar", role: .cancel) {}
                 Button("Concordar") {
@@ -60,6 +64,7 @@ struct TermsOfUseView: View {
 
     // MARK: - Pieces
 
+    /// The app icon, the title and the version line.
     private var header: some View {
         VStack(alignment: .leading, spacing: 8) {
             Image("loadingIcon")
@@ -78,6 +83,7 @@ struct TermsOfUseView: View {
         }
     }
 
+    /// One numbered section: its title and paragraphs.
     private func sectionView(_ section: TermsOfUse.Section) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             if let title = section.title {
@@ -93,6 +99,7 @@ struct TermsOfUseView: View {
         }
     }
 
+    /// One paragraph, styled by kind: text, list item, definition or link.
     @ViewBuilder
     private func paragraphView(_ paragraph: TermsOfUse.Paragraph) -> some View {
         switch paragraph {
@@ -128,6 +135,7 @@ struct TermsOfUseView: View {
 }
 
 private extension View {
+    /// The text style of the terms' paragraphs.
     func bodyStyle() -> some View {
         self
             .font(.system(size: 15))

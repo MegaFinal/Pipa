@@ -7,16 +7,11 @@
 
 import SwiftUI
 
-/// The entry point of the onboarding flow.
+/// The first screen of the onboarding: the app's logo with a "deslize para continuar!" hint.
 ///
-/// `FirstOnboardingView` presents the app's welcome screen, swiping up expands
-/// the screen into a longer app description (`appDescription`)
-/// and reveals the "Continuar" action that pushes the user into the rest of the
-/// onboarding flow
-///
-/// The view owns the shared ``OnboardingViewModel`` for the onboarding flow
-/// and injects it into the environment so that subsequent screens can
-/// read and mutate it without it being passed down explicitly
+/// Swiping up opens ``WelcomeAnimatedOnboardingView``, the animated panel with the app's pitch and
+/// the "Continuar" button. When it appears, it also checks whether the iCloud account already
+/// has a profile, which decides where "Continuar" leads.
 struct WelcomeOnboardingView: View {
     /// Whether the description panel is expanded, replacing the initial tagline
     @State private var isExpanded = false
@@ -25,6 +20,7 @@ struct WelcomeOnboardingView: View {
     /// Whether the iCloud alert is currently visible.
     @State private var showICloudAlert = false
     
+    /// Not used.
     @State var bool = true
     
     /// The shared view model for navigation and state across the onboarding flow
@@ -33,7 +29,9 @@ struct WelcomeOnboardingView: View {
     
     var body: some View {
         ZStack {
+            // MARK: - Background
             Color(.onboardingBackground)
+            // MARK: - Logo (moves to the top when expanded)
             VStack(spacing: 30) {
                 Image("pipaOnboarding")
                     .resizable()
@@ -49,15 +47,18 @@ struct WelcomeOnboardingView: View {
             .ignoresSafeArea(edges: isExpanded ? .top : [])
             .padding(.top, 5)
             
+            // MARK: - "Swipe up" hint
             if isSwipeVisible {
                 swipeIndicator
             }
             
+            // MARK: - Animated panel after the swipe
             if isExpanded {
                 WelcomeAnimatedOnboardingView(viewModel: $viewModel)
             }
         }
         .ignoresSafeArea(.all)
+        // MARK: - Swipe up to expand
         .gesture(
             DragGesture()
                 .onEnded { value in
@@ -66,6 +67,7 @@ struct WelcomeOnboardingView: View {
                     }
                 }
         )
+        // MARK: - Account check and delayed hint
         .onAppear {
             Task {
                 await viewModel.checkExistingAccount()
@@ -79,6 +81,7 @@ struct WelcomeOnboardingView: View {
                 }
             }
         }
+        // MARK: - iCloud alert
         .alert("Continue com seu iCloud", isPresented: $showICloudAlert) {
             Button("Continuar") {}
         } message: {
