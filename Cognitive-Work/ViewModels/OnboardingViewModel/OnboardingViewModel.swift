@@ -272,6 +272,11 @@ class OnboardingViewModel {
             // Free time is now picked before the house exists; persist it on the in-house copy.
             await flushPendingFreeTimeIfNeeded()
             
+            // A new house gets 2 months of Premium, once per person.
+            if let savedHouse {
+                await PremiumManager.shared.startTrialIfEligible(for: savedHouse)
+            }
+            
             try? await CloudKitManager.shared.createSharedSubscription()
         } else {
             errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao criar a casa.")
@@ -671,6 +676,9 @@ class OnboardingViewModel {
         
         guard await manager.deleteChildren(of: houseID, includingSelf: true) else { return false }
         manager.invalidateSessionCache()
+        
+        // The house is gone before being used: its free trial goes back to the person.
+        await PremiumManager.shared.trialHouseWasDiscarded(houseID)
         
         // Free time was written on the deleted member copy; keep it pending for the next house.
         if pendingFreeTimeMinutes == nil {
