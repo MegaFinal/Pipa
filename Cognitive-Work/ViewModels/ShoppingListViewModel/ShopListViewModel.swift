@@ -696,8 +696,14 @@ final class ShopListViewModel {
             return false
         }
 
+        // Takes back everything the item gave when it was added (beneficiaries and price too),
+        // so adding and deleting items can't be repeated to farm points.
         if !item.isBought, let me = currentUser?.recordID, item.addedByRecordID == me {
-            await ScoreManager.shared.removeScoreForMyUser(score: ScoreValues.shoppingItemAdded.points)
+            let score = Self.creationScore(
+                beneficiaries: item.relatedUsers(in: houseUsers).count,
+                hasPrice: item.hasPrice
+            )
+            await ScoreManager.shared.removeScoreForMyUser(score: score)
         }
         return true
     }
