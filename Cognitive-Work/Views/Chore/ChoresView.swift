@@ -47,6 +47,9 @@ struct ChoresView: View {
     /// Opens the screen that creates a new division (from the new member pop-up).
     @State private var isResetting = false
 
+    /// When on, the opened card fades in instead of growing from the carousel.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     /// The Premium paywall (re-dividing mid-cycle is Premium).
     @State private var paywall: PremiumFeature?
     
@@ -151,7 +154,7 @@ struct ChoresView: View {
                         Spacer()
                     }
                     .zIndex(2)
-                    .transition(.scale)
+                    .transition(reduceMotion ? .opacity : .scale)
                     .accessibilityHidden(choreFromNotification != nil || carouselVM.itemAwaitingDate != nil)
                 }
                 
@@ -177,7 +180,7 @@ struct ChoresView: View {
                         onClose: dismissChoreFromNotification
                     )
                     .zIndex(5)
-                    .transition(.scale)
+                    .transition(reduceMotion ? .opacity : .scale)
                     .accessibilityElement(children: .contain)
                     .accessibilityAddTraits(.isModal)
                     .accessibilityAction(.escape) {
