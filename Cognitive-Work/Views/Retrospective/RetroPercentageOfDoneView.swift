@@ -16,6 +16,8 @@ struct RetroPercentageOfDoneView: View {
     let viewModel: RetroViewModel
     /// Animated value (0...100) that drives the pie and the counter.
     @State private var percentage: Double = 0.0
+    /// When on, the pie and the counter show the final value at once.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// This page's content.
     private var content: RetroPercentageContent { viewModel.percentageContent }
@@ -130,6 +132,10 @@ struct RetroPercentageOfDoneView: View {
             guard isActive else { return }
             try? await Task.sleep(for: .seconds(0.3))
             guard !Task.isCancelled else { return }
+            guard !reduceMotion else {
+                percentage = content.percentage
+                return
+            }
             withAnimation(.easeInOut(duration: 2)) {
                 percentage = content.percentage
             }
