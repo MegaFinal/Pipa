@@ -33,6 +33,17 @@ struct RetroRoomsView: View {
         return (width * 0.877) * CGFloat(chores) / CGFloat(maxChores)
     }
     
+    /// Chores done in each room, for VoiceOver's audio graph.
+    private var chartDescriptor: CategoryChartDescriptor {
+        CategoryChartDescriptor(
+            title: L10n.tr("Tarefas por cômodo"),
+            summary: content.subtitle,
+            categoryAxisTitle: L10n.tr("Cômodo"),
+            valueAxisTitle: L10n.tr("Tarefas"),
+            points: content.bars.map { (label: $0.roomName, value: Double($0.choreCount)) }
+        )
+    }
+
     var body: some View {
         VStack {
             // MARK: - Title ("N cômodos") and the room worked on most
@@ -93,6 +104,10 @@ struct RetroRoomsView: View {
                 }
                 .padding(.horizontal, width * 0.061)
                 .padding(.bottom, height * 0.02)
+                // MARK: Accessibility: the bars as a chart, with an audio graph
+                .accessibilityElement(children: .contain)
+                .voiceOverLabel(L10n.tr("Tarefas por cômodo"))
+                .accessibilityChartDescriptor(chartDescriptor)
             }
             .scrollBounceBehavior(.basedOnSize)
             
