@@ -114,7 +114,11 @@ enum Tier: String, CaseIterable {
 extension Tier {
 
     /// Points needed to climb one rank.
-    static let pointsPerDivision = 25
+    ///
+    /// Calibrated for a two-week cycle: a member who does their fair share of a typical house
+    /// (3 members) earns about 55 points a day, so they get close to the top only after about
+    /// 10 days, and someone who does half of it ends the cycle mid-ladder.
+    static let pointsPerDivision = 50
 
     /// Rank for `points`. Negative points count as zero.
     init(points: Int) {

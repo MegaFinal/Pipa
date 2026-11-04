@@ -12,7 +12,7 @@ import Foundation
 @MainActor
 struct RankProgressionTests {
 
-    /// 25 points per division.
+    /// 50 points per division.
     let step = Tier.pointsPerDivision
 
     @Test func startsAtNovatoDaCasa() {
