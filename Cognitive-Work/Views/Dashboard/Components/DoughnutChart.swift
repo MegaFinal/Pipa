@@ -37,6 +37,20 @@ struct DoughnutChart: View {
         return [done, all]
     }
     
+    /// Done and still-to-do chores, for VoiceOver's audio graph.
+    private var chartDescriptor: CategoryChartDescriptor {
+        CategoryChartDescriptor(
+            title: L10n.tr("Tarefas de hoje"),
+            summary: viewModel.todayAccessibilityValue,
+            categoryAxisTitle: L10n.tr("Status"),
+            valueAxisTitle: L10n.tr("Tarefas"),
+            points: [
+                (label: L10n.tr("Concluído"), value: Double(viewModel.completedToday)),
+                (label: L10n.tr("Pendente"), value: Double(max(viewModel.totalToday - viewModel.completedToday, 0)))
+            ]
+        )
+    }
+
     var body: some View {
         // MARK: - "Hoje", doughnut with the percentage, and "X de Y"
         VStack(spacing: 8) {
@@ -79,6 +93,7 @@ struct DoughnutChart: View {
         .accessibilityElement(children: .ignore)
         .voiceOverLabel(L10n.tr("Hoje"))
         .voiceOverValue(viewModel.todayAccessibilityValue)
+        .accessibilityChartDescriptor(chartDescriptor)
     }
 }
 

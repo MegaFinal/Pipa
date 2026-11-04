@@ -75,7 +75,10 @@ struct DashboardView: View {
             // Only on a cold start without data in memory; otherwise the cards draw at once.
             .overlay {
                 if viewModel.isLoading {
-                    LoadingScreen(accessibilityTitle: L10n.tr("Carregando"))
+                    LoadingScreen(
+                        accessibilityTitle: L10n.tr("Carregando seu progresso..."),
+                        message: "Carregando seu progresso..."
+                    )
                 }
             }
         }

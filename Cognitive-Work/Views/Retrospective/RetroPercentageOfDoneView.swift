@@ -16,6 +16,8 @@ struct RetroPercentageOfDoneView: View {
     let viewModel: RetroViewModel
     /// Animated value (0...100) that drives the pie and the counter.
     @State private var percentage: Double = 0.0
+    /// When on, the pie and the counter show the final value at once.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// This page's content.
     private var content: RetroPercentageContent { viewModel.percentageContent }
@@ -41,6 +43,7 @@ struct RetroPercentageOfDoneView: View {
                         .foregroundStyle(.white)
                 }
                 .ignoresSafeArea()
+                .accessibilityDecorative()
 
             // MARK: - Keyhole shape over the pie
             VStack{
@@ -50,6 +53,7 @@ struct RetroPercentageOfDoneView: View {
                     .foregroundStyle(.white)
                 
             }
+            .accessibilityDecorative()
                 
 
             // MARK: - Texts and buttons
@@ -61,6 +65,9 @@ struct RetroPercentageOfDoneView: View {
                     .bold()
                     .font(.system(size: 64))
                     .padding(.bottom, height * 0.03)
+                    // The counter animates from 0: VoiceOver reads the final value instead.
+                    .voiceOverLabel(ChartA11y.percent(content.percentage / 100))
+                    .accessibilityAddTraits(.isHeader)
 //                Text(content.summary)
                 Text(try! AttributedString(markdown: content.summary))
                     .font(.title)
@@ -94,6 +101,7 @@ struct RetroPercentageOfDoneView: View {
                         .foregroundStyle(.subTitleGray)
                 }
                 .padding(.bottom, height * 0.014)
+                .voiceControlNames([L10n.tr("ver depois")])
                 
                 Button {
                     withAnimation {
@@ -107,6 +115,7 @@ struct RetroPercentageOfDoneView: View {
                         .font(.system(size: 17))
                 }
                 .buttonStyle(.glassProminent)
+                .voiceControlNames([L10n.tr("Continuar"), L10n.tr("Próxima")])
                 .glassEffectTransition(.identity)
             }
         }
@@ -123,6 +132,10 @@ struct RetroPercentageOfDoneView: View {
             guard isActive else { return }
             try? await Task.sleep(for: .seconds(0.3))
             guard !Task.isCancelled else { return }
+            guard !reduceMotion else {
+                percentage = content.percentage
+                return
+            }
             withAnimation(.easeInOut(duration: 2)) {
                 percentage = content.percentage
             }
