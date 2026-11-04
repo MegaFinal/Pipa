@@ -46,6 +46,7 @@ struct ProfileHero<AvatarOverlay: View>: View {
             .frame(height: height)
             .clipShape(ProfileHeroShape(curveDepth: curveDepth))
             .shadow(color: .black.opacity(0.14), radius: 16.47, x: 0, y: 4.69)
+            .accessibilityDecorative()
     }
     
     private var avatar: some View {
@@ -64,6 +65,8 @@ struct ProfileHero<AvatarOverlay: View>: View {
         .frame(width: avatarSize, height: avatarSize)
         .clipShape(Circle())
         .shadow(color: .black.opacity(0.25), radius: 6.85, x: 0, y: 4)
+        // The parent describes the profile; the photo picker overlay stays reachable.
+        .accessibilityHidden(true)
     }
 }
 
