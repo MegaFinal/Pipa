@@ -2543,6 +2543,46 @@
     "+%lld" : {
       "shouldTranslate" : false
     },
+    "Carregando retrospectiva" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading retrospective"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cargando retrospectiva"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement de la rétrospective"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "振り返りを読み込み中"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "회고 불러오는 중"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在加载回顾"
+          }
+        }
+      }
+    },
     "Digite o valor total pago. Ele é dividido entre quem vai consumir e aparece em Pendências." : {
       "localizations" : {
         "en" : {

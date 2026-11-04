@@ -40,6 +40,7 @@ struct RetroRoomsView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .padding(.top, height * 0.071)
+                .accessibilityAddTraits(.isHeader)
             
             Text(content.subtitle)
                 .font(.title)
@@ -57,6 +58,8 @@ struct RetroRoomsView: View {
                                 .font(.body)
                                 .fontWeight(.semibold)
                                 .padding(.bottom, 0.01)
+                                // Read together with its bar below, as one element.
+                                .accessibilityHidden(true)
                         
                             Capsule()
                                 .frame(width: isChartShown ? barWidth(for: bar) : 0, height: height * 0.041)
@@ -78,6 +81,10 @@ struct RetroRoomsView: View {
                                     value: isChartShown
                                 )
                                 .padding(.bottom, 0.02)
+                                // MARK: Accessibility: "Cozinha, 12 tarefas" as one element
+                                .accessibilityElement(children: .ignore)
+                                .voiceOverLabel(bar.roomName)
+                                .voiceOverValue(L10n.tr("\(bar.choreCount) tarefas"))
                         }
                     }
                     Spacer()
@@ -102,6 +109,7 @@ struct RetroRoomsView: View {
                     .font(.system(size: 17))
             }
             .buttonStyle(.glassProminent)
+            .voiceControlNames([L10n.tr("Continuar"), L10n.tr("Concluir")])
             .glassEffectTransition(.identity)
         }
         // MARK: - Bar animation

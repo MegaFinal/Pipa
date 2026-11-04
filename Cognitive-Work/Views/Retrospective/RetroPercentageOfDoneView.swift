@@ -41,6 +41,7 @@ struct RetroPercentageOfDoneView: View {
                         .foregroundStyle(.white)
                 }
                 .ignoresSafeArea()
+                .accessibilityDecorative()
 
             // MARK: - Keyhole shape over the pie
             VStack{
@@ -50,6 +51,7 @@ struct RetroPercentageOfDoneView: View {
                     .foregroundStyle(.white)
                 
             }
+            .accessibilityDecorative()
                 
 
             // MARK: - Texts and buttons
@@ -61,6 +63,9 @@ struct RetroPercentageOfDoneView: View {
                     .bold()
                     .font(.system(size: 64))
                     .padding(.bottom, height * 0.03)
+                    // The counter animates from 0: VoiceOver reads the final value instead.
+                    .voiceOverLabel(ChartA11y.percent(content.percentage / 100))
+                    .accessibilityAddTraits(.isHeader)
 //                Text(content.summary)
                 Text(try! AttributedString(markdown: content.summary))
                     .font(.title)
@@ -94,6 +99,7 @@ struct RetroPercentageOfDoneView: View {
                         .foregroundStyle(.subTitleGray)
                 }
                 .padding(.bottom, height * 0.014)
+                .voiceControlNames([L10n.tr("ver depois")])
                 
                 Button {
                     withAnimation {
@@ -107,6 +113,7 @@ struct RetroPercentageOfDoneView: View {
                         .font(.system(size: 17))
                 }
                 .buttonStyle(.glassProminent)
+                .voiceControlNames([L10n.tr("Continuar"), L10n.tr("Próxima")])
                 .glassEffectTransition(.identity)
             }
         }
