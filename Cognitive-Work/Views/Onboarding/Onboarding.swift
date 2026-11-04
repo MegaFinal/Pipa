@@ -28,7 +28,11 @@ struct Onboarding: View {
             Group {
                 // MARK: - Loading animation while restoring, otherwise the current step
                 if viewModel.isRestoringSession && viewModel.stateMachine.index > 0 {
-                    LoadingScreen(animation: .burst, accessibilityTitle: L10n.tr("Carregando"))
+                    LoadingScreen(
+                        animation: .burst,
+                        accessibilityTitle: L10n.tr("Retomando de onde você parou..."),
+                        message: "Retomando de onde você parou..."
+                    )
                 } else {
                     NavigationStack {
                         stepView(for: viewModel.stateMachine)

@@ -33,7 +33,9 @@ struct CarouselCardFrame: View {
     /// the carousel (a card opened from a notification passes its own).
     var onClose: (() -> Void)?
     /// How fast the faces cross-fade during the flip.
-    private let fadeDuration: Double = 0.03
+    private var fadeDuration: Double { reduceMotion ? 0.25 : 0.03 }
+    /// When on, the card cross-fades between its faces instead of turning in 3D.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         ZStack {
@@ -56,7 +58,8 @@ struct CarouselCardFrame: View {
                     isShowingBack: isShowingBack,
                     onClose: onClose
                 )
-                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                // Undoes the card's half turn; with Reduce Motion there is no turn to undo.
+                .rotation3DEffect(.degrees(reduceMotion ? 0 : 180), axis: (x: 0, y: 1, z: 0))
                 .opacity(isShowingBack ? 1 : 0)
                 .frame(width: 0, height: 0)
                 .scaleEffect(
@@ -67,8 +70,8 @@ struct CarouselCardFrame: View {
                 .accessibilityHidden(!isShowingBack)
             }
         }
-        .animation(.spring(response: 0.5, dampingFraction: 0.75), value: isFocused)
+        .animation(reduceMotion ? Animation.easeInOut(duration: 0.25) : Animation.spring(response: 0.5, dampingFraction: 0.75), value: isFocused)
         .animation(.easeInOut(duration: fadeDuration), value: isShowingBack)
-        .rotation3DEffect(.degrees(rotation), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
+        .rotation3DEffect(.degrees(reduceMotion ? 0 : rotation), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
     }
 }

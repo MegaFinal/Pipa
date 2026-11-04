@@ -14,6 +14,8 @@ struct WaitingAlgorithmView: View {
     private let columns = ChoreDTO.columnsMock
     /// The icon's angle; animated forever.
     @State private var isRotating = 0.0
+    /// When on, the animation is replaced by a still or faded version.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     var body: some View {
         ZStack {
@@ -41,6 +43,8 @@ struct WaitingAlgorithmView: View {
                     .rotationEffect(.degrees(isRotating))
                     .accessibilityDecorative()
                     .onAppear {
+                        // Reduce Motion: the icon stays still; the text already says it is loading.
+                        guard !reduceMotion else { return }
                         withAnimation(.linear(duration: 1)
                             .speed(0.1).repeatForever(autoreverses: false)) {
                                 isRotating = 360.0

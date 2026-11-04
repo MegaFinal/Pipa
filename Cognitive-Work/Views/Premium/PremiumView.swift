@@ -5,7 +5,7 @@
 
 import SwiftUI
 import StoreKit
-
+ 
 /// Pipa Premium: the plans when the house isn't Premium, or the subscription status when it is.
 ///
 /// The plans shown depend on the house size (``HouseSizeTier``): a house with 5 residents only
@@ -13,19 +13,28 @@ import StoreKit
 /// ``SwiftUI/View/premiumPaywall(_:)`` when a free user taps a Premium feature, or from the profile.
 struct PremiumView: View {
 
-    /// The feature that opened the paywall, shown first. `nil` when opened from the profile.
+    /// The feature that opened the paywall, listed first. `nil` when opened from the profile.
     var highlighted: PremiumFeature?
 
     @Environment(\.dismiss) private var dismiss
+    
+    /// SwiftUI's purchase action: shows the App Store sheet on top of this screen.
+    @Environment(\.purchase) private var purchase
 
     private var premium = PremiumManager.shared
+    private var storeManager = StoreManager.shared
 
-    /// Shows the student yearly plan (-30%).
-    ///
-    /// - Important: Honor system for now — nothing checks that the person studies. See the notes
-    ///   on verifying students before shipping.
-    @AppStorage("premium.isStudent") private var isStudent = false
+    // Student plan: turned off for now. To bring it back, uncomment this, the toggle in
+    // `yearlyCard`, `studentDiscount`, the line in `planName` and the student plans in
+    // `PremiumPlan.allSubscriptions` (and add them back to Premium.storekit / App Store Connect).
+    // - Important: honor system — nothing checks that the person studies.
+    // @AppStorage("premium.isStudent") private var isStudent = false
 
+    /// The card picked by the person. Annual by default: it's the best deal.
+    @State private var selectedPeriod: PremiumPlan.Period = .yearly
+
+    @State private var isPurchasing = false
+    @State private var purchaseErrorMessage: String?
     @State private var isShowingManageSubscription = false
     @State private var isRestoring = false
     @State private var restoreMessage: String?
@@ -37,11 +46,12 @@ struct PremiumView: View {
     var body: some View {
         NavigationStack {
             Group {
-                if !premium.isPremium {
+                if !premium.isPremium || premium.isOnTrialOnly {
+                    // On the free trial nobody pays yet: the plans stay on screen.
                     store(isUpgrade: false)
                 } else if premium.isPaidByMe && premium.needsUpgrade {
-                    // The house grew: same screen, now offering the bigger bracket. Because all
-                    // plans share one subscription group, the App Store treats it as an upgrade.
+                    // The house grew: same screen, now with the bigger bracket's prices. All
+                    // plans share one subscription group, so the App Store treats it as an upgrade.
                     store(isUpgrade: true)
                 } else {
                     activeSubscription
@@ -52,9 +62,10 @@ struct PremiumView: View {
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark")
+                        Image(systemName: "chevron.left")
                     }
                     .voiceOverLabel(L10n.tr("Fechar"))
+                    .voiceControlNames([L10n.tr("Fechar"), L10n.tr("Voltar")])
                 }
             }
             .alert(
@@ -68,145 +79,347 @@ struct PremiumView: View {
             } message: {
                 Text(restoreMessage ?? "")
             }
+            .alert(
+                "Não foi possível comprar",
+                isPresented: Binding(
+                    get: { purchaseErrorMessage != nil },
+                    set: { if !$0 { purchaseErrorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(purchaseErrorMessage ?? "")
+            }
         }
         .animation(.snappy, value: premium.isPremium)
+        .task { await storeManager.loadProducts() }
+    }
+
+    // MARK: - Plans
+
+    /// The house's price bracket.
+    private var tier: HouseSizeTier { premium.requiredTier }
+
+    private var monthlyPlan: PremiumPlan? {
+        PremiumPlan.subscription(for: tier, period: .monthly, isStudent: false)
+    }
+
+    private var yearlyPlan: PremiumPlan? {
+        PremiumPlan.subscription(for: tier, period: .yearly, isStudent: false)
+    }
+
+    /// The plan of the selected card.
+    private var selectedPlan: PremiumPlan? {
+        switch selectedPeriod {
+        case .monthly: return monthlyPlan
+        case .yearly: return yearlyPlan
+        case .lifetime: return .lifetime
+        }
     }
 
     // MARK: - Store
 
-    /// The products of the house's bracket (plus the student plan when toggled on).
-    private var productIDs: [String] {
-        premium.requiredTier.productIDs(includingStudent: isStudent)
-    }
-
-    /// StoreKit's own subscription screen with our content on top. It loads the products,
-    /// shows the localized prices, the free trial, the legal text and runs the purchase.
+    /// Logo, house bracket, features and the three plan cards, with the purchase button pinned
+    /// to the bottom.
     private func store(isUpgrade: Bool) -> some View {
-        SubscriptionStoreView(productIDs: productIDs) {
-            marketingContent(isUpgrade: isUpgrade)
-        }
-        // A new list of products needs a new store view (it reads them only once).
-        .id(productIDs)
-        .subscriptionStoreControlStyle(.prominentPicker)
-        .subscriptionStoreButtonLabel(.multiline)
-        .storeButton(.hidden, for: .cancellation)
-        // Required by App Review: links to the terms of use (EULA) and the privacy policy.
-        .subscriptionStorePolicyDestination(
-            url: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!,
-            for: .termsOfService
-        )
-        // TODO: replace with the app's privacy policy page.
-        .subscriptionStorePolicyDestination(
-            url: URL(string: "https://www.apple.com/legal/privacy/")!,
-            for: .privacyPolicy
-        )
-        // Also covers the lifetime `ProductView` inside the marketing content.
-        .onInAppPurchaseCompletion { _, result in
-            // `.success(.success)` is a completed purchase; cancelled, pending ("Ask to Buy") and
-            // errors need nothing here (a pending one arrives later via `Transaction.updates`).
-            if case .success(.success(let verification)) = result {
-                await StoreManager.shared.handle(verification)
-                HapticsManager.notify(.success)
-            }
-        }
-        .safeAreaInset(edge: .bottom) {
-            restoreButton
-        }
-    }
-
-    /// Title, house bracket, student toggle, features and the lifetime option.
-    private func marketingContent(isUpgrade: Bool) -> some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 10) {
-                Image(systemName: "crown.fill")
-                    .font(.system(size: 44))
-                    .foregroundStyle(.yellow.gradient)
-                    .accessibilityHidden(true)
-
-                Text(isUpgrade ? L10n.tr("Atualize seu plano") : L10n.tr("Pipa Premium"))
-                    .font(.custom("Alan Sans", size: 34))
-                    .fontWeight(.bold)
-                    .accessibilityAddTraits(.isHeader)
+        ScrollView {
+            VStack(spacing: 24) {
+                logo
 
                 Text(isUpgrade
                      ? L10n.tr("Sua casa agora tem \(premium.memberCount) moradores. O Premium continua ativo, mas o plano atual cobre uma casa menor.")
-                     : L10n.tr("Uma assinatura libera tudo para a casa inteira."))
-                    .font(.system(size: 17))
+                     : L10n.tr("Uma assinatura libera todos os benefícios para a casa inteira"))
                     .foregroundStyle(.subTitleGray)
                     .multilineTextAlignment(.center)
-            }
 
-            houseBracket
+                if premium.isOnTrialOnly, let endsAt = premium.houseTrialEndsAt {
+                    trialNotice(endsAt: endsAt)
+                }
 
-            if !isUpgrade {
-                VStack(alignment: .leading, spacing: 16) {
+                if premium.hasSubscriptionElsewhere {
+                    subscriptionElsewhereNotice
+                }
+
+                houseBracket
+
+                VStack(alignment: .leading, spacing: 24) {
                     ForEach(orderedFeatures) { feature in
-                        PremiumFeatureRow(feature: feature, isHighlighted: feature == highlighted)
+                        PremiumFeatureRow(feature: feature)
                     }
                 }
 
-                lifetimeOption
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.top, 20)
-    }
-
-    /// "5 moradores · faixa 4 a 6" and the student switch.
-    private var houseBracket: some View {
-        VStack(spacing: 12) {
-            Label {
-                // Two keys instead of one: "%lld moradores" varies by plural ("1 morador"), and
-                // a plural variation only works on a string with a single number.
-                Text(L10n.tr("\(premium.memberCount) moradores")
-                     + " · "
-                     + L10n.tr("Preço para \(premium.requiredTier.title.lowercased())"))
-            } icon: {
-                Image(systemName: "person.3.fill")
-            }
-            .font(.system(size: 14, weight: .semibold))
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(Capsule().fill(Color.groupedBackground))
-
-            Toggle(isOn: $isStudent.animation(.snappy)) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Sou estudante")
-                        .font(.system(size: 16, weight: .semibold))
-                    Text("\(Self.studentDiscount) de desconto no plano anual")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.subTitleGray)
+                VStack(spacing: 8) {
+                    monthlyCard
+                    yearlyCard
+                    lifetimeCard
                 }
             }
-            .tint(.black)
+            .padding(.horizontal, 24)
+            .padding(.bottom, 16)
+        }
+        .scrollIndicators(.hidden)
+        .manageSubscriptionsSheet(isPresented: $isShowingManageSubscription)
+        .safeAreaInset(edge: .bottom) {
+            purchaseFooter
         }
     }
 
-    /// "Vitalício (por conta)": a one-time purchase that covers any house size.
-    private var lifetimeOption: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Ou pague uma vez")
-                .font(.system(size: 16, weight: .semibold))
-            ProductView(id: PremiumPlan.lifetime.productID)
-                .productViewStyle(.compact)
-            Text("Vale para a sua conta, em qualquer casa e com qualquer número de moradores.")
-                .font(.system(size: 13))
+    /// "pipa" with the crown, and "premium" under it.
+    private var logo: some View {
+        VStack(alignment: .trailing, spacing: 0) {
+            Image("pipaWordmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 220)
+                .foregroundStyle(.black)
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: "crown.fill")
+                        .font(.system(size: 34))
+                        .foregroundStyle(.yellow.gradient)
+                        .rotationEffect(.degrees(15))
+                        .offset(x: 6, y: -22)
+                }
+
+            Text(verbatim: "premium")
+                .font(.system(size: 30, weight: .light))
+        }
+        .padding(.top, 24)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: "Pipa Premium"))
+        .accessibilityAddTraits(.isHeader)
+    }
+
+    /// "Sua casa está no teste grátis até 4 de janeiro": what happens when it ends.
+    private func trialNotice(endsAt: Date) -> some View {
+        let date = endsAt.formatted(.dateTime.day().month(.wide).locale(L10n.locale))
+        return VStack(alignment: .leading, spacing: 6) {
+            Label {
+                Text(L10n.tr("Sua casa está no teste grátis até \(date)"))
+                    .font(.headline)
+            } icon: {
+                Image(systemName: "gift.fill")
+                    .foregroundStyle(RoomColor.purple.uiColor)
+            }
+            Text("Todos os recursos Premium estão liberados. Depois disso, alguém da casa precisa assinar para continuar.")
+                .font(.subheadline)
                 .foregroundStyle(.subTitleGray)
+                .fixedSize(horizontal: false, vertical: true)
         }
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.groupedBackground, in: .rect(cornerRadius: 24))
     }
 
-    /// "30%" written the way the app's language writes percentages.
-    private static var studentDiscount: String {
-        0.3.formatted(.percent.precision(.fractionLength(0)).locale(L10n.locale))
+    /// For someone who subscribed in another house and moved: the subscription stays with that
+    /// house, so it doesn't cover this one (and they keep being charged until they cancel it).
+    private var subscriptionElsewhereNotice: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Sua assinatura é da casa onde você assinou")
+                .font(.headline)
+            Text("Ela não vale para esta casa. Se não quiser mais ser cobrado por ela, cancele em Gerenciar assinatura.")
+                .font(.subheadline)
+                .foregroundStyle(.subTitleGray)
+                .fixedSize(horizontal: false, vertical: true)
+            Button("Gerenciar assinatura") {
+                isShowingManageSubscription = true
+            }
+            .font(.subheadline.weight(.semibold))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.groupedBackground, in: .rect(cornerRadius: 24))
     }
 
-    /// The highlighted feature first, then what exists today, then "Em breve".
+    /// "1 morador na casa · Preço para até 3 moradores".
+    private var houseBracket: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: "person.3.fill")
+                .accessibilityHidden(true)
+            // Two keys instead of one: "%lld moradores" varies by plural ("1 morador"), and
+            // a plural variation only works on a string with a single number.
+            Text(L10n.tr("\(premium.memberCount) moradores")
+                 + " · "
+                 + L10n.tr("Preço para \(tier.title.lowercased())"))
+        }
+        .font(.subheadline.weight(.semibold))
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.groupedBackground, in: .rect(cornerRadius: 24))
+    }
+
+    /// The feature that opened the paywall first, then the others.
     private var orderedFeatures: [PremiumFeature] {
-        let rest = PremiumFeature.allCases.filter { $0 != highlighted }
-        let available = rest.filter { !$0.isComingSoon }
-        let comingSoon = rest.filter(\.isComingSoon)
-        return (highlighted.map { [$0] } ?? []) + available + comingSoon
+        let rest = PremiumFeature.paywallFeatures.filter { $0 != highlighted }
+        guard let highlighted, !highlighted.isComingSoon else { return rest }
+        return [highlighted] + rest
+    }
+
+    // MARK: Plan cards
+
+    private var monthlyCard: some View {
+        PremiumPlanCard(
+            title: "Premium Mensal",
+            subtitle: priceText(for: monthlyPlan),
+            isSelected: selectedPeriod == .monthly
+        ) {
+            selectedPeriod = .monthly
+        }
+    }
+
+    private var yearlyCard: some View {
+        PremiumPlanCard(
+            title: "Premium Anual",
+            subtitle: priceText(for: yearlyPlan),
+            isSelected: selectedPeriod == .yearly
+        ) {
+            selectedPeriod = .yearly
+        }
+        // Student plan (turned off): the switch went in this card, under the price.
+        // } extra: {
+        //     Divider()
+        //
+        //     Toggle(isOn: $isStudent.animation(.snappy)) {
+        //         VStack(alignment: .leading, spacing: 2) {
+        //             Text("Sou estudante")
+        //                 .font(.headline)
+        //             Text("\(Self.studentDiscount) de desconto no plano anual")
+        //                 .font(.footnote)
+        //                 .foregroundStyle(.subTitleGray)
+        //         }
+        //     }
+        //     .onChange(of: isStudent) { _, isOn in
+        //         // Turning the discount on is a choice for the annual plan.
+        //         if isOn { selectedPeriod = .yearly }
+        //     }
+        // }
+    }
+
+    private var lifetimeCard: some View {
+        PremiumPlanCard(
+            title: "Premium Vitalício",
+            subtitle: priceText(for: .lifetime),
+            isSelected: selectedPeriod == .lifetime
+        ) {
+            selectedPeriod = .lifetime
+        }
+    }
+
+    // MARK: Footer
+
+    /// Legal links, "Aceitar Oferta" and "Restaurar compras".
+    private var purchaseFooter: some View {
+        VStack(spacing: 12) {
+            // Required by App Review: links to the terms of use (EULA) and the privacy policy.
+            HStack(spacing: 4) {
+                Link("Termos de Serviço", destination: Self.termsURL)
+                Text("e")
+                // TODO: replace with the app's privacy policy page.
+                Link("Política de Privacidade", destination: Self.privacyURL)
+            }
+            .font(.caption.weight(.semibold))
+
+            Button {
+                Task { await buySelectedPlan() }
+            } label: {
+                VStack(spacing: 2) {
+                    if isPurchasing {
+                        ProgressView().tint(.white)
+                    } else {
+                        Text("Aceitar Oferta")
+                            .font(.title3.weight(.semibold))
+                        Text(priceText(for: selectedPlan))
+                            .font(.caption)
+                    }
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, minHeight: 56)
+                .background(.blue, in: .capsule)
+            }
+            .buttonStyle(.plain)
+            .disabled(isPurchasing || selectedPlan.flatMap { storeManager.product(for: $0) } == nil)
+            .voiceControlNames([L10n.tr("Aceitar Oferta"), L10n.tr("Assinar"), L10n.tr("Comprar")])
+
+            restoreButton
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
+        .background(Color(.systemBackground))
+    }
+
+    private static let termsURL = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
+    private static let privacyURL = URL(string: "https://www.apple.com/legal/privacy/")!
+
+    // MARK: Prices
+
+    /// Prices come from the App Store, in the person's currency; "Carregando…" until they arrive.
+    private func priceText(for plan: PremiumPlan?) -> String {
+        guard let plan, let product = storeManager.product(for: plan) else { return L10n.tr("Carregando…") }
+        let price = product.displayPrice
+
+        switch plan.period {
+        case .lifetime:
+            return L10n.tr("Pague uma vez e tenha o Premium para sempre por apenas \(price)")
+        case .monthly, .yearly:
+            let isMonthly = plan.period == .monthly
+            guard storeManager.isEligibleForTrial, let trial = trialText(for: product) else {
+                return isMonthly ? L10n.tr("\(price)/mês") : L10n.tr("\(price)/ano")
+            }
+            return isMonthly
+                ? L10n.tr("\(trial) grátis, depois de \(price)/mês")
+                : L10n.tr("\(trial) grátis, depois de \(price)/ano")
+        }
+    }
+
+    /// The free trial's length in the app's language ("1 semana", "1 week"), or `nil` when the
+    /// product has none.
+    private func trialText(for product: Product) -> String? {
+        guard let offer = product.subscription?.introductoryOffer,
+              offer.paymentMode == .freeTrial else { return nil }
+        var components = DateComponents()
+        switch offer.period.unit {
+        case .day: components.day = offer.period.value
+        case .week: components.weekOfMonth = offer.period.value
+        case .month: components.month = offer.period.value
+        case .year: components.year = offer.period.value
+        @unknown default: return nil
+        }
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        var calendar = Calendar.current
+        calendar.locale = L10n.locale
+        formatter.calendar = calendar
+        return formatter.string(from: components)
+    }
+
+    // Student plan (turned off): "30%" written the way the app's language writes percentages.
+    // private static var studentDiscount: String {
+    //     0.3.formatted(.percent.precision(.fractionLength(0)).locale(L10n.locale))
+    // }
+
+    // MARK: Actions
+
+    /// Buys the selected plan. A completed purchase unlocks the house right away (the screen
+    /// switches to "Sua casa é Premium"); cancelling does nothing; "Ask to Buy" arrives later
+    /// through `Transaction.updates`.
+    private func buySelectedPlan() async {
+        guard let plan = selectedPlan, let product = storeManager.product(for: plan) else { return }
+        // The house's token goes with the purchase: the App Store keeps it on every renewal, so
+        // the subscription stays tied to this house (see ``PremiumManager``).
+        guard let houseToken = premium.currentHouseToken else {
+            purchaseErrorMessage = L10n.tr("Não foi possível encontrar sua casa. Tente novamente.")
+            return
+        }
+        isPurchasing = true
+        defer { isPurchasing = false }
+        do {
+            if case .success(let verification) = try await purchase(product, options: [.appAccountToken(houseToken)]) {
+                await storeManager.handle(verification)
+                HapticsManager.notify(.success)
+            }
+        } catch {
+            purchaseErrorMessage = L10n.tr("Não foi possível concluir a compra. Tente de novo.")
+        }
     }
 
     private var restoreButton: some View {
@@ -299,13 +512,15 @@ struct PremiumView: View {
         .manageSubscriptionsSheet(isPresented: $isShowingManageSubscription)
     }
 
-    /// "Anual · até 3 moradores", "Anual Estudante · …" or "Vitalício".
+    /// "Anual · até 3 moradores" or "Vitalício".
     private func planName(_ plan: PremiumPlan) -> String {
         let period: String
         switch plan.period {
         case .lifetime: return L10n.tr("Vitalício")
         case .monthly: period = L10n.tr("Mensal")
-        case .yearly: period = plan.isStudent ? L10n.tr("Anual Estudante") : L10n.tr("Anual")
+        case .yearly: period = L10n.tr("Anual")
+        // Student plan (turned off):
+        // case .yearly: period = plan.isStudent ? L10n.tr("Anual Estudante") : L10n.tr("Anual")
         }
         guard let tier = plan.tier else { return period }
         return "\(period) · \(tier.title.lowercased())"
@@ -340,40 +555,82 @@ struct PremiumView: View {
 
 // MARK: - Feature row
 
-/// One line of the paywall: icon, title, explanation and an "Em breve" tag when not built yet.
+/// One benefit on the paywall: colored icon, title and explanation.
 private struct PremiumFeatureRow: View {
     let feature: PremiumFeature
-    let isHighlighted: Bool
 
     var body: some View {
-        HStack(alignment: .top, spacing: 14) {
+        HStack(spacing: 16) {
             Image(systemName: feature.systemImage)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(isHighlighted ? Color.white : Color.black)
-                .frame(width: 40, height: 40)
-                .background(Circle().fill(isHighlighted ? Color.black : Color.groupedBackground))
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundStyle(feature.tint)
+                .frame(width: 44)
                 .accessibilityHidden(true)
 
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(feature.title)
-                        .font(.system(size: 16, weight: .semibold))
-                    if feature.isComingSoon {
-                        Text("Em breve")
-                            .font(.system(size: 11, weight: .semibold))
-                            .padding(.horizontal, 7)
-                            .padding(.vertical, 2)
-                            .background(Capsule().fill(Color.groupedBackground))
-                            .foregroundStyle(.subTitleGray)
-                    }
-                }
+            VStack(alignment: .leading, spacing: 4) {
+                Text(feature.title)
+                    .font(.title3.weight(.semibold))
                 Text(feature.subtitle)
-                    .font(.system(size: 14))
+                    .font(.subheadline)
                     .foregroundStyle(.subTitleGray)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
+    }
+}
+
+// MARK: - Plan card
+
+/// A plan to pick: gray rounded card with the title, the price line and a round check. The
+/// selected one gets a blue border. `extra` goes under the price (it held the student switch).
+private struct PremiumPlanCard<Extra: View>: View {
+    let title: LocalizedStringKey
+    let subtitle: String
+    let isSelected: Bool
+    let onSelect: () -> Void
+    @ViewBuilder var extra: () -> Extra
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(title)
+                    .font(.title3.bold())
+                Spacer()
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundStyle(isSelected ? Color.blue : Color.secondary)
+                    .accessibilityHidden(true)
+            }
+
+            Text(subtitle)
+                .font(.footnote)
+                .fixedSize(horizontal: false, vertical: true)
+
+            extra()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.groupedBackground, in: .rect(cornerRadius: 32))
+        .overlay {
+            RoundedRectangle(cornerRadius: 32)
+                .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+        }
+        // A tap gesture instead of a Button, so the Toggle inside the annual card keeps working.
+        .contentShape(.rect(cornerRadius: 32))
+        .onTapGesture {
+            HapticsManager.selection()
+            withAnimation(.snappy) { onSelect() }
+        }
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+        .accessibilityAction { onSelect() }
+    }
+}
+
+extension PremiumPlanCard where Extra == EmptyView {
+    init(title: LocalizedStringKey, subtitle: String, isSelected: Bool, onSelect: @escaping () -> Void) {
+        self.init(title: title, subtitle: subtitle, isSelected: isSelected, onSelect: onSelect) { EmptyView() }
     }
 }
 
@@ -394,6 +651,37 @@ extension View {
         sheet(item: feature) { feature in
             PremiumView(highlighted: feature)
         }
+    }
+}
+
+/// Shown where an Apple Intelligence feature would be, for free houses on a device that can run
+/// it: "✨ Preencher com IA 👑". Tapping opens the paywall.
+struct PremiumAIHint: View {
+    /// What the AI would do here.
+    var text: LocalizedStringKey = "Preencher com IA"
+    @Binding var paywall: PremiumFeature?
+
+    /// Whether to show it: the model can run here and the house isn't Premium.
+    static var isNeeded: Bool {
+        IntelligenceManager.shared.isAvailable && !PremiumManager.shared.isPremium
+    }
+
+    var body: some View {
+        Button {
+            HapticsManager.selection()
+            paywall = .intelligence
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "sparkles")
+                Text(text)
+                PremiumBadge()
+            }
+            .font(.footnote.weight(.semibold))
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.subTitleGray)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .voiceControlNames([L10n.tr("Preencher com IA"), L10n.tr("Premium")])
     }
 }
 

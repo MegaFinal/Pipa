@@ -260,7 +260,7 @@ struct RankSkyCard: View {
         }
     }
 
-    /// "Alma da casa: Ana. Aprendiz: Bia, Caio." — only the ranks that have members.
+    /// "Pipa dragão chinês: Ana. Pipa Tradicional II: Bia, Caio." — only the ranks that have members.
     private var accessibilitySummary: String {
         groups.reversed()
             .filter { !$0.users.isEmpty }

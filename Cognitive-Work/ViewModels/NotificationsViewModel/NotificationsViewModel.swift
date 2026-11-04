@@ -27,6 +27,8 @@ enum NotificationDestination {
     case pendingPayments
     /// The Apple Calendar sync switch, in the general settings.
     case calendarSync
+    /// The Premium screen (the house went back to the free plan).
+    case premium
 }
 
 /// One notification on the notifications screen.
@@ -245,7 +247,7 @@ class NotificationsViewModel {
                   let createdAt = dto.userInfo[Keys.createdAt] as? Double,
                   let raw = dto.userInfo[Keys.kind] as? String,
                   let kind = Notifications(rawValue: raw),
-                  kind == .choreDoneForYou || kind == .itemBought,
+                  [.choreDoneForYou, .itemBought, .premiumEnded].contains(kind),
                   let titleKey = dto.userInfo[Keys.titleKey] as? String
             else { continue }
 

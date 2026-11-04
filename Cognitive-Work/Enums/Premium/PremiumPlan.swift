@@ -10,7 +10,7 @@ import Foundation
 /// Price bracket by number of residents. A bigger house pays more for the house, but less
 /// per person.
 ///
-/// | Faixa         | Mensal   | Anual     | Anual Estudante |
+/// | Faixa                 | Mensal    | Anual               | Anual Estudante |
 /// |---------------|-----------|--------------|-----------------|
 /// | Até 3                |   R$ 12,90 |    R$ 99,90    |      R$ 69,90        |
 /// | 4 a 6                |  R$ 16,90  |    R$ 129,90   |      R$ 90,90        |
@@ -86,12 +86,13 @@ struct PremiumPlan: Hashable {
         productID: "\(prefix).lifetime", tier: nil, period: .lifetime, isStudent: false
     )
 
-    /// The 9 subscriptions: 3 brackets × (monthly, yearly, student yearly).
+    /// The 6 subscriptions: 3 brackets × (monthly, yearly). The student yearly plan is turned off.
     static let allSubscriptions: [PremiumPlan] = HouseSizeTier.allCases.flatMap { tier in
         [
             PremiumPlan(productID: "\(prefix).\(tier.rawValue).monthly", tier: tier, period: .monthly, isStudent: false),
             PremiumPlan(productID: "\(prefix).\(tier.rawValue).yearly", tier: tier, period: .yearly, isStudent: false),
-            PremiumPlan(productID: "\(prefix).\(tier.rawValue).student.yearly", tier: tier, period: .yearly, isStudent: true),
+            // Student plan (turned off):
+            // PremiumPlan(productID: "\(prefix).\(tier.rawValue).student.yearly", tier: tier, period: .yearly, isStudent: true),
         ]
     }
 
@@ -112,6 +113,14 @@ struct PremiumPlan: Hashable {
         self.tier = tier
         self.period = period
         self.isStudent = isStudent
+    }
+
+    /// The subscription of `tier` for `period` (the student one when `isStudent`), or `nil` for
+    /// combinations that don't exist (a student monthly plan, lifetime).
+    static func subscription(for tier: HouseSizeTier, period: Period, isStudent: Bool) -> PremiumPlan? {
+        allSubscriptions.first {
+            $0.tier == tier && $0.period == period && $0.isStudent == (isStudent && period == .yearly)
+        }
     }
 
     /// Whether this plan pays for a house of `tier`. Lifetime covers every size.

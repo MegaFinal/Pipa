@@ -142,7 +142,9 @@ private struct SettingsButtonsSection: View {
             Section {
                 DisclosureButton(
                     "Pipa Premium",
-                    value: PremiumManager.shared.isPremium ? L10n.tr("Ativo") : nil
+                    value: PremiumManager.shared.isOnTrialOnly
+                        ? L10n.tr("Teste grátis")
+                        : (PremiumManager.shared.isPremium ? L10n.tr("Ativo") : nil)
                 ) {
                     isShowingPremium = true
                 }

@@ -36,6 +36,9 @@ enum Notifications: String {
     case debtOwedToYou = "Você tem pagamentos a receber"
     /// Suggests a new member to turn on the Apple Calendar sync.
     case calendarSync = "Sincronize com o Calendário"
+    /// The member who paid for Premium left, so the house is back on the free plan. The raw
+    /// value is the title's format: who left.
+    case premiumEnded = "%@ saiu e a casa voltou ao plano grátis"
     
     /// The second line of the notification, explaining what to do. Empty when the title is enough.
     var subTitle: String {
@@ -51,6 +54,7 @@ enum Notifications: String {
         case .debtYouOwe: return ""
         case .debtOwedToYou: return ""
         case .calendarSync: return "Veja as suas tarefas direto no Apple Calendar"
+        case .premiumEnded: return "Para continuar com o Premium, outra pessoa da casa precisa assinar"
         }
     }
     
@@ -68,6 +72,7 @@ enum Notifications: String {
         case .debtYouOwe: return .lowOpacityOrange
         case .debtOwedToYou: return .lowOpacityGreen
         case .calendarSync: return .lowOpacityPurple
+        case .premiumEnded: return .lowOpacityYellow
         }
     }
     
@@ -85,6 +90,7 @@ enum Notifications: String {
         case .debtYouOwe: return "creditcard"
         case .debtOwedToYou: return "banknote"
         case .calendarSync: return "calendar"
+        case .premiumEnded: return "crown"
         }
     }
 }

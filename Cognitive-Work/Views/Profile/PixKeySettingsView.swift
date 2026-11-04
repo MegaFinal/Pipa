@@ -31,6 +31,8 @@ struct PixKeySettingsView: View {
                 Text("Sua chave")
                     .font(.system(size: 15))
                     .fontWeight(.semibold)
+                    // The text field below already says "Sua chave".
+                    .accessibilityHidden(true)
 
                 keyField
 
@@ -78,6 +80,10 @@ struct PixKeySettingsView: View {
         }
         .animation(.spring(duration: 0.35), value: showSavedToast)
         .animation(.snappy, value: viewModel.pixKeyError)
+        // MARK: - VoiceOver: reads the error, which appears below the field
+        .onChange(of: viewModel.pixKeyError) { _, error in
+            if let error { VoiceOver.announce(error) }
+        }
         // MARK: - Remove confirmation
         .confirmationDialog("Remover chave Pix?", isPresented: $isConfirmingRemoval, titleVisibility: .visible) {
             Button("Remover", role: .destructive) {
@@ -98,6 +104,7 @@ struct PixKeySettingsView: View {
             Text("Receba pelo Pix")
                 .bold()
                 .font(.system(size: 32))
+                .accessibilityAddTraits(.isHeader)
 
             Text("Os moradores usam essa chave para pagar o que devem a você em Pendências.")
                 .font(.system(size: 16))
@@ -120,6 +127,7 @@ struct PixKeySettingsView: View {
             .keyboardType(.emailAddress)
             .submitLabel(.done)
             .focused($isFieldFocused)
+            .voiceOverLabel(L10n.tr("Sua chave"))
             .characterLimit(PixPayload.maxKeyLength, text: $viewModel.editedPixKey)
             .onChange(of: viewModel.editedPixKey) { _, _ in viewModel.pixKeyError = nil }
 
@@ -131,6 +139,7 @@ struct PixKeySettingsView: View {
                         .foregroundStyle(.subTitleGray)
                 }
                 .buttonStyle(.plain)
+                .voiceOverLabel(L10n.tr("Apagar texto"))
             }
         }
         .padding(.horizontal, 16)
@@ -189,6 +198,7 @@ struct PixKeySettingsView: View {
         guard await viewModel.savePixKey() else { return }
         HapticsManager.selection()
         showSavedToast = true
+        VoiceOver.announce(L10n.tr("Chave Pix salva"))
         try? await Task.sleep(nanoseconds: 1_100_000_000)
         showSavedToast = false
         dismiss()

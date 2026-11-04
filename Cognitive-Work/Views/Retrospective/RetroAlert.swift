@@ -22,6 +22,7 @@ struct RetroAlert: View {
                 .frame(width: width * 0.279, height: height * 0.089)
                 .foregroundStyle(.choreYellow)
                 .padding(.top, height * 0.085)
+                .accessibilityDecorative()
             
             // MARK: - Title and subtitle
             Text("Sua retrospectiva chegou!")
@@ -29,6 +30,7 @@ struct RetroAlert: View {
                 .bold()
                 .multilineTextAlignment(.center)
                 .padding(.top, height * 0.052)
+                .accessibilityAddTraits(.isHeader)
             
             Text("Veja como você se saiu durante os últimos 15 dias")
                 .font(.title2)
@@ -76,6 +78,12 @@ struct RetroAlert: View {
         }
         .padding(.horizontal)
         .padding(.bottom, height * 0.018)
+        // MARK: - VoiceOver: a loading error appears away from the focus
+        .onChange(of: viewModel.loadState) { _, state in
+            if case .failed(let error) = state {
+                VoiceOver.announce(error.localizedDescription)
+            }
+        }
     }
     
     /// Spinner while loading; message and retry if loading failed.
@@ -85,6 +93,7 @@ struct RetroAlert: View {
         case .idle, .loading:
             ProgressView()
                 .padding(.top, height * 0.02)
+                .voiceOverLabel(L10n.tr("Carregando retrospectiva"))
         case .failed(let error):
             VStack(spacing: 4) {
                 Text(error.localizedDescription)

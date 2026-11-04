@@ -48,6 +48,10 @@ class HouseModel: CloudKitSyncable {
     /// Product ID of the plan paying for Premium (see ``PremiumPlan``), so every member knows
     /// which house size it covers.
     private(set) var premiumProductID: String? = nil
+
+    /// Until when the house is on its free Premium trial (2 months from creation, see
+    /// ``PremiumManager/startTrialIfEligible(for:)``), or `nil` when it never had one.
+    private(set) var premiumTrialEndsAt: Date? = nil
     
     /// The house's chores, fetched from CloudKit.
     var chores: [ChoreModel] {
@@ -124,6 +128,7 @@ class HouseModel: CloudKitSyncable {
         self.premiumExpiresAt = record["premiumExpiresAt"] as? Date
         self.premiumOwnerRecordName = record["premiumOwner"] as? String
         self.premiumProductID = record["premiumProductID"] as? String
+        self.premiumTrialEndsAt = record["premiumTrialEndsAt"] as? Date
     }
 
     /// Creates a new, unsaved house.
@@ -322,6 +327,16 @@ class HouseModel: CloudKitSyncable {
         premiumExpiresAt = expiresAt
         premiumOwnerRecordName = ownerRecordName
         premiumProductID = productID
+        return true
+    }
+
+    /// Saves when the house's free trial ends. Writes only that field, like ``setPremium(expiresAt:ownerRecordName:productID:)``.
+    @discardableResult
+    func setTrial(endsAt: Date?) async -> Bool {
+        guard let record = await fetchSelfRecord() else { return false }
+        record["premiumTrialEndsAt"] = endsAt
+        guard await CloudKitManager.shared.update(record: record) else { return false }
+        premiumTrialEndsAt = endsAt
         return true
     }
 

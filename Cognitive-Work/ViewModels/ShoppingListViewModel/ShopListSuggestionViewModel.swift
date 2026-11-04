@@ -207,7 +207,7 @@ final class ShopListSuggestionViewModel {
         let pending = shopList.pendingItems
         // AI suggestions are Premium; the "usual items" (no AI) stay free.
         guard !pending.isEmpty, IntelligenceManager.shared.isAvailable,
-              PremiumManager.shared.allows(.shopAI) else {
+              PremiumManager.shared.allows(.intelligence) else {
             shownIdeas = [:]
             askedKeys = [:]
             lastComplements = []

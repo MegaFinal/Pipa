@@ -109,7 +109,8 @@ struct ShopListView: View {
         .animation(.easeInOut(duration: 0.25), value: viewModel.purchasePrompt?.id)
         // MARK: - Loading and refreshing
         .task {
-            canUseAI = viewModel.canSuggestItemDetails
+            // Shown whenever the model can run here; free houses get the paywall on tap.
+            canUseAI = IntelligenceManager.shared.isAvailable
             guard !viewModel.hasLoaded else { return }
             await viewModel.setup()
         }
@@ -426,10 +427,10 @@ struct ShopListView: View {
             tint: nil
         ) {
             HapticsManager.selection()
-            if PremiumManager.shared.allows(.shopAI) {
+            if PremiumManager.shared.allows(.intelligence) {
                 isPresentingAIBatch = true
             } else {
-                paywall = .shopAI
+                paywall = .intelligence
             }
         }
         .disabled(!viewModel.canAddItems)
