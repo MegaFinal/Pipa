@@ -30,7 +30,7 @@ struct ContentView: View {
         Group {
             // MARK: Loading screen, then the tabs
             if viewModel.isLoading {
-                LoadingScreen()
+                LoadingScreen(message: "Carregando sua casa...")
             } else {
                 tabs
             }

@@ -9,10 +9,13 @@ import Foundation
 
 /// Ranks, from lowest to highest, in the order of ``allCases``. The raw value is what is stored.
 ///
+/// The case names are the ranks' first names and stay as they are: they are the values saved in
+/// CloudKit. Only ``displayName`` (what the user sees) follows the current names.
+///
 /// Thirteen ranks form one ladder, each one ``pointsPerDivision`` points above the one before
 /// (see the extension below).
 enum Tier: String, CaseIterable {
-    /// "Novato da casa": the lowest rank, where every cycle starts.
+    /// "Pipa Tradicional I": the lowest rank, where every cycle starts.
     case novatoDaCasa
     case aprendiz
     case ajudanteOficial
@@ -25,7 +28,7 @@ enum Tier: String, CaseIterable {
     case mestreDaCasa
     case sabioDoLar
     case lendaDaCasa
-    /// "Alma da casa": the top rank.
+    /// "Pipa dragão chinês": the top rank.
     case almaDaCasa
 
     // MARK: - Legacy
@@ -73,22 +76,22 @@ enum Tier: String, CaseIterable {
         return icons[Int((Double(index) * Double(icons.count - 1) / Double(top)).rounded())]
     }
 
-    /// "Novato da casa", "Aprendiz", … "Alma da casa".
+    /// "Pipa Tradicional I", "Pipa Tradicional II", … "Pipa dragão chinês".
     var displayName: String {
         switch self {
-        case .novatoDaCasa: return L10n.tr("Novato da casa")
-        case .aprendiz: return L10n.tr("Aprendiz")
-        case .ajudanteOficial: return L10n.tr("Ajudante oficial")
-        case .escudeiroDaFaxina: return L10n.tr("Escudeiro da faxina")
-        case .vigiaDaCozinha: return L10n.tr("Vigia da cozinha")
-        case .sentinelaDaSala: return L10n.tr("Sentinela da sala")
-        case .guardiaoDaCasa: return L10n.tr("Guardião da casa")
-        case .protetorDoLar: return L10n.tr("Protetor do lar")
-        case .cavaleiroDoRodo: return L10n.tr("Cavaleiro do rodo")
-        case .mestreDaCasa: return L10n.tr("Mestre da casa")
-        case .sabioDoLar: return L10n.tr("Sábio do lar")
-        case .lendaDaCasa: return L10n.tr("Lenda da casa")
-        case .almaDaCasa: return L10n.tr("Alma da casa")
+        case .novatoDaCasa: return L10n.tr("Pipa Tradicional I")
+        case .aprendiz: return L10n.tr("Pipa Tradicional II")
+        case .ajudanteOficial: return L10n.tr("Pipa Tradicional III")
+        case .escudeiroDaFaxina: return L10n.tr("Pipa delta I")
+        case .vigiaDaCozinha: return L10n.tr("Pipa delta II")
+        case .sentinelaDaSala: return L10n.tr("Pipa delta III")
+        case .guardiaoDaCasa: return L10n.tr("Pipa andorinha I")
+        case .protetorDoLar: return L10n.tr("Pipa andorinha II")
+        case .cavaleiroDoRodo: return L10n.tr("Pipa andorinha III")
+        case .mestreDaCasa: return L10n.tr("14 Bis I")
+        case .sabioDoLar: return L10n.tr("14 Bis II")
+        case .lendaDaCasa: return L10n.tr("14 Bis III")
+        case .almaDaCasa: return L10n.tr("Pipa dragão chinês")
         }
     }
 
@@ -99,9 +102,9 @@ enum Tier: String, CaseIterable {
 // MARK: - Progression
 
 /// The 13 cases form one ladder. Every step costs ``pointsPerDivision`` points:
-/// - Reaching the threshold moves to the next rank (Novato da casa → Aprendiz); points above a
+/// - Reaching the threshold moves to the next rank (Pipa Tradicional I → Pipa Tradicional II); points above a
 ///   threshold carry over.
-/// - Alma da casa is reached at `12 × pointsPerDivision` points and is the top of the ladder:
+/// - Pipa dragão chinês is reached at `12 × pointsPerDivision` points and is the top of the ladder:
 ///   points keep adding up, the rank no longer changes.
 /// - Every cycle starts over: when a cycle is settled, its rank goes to the history and the
 ///   points go back to 0 (see ``CycleSettlementService``).
