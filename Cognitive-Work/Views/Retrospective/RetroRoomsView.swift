@@ -16,6 +16,8 @@ struct RetroRoomsView: View {
     
     /// `false` draws the bars empty; turning it `true` makes them grow.
     @State private var isChartShown = false
+    /// When on, the bars appear already full instead of growing.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     /// This page's content.
     private var content: RetroRoomsContent { viewModel.roomsContent }
@@ -117,7 +119,13 @@ struct RetroRoomsView: View {
         .task(id: viewModel.isRoomsPageActive) {
             if viewModel.isRoomsPageActive {
                 try? await Task.sleep(for: .seconds(0.3))
-                isChartShown = true
+                if reduceMotion {
+                    var transaction = Transaction()
+                    transaction.disablesAnimations = true
+                    withTransaction(transaction) { isChartShown = true }
+                } else {
+                    isChartShown = true
+                }
             } else {
                 // Reset without animating, so the bars grow again next time the page appears.
                 var transaction = Transaction()
