@@ -702,6 +702,115 @@ final class ShopListViewModel {
         return true
     }
 
+    // MARK: - Scanned receipt
+
+    /// A list item and what the receipt says was paid for it (lines linked to the same item
+    /// already added up).
+    struct ReceiptPurchase {
+        let item: ShopListItem
+        let total: Double
+    }
+
+    /// A product read from a receipt that wasn't on the list, to add already bought.
+    struct ReceiptNewItem {
+        let name: String
+        let total: Double
+        let quantity: Int
+        let unit: UnitMeasurement
+    }
+
+    /// The items a receipt line can be linked to: the ones still to buy, and bought ones with
+    /// no price yet (checked off in the store, priced now from the receipt).
+    var receiptLinkableItems: [ShopListItem] {
+        pendingItems + boughtItems.filter { !$0.hasPrice }
+    }
+
+    /// Applies a receipt the person reviewed. List items are checked off by the signed-in user
+    /// with the price paid (already bought ones just get the price), and products that weren't
+    /// on the list are added already bought, for the whole house, like
+    /// ``addSuggestedItems(_:)``. A failed save doesn't stop the rest; ``errorMessage`` is set
+    /// at the end.
+    ///
+    /// - Returns: How many purchases and new items were saved.
+    func applyReceipt(purchases: [ReceiptPurchase], newItems: [ReceiptNewItem]) async -> Int {
+        guard let currentUser else {
+            errorMessage = L10n.tr("Erro ao editar item.")
+            return 0
+        }
+        var saved = 0
+        var points = 0
+        var failed = false
+
+        for purchase in purchases {
+            let item = purchase.item
+            let price = purchase.total > 0 ? purchase.total : nil
+
+            if isPreview {
+                if let price { item.totalPrice = price }
+                if !item.isBought {
+                    item.isBought = true
+                    item.boughtAt = Date()
+                }
+                saved += 1
+                continue
+            }
+
+            if item.isBought {
+                // Already checked off: only the price is new.
+                guard let price else { continue }
+                guard await item.setTotalPrice(price) else { failed = true; continue }
+                points += ScoreValues.receiptScanned(itemCount: 1).points
+            } else {
+                guard await item.markBought(by: currentUser, totalPrice: price) else { failed = true; continue }
+                notifyItemBought(item, by: currentUser)
+                points += ScoreValues.shoppingItemBought.points
+                if price != nil { points += ScoreValues.receiptScanned(itemCount: 1).points }
+            }
+            saved += 1
+        }
+
+        let house = houseUsers.compactMap { user in
+            user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+        }
+        let me = currentUser.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+
+        for newItem in newItems {
+            let draft = ShopListItem(
+                name: newItem.name,
+                totalPrice: newItem.total > 0 ? newItem.total : nil,
+                quantity: newItem.quantity,
+                unitMeasurement: newItem.unit,
+                isBought: true,
+                category: .other,
+                relatedUsers: house.isEmpty ? nil : house,
+                addedByUser: me,
+                buyerUser: me
+            )
+            draft.boughtAt = Date()
+
+            if isPreview {
+                draft.recordID = CKRecord.ID(recordName: "preview-item-\(UUID().uuidString)")
+                upsert(draft)
+                saved += 1
+                continue
+            }
+
+            guard let list, let created = await list.addItem(draft) else { failed = true; continue }
+            upsert(created)
+            points += ScoreValues.shoppingItemAdded.points
+            if newItem.total > 0 { points += ScoreValues.receiptScanned(itemCount: 1).points }
+            saved += 1
+        }
+
+        if failed {
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível salvar todos os itens.")
+        }
+        if points > 0 {
+            await ScoreManager.shared.assignScoreForMyUser(score: points)
+        }
+        return saved
+    }
+
     // MARK: - Apple Intelligence
 
     /// Whether the add-item form should offer AI suggestions on this device and language.

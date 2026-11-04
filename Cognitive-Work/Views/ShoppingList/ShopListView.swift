@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CloudKit
+import PhotosUI
 
 /// The shopping tab: the house's shopping list grouped in sections, with a button to add items,
 /// a sort menu and a link to the "Pendências" (who owes whom) screen.
@@ -27,6 +28,20 @@ struct ShopListView: View {
 
     /// The Premium feature whose paywall is open, or `nil`.
     @State private var paywall: PremiumFeature?
+
+    // Receipt scan. Not behind Premium yet, so it can be tested.
+    /// Opens the document scanner.
+    @State private var isScanningReceipt = false
+    /// Opens the photo picker: chosen in the menu, or where the scanner doesn't exist (the
+    /// simulator).
+    @State private var isPickingReceiptPhotos = false
+    /// Where the last receipt came from, so "Escanear de novo" goes back there.
+    @State private var receiptSource: ReceiptSource = .camera
+    @State private var receiptPhotoItems: [PhotosPickerItem] = []
+    /// The receipt being reviewed, or `nil`.
+    @State private var scannedReceipt: ScannedReceipt?
+    /// Set by "Escanear de novo": the scanner opens once the review sheet is gone.
+    @State private var scanAgainAfterReview = false
 
     /// "Pode estar faltando": usual items and products that go with the list.
     @State private var suggestionsModel: ShopListSuggestionViewModel
@@ -81,6 +96,7 @@ struct ShopListView: View {
         // MARK: - Add button and price pop-up
         .overlay(alignment: .bottomTrailing) {
             HStack {
+                receiptButton
                 if canUseAI {
                     aiBatchButton
                 }
@@ -139,12 +155,55 @@ struct ShopListView: View {
                 viewModel: viewModel
             )
         }
+        // MARK: - Receipt scan: photos -> products to review
+        .fullScreenCover(isPresented: $isScanningReceipt) {
+            ReceiptScannerView(
+                onFinish: { pages in
+                    isScanningReceipt = false
+                    showReview(of: pages)
+                },
+                onCancel: { isScanningReceipt = false }
+            )
+            .ignoresSafeArea()
+        }
+        .photosPicker(
+            isPresented: $isPickingReceiptPhotos,
+            selection: $receiptPhotoItems,
+            maxSelectionCount: 5,
+            matching: .images
+        )
+        .onChange(of: receiptPhotoItems) { _, items in
+            guard !items.isEmpty else { return }
+            Task {
+                var pages: [UIImage] = []
+                for item in items {
+                    if let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) {
+                        pages.append(image)
+                    }
+                }
+                receiptPhotoItems = []
+                showReview(of: pages)
+            }
+        }
+        .sheet(item: $scannedReceipt, onDismiss: {
+            guard scanAgainAfterReview else { return }
+            scanAgainAfterReview = false
+            startReceiptScan(from: receiptSource)
+        }) { receipt in
+            ReceiptReviewView(pages: receipt.pages, shopList: viewModel) {
+                scanAgainAfterReview = true
+                scannedReceipt = nil
+            }
+        }
         // MARK: - Error alert
         .alert(
             "Não foi possível concluir",
             isPresented: Binding(
-                // The AI sheet shows its own errors.
-                get: { viewModel.errorMessage != nil && !isPresentingAddItem && editingItem == nil && !isPresentingAIBatch },
+                // The AI sheet shows its own errors; a receipt's shows once its sheet is gone.
+                get: {
+                    viewModel.errorMessage != nil && !isPresentingAddItem && editingItem == nil
+                        && !isPresentingAIBatch && scannedReceipt == nil
+                },
                 set: { if !$0 { viewModel.clearError() } }
             )
         ) {
@@ -379,6 +438,59 @@ struct ShopListView: View {
         .transition(.scale.combined(with: .opacity))
     }
 
+    /// Reads a receipt, from the camera or from photos already taken, and opens its review,
+    /// where its products are linked to the list. Styled like ``FloatingActionButton``.
+    private var receiptButton: some View {
+        Menu {
+            // The simulator has no document scanner.
+            if ReceiptScannerView.isSupported {
+                Button {
+                    HapticsManager.selection()
+                    startReceiptScan(from: .camera)
+                } label: {
+                    Label("Escanear com a câmera", systemImage: "camera")
+                }
+            }
+            Button {
+                HapticsManager.selection()
+                startReceiptScan(from: .library)
+            } label: {
+                Label("Escolher da galeria", systemImage: "photo.on.rectangle")
+            }
+        } label: {
+            Image(systemName: "doc.text.viewfinder")
+                .font(.system(size: 26))
+                .foregroundColor(.black)
+                .frame(width: FloatingActionButton.diameter, height: FloatingActionButton.diameter)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .glassEffect(.regular.interactive(), in: .circle)
+        .disabled(!viewModel.canAddItems)
+        .voiceOverLabel(L10n.tr("Escanear nota"))
+        .voiceControlNames([L10n.tr("Escanear nota"), L10n.tr("Escanear")])
+    }
+
+    /// Opens the scanner or the photo picker (also where there is no scanner).
+    private func startReceiptScan(from source: ReceiptSource) {
+        receiptSource = source
+        if source == .camera, ReceiptScannerView.isSupported {
+            isScanningReceipt = true
+        } else {
+            isPickingReceiptPhotos = true
+        }
+    }
+
+    /// Opens the review of `pages` once the scanner has finished closing (presenting a sheet
+    /// while a full-screen cover is still going away is dropped by SwiftUI).
+    private func showReview(of pages: [UIImage]) {
+        guard !pages.isEmpty else { return }
+        Task {
+            try? await Task.sleep(for: .milliseconds(400))
+            scannedReceipt = ScannedReceipt(pages: pages)
+        }
+    }
+
     /// The floating "+" button that opens the new item sheet.
     private var addButton: some View {
         FloatingActionButton(systemImage: "plus") {
@@ -389,6 +501,22 @@ struct ShopListView: View {
         .voiceOverLabel(L10n.tr("Adicionar item"))
         .voiceControlNames([L10n.tr("Adicionar"), L10n.tr("Mais"), L10n.tr("Adicionar item")])
     }
+}
+
+// MARK: - Receipt scan
+
+/// Where a receipt's photos come from.
+private enum ReceiptSource {
+    /// The document scanner.
+    case camera
+    /// Photos already in the library.
+    case library
+}
+
+/// The pages of one scanned receipt, for `.sheet(item:)`.
+private struct ScannedReceipt: Identifiable {
+    let id = UUID()
+    let pages: [UIImage]
 }
 
 // MARK: - Empty state
