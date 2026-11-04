@@ -25,11 +25,14 @@ enum TimeScore: Int {
     case fiftyMinutesScore = 18
     /// Up to 60 minutes.
     case sixtyMinutesScore = 21
+    /// More than 60 minutes.
+    case moreThanSixtyMinutesScore = 24
     
     /// Points for a chore that takes `time` minutes.
     ///
     /// - Parameter time: The chore's duration, in minutes.
-    /// - Returns: The points of the first range the duration fits in, or `0` for chores longer than 60 minutes.
+    /// - Returns: The points of the first range the duration fits in. Chores longer than 60 minutes
+    ///   get the most points.
     static func getPoints(time: Double) -> Int {
         if time <= 5 {
             return fiveMinutesScore.rawValue
@@ -52,6 +55,6 @@ enum TimeScore: Int {
         else if time <= 60 {
             return sixtyMinutesScore.rawValue
         }
-        return 0
+        return moreThanSixtyMinutesScore.rawValue
     }
 }
