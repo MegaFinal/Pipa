@@ -17,6 +17,8 @@ struct RetroCoinsScatter: View {
 
     /// Starts `false` and turns `true` on appear, so each coin pops in.
     @State private var isShown = false
+    /// When on, the coins fade in together instead of popping one by one.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// Offsets and sizes are fractions of the screen width, relative to the pig's center.
     private struct Slot {
@@ -52,10 +54,12 @@ struct RetroCoinsScatter: View {
                     .frame(width: width * slot.size, height: width * slot.size)
                     .rotationEffect(.degrees(slot.rotation))
                     .offset(x: width * slot.x, y: width * slot.y)
-                    .scaleEffect(isShown ? 1 : 0)
+                    .scaleEffect(isShown || reduceMotion ? 1 : 0)
                     .opacity(isShown ? 1 : 0)
                     .animation(
-                        .spring(response: 0.5, dampingFraction: 0.55).delay(Double(index) * 0.15),
+                        reduceMotion
+                            ? Animation.easeIn(duration: 0.3)
+                            : Animation.spring(response: 0.5, dampingFraction: 0.55).delay(Double(index) * 0.15),
                         value: isShown
                     )
             }

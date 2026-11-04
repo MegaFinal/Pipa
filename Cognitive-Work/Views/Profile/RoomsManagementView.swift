@@ -266,10 +266,12 @@ private struct RoomCard: View {
     
     /// Flips back and forth to make the card wiggle.
     @State private var isWiggling = false
+    /// When on, delete mode shows only the badge, without the wiggle.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
-    /// How far the card tilts while wiggling (0 when not in delete mode).
+    /// How far the card tilts while wiggling (0 when not in delete mode or with Reduce Motion).
     private var wiggleAmplitude: Double {
-        isEditing ? 1.6 * wiggleDirection : 0
+        isEditing && !reduceMotion ? 1.6 * wiggleDirection : 0
     }
     
     var body: some View {

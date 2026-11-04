@@ -24,12 +24,14 @@ struct RetroNewChoresDivision: View {
                 .padding(.bottom, height * 0.04)
                 .foregroundStyle(.choreGreen)
                 .padding(.top, height * 0.088)
+                .accessibilityDecorative()
             
             // MARK: - Title and explanation
             Text("Comece a nova divisão de tarefas da casa!")
                 .font(.title)
                 .bold()
                 .multilineTextAlignment(.leading)
+                .accessibilityAddTraits(.isHeader)
             
             Text("Clique no botão abaixo para dividir as tarefas entre todos os moradores da casa automaticamente")
                 .font(.title3)

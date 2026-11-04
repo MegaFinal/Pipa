@@ -18,6 +18,8 @@ struct TermsDeclinedView: View {
 
     /// Drives the mascot's rocking and the sparkles' pulse.
     @State private var isAnimating = false
+    /// When on, the animation is replaced by a still or faded version.
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         VStack(spacing: 28) {
@@ -79,7 +81,8 @@ struct TermsDeclinedView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.ignoresSafeArea())
         .onAppear {
-            isAnimating = true
+            // Reduce Motion: the mascot and sparkles stay still.
+            isAnimating = !reduceMotion
             // Replaces the whole app: VoiceOver starts reading from the goodbye title.
             VoiceOver.screenChanged()
         }

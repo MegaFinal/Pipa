@@ -145,8 +145,25 @@ struct BarPercentageComponent: View {
         .accessibilityElement(children: .ignore)
         .voiceOverLabel(L10n.tr("Sua parte do esforço mental da casa esta semana"))
         .voiceOverValue(viewModel.cognitiveShareAccessibilityValue)
+        .accessibilityChartDescriptor(chartDescriptor)
     }
     
+    /// The user's share and the rest of the house's, for VoiceOver's audio graph.
+    private var chartDescriptor: CategoryChartDescriptor {
+        let share = min(max(viewModel.myCognitiveShare, 0), 1) * 100
+        return CategoryChartDescriptor(
+            title: L10n.tr("Divisão da casa"),
+            summary: viewModel.cognitiveShareAccessibilityValue,
+            categoryAxisTitle: L10n.tr("Morador"),
+            valueAxisTitle: L10n.tr("Esforço mental"),
+            points: [
+                (label: L10n.tr("Você"), value: share),
+                (label: L10n.tr("Resto da casa"), value: 100 - share)
+            ],
+            isPercentage: true
+        )
+    }
+
     // MARK: - Ideal share marker
     /// A thin line on the bar at the ideal share, with an "ideal X%" label.
     private var averageLine: some View {
