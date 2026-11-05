@@ -197,6 +197,7 @@ class HardwareNetworkManager {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 45
         
         do {
             let jsonData = try JSONEncoder().encode(message)
@@ -261,6 +262,9 @@ class HardwareNetworkManager {
         request.httpMethod = "POST"
         request.setValue(hash, forHTTPHeaderField: "X-Auth-Hash")
         request.httpBody = Data()
+        // The device answers right away (it resets after replying); without this, an unreachable
+        // Harvii kept the screen loading for the system's 60 s default.
+        request.timeoutInterval = 45
         
         let (data, response) = try await session.data(for: request)
         try validate(data: data, response: response)

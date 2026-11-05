@@ -165,7 +165,7 @@ class HardwareViewModel {
             case .notConnectedToInternet, .networkConnectionLost:
                 return L10n.tr("O celular está sem conexão com a rede. Conecte-se ao Wi-Fi da sua casa e confira se o Pipa tem permissão de Rede Local nos Ajustes.")
             case .timedOut, .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
-                return L10n.tr("O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado e mostrando que se conectou ao Wi-Fi.")
+                return L10n.tr("O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado. Se a tela dele mostrar “Não consegui conectar ao WiFi”, a senha pode estar errada: volte, entre na rede HARVII e envie o Wi-Fi de novo.")
             default:
                 return L10n.tr("Não foi possível falar com o Harvii (código \(urlError.errorCode)).")
             }
@@ -429,9 +429,13 @@ class HardwareViewModel {
     
     /// Deletes the current IP record and clears local state so the UI reflects the change immediately.
     func deleteHostName() async {
-        guard let hardwareHostName else { return }
-
-        await CloudKitManager.shared.delete(hardwareHostName)
+        // A paired phone may never have read the record (it already knew the host): read it now.
+        if hardwareHostName == nil {
+            hardwareHostName = try? await CloudKitManager.shared.fetchFirst(HardwareHostNameModel.self)
+        }
+        if let hardwareHostName {
+            await CloudKitManager.shared.delete(hardwareHostName)
+        }
         
         self.hardwareHostName = nil
         self.hostName = ""
@@ -443,6 +447,16 @@ class HardwareViewModel {
     /// and the host name stays, so this phone can pair again later.
     func disconnectThisPhone() {
         hardwareNetworkManager.forgetDevice()
+    }
+    
+    /// Forgets the Harvii for the whole house without talking to it, for when it can't be reached:
+    /// this phone's pairing and the host name in CloudKit go away, so everyone sets it up again.
+    ///
+    /// The device itself keeps its Wi-Fi until someone holds its BOOT button for 5 seconds.
+    func forgetHardwareForHouse() async {
+        hardwareNetworkManager.forgetDevice()
+        await deleteHostName()
+        wifiName = ""
     }
 
     /// Wipes the device (WiFi and hash) and removes its host name from CloudKit for the whole house.
