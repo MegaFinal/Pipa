@@ -8,7 +8,13 @@
 import Foundation
 import CloudKit
 
-/// Pays each user coins for every closed cycle, according to their rank, and starts the rank over.
+/// Records every closed cycle for each user (their rank, points and coins) and starts the rank over.
+///
+/// Coins are paid as points are earned, during the cycle (see ``ScoreManager``), so closing a
+/// cycle normally pays nothing more: its payout is created already confirmed, with the coins the
+/// cycle's points paid, for the retrospective to show. Only what the points were worth and wasn't
+/// paid yet (cycles that started before coins were paid along the way) is left pending, to be
+/// redeemed as before.
 ///
 /// Two steps, both idempotent:
 /// - ``prepareClosedCycles(_:members:houseID:today:)`` runs automatically (when the rewards tab
@@ -46,9 +52,11 @@ final class CycleSettlementService {
     /// member's rank over.
     ///
     /// For each member and closed cycle (oldest first), one atomic save writes:
-    /// - the pending ``CoinPayoutModel``, paid by the member's rank;
+    /// - the ``CoinPayoutModel``: confirmed when the coins were already paid during the cycle,
+    ///   pending with what is still owed otherwise;
     /// - the ``RankHistoryModel`` with that rank and the member's points;
-    /// - the member's ``UserScoreModel`` with `points` back to 0 (so the rank back to Bronze 1).
+    /// - the member's ``UserScoreModel`` with `points` and `cycleCoins` back to 0 (so the rank back
+    ///   to the first one).
     ///
     /// The three go together, so a cycle is never recorded without the reset, nor reset twice:
     /// once a cycle's entries exist, it is skipped. The rank and points are read from the
@@ -87,7 +95,7 @@ final class CycleSettlementService {
                 let historyID = RankHistoryModel.recordID(cycleKey: cycle.key, userID: userID)
                 guard existing[payoutID] == nil || existing[historyID] == nil else { continue }
 
-                if await settle(cycle, userID: userID, member: member, houseReference: houseReference) {
+                if await settle(cycle, userID: userID, member: member, houseReference: houseReference, today: today) {
                     created += 1
                 }
             }
@@ -102,7 +110,8 @@ final class CycleSettlementService {
         _ cycle: HouseCycleModel,
         userID: CKRecord.ID,
         member: UserModel,
-        houseReference: CKRecord.Reference
+        houseReference: CKRecord.Reference,
+        today: Date
     ) async -> Bool {
         let payoutID = CoinPayoutModel.recordID(cycleKey: cycle.key, userID: userID)
         let historyID = RankHistoryModel.recordID(cycleKey: cycle.key, userID: userID)
@@ -128,6 +137,9 @@ final class CycleSettlementService {
                 houseID: houseReference.recordID
             )
             let tier = Tier(points: points)
+            let earned = ScoreValues.coins(forPoints: points)
+            let credited = scoreRecord["cycleCoins"] as? Int ?? 0
+            let stillOwed = max(earned - credited, 0)
             var records: [CKRecord] = []
 
             if !hasPayout {
@@ -137,7 +149,10 @@ final class CycleSettlementService {
                     cycleKey: cycle.key,
                     tier: tier,
                     points: points,
-                    amount: tier.cycleCoins
+                    // Already in the wallet: shown, never credited again. Otherwise the part owed.
+                    amount: stillOwed > 0 ? stillOwed : earned,
+                    status: stillOwed > 0 ? .pending : .confirmed,
+                    confirmedAt: stillOwed > 0 ? nil : today
                 ).populate(record: record)
                 record.parent = houseReference
                 records.append(record)
@@ -162,6 +177,7 @@ final class CycleSettlementService {
             let resets = !hasPayout && !hasHistory
             if resets {
                 scoreRecord["points"] = 0 as Int
+                scoreRecord["cycleCoins"] = 0 as Int
                 records.append(scoreRecord)
             }
 
@@ -186,9 +202,38 @@ final class CycleSettlementService {
     /// ago; this keeps every check to a single small read.
     static let settlementWindow = 6
 
-    /// The last ``settlementWindow`` cycles that already ended, oldest first.
+    /// The last ``settlementWindow`` cycles that ran their course and already ended, oldest first.
+    ///
+    /// Cycles cut short by a newer division are left out (``HouseCycleModel/isCutShort(calendar:)``):
+    /// they don't end the season, so their points carry on instead of being reset.
     private func recentClosedCycles(_ cycles: [HouseCycleModel], today: Date) -> [HouseCycleModel] {
-        Array(HouseCycleModel.closed(cycles, asOf: today).suffix(Self.settlementWindow))
+        let settled = HouseCycleModel.closed(cycles, asOf: today).filter { !$0.isCutShort() }
+        return Array(settled.suffix(Self.settlementWindow))
+    }
+
+    // MARK: - Before scoring
+
+    /// People (`ownerRecordName`) and the last closed cycle already confirmed settled for them
+    /// in this session, so the check runs once per person and cycle.
+    private static var settledThisSession: Set<String> = []
+
+    /// Settles `member`'s closed cycles, if any is still open, before their points change.
+    ///
+    /// Settling resets the points to 0. If it only happened later (the first time someone opens
+    /// the rewards tab or the retrospective), points earned after the cycle ended would be
+    /// counted in the old cycle and then wiped with it. ``ScoreManager`` calls this before every
+    /// change; after the first check it costs nothing.
+    static func settleClosedCycles(of member: UserModel, today: Date = .now) async {
+        let house = await HouseDataStore.shared.current()
+        guard let houseID = house.houseID,
+              let lastClosed = HouseCycleModel.closed(house.cycles, asOf: today).last(where: { !$0.isCutShort() })
+        else { return }
+
+        let marker = "\(member.ownerRecordName)|\(lastClosed.key)"
+        guard !settledThisSession.contains(marker) else { return }
+
+        await CycleSettlementService().prepareClosedCycles(house.cycles, members: [member], houseID: houseID, today: today)
+        settledThisSession.insert(marker)
     }
 
     // MARK: - Reading

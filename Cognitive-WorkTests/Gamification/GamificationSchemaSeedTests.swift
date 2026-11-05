@@ -18,6 +18,8 @@ import CloudKit
 /// `CoinWalletModel`, `CoinPayoutModel` and `CouponHoldModel` are only read by ID and need no index.
 /// `UserScoreModel` is read both ways (by ID, and with a query when the house data loads), so it
 /// needs `recordName` **Queryable** too.
+/// The last tests add the score fields of existing types (`ChoreModel`, `DailyAssignmentModel`,
+/// `ShopListItem`, `UserScoreModel.cycleCoins`).
 /// Then deploy the schema to production.
 ///
 /// The records are deleted at the end; the schema stays.
@@ -101,5 +103,39 @@ struct GamificationSchemaSeedTests {
         coupon.purchasedCycleKey = "2026-01-01"
         coupon.consumedCycleKey = "2026-01-01"
         await seed(coupon)
+    }
+
+    /// Adds `awardedPoints`, `createdBy` and `creationPoints` to the existing `ChoreModel` type.
+    @Test func seedChoreModelScoreFields() async {
+        let chore = ChoreModel(
+            name: "schema-seed-chore",
+            description: "",
+            isDone: true,
+            frequency: .none,
+            duration: 15,
+            isPublic: true,
+            priorityTag: .low,
+            userThatHaveDone: placeholder("user")
+        )
+        chore.awardedPoints = 17
+        chore.createdByReference = placeholder("user")
+        chore.creationPoints = 3
+        await seed(chore)
+    }
+
+    /// Adds `awardedPoints` to the existing `DailyAssignmentModel` type.
+    @Test func seedRecurrentAssignmentAwardedPoints() async {
+        let occurrence = RecurrentAssignmentModel(day: .now, isCompleted: true, users: [placeholder("user")], chore: placeholder("chore"))
+        occurrence.userThatHaveDoneReference = placeholder("user")
+        occurrence.awardedPoints = 17
+        await seed(occurrence)
+    }
+
+    /// Adds `awardedPoints` to the existing `ShopListItem` type.
+    @Test func seedShopListItemAwardedPoints() async {
+        let item = ShopListItem(name: "schema-seed-item", quantity: 1, unitMeasurement: .unit, isBought: true)
+        item.boughtAt = .now
+        item.awardedPoints = 4
+        await seed(item)
     }
 }

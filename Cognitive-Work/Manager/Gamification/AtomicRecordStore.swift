@@ -103,6 +103,8 @@ final class CloudKitAtomicRecordStore: AtomicRecordStore {
                 return nil
             }
             if !failures.isEmpty { throw Self.mapped(failures) }
+            // Queries (the house data) see these right away, before the index catches up.
+            RecentWrites.shared.saved(saveResults.values.compactMap { try? $0.get() })
         } catch let error as AtomicRecordStoreError {
             throw error
         } catch {

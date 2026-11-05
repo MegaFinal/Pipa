@@ -80,6 +80,26 @@ final class HouseEditViewModel {
         errorMessage = nil
     }
 
+    // MARK: - Members (admin)
+
+    /// Removes `member` from the house. Only for the admin, and never themselves (see
+    /// ``CloudKitManager/removeMember(ownerRecordName:from:)``). Sets ``errorMessage`` on failure.
+    /// - Returns: Whether the member was removed.
+    @discardableResult
+    func removeMember(_ member: UserModel) async -> Bool {
+        guard isUserAdmin, let house else {
+            errorMessage = L10n.tr("Só o administrador pode remover moradores.")
+            return false
+        }
+
+        guard await CloudKitManager.shared.removeMember(ownerRecordName: member.ownerRecordName, from: house) else {
+            errorMessage = CloudKitManager.shared.errorMessage
+            return false
+        }
+        errorMessage = nil
+        return true
+    }
+
     // MARK: - Leave
 
     /// Removes the signed-in member from the house (a non-admin can't delete it). The house and

@@ -26,7 +26,7 @@ struct CouponPricing: Equatable {
 
     /// Coins per minute of work the coupon spares in one cycle.
     ///
-    /// A member doing their fair share earns roughly 0.12 coins per minute of work, so sparing a
+    /// A member earns about 0.1 coins per minute of work (``ScoreValues/pointsPerCoin``), so sparing a
     /// minute costs more than doing it.
     var coinsPerMinute: Double = 0.2
 
