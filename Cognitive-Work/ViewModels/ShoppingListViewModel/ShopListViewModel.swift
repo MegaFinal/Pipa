@@ -118,6 +118,9 @@ final class ShopListViewModel {
 
     /// An error to show, or `nil`.
     private(set) var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    private(set) var errorTitle: String?
 
     /// Items still to buy.
     var pendingItems: [ShopListItem] {
@@ -353,6 +356,7 @@ final class ShopListViewModel {
         guard let shopList = snapshot.shopList else {
             list = nil
             items = []
+            errorTitle = L10n.tr("Lista de compras indisponível")
             errorMessage = Self.missingListMessage
             return
         }
@@ -460,6 +464,7 @@ final class ShopListViewModel {
             relatedUsers: relatedUsers
         )
         if let firstMissing = missing.first {
+            errorTitle = L10n.tr("Faltam informações do item")
             errorMessage = firstMissing.warning
             return false
         }
@@ -534,7 +539,8 @@ final class ShopListViewModel {
         addedBy: UserModel?
     ) async -> Bool {
         guard let list else {
-            errorMessage = L10n.tr("Lista de compras ainda não carregada.")
+            errorTitle = L10n.tr("Não foi possível adicionar o item")
+            errorMessage = L10n.tr("A lista de compras ainda não carregou. Aguarde um instante e tente novamente.")
             return false
         }
 
@@ -555,7 +561,8 @@ final class ShopListViewModel {
         )
 
         guard let created = await list.addItem(draft) else {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao adicionar item.")
+            errorTitle = L10n.tr("Não foi possível adicionar o item")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
 
@@ -583,7 +590,8 @@ final class ShopListViewModel {
             category: category,
             relatedUsers: relatedUsers
         ) else {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+            errorTitle = L10n.tr("Não foi possível salvar o item")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         return true
@@ -641,7 +649,8 @@ final class ShopListViewModel {
         if item.isBought {
             let buyerID = item.buyerRecordID
             guard await item.toggle() else {
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+                errorTitle = L10n.tr("Não foi possível atualizar a compra")
+                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
                 return
             }
             let points = ScoreValues.shoppingItemBought.points
@@ -651,7 +660,8 @@ final class ShopListViewModel {
         } else if let currentUser {
             let didSave = await item.markBought(by: currentUser, totalPrice: price)
             guard didSave else {
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+                errorTitle = L10n.tr("Não foi possível atualizar a compra")
+                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
                 return
             }
 
@@ -661,7 +671,8 @@ final class ShopListViewModel {
             if price != nil { points += ScoreValues.receiptScanned(itemCount: 1).points }
             await ScoreManager.shared.assignScoreForMyUser(score: points)
         } else if await item.toggle() == false {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+            errorTitle = L10n.tr("Não foi possível atualizar a compra")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
         }
     }
 
@@ -689,7 +700,8 @@ final class ShopListViewModel {
         if isPreview { return true }
 
         guard let list, await list.removeItem(item) else {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao remover item.")
+            errorTitle = L10n.tr("Não foi possível excluir o item")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             if !items.contains(where: { $0.id == item.id }) {
                 items.insert(item, at: min(index, items.count))
             }

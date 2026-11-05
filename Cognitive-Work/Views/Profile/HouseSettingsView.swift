@@ -35,7 +35,7 @@ struct HouseSettingsView: View {
         confirmations
             // MARK: - Error alerts, blocking overlays and admin check
             .alert(
-                "Não foi possível sair",
+                "Não foi possível sair da casa",
                 isPresented: Binding(
                     get: { leaveErrorMessage != nil },
                     set: { if !$0 { leaveErrorMessage = nil } }
@@ -46,7 +46,7 @@ struct HouseSettingsView: View {
                 Text(leaveErrorMessage ?? "")
             }
             .alert(
-                "Não foi possível excluir",
+                "Não foi possível excluir a casa",
                 isPresented: Binding(
                     get: { deleteErrorMessage != nil },
                     set: { if !$0 { deleteErrorMessage = nil } }
@@ -159,7 +159,7 @@ struct HouseSettingsView: View {
                     if success {
                         didOnboard = false
                     } else {
-                        deleteErrorMessage = L10n.tr("Não foi possível excluir a casa. Verifique sua conexão e tente novamente.")
+                        deleteErrorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
                         isDeletingHouse = false
                     }
                 }
@@ -175,7 +175,7 @@ struct HouseSettingsView: View {
                     if await viewModel.leaveHouse() {
                         didOnboard = false
                     } else {
-                        leaveErrorMessage = L10n.tr("Não foi possível sair da casa. Verifique sua conexão e tente novamente.")
+                        leaveErrorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
                         isLeavingHouse = false
                     }
                 }

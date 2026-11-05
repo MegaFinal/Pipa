@@ -64,7 +64,7 @@ struct ChoreDetailsCard: View {
                 await TodayChoreOrder.shared.refresh(using: viewModel.carouselViewModel)
             }
         }
-        .alert("Não foi possível adiar", isPresented: $viewModel.didFailToPostpone) {
+        .alert("Não foi possível adiar a tarefa", isPresented: $viewModel.didFailToPostpone) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Verifique sua conexão e tente novamente.")

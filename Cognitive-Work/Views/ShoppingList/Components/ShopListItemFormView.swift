@@ -352,7 +352,7 @@ struct ShopListItemFormView: View {
             Text("Essa ação não pode ser desfeita.")
         }
         .alert(
-            "Não foi possível salvar",
+            "Não foi possível salvar o item",
             isPresented: Binding(
                 get: { saveErrorMessage != nil },
                 set: { if !$0 { saveErrorMessage = nil } }

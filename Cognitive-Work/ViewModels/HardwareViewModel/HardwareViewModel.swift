@@ -197,8 +197,8 @@ class HardwareViewModel {
         var title: String {
             switch self {
             case .success: L10n.tr("Pareamento completo!")
-            case .failureWiFi: L10n.tr("Falha na conexão")
-            case .failureParing: L10n.tr("Falha no pareamento")
+            case .failureWiFi: L10n.tr("Não foi possível enviar o Wi-Fi ao Harvii")
+            case .failureParing: L10n.tr("Não foi possível parear com o Harvii")
             }
         }
 

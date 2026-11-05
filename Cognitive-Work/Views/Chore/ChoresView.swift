@@ -263,7 +263,7 @@ struct ChoresView: View {
         }
         // MARK: - Delete error alert and new member pop-up
         .alert(
-            "Não foi possível excluir",
+            carouselVM.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
                 get: { carouselVM.errorMessage != nil },
                 set: { if !$0 { carouselVM.errorMessage = nil } }

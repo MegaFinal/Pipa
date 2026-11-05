@@ -35,6 +35,9 @@ final class PendingPaymentsViewModel {
 
     /// An error to show, or `nil`.
     private(set) var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    private(set) var errorTitle: String?
 
     /// See ``ShopListViewModel``: previews can't reach CloudKit.
     @ObservationIgnored
@@ -288,7 +291,8 @@ final class PendingPaymentsViewModel {
 
         for entry in group.entries {
             guard await entry.item.markSettled(for: entry.debtor) else {
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível quitar. Tente novamente.")
+                errorTitle = L10n.tr("Não foi possível quitar a pendência")
+                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
                 return
             }
             settledKeys.insert(DebtCalculator.settlementKey(item: entry.item, debtor: entry.debtor))

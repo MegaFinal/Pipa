@@ -88,6 +88,9 @@ class CarouselViewModel {
     /// Set when ``delete(chore:targetOccurrences:)`` fails, so a view can surface it in an
     /// alert. Left for the view to clear back to `nil` once shown.
     var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
     
     /// The last day of the division cycle in progress.
     var currentCycleEnd: Date? {
@@ -985,7 +988,8 @@ class CarouselViewModel {
             dailyAssignments.append(contentsOf: snapshot.assignments)
             refreshVisible()
             
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível excluir a tarefa.")
+            errorTitle = L10n.tr("Não foi possível excluir a tarefa")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         
@@ -1501,7 +1505,8 @@ class CarouselViewModel {
         
         // Whoever holds this chore's coupon is spared it in this cycle.
         if await CouponExemption.isExempt(userID: myUserID, choreID: item.chore.recordID) {
-            errorMessage = L10n.tr("Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo.")
+            errorTitle = L10n.tr("Você não pode pegar esta tarefa")
+            errorMessage = L10n.tr("Você tem o cupom desta tarefa, então ela não pode ser sua neste ciclo.")
             return
         }
         
@@ -1704,7 +1709,8 @@ class CarouselViewModel {
         
         // Whoever holds this chore's coupon is spared it in this cycle.
         if await CouponExemption.isExempt(userID: myUserID, choreID: item.chore.recordID) {
-            errorMessage = L10n.tr("Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo.")
+            errorTitle = L10n.tr("Você não pode pegar esta tarefa")
+            errorMessage = L10n.tr("Você tem o cupom desta tarefa, então ela não pode ser sua neste ciclo.")
             return false
         }
         

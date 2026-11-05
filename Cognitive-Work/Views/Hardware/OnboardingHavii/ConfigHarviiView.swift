@@ -90,12 +90,12 @@ struct ConfigHarviiView: View {
         } message: {
             Text("O Harvii vai esquecer o WiFi e todos os celulares da casa precisarão configurar e parear de novo.")
         }
-        .alert("Celular desconectado.", isPresented: $disconectThisPhone) {
+        .alert("Celular desconectado", isPresented: $disconectThisPhone) {
             Button("OK") { onClose() }
         } message: {
-            Text("Seu celular foi desconectado com sucesso!")
+            Text("Este celular não recebe mais as atualizações do Harvii. Você pode parear de novo quando quiser.")
         }
-        .alert("Ops", isPresented: Binding(
+        .alert("Não foi possível resetar o Harvii", isPresented: Binding(
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
         )) {

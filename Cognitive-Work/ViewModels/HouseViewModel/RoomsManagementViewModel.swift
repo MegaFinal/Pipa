@@ -34,6 +34,9 @@ final class RoomsManagementViewModel {
     
     /// Message for the error alert; `nil` hides it.
     var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
     
     /// The house whose rooms are managed. Resolved on ``load()`` when not injected.
     private var house: HouseModel?
@@ -89,7 +92,8 @@ final class RoomsManagementViewModel {
         }
         
         guard let houseID = house?.recordID else {
-            errorMessage = L10n.tr("Não foi possível encontrar sua casa. Tente novamente.")
+            errorTitle = L10n.tr("Não foi possível carregar os cômodos")
+            errorMessage = L10n.tr("Sua casa não foi encontrada. Verifique sua conexão e tente novamente.")
             return
         }
         
@@ -130,7 +134,8 @@ final class RoomsManagementViewModel {
               let houseReference = house.reference(action: .deleteSelf),
               let parentReference = house.reference(action: .none)
         else {
-            errorMessage = L10n.tr("Não foi possível encontrar sua casa. Tente novamente.")
+            errorTitle = L10n.tr("Não foi possível criar o cômodo")
+            errorMessage = L10n.tr("Sua casa não foi encontrada. Verifique sua conexão e tente novamente.")
             return false
         }
         
@@ -150,7 +155,8 @@ final class RoomsManagementViewModel {
             zoneID: houseID.zoneID,
             parent: parentReference
         ) else {
-            errorMessage = L10n.tr("Não foi possível criar o cômodo. Verifique sua conexão e tente novamente.")
+            errorTitle = L10n.tr("Não foi possível criar o cômodo")
+            errorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         
@@ -200,7 +206,8 @@ final class RoomsManagementViewModel {
         updated.name = name
         
         guard await CloudKitManager.shared.update(updated) else {
-            errorMessage = L10n.tr("Não foi possível salvar o cômodo. Verifique sua conexão e tente novamente.")
+            errorTitle = L10n.tr("Não foi possível salvar o cômodo")
+            errorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         
@@ -231,13 +238,15 @@ final class RoomsManagementViewModel {
         
         for chore in chores {
             guard await chore.delete() else {
-                errorMessage = L10n.tr("Não foi possível excluir as tarefas do cômodo. Verifique sua conexão e tente novamente.")
+                errorTitle = L10n.tr("Não foi possível excluir o cômodo")
+                errorMessage = L10n.tr("As tarefas do cômodo não puderam ser excluídas. Verifique sua conexão e tente novamente.")
                 return false
             }
         }
         
         guard await CloudKitManager.shared.delete(room) else {
-            errorMessage = L10n.tr("Não foi possível excluir o cômodo. Verifique sua conexão e tente novamente.")
+            errorTitle = L10n.tr("Não foi possível excluir o cômodo")
+            errorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         

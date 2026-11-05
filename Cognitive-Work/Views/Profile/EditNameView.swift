@@ -49,7 +49,7 @@ struct EditNameView: View {
             dismiss()
         }
         .alert(
-            "Erro ao salvar",
+            viewModel.errorTitle ?? L10n.tr("Não foi possível salvar seu nome"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.errorMessage = nil } }

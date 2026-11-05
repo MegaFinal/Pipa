@@ -142,7 +142,7 @@ struct ShopListView: View {
         }
         // MARK: - Error alert
         .alert(
-            "Não foi possível concluir",
+            viewModel.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
                 // The AI sheet shows its own errors.
                 get: { viewModel.errorMessage != nil && !isPresentingAddItem && editingItem == nil && !isPresentingAIBatch },

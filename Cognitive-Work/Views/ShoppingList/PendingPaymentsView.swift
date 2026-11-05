@@ -93,7 +93,7 @@ struct PendingPaymentsView: View {
             Text(viewModel.missingPixKeyMessage)
         }
         .alert(
-            "Não foi possível concluir",
+            viewModel.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.clearError() } }
