@@ -20,7 +20,7 @@ struct WifiListExample: View {
     var isHarviiNetwork: Bool
 
     /// Name of the network the Harvii creates, as the phone lists it.
-    var harviiNetworkName = "ESP32"
+    var harviiNetworkName = "HARVI"
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {

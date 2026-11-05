@@ -26,8 +26,11 @@ struct ConfigHarviiView: View {
     @State private var isResetting = false
     /// Opens the setup again (from "Entre na rede do Harvii") after the reset.
     @State private var isShowingSetup = false
-    /// Error shown in the alert, when the Harvii couldn't be reached.
-    @State private var errorMessage: String?
+    /// Erasing couldn't reach the Harvii: offers to forget it for the whole house anyway.
+    @State private var showsForceEraseAlert = false
+    /// Changing the Wi-Fi couldn't reach the Harvii: offers to set it up anyway (it may already be
+    /// waiting on its HARVII network, after a wrong password).
+    @State private var showsSetUpAnywayAlert = false
     
     var body: some View {
         List {
@@ -68,40 +71,43 @@ struct ConfigHarviiView: View {
         }
         
         // MARK: - Confirmations and alerts
-        .confirmationDialog(
-            "Trocar o Wi-Fi do Harvii?",
-            isPresented: $showsEditWifiConfirmation,
-            titleVisibility: .visible
-        ) {
+        .alert("Trocar o Wi-Fi do Harvii?", isPresented: $showsEditWifiConfirmation) {
             Button("Trocar Wi-Fi") {
                 resetHarvii(thenSetUpAgain: true)
             }
+            Button("Cancelar", role: .cancel) { }
         } message: {
             Text("O Harvii vai esquecer o Wi-Fi atual e você vai configurá-lo de novo. Os outros celulares da casa também precisarão parear de novo.")
         }
-        .confirmationDialog(
-            "Apagar o Wi-Fi do Harvii?",
-            isPresented: $showsEraseConfirmation,
-            titleVisibility: .visible
-        ) {
+        .alert("Apagar o Wi-Fi do Harvii?", isPresented: $showsEraseConfirmation) {
             Button("Apagar", role: .destructive) {
                 resetHarvii(thenSetUpAgain: false)
             }
+            Button("Cancelar", role: .cancel) { }
         } message: {
             Text("O Harvii vai esquecer o WiFi e todos os celulares da casa precisarão configurar e parear de novo.")
+        }
+        .alert("Não foi possível falar com o Harvii", isPresented: $showsSetUpAnywayAlert) {
+            Button("Configurar o Wi-Fi") {
+                hardwareViewModel.resetNavigation()
+                isShowingSetup = true
+            }
+            Button("Cancelar", role: .cancel) { }
+        } message: {
+            Text("Se a tela do Harvii mostrar “Não consegui conectar ao WiFi”, ele já está esperando um Wi-Fi novo. Se não, segure o botão BOOT dele por 5 segundos e depois configure o Wi-Fi.")
+        }
+        .alert("Não foi possível falar com o Harvii", isPresented: $showsForceEraseAlert) {
+            Button("Apagar mesmo assim", role: .destructive) {
+                forgetHarviiForHouse()
+            }
+            Button("Cancelar", role: .cancel) { }
+        } message: {
+            Text("Você pode apagar as configurações do Harvii da casa mesmo assim: todos os moradores vão precisar configurá-lo de novo. O aparelho só esquece o Wi-Fi quando alguém segura o botão BOOT dele por 5 segundos.")
         }
         .alert("Celular desconectado.", isPresented: $disconectThisPhone) {
             Button("OK") { onClose() }
         } message: {
             Text("Seu celular foi desconectado com sucesso!")
-        }
-        .alert("Ops", isPresented: Binding(
-            get: { errorMessage != nil },
-            set: { if !$0 { errorMessage = nil } }
-        )) {
-            Button("OK") { errorMessage = nil }
-        } message: {
-            Text(errorMessage ?? L10n.tr("Ocorreu um erro."))
         }
     }
     
@@ -143,9 +149,25 @@ struct ConfigHarviiView: View {
                     onClose()
                 }
             } catch {
-                errorMessage = L10n.tr("Não foi possível falar com o Harvii. Segure o botão BOOT por 5 segundos para resetar direto no dispositivo.")
+                if thenSetUpAgain {
+                    // "Edite seu Wi-Fi": the Harvii may already be on its HARVII network.
+                    showsSetUpAnywayAlert = true
+                } else {
+                    // "Apagar seu Wi-Fi do Harvii": offer to forget it for the house anyway.
+                    showsForceEraseAlert = true
+                }
             }
             isResetting = false
+        }
+    }
+    
+    /// Forgets the Harvii for the whole house without reaching it, then closes the screen.
+    private func forgetHarviiForHouse() {
+        isResetting = true
+        Task {
+            await hardwareViewModel.forgetHardwareForHouse()
+            isResetting = false
+            onClose()
         }
     }
 }
