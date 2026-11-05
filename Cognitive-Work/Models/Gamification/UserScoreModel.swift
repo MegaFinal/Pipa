@@ -35,11 +35,20 @@ struct UserScoreModel: CloudKitSyncable, Equatable {
     var ownerRecordName: String
     /// The person's points in the current cycle.
     var points: Int
+    /// Coins already credited to the person's wallet for the points of the current cycle.
+    ///
+    /// Coins are paid as points come in (``ScoreValues/coins(forPoints:)``), in the same save as
+    /// the points (``ScoreManager``): this is what was paid so far, so new points pay only the
+    /// difference and points taken back take it back. When a wallet can't cover what is taken
+    /// back (the coins were spent), this keeps the part not taken, and later points pay that much
+    /// less, so adding and removing points can't be repeated for coins. Back to 0 at every cycle.
+    var cycleCoins: Int
 
     /// Creates a new score, not saved yet.
-    init(ownerRecordName: String, points: Int) {
+    init(ownerRecordName: String, points: Int, cycleCoins: Int = 0) {
         self.ownerRecordName = ownerRecordName
         self.points = points
+        self.cycleCoins = cycleCoins
     }
 
     /// Creates the model from a CloudKit record. Returns `nil` when a field is missing.
@@ -52,12 +61,15 @@ struct UserScoreModel: CloudKitSyncable, Equatable {
         self.recordID = record.recordID
         self.ownerRecordName = ownerRecordName
         self.points = points
+        // Scores saved before coins were paid along the way hold none.
+        self.cycleCoins = record["cycleCoins"] as? Int ?? 0
     }
 
     /// Copies the model's fields into `record`, before saving it.
     func populate(record: CKRecord) {
         record["ownerRecordName"] = ownerRecordName
         record["points"] = points
+        record["cycleCoins"] = cycleCoins
     }
 
     // MARK: - Identity

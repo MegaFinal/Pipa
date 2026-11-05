@@ -73,10 +73,7 @@ final class UserProfileViewModel {
     @ObservationIgnored
     private var isRevertingCalendarSync = false
     
-    /// Requests access and syncs (or cleans up) the calendar, then awards/removes the points.
-    ///
-    /// Before, the points were requested with an unawaited `async let`, which Swift cancels
-    /// when the scope ends, and they were awarded even when the permission was denied.
+    /// Requests access and syncs (or cleans up) the calendar.
     private func handleCalendarSyncChange(enabled: Bool) async {
         isSyncingCalendar = true
         defer { isSyncingCalendar = false }
@@ -88,11 +85,11 @@ final class UserProfileViewModel {
                 return
             }
             await syncMyAllChoresToCalendar()
-            _ = await ScoreManager.shared.assignScoreForMyUser(score: ScoreValues.appleCalendarLinked.points)
         } else {
             await removeAllMyAssignmentsFromCalendar()
-            _ = await ScoreManager.shared.removeScoreForMyUser(score: ScoreValues.appleCalendarLinked.points)
         }
+        // No points: linking the calendar is a setting, not work for the house, and since points
+        // start over every cycle, unlinking and linking again paid it once per cycle.
     }
     
     /// Creates the view model with the house user already known (previews and tests).
@@ -257,6 +254,12 @@ final class UserProfileViewModel {
             if privateSuccess && houseSuccess {
                 isEditing = false
                 didSaveSuccessfully = true
+                if editedProfilePicture != nil {
+                    // The avatars in the chore lists still had the old photo (or none) cached.
+                    for recordID in [privateUser.recordID, user.recordID].compactMap({ $0 }) {
+                        await UserProfileCache.shared.invalidate(recordID)
+                    }
+                }
             } else {
                 if !privateSuccess {
                     privateUser.name = previousPrivateName

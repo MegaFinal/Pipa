@@ -88,10 +88,7 @@ struct RankHistoryView: View {
                     .foregroundStyle(.titleGray)
 
                 if let next = progress.nextTier, let missing = progress.pointsToNext {
-                    ProgressView(
-                        value: Double(progress.pointsIntoDivision),
-                        total: Double(Tier.pointsPerDivision)
-                    )
+                    ProgressView(value: progress.fraction)
                     .tint(.choreYellow)
 
                     Text(L10n.tr("Faltam \(missing) pontos para \(next.displayName)"))

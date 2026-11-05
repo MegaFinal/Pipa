@@ -25,6 +25,8 @@ class OnboardingStateMachine {
         static let flow = "onboarding.flow"
         /// Key of the saved ``skippedToCreateOrEnter``.
         static let skippedToCreateOrEnter = "onboarding.skippedToCreateOrEnter"
+        /// Key of the one-time request of ``requestStartAtCreateOrEnterHome()``.
+        static let startAtCreateOrEnter = "onboarding.startAtCreateOrEnter"
     }
 
     // MARK: - Properties
@@ -195,6 +197,21 @@ class OnboardingStateMachine {
         UserDefaults.standard.removeObject(forKey: StorageKey.index)
         UserDefaults.standard.removeObject(forKey: StorageKey.flow)
         UserDefaults.standard.removeObject(forKey: StorageKey.skippedToCreateOrEnter)
+    }
+
+    /// Asks the next onboarding to open at "create or enter a house" instead of the welcome
+    /// screen. Used when the user loses their house while in the app (removed by the admin, or
+    /// the house was deleted): they already have a profile, and the notice they just saw
+    /// (``HouseAccessLostView``) already said what happened.
+    static func requestStartAtCreateOrEnterHome() {
+        UserDefaults.standard.set(true, forKey: StorageKey.startAtCreateOrEnter)
+    }
+
+    /// Whether ``requestStartAtCreateOrEnterHome()`` was called, forgetting the request.
+    static func consumeStartAtCreateOrEnterHomeRequest() -> Bool {
+        let requested = UserDefaults.standard.bool(forKey: StorageKey.startAtCreateOrEnter)
+        UserDefaults.standard.removeObject(forKey: StorageKey.startAtCreateOrEnter)
+        return requested
     }
 
     /// Moves straight to the step at `index` of the current flow, kept inside the valid range.

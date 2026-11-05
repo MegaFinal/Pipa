@@ -265,9 +265,6 @@ struct PickUnassignedChoreCard: View {
                 let success = await carouselViewModel.confirmPick(item, slots: slots)
                 
                 if success {
-                    _ = await ScoreManager.shared.assignScoreForMyUser(
-                        score: ScoreValues.unassignedChorePicked.points
-                    )
                     carouselViewModel.dismissPickCard()
                     VoiceOver.announce(L10n.tr("Tarefa adicionada às suas tarefas"))
                 } else {

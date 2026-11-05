@@ -19,7 +19,8 @@ import CloudKit
 /// - The **latest** cycle is the one with the most recent start. Coupons bought now belong to it.
 /// - A cycle is **closed** once today is after its `endDate`; closed cycles get paid.
 /// - Generating a division before the latest cycle ended cuts that cycle short: it ends the day
-///   before the new one starts.
+///   before the new one starts. A cycle cut short doesn't end the gamification season: its points
+///   carry on into the new cycle instead of being reset (see ``isCutShort(calendar:)``).
 struct HouseCycleModel: CloudKitSyncable, Equatable {
 
     /// The CloudKit record type.
@@ -37,6 +38,15 @@ struct HouseCycleModel: CloudKitSyncable, Equatable {
     /// Stable identifier, `yyyy-MM-dd` of ``startDate``. Stored, so every device reads the same
     /// value whatever its time zone. Keys sort chronologically as plain strings.
     var key: String
+
+    /// `true` when a newer division cut this cycle short (``cyclesToSave(newStart:newEnd:existing:calendar:)``).
+    /// `nil` on every other cycle, and on cycles cut short before this was saved (see
+    /// ``isCutShort(calendar:)``).
+    var wasCutShort: Bool?
+
+    /// Days from the first to the last day of a division that runs its whole course
+    /// (``TaskSchedulerEngine/schedule(chores:users:)`` covers 15 days).
+    static let fullLengthInDays = 14
 
     /// Creates a cycle, moving both dates to the start of their day.
     /// - Parameters:
@@ -62,6 +72,7 @@ struct HouseCycleModel: CloudKitSyncable, Equatable {
         self.startDate = startDate
         self.endDate = endDate
         self.key = key
+        self.wasCutShort = (record["wasCutShort"] as? Int).map { $0 != 0 }
     }
 
     /// Copies the model's fields into `record`, before saving it.
@@ -69,6 +80,9 @@ struct HouseCycleModel: CloudKitSyncable, Equatable {
         record["startDate"] = startDate
         record["endDate"] = endDate
         record["key"] = key
+        if let wasCutShort {
+            record["wasCutShort"] = wasCutShort ? 1 : 0
+        }
     }
 
     // MARK: - Keys
@@ -92,6 +106,33 @@ struct HouseCycleModel: CloudKitSyncable, Equatable {
     /// Whether the cycle already ended: `today` is after its last day.
     func isClosed(asOf today: Date, calendar: Calendar = .current) -> Bool {
         calendar.startOfDay(for: endDate) < calendar.startOfDay(for: today)
+    }
+
+    /// Whether a newer division cut this cycle short instead of letting it run its course.
+    ///
+    /// Such a cycle is not settled: redoing the division (to add a member, for example) must not
+    /// reset everyone's rank. Its points carry on into the cycle that replaced it. Cycles cut
+    /// before ``wasCutShort`` was saved are recognized by being shorter than
+    /// ``fullLengthInDays``.
+    func isCutShort(calendar: Calendar = .current) -> Bool {
+        if wasCutShort == true { return true }
+        let days = calendar.dateComponents(
+            [.day],
+            from: calendar.startOfDay(for: startDate),
+            to: calendar.startOfDay(for: endDate)
+        ).day ?? Self.fullLengthInDays
+        return days < Self.fullLengthInDays
+    }
+
+    /// First day of the gamification season running now: the day after the last cycle that ran
+    /// its course and ended (cycles cut short don't end a season, see ``isCutShort(calendar:)``).
+    /// `nil` while no cycle ended yet.
+    ///
+    /// Points of chores dated before it were counted, and reset, with a season already settled.
+    static func currentSeasonStart(_ cycles: [HouseCycleModel], asOf today: Date, calendar: Calendar = .current) -> Date? {
+        guard let lastEnded = closed(cycles, asOf: today, calendar: calendar).last(where: { !$0.isCutShort(calendar: calendar) })
+        else { return nil }
+        return calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: lastEnded.endDate))
     }
 
     /// Cycles sorted by start, oldest first.
@@ -135,6 +176,7 @@ struct HouseCycleModel: CloudKitSyncable, Equatable {
                       let dayBefore = calendar.date(byAdding: .day, value: -1, to: new.startDate) {
                 var shortened = latest
                 shortened.endDate = max(calendar.startOfDay(for: dayBefore), latest.startDate)
+                shortened.wasCutShort = true
                 result.append(shortened)
             }
         }

@@ -23,7 +23,7 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         "name", "description", "isDone", "dueDate", "frequency", "shouldBeIncluded",
         "duration", "isPublic", "isLate", "weight", "priorityTag",
         "checkList", "currentResponsible", "allResponsibleUsers", "room", "dailyAssignment",
-        "userThatHaveDone"
+        "userThatHaveDone", "awardedPoints", "createdBy", "creationPoints"
     ]
     
     /// Identifier of the stored record, or `nil` before the chore is saved.
@@ -87,6 +87,25 @@ class ChoreModel: CloudKitSyncable, Identifiable {
     
     /// The member who checked the chore off. `nil` while not done.
     var userThatHaveDoneReference: CKRecord.Reference?
+    
+    /// Points ``userThatHaveDoneReference`` got for checking the chore off. `nil` while not done,
+    /// and on chores checked off before this was saved.
+    ///
+    /// Unchecking takes back exactly this amount. Recomputing it from the chore instead would let
+    /// someone check off a long, urgent chore, edit it into a short one and uncheck it, keeping
+    /// the difference every time.
+    var awardedPoints: Int?
+    
+    /// When the chore was created (CloudKit's creation date). `nil` before it is saved.
+    private(set) var createdAt: Date?
+    
+    /// The member who created the chore in the app. `nil` for chores created before this was
+    /// saved, and for the ones the onboarding creates.
+    var createdByReference: CKRecord.Reference?
+    
+    /// Points ``createdByReference`` got for creating the chore (0 past the daily limit, see
+    /// ``ScoreValues/dailyChoreCreationBonusLimit``). Deleting the chore takes back exactly this.
+    var creationPoints: Int?
     
     /// ID of the matching event in the user's Apple Calendar, when calendar sync is on.
     var calendarEventIdentifier: String?
@@ -214,7 +233,11 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         self.roomReference = record["room"] as? CKRecord.Reference
         self.dailyAssignmentsReference = record["dailyAssignment"] as? [CKRecord.Reference]
         self.userThatHaveDoneReference = record["userThatHaveDone"] as? CKRecord.Reference
+        self.awardedPoints = record["awardedPoints"] as? Int
+        self.createdByReference = record["createdBy"] as? CKRecord.Reference
+        self.creationPoints = record["creationPoints"] as? Int
         self.calendarEventIdentifier = record["calendarEventIdentifier"] as? String
+        self.createdAt = record.creationDate
     }
     
     /// Creates a new, unsaved chore.
@@ -295,6 +318,13 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         record["room"] = roomReference
         record["dailyAssignment"] = dailyAssignmentsReference ?? []
         record["userThatHaveDone"] = userThatHaveDoneReference
+        record["awardedPoints"] = awardedPoints
+        if let createdByReference {
+            record["createdBy"] = createdByReference
+        }
+        if let creationPoints {
+            record["creationPoints"] = creationPoints
+        }
         record["calendarEventIdentifier"] = calendarEventIdentifier
     }
     
@@ -319,9 +349,11 @@ class ChoreModel: CloudKitSyncable, Identifiable {
     
     /// Flips ``isDone``, records who did it and persists the change.
     ///
+    /// - Parameter points: The points the member gets for checking it off, saved in
+    ///   ``awardedPoints`` (cleared when unchecking).
     /// - Returns: `true` when CloudKit saved it. On failure the chore is left as it was.
     @discardableResult
-    func toggle() async -> Bool {
+    func toggle(awarding points: Int = 0) async -> Bool {
         guard !isUpdating else { return false }
         isUpdating = true
         defer { isUpdating = false }
@@ -331,15 +363,18 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         
         let previousIsDone = isDone
         let previousDoer = userThatHaveDoneReference
+        let previousAwardedPoints = awardedPoints
         
         isDone.toggle()
         userThatHaveDoneReference = isDone
         ? CKRecord.Reference(recordID: myUserRecordID, action: .none)
         : nil
+        awardedPoints = isDone ? points : nil
         
         guard await CloudKitManager.shared.update(self) else {
             isDone = previousIsDone
             userThatHaveDoneReference = previousDoer
+            awardedPoints = previousAwardedPoints
             return false
         }
         return true

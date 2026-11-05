@@ -168,9 +168,7 @@ struct RetroRankContent: Equatable {
         }
 
         let progress = Tier.progress(forPoints: points)
-        let fraction = progress.nextTier == nil
-            ? 1
-            : Double(progress.pointsIntoDivision) / Double(Tier.pointsPerDivision)
+        let fraction = progress.fraction
 
         let pointsText = points == 1 ? L10n.tr("1 ponto") : L10n.tr("\(points) pontos")
         let detail: String
@@ -224,13 +222,13 @@ struct RetroRankContent: Equatable {
 
 #Preview("Bronze 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.aprendiz.cycleCoins, tier: .aprendiz, points: 60))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.aprendiz.cycleCoins, tier: .aprendiz, points: 35))
     }
 }
 
 #Preview("Ouro 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar, points: 384))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar, points: 340))
     }
 }
 

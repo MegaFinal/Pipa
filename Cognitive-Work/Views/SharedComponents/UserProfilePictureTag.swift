@@ -21,6 +21,9 @@ struct UserProfilePictureTag: View {
     /// The decoded avatar, populated asynchronously by ``UserProfileCache``.
     @State private var image: UIImage?
 
+    /// Bumped when this member's photo changes, so it loads again.
+    @State private var reloadCount = 0
+
     /// The avatar's size in points.
     private var side: CGFloat { width * widthMultiplier }
 
@@ -48,8 +51,12 @@ struct UserProfilePictureTag: View {
         .accessibilityElement(children: .ignore)
         .voiceOverLabel(user?.name ?? L10n.tr("Morador"))
         .accessibilityAddTraits(.isImage)
-        .task(id: user?.recordID) {
+        .task(id: "\(user?.recordID?.recordName ?? "")#\(reloadCount)") {
             image = await UserProfileCache.shared.image(for: user)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .profilePictureDidChange)) { note in
+            guard let changed = note.object as? CKRecord.ID, changed == user?.recordID else { return }
+            reloadCount += 1
         }
     }
 }

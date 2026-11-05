@@ -212,9 +212,17 @@ final class GamificationViewModel {
         await load()
     }
 
-    /// Reloads the screen (pull to refresh).
+    /// Reloads the screen from the house data in memory, fetching it only if it's outdated.
     func refresh() async {
         guard !isPreview else { return }
+        await load()
+    }
+
+    /// Pull to refresh: asks CloudKit again for the house data, then reloads the screen.
+    func pullToRefresh() async {
+        guard !isPreview else { return }
+        refreshTask?.cancel()
+        HouseDataStore.shared.invalidate()
         await load()
     }
 
@@ -257,16 +265,20 @@ final class GamificationViewModel {
             return
         }
 
-        // Automatic part of the payout: pending payouts for every cycle that ended.
-        let settled = await CycleSettlementService().prepareClosedCycles(snapshot.cycles, members: snapshot.users, houseID: houseID)
+        // Settling closed cycles and reading the balance don't depend on each other: both at once,
+        // instead of one round trip after the other.
+        let legacyCoins = snapshot.houseUser?.coins ?? 0
+        let userID = snapshot.houseUser?.recordID
+        async let settledCount = CycleSettlementService().prepareClosedCycles(snapshot.cycles, members: snapshot.users, houseID: houseID)
+        async let walletBalance: Int = {
+            guard let userID else { return legacyCoins }
+            return await CoinWalletModel.balance(for: userID, legacyCoins: legacyCoins)
+        }()
+        let (settled, balance) = await (settledCount, walletBalance)
+
         if settled > 0 {
             // A cycle was just settled: the points were reset, so the snapshot is outdated.
             snapshot = await HouseDataStore.shared.load(force: true)
-        }
-
-        var balance = snapshot.houseUser?.coins ?? 0
-        if let userID = snapshot.houseUser?.recordID {
-            balance = await CoinWalletModel.balance(for: userID, legacyCoins: snapshot.houseUser?.coins ?? 0)
         }
         guard !Task.isCancelled else { return }
 

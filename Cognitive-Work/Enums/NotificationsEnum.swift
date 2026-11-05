@@ -39,6 +39,9 @@ enum Notifications: String {
     /// The member who paid for Premium left, so the house is back on the free plan. The raw
     /// value is the title's format: who left.
     case premiumEnded = "%@ saiu e a casa voltou ao plano grátis"
+    /// A guest chose their free time and is waiting for the admin to divide the chores (only the
+    /// admin gets it). The raw value is the title's format: who is waiting.
+    case guestWaitingDivision = "%@ está esperando a divisão"
     
     /// The second line of the notification, explaining what to do. Empty when the title is enough.
     var subTitle: String {
@@ -55,6 +58,7 @@ enum Notifications: String {
         case .debtOwedToYou: return ""
         case .calendarSync: return "Veja as suas tarefas direto no Apple Calendar"
         case .premiumEnded: return "Para continuar com o Premium, outra pessoa da casa precisa assinar"
+        case .guestWaitingDivision: return "O tempo livre já foi definido. Refaça a divisão para incluir esse morador"
         }
     }
     
@@ -73,6 +77,7 @@ enum Notifications: String {
         case .debtOwedToYou: return .lowOpacityGreen
         case .calendarSync: return .lowOpacityPurple
         case .premiumEnded: return .lowOpacityYellow
+        case .guestWaitingDivision: return .lowOpacityPurple
         }
     }
     
@@ -91,6 +96,7 @@ enum Notifications: String {
         case .debtOwedToYou: return "banknote"
         case .calendarSync: return "calendar"
         case .premiumEnded: return "crown"
+        case .guestWaitingDivision: return "hourglass"
         }
     }
 }
