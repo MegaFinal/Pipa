@@ -4,46 +4,6 @@
     "" : {
       "shouldTranslate" : false
     },
-    "%@ por %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ per %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ por %2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ par %2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%2$@あたり%1$@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%2$@당 %1$@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每%2$@ %1$@"
-          }
-        }
-      }
-    },
     "%@ · cerca de %lld min" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -161,6 +121,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ 还没有添加 Pix 密钥。请提醒对方在“个人资料 > Pix 密钥”中添加。"
+          }
+        }
+      }
+    },
+    "%@ comprou" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ bought"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ compró"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ a acheté"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@さんが購入しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님이 구매했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 购买了"
           }
         }
       }
@@ -486,6 +487,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "本周期 %@。你已达到最高等级！"
+          }
+        }
+      }
+    },
+    "%@ por %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ per %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ por %2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ par %2$@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@あたり%1$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%2$@당 %1$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每%2$@ %1$@"
           }
         }
       }
@@ -2543,166 +2584,6 @@
     "+%lld" : {
       "shouldTranslate" : false
     },
-    "Digite o valor total pago. Ele é dividido entre quem vai consumir e aparece em Pendências." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Enter the total you paid. It's split among whoever will use it and shows up in Pending payments."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Escribe el total que pagaste. Se divide entre quienes lo van a consumir y aparece en Pendientes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saisissez le total payé. Il est partagé entre ceux qui vont consommer et apparaît dans Paiements en attente."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "支払った合計金額を入力してください。使う人どうしで分けられ、「未払い」に表示されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "낸 총액을 입력하세요. 사용하는 사람끼리 나뉘어 대기 중 결제에 표시돼요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "输入支付的总额。总额由使用的人平分，并显示在“待付款项”中。"
-          }
-        }
-      }
-    },
-    "Quanto custou no total?" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "How much was it in total?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Cuánto costó en total?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Combien ça a coûté au total ?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "合計でいくらでしたか?"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "총 얼마였나요?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "一共多少钱？"
-          }
-        }
-      }
-    },
-    "Valor total" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total price"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valor total"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prix total"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "合計金額"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "총 금액"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "总价"
-          }
-        }
-      }
-    },
-    "Valor total (R$ 0,00)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total price (R$ 0.00)"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valor total (R$ 0,00)"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Prix total (0,00 R$)"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "合計金額 (R$ 0,00)"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "총 금액 (R$ 0,00)"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "总价（R$ 0.00）"
-          }
-        }
-      }
-    },
     "×%lld" : {
       "shouldTranslate" : false
     },
@@ -4198,6 +4079,46 @@
         }
       }
     },
+    "Abrir ajustes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Ajustes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrir Réglages"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定を開く"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 열기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开设置"
+          }
+        }
+      }
+    },
     "Abrir Ajustes" : {
       "localizations" : {
         "en" : {
@@ -5321,6 +5242,46 @@
         }
       }
     },
+    "Agora, digite o Wi-Fi da sua casa" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Now, enter your home Wi-Fi"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora, escribe el Wi-Fi de tu casa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maintenant, saisis le Wi-Fi de ta maison"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次に、おうちのWi-Fiを入力してください"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이제 집 Wi-Fi를 입력하세요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "现在，输入你家的 Wi-Fi"
+          }
+        }
+      }
+    },
     "Agrupar por categoria e deixar o que vence antes na frente." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -5558,6 +5519,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "设置"
+          }
+        }
+      }
+    },
+    "Ajustes > Wi-Fi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings > Wi-Fi"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes > Wi-Fi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages > Wi-Fi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定 > Wi-Fi"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 > Wi-Fi"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 > Wi-Fi"
           }
         }
       }
@@ -6323,6 +6324,126 @@
         }
       }
     },
+    "Apagar mesmo assim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erase anyway"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar de todos modos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer quand même"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "それでも消去"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래도 지우기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍然清除"
+          }
+        }
+      }
+    },
+    "Apagar o Wi-Fi do Harvii?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erase Harvii's Wi-Fi?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Borrar el Wi-Fi de Harvii?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer le Wi-Fi de Harvii ?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HarviiのWi-Fiを消去しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii의 Wi-Fi를 지울까요?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要清除 Harvii 的 Wi-Fi 吗？"
+          }
+        }
+      }
+    },
+    "Apagar seu Wi-Fi do Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erase your Wi-Fi from Harvii"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar tu Wi-Fi de Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer votre Wi-Fi de Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HarviiからWi-Fiを消去"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii에서 Wi-Fi 지우기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从 Harvii 清除你的 Wi-Fi"
+          }
+        }
+      }
+    },
     "Aparar galhos secos e dar forma às plantas." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6685,6 +6806,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此房间的 %lld 项家务也会被删除。此操作无法撤销。"
+          }
+        }
+      }
+    },
+    "As tarefas da casa, na parede" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your home's chores, on the wall"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las tareas de la casa, en la pared"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les tâches du foyer, au mur"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おうちの家事を、壁に"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 벽에 한눈에"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家里的家务，挂在墙上"
           }
         }
       }
@@ -8615,6 +8776,47 @@
         }
       }
     },
+    "Carro" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Car"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voiture"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "車"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동차"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "汽车"
+          }
+        }
+      }
+    },
     "Carrossel" : {
       "localizations" : {
         "en" : {
@@ -10506,6 +10708,7 @@
       }
     },
     "Conectar" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10543,8 +10746,7 @@
             "value" : "连接"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Conectar com Hardware" : {
       "localizations" : {
@@ -10587,6 +10789,7 @@
       }
     },
     "Conectar com WiFi" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10624,10 +10827,10 @@
             "value" : "连接 Wi-Fi"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Conectar Harvii" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -10665,8 +10868,7 @@
             "value" : "连接 Harvii"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Conferir as datas de validade e separar o que vence logo." : {
       "extractionState" : "manual",
@@ -10913,6 +11115,46 @@
         }
       }
     },
+    "Configurações do Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii Settings"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configuración de Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réglages de Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiの設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 설정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 设置"
+          }
+        }
+      }
+    },
     "Configurações Gerais" : {
       "localizations" : {
         "en" : {
@@ -10949,6 +11191,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "通用设置"
+          }
+        }
+      }
+    },
+    "Configurar o Wi-Fi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up the Wi-Fi"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar el Wi-Fi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurer le Wi-Fi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fiを設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi 설정하기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 Wi-Fi"
           }
         }
       }
@@ -12558,6 +12840,7 @@
       }
     },
     "Desconectar este celular" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12595,8 +12878,47 @@
             "value" : "断开此手机"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
+    },
+    "Desconectar o aparelho do Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect from the Harvii device"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desconectar el dispositivo Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déconnecter l’appareil Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiデバイスとの接続を解除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 기기 연결 해제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "断开 Harvii 设备"
+          }
+        }
+      }
     },
     "Descreva a tarefa, quando se repete e quem faz, e preenchemos o resto." : {
       "localizations" : {
@@ -13158,6 +13480,127 @@
         }
       }
     },
+    "despareado" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unpaired"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "desemparejado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "désappairé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペアリング解除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링 해제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未配对"
+          }
+        }
+      }
+    },
+    "Desparear" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unpair"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desemparejar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désappairer"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペアリングを解除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링 해제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消配对"
+          }
+        }
+      }
+    },
+    "Desparear este celular" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unpair this phone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desemparejar este celular"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désappairer ce téléphone"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この携帯電話のペアリングを解除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰 페어링 해제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消这部手机的配对"
+          }
+        }
+      }
+    },
     "Despensa" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -13637,6 +14080,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "输入名称以确认商品。"
+          }
+        }
+      }
+    },
+    "Digite o valor total pago. Ele é dividido entre quem vai consumir e aparece em Pendências." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the total you paid. It's split among whoever will use it and shows up in Pending payments."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe el total que pagaste. Se divide entre quienes lo van a consumir y aparece en Pendientes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisissez le total payé. Il est partagé entre ceux qui vont consommer et apparaît dans Paiements en attente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支払った合計金額を入力してください。使う人どうしで分けられ、「未払い」に表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "낸 총액을 입력하세요. 사용하는 사람끼리 나뉘어 대기 중 결제에 표시돼요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入支付的总额。总额由使用的人平分，并显示在“待付款项”中。"
           }
         }
       }
@@ -14607,6 +15090,46 @@
         }
       }
     },
+    "É por ele que o Harvii vai receber as tarefas." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That's how Harvii will receive the chores."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Por ahí Harvii va a recibir las tareas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "C’est par lui que Harvii recevra les tâches."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiはこのネットワークで家事を受け取ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii는 이 네트워크로 집안일을 받아요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 会通过它接收家务。"
+          }
+        }
+      }
+    },
     "Editar" : {
       "localizations" : {
         "en" : {
@@ -15127,6 +15650,46 @@
         }
       }
     },
+    "Edite seu Wi-Fi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit your Wi-Fi"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edita tu Wi-Fi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier votre Wi-Fi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fiを編集"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi 수정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑你的 Wi-Fi"
+          }
+        }
+      }
+    },
     "Ela já entra marcada e vai para a escala de **todos**." : {
       "localizations" : {
         "en" : {
@@ -15447,6 +16010,46 @@
         }
       }
     },
+    "Entre na rede do Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Join the Harvii network"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conéctate a la red de Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecte-toi au réseau Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiのネットワークに接続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 네트워크에 연결하세요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接 Harvii 的网络"
+          }
+        }
+      }
+    },
     "Entre na sua conta do iCloud para continuar." : {
       "localizations" : {
         "en" : {
@@ -15528,6 +16131,7 @@
       }
     },
     "Enviando" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15565,10 +16169,10 @@
             "value" : "正在发送"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Enviando dados do WiFi" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15606,8 +16210,7 @@
             "value" : "正在发送 Wi-Fi 信息"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Enviando dados do WiFi para o Harvii…" : {
       "localizations" : {
@@ -15650,6 +16253,7 @@
       }
     },
     "Enviando imagem para o Harvii…" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15687,10 +16291,10 @@
             "value" : "正在将图片发送到 Harvii……"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Enviar" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15728,10 +16332,10 @@
             "value" : "发送"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Enviar imagem" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -15769,8 +16373,7 @@
             "value" : "发送图片"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Enviaremos uma notificação quando a divisão estiver pronta" : {
       "localizations" : {
@@ -15928,6 +16531,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "关联房间时出错。"
+          }
+        }
+      }
+    },
+    "Erro ao conectar!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't connect!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Error al conectar!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur de connexion !"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続できませんでした！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결 오류!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接失败！"
           }
         }
       }
@@ -17460,6 +18103,46 @@
         }
       }
     },
+    "Esqueça o Harvii do seu iPhone." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forget Harvii on your iPhone."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olvida Harvii en tu iPhone."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oubliez Harvii sur votre iPhone."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このiPhoneでHarviiの登録を解除します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 Harvii를 지워요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在你的 iPhone 上忘记 Harvii。"
+          }
+        }
+      }
+    },
     "Essa ação não pode ser desfeita." : {
       "localizations" : {
         "en" : {
@@ -17941,6 +18624,46 @@
         }
       }
     },
+    "Este celular não está pareado com o Harvii, então ele não recebe as atualizações feitas por aqui.\nConecte-se à rede da sua casa e toque em Parear." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This phone isn't paired with Harvii, so it doesn't get the updates made here.\nJoin your home network and tap Pair."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este celular no está emparejado con Harvii, así que no recibe las actualizaciones hechas desde aquí.\nConéctate a la red de tu casa y toca Emparejar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce téléphone n’est pas appairé avec Harvii, il ne reçoit donc pas les mises à jour faites ici.\nConnectez-vous au réseau de votre foyer et touchez Appairer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この携帯電話はHarviiとペアリングされていないため、ここでの更新はHarviiに届きません。\nおうちのネットワークに接続して「ペアリング」をタップしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰은 Harvii와 페어링되어 있지 않아 여기서 한 업데이트가 전달되지 않아요.\n집 네트워크에 연결한 뒤 페어링을 탭하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这部手机还没有与 Harvii 配对，所以 Harvii 收不到在这里做的更新。\n连接你家的网络，然后轻点“配对”。"
+          }
+        }
+      }
+    },
     "Este cômodo ainda não tem tarefas. Crie as que fazem sentido para ele." : {
       "localizations" : {
         "en" : {
@@ -18017,6 +18740,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "这个名称专用于全屋家务。"
+          }
+        }
+      }
+    },
+    "Estender roupa" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hang the laundry"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tender la ropa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Étendre le linge"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "洗濯物を干す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "빨래 널기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "晾衣服"
           }
         }
       }
@@ -18382,6 +19146,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "例如：2 公斤大米，R$ 25，我和 Ana"
+          }
+        }
+      }
+    },
+    "Ex.: Casa da Bela" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E.g.: Bela's House"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ej.: Casa de Bela"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ex. : Maison de Bela"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例: Belaの家"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "예: Bela의 집"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "例如：Bela 的家"
           }
         }
       }
@@ -20877,6 +21681,166 @@
         }
       }
     },
+    "Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii"
+          }
+        }
+      }
+    },
+    "Harvii está conectado!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii is connected!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Harvii está conectado!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii est connecté !"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiが接続されました！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 연결되었어요!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 已连接！"
+          }
+        }
+      }
+    },
+    "Harvii está recebendo as atualizações das tarefas da sua casa em tempo real!\nQuando alguém completar alguma tarefa no celular, o Harvii atualizará sozinho." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii is receiving your home's chore updates in real time!\nWhen someone completes a chore on their phone, Harvii updates on its own."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Harvii está recibiendo las actualizaciones de las tareas de tu casa en tiempo real!\nCuando alguien complete una tarea en el celular, Harvii se actualizará solo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii reçoit les mises à jour des tâches de votre foyer en temps réel !\nQuand quelqu’un termine une tâche sur son téléphone, Harvii se met à jour tout seul."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiはおうちの家事の更新をリアルタイムで受け取っています！\n誰かが携帯電話で家事を完了すると、Harviiが自動で更新されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 집안일 업데이트를 실시간으로 받고 있어요!\n누군가 휴대폰에서 집안일을 완료하면 Harvii가 알아서 업데이트돼요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 正在实时接收你家的家务更新！\n有人在手机上完成家务时，Harvii 会自动更新。"
+          }
+        }
+      }
+    },
+    "Harvii está recebendo as suas tarefas" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii is getting your chores"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii está recibiendo tus tareas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii reçoit vos tâches"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiが家事を受け取っています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 집안일을 받고 있어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 正在接收你的家务"
+          }
+        }
+      }
+    },
     "Histórico completo de gastos" : {
       "localizations" : {
         "en" : {
@@ -21358,6 +22322,7 @@
       }
     },
     "Imagem enviada para o Harvii" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21395,10 +22360,10 @@
             "value" : "图片已发送到 Harvii"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Imagem que será enviada ao Harvii" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21436,8 +22401,7 @@
             "value" : "将发送到 Harvii 的图片"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "importante" : {
       "localizations" : {
@@ -24071,6 +25035,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "清洁玻璃"
+          }
+        }
+      }
+    },
+    "Limpeza" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cleaning"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limpieza"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nettoyage"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "掃除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "청소"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "清洁"
           }
         }
       }
@@ -26918,6 +27923,46 @@
         }
       }
     },
+    "Não foi possível conectar o seu celular ao Harvii, verifique se a rede que você digitou é a mesma que você está e tente novamente." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't connect your phone to Harvii. Check that the network you typed is the one you're on and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fue posible conectar tu celular a Harvii. Verifica que la red que escribiste sea la misma en la que estás e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de connecter votre téléphone à Harvii. Vérifiez que le réseau saisi est bien celui auquel vous êtes connecté et réessayez."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "携帯電話をHarviiに接続できませんでした。入力したネットワークが今つながっているネットワークと同じか確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰을 Harvii에 연결하지 못했어요. 입력한 네트워크가 지금 연결된 네트워크와 같은지 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法将你的手机连接到 Harvii。请确认你输入的网络就是你当前连接的网络，然后重试。"
+          }
+        }
+      }
+    },
     "Não foi possível criar o cômodo. Verifique sua conexão e tente novamente." : {
       "localizations" : {
         "en" : {
@@ -27199,6 +28244,7 @@
       }
     },
     "Não foi possível enviar a imagem para o dispositivo. Verifique a conexão e tente novamente." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27236,8 +28282,7 @@
             "value" : "无法将图片发送到设备。请检查连接后再试一次。"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Não foi possível excluir" : {
       "localizations" : {
@@ -27519,7 +28564,89 @@
         }
       }
     },
+    "Não foi possível falar com o Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't reach Harvii"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fue posible comunicarse con Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de joindre Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiと通信できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii와 통신하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法与 Harvii 通信"
+          }
+        }
+      }
+    },
+    "Não foi possível falar com o Harvii (código %lld)." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't talk to Harvii (code %lld)."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fue posible comunicarse con Harvii (código %lld)."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de communiquer avec Harvii (code %lld)."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiと通信できませんでした（コード %lld）。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii와 통신하지 못했어요(코드 %lld)."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法与 Harvii 通信（代码 %lld）。"
+          }
+        }
+      }
+    },
     "Não foi possível falar com o Harvii. Segure o botão BOOT por 5 segundos para resetar direto no dispositivo." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29281,6 +30408,46 @@
         }
       }
     },
+    "Nome da sua rede" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your network name"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nombre de tu red"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nom de votre réseau"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ネットワーク名"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네트워크 이름"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的网络名称"
+          }
+        }
+      }
+    },
     "Nome da tarefa" : {
       "localizations" : {
         "en" : {
@@ -29442,6 +30609,7 @@
       }
     },
     "Nome do Wi-Fi" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29479,8 +30647,7 @@
             "value" : "Wi-Fi 名称"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Nome: %@" : {
       "localizations" : {
@@ -29518,6 +30685,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "名称：%@"
+          }
+        }
+      }
+    },
+    "Nos ajustes do celular, saia do Wi-Fi da sua casa e escolha a rede do Harvii." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In your phone's Settings, leave your home Wi-Fi and choose the Harvii network."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En los ajustes del celular, sal del Wi-Fi de tu casa y elige la red de Harvii."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans les réglages du téléphone, quitte le Wi-Fi de ta maison et choisis le réseau Harvii."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "携帯電話の設定で、おうちのWi-Fiから切断し、Harviiのネットワークを選んでください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰 설정에서 집 Wi-Fi 연결을 끊고 Harvii 네트워크를 선택하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在手机的设置中，断开你家的 Wi-Fi，然后选择 Harvii 的网络。"
+          }
+        }
+      }
+    },
+    "Nos ajustes do celular, saia do Wi-Fi do Harvii e volte para a rede da sua casa, a mesma que você digitou no passo anterior." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In your phone's Settings, leave the Harvii Wi-Fi and go back to your home network, the same one you typed in the previous step."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En los ajustes del celular, sal del Wi-Fi de Harvii y vuelve a la red de tu casa, la misma que escribiste en el paso anterior."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dans les Réglages du téléphone, quittez le Wi-Fi de Harvii et revenez sur le réseau de votre foyer, celui que vous avez saisi à l’étape précédente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "携帯電話の設定でHarviiのWi-Fiから切断し、前のステップで入力したおうちのネットワークに戻ってください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰 설정에서 Harvii Wi-Fi 연결을 끊고, 이전 단계에서 입력한 집 네트워크로 돌아가세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在手机的设置中，断开 Harvii 的 Wi-Fi，回到你家的网络，也就是上一步输入的那个网络。"
           }
         }
       }
@@ -30043,6 +31290,88 @@
         }
       }
     },
+    "O celular está sem conexão com a rede. Conecte-se ao Wi-Fi da sua casa e confira se o Pipa tem permissão de Rede Local nos Ajustes." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your phone isn't connected to a network. Join your home Wi-Fi and check that Pipa has Local Network permission in Settings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El celular no tiene conexión a la red. Conéctate al Wi-Fi de tu casa y verifica que Pipa tenga permiso de Red local en Ajustes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre téléphone n’est connecté à aucun réseau. Rejoignez le Wi-Fi de votre foyer et vérifiez que Pipa a l’autorisation Réseau local dans Réglages."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "携帯電話がネットワークにつながっていません。おうちのWi-Fiに接続し、設定でPipaに「ローカルネットワーク」の許可があるか確認してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰이 네트워크에 연결되어 있지 않아요. 집 Wi-Fi에 연결하고 설정에서 Pipa에 로컬 네트워크 권한이 있는지 확인하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手机没有连接到网络。请连接你家的 Wi-Fi，并在设置中确认 Pipa 拥有“本地网络”权限。"
+          }
+        }
+      }
+    },
+    "O celular pareou com o Harvii, mas a imagem das tarefas não chegou nele. Tente de novo." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your phone paired with Harvii, but the chores image didn't reach it. Try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El celular se emparejó con Harvii, pero la imagen de las tareas no le llegó. Inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le téléphone s’est appairé avec Harvii, mais l’image des tâches ne lui est pas parvenue. Réessayez."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "携帯電話はHarviiとペアリングしましたが、家事の画像が届きませんでした。もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰이 Harvii와 페어링됐지만 집안일 이미지가 전달되지 않았어요. 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手机已与 Harvii 配对，但家务图片没有送达。请重试。"
+          }
+        }
+      }
+    },
     "O criador da casa vai gerar a divisão assim que todos definirem seu tempo livre" : {
       "localizations" : {
         "en" : {
@@ -30119,6 +31448,250 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "外部设备的响应不符合预期。"
+          }
+        }
+      }
+    },
+    "O Harvii ainda não recebeu o Wi-Fi da sua casa. Volte e envie o Wi-Fi de novo." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii hasn't received your home Wi-Fi yet. Go back and send the Wi-Fi again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii todavía no recibió el Wi-Fi de tu casa. Vuelve y envía el Wi-Fi de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii n’a pas encore reçu le Wi-Fi de votre foyer. Revenez en arrière et renvoyez le Wi-Fi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HarviiはまだおうちのWi-Fiを受け取っていません。戻ってもう一度Wi-Fiを送信してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 아직 집 Wi-Fi를 받지 못했어요. 돌아가서 Wi-Fi를 다시 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 还没有收到你家的 Wi-Fi。请返回并重新发送 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado e mostrando que se conectou ao Wi-Fi." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii didn't answer on your home network. Check that your phone is back on that network and that Harvii is on and shows it joined the Wi-Fi."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii no respondió en la red de tu casa. Verifica que el celular haya vuelto a esa red y que Harvii esté encendido y muestre que se conectó al Wi-Fi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii n’a pas répondu sur le réseau de votre foyer. Vérifiez que votre téléphone est revenu sur ce réseau et que Harvii est allumé et indique qu’il a rejoint le Wi-Fi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おうちのネットワークでHarviiから応答がありませんでした。携帯電話がそのネットワークに戻っているか、Harviiの電源が入っていてWi-Fiに接続したと表示されているか確認してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집 네트워크에서 Harvii가 응답하지 않았어요. 휴대폰이 그 네트워크로 돌아왔는지, Harvii가 켜져 있고 Wi-Fi에 연결되었다고 표시되는지 확인하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 在你家的网络中没有响应。请确认手机已回到这个网络，并且 Harvii 已开机、显示已连接到 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado. Se a tela dele mostrar “Não consegui conectar ao WiFi”, a senha pode estar errada: volte, entre na rede HARVII e envie o Wi-Fi de novo." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii didn't answer on your home network. Check that your phone is back on that network and that Harvii is on. If its screen shows “Couldn't connect to WiFi”, the password may be wrong: go back, join the HARVII network and send the Wi-Fi again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii no respondió en la red de tu casa. Verifica que el celular haya vuelto a esa red y que Harvii esté encendido. Si su pantalla muestra “No pude conectarme al WiFi”, la contraseña puede estar mal: vuelve, conéctate a la red HARVII y envía el Wi-Fi de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii n’a pas répondu sur le réseau de ton foyer. Vérifie que ton téléphone est revenu sur ce réseau et que Harvii est allumé. Si son écran affiche « Je n’ai pas pu me connecter au WiFi », le mot de passe est peut-être faux : reviens en arrière, rejoins le réseau HARVII et renvoie le Wi-Fi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おうちのネットワークでHarviiから応答がありませんでした。携帯電話がそのネットワークに戻っているか、Harviiの電源が入っているか確認してください。Harviiの画面に「WiFiに接続できませんでした」と表示されている場合は、パスワードが間違っている可能性があります。戻ってHARVIIネットワークに接続し、もう一度Wi-Fiを送信してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집 네트워크에서 Harvii가 응답하지 않았어요. 휴대폰이 그 네트워크로 돌아왔는지, Harvii가 켜져 있는지 확인하세요. Harvii 화면에 “WiFi에 연결하지 못했어요”가 표시되면 비밀번호가 틀렸을 수 있어요. 돌아가서 HARVII 네트워크에 연결하고 Wi-Fi를 다시 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 在你家的网络中没有响应。请确认手机已回到这个网络，并且 Harvii 已开机。如果它的屏幕显示“无法连接到 WiFi”，可能是密码错了：请返回，连接 HARVII 网络，然后重新发送 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "O Harvii recebe as tarefas da Pipa pelo Wi-Fi da sua casa e atualiza sozinho. Ninguém precisa abrir o celular nem escrever nada." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii gets the chores from Pipa over your home Wi-Fi and updates on its own. No one needs to open their phone or write anything."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii recibe las tareas de Pipa por el Wi-Fi de tu casa y se actualiza solo. Nadie necesita abrir el celular ni escribir nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii reçoit les tâches de Pipa par le Wi-Fi de votre foyer et se met à jour tout seul. Personne n’a besoin d’ouvrir son téléphone ni d’écrire quoi que ce soit."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HarviiはおうちのWi-Fiを通じてPipaから家事を受け取り、自動で更新されます。誰も携帯電話を開いたり、何かを書いたりする必要はありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii는 집 Wi-Fi로 Pipa의 집안일을 받아 알아서 업데이트돼요. 누구도 휴대폰을 열거나 아무것도 적을 필요가 없어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 通过你家的 Wi-Fi 接收 Pipa 的家务并自动更新。谁都不用打开手机，也不用写任何东西。"
+          }
+        }
+      }
+    },
+    "O Harvii respondeu, mas não aceitou o pareamento. Tente de novo; se continuar, segure o botão BOOT por 5 segundos para resetar o Harvii." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii answered but didn't accept the pairing. Try again; if it keeps happening, hold the BOOT button for 5 seconds to reset Harvii."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii respondió, pero no aceptó el emparejamiento. Inténtalo de nuevo; si sigue pasando, mantén presionado el botón BOOT durante 5 segundos para restablecer Harvii."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii a répondu mais n’a pas accepté l’appairage. Réessayez ; si cela continue, maintenez le bouton BOOT 5 secondes pour réinitialiser Harvii."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiは応答しましたが、ペアリングを受け付けませんでした。もう一度お試しください。続く場合は、BOOTボタンを5秒間押してHarviiをリセットしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 응답했지만 페어링을 받아들이지 않았어요. 다시 시도하고, 계속되면 BOOT 버튼을 5초간 눌러 Harvii를 재설정하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 有响应，但没有接受配对。请重试；如果仍然失败，按住 BOOT 按钮 5 秒钟来重置 Harvii。"
+          }
+        }
+      }
+    },
+    "O Harvii vai esquecer o Wi-Fi atual e você vai configurá-lo de novo. Os outros celulares da casa também precisarão parear de novo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii will forget its current Wi-Fi and you'll set it up again. The other phones at home will also need to pair again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii olvidará el Wi-Fi actual y lo configurarás de nuevo. Los demás celulares de la casa también tendrán que emparejarse de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii va oublier son Wi-Fi actuel et vous allez le configurer à nouveau. Les autres téléphones du foyer devront aussi être appairés à nouveau."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiは現在のWi-Fiを消去し、もう一度設定し直します。おうちのほかの携帯電話も、もう一度ペアリングが必要になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 현재 Wi-Fi를 지우고 다시 설정하게 돼요. 집의 다른 휴대폰도 다시 페어링해야 해요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 会忘记当前的 Wi-Fi，你需要重新设置。家里的其他手机也需要重新配对。"
           }
         }
       }
@@ -30604,6 +32177,7 @@
       }
     },
     "Ocorreu um erro." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32293,6 +33867,7 @@
       }
     },
     "Para que seja possível conectar o Harvii ao WiFi da sua casa, entre no WiFi HARVII, com senha 12345678, retorne ao app e envie o nome e senha do WiFi." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32330,10 +33905,10 @@
             "value" : "要将 Harvii 连接到家里的 Wi-Fi，请先加入 HARVII Wi-Fi 网络（密码 12345678），回到 App 后发送你的 Wi-Fi 名称和密码。"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Para que seja possível conectar o seu celular com o hardware, retorne ao seu WiFi e clique para confirmar." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32371,8 +33946,7 @@
             "value" : "要将手机连接到设备，请切换回你的 Wi-Fi，然后点按确认。"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Para receber notificações, permita-as nos Ajustes do iPhone." : {
       "localizations" : {
@@ -32615,6 +34189,46 @@
         }
       }
     },
+    "pareado" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "paired"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "emparejado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "appairé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペアリング"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "페어링"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已配对"
+          }
+        }
+      }
+    },
     "Pareamento" : {
       "localizations" : {
         "en" : {
@@ -32777,6 +34391,7 @@
       }
     },
     "Parear dispositivo" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32814,8 +34429,48 @@
             "value" : "配对设备"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
+    },
+    "Parear este celular" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pair this phone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Emparejar este celular"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appairer ce téléphone"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この携帯電話をペアリング"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰 페어링"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "配对这部手机"
+          }
+        }
+      }
     },
     "Parece que a casa já tem essa tarefa." : {
       "localizations" : {
@@ -34186,6 +35841,47 @@
         }
       }
     },
+    "Pix copia e cola" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pix copy and paste"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pix copiar y pegar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pix copier-coller"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pix コピー&ペースト"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pix 복사 후 붙여넣기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pix 复制粘贴"
+          }
+        }
+      }
+    },
     "Pix copia e cola copiado!" : {
       "localizations" : {
         "en" : {
@@ -34384,6 +36080,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "可能缺少"
+          }
+        }
+      }
+    },
+    "Pode levar até um minuto para a conexão estar completa. A tela do e-paper pisca um pouco antes de atualizar, é normal." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It can take up to a minute for the connection to finish. The e-paper screen flickers a bit before updating; that's normal."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La conexión puede tardar hasta un minuto en completarse. La pantalla de e-paper parpadea un poco antes de actualizarse; es normal."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La connexion peut prendre jusqu’à une minute. L’écran e-paper clignote un peu avant de se mettre à jour, c’est normal."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続が完了するまで最大1分ほどかかることがあります。電子ペーパーの画面は更新前に少し点滅しますが、問題ありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결이 완료되기까지 최대 1분 정도 걸릴 수 있어요. 전자 종이 화면이 업데이트 전에 조금 깜빡이는 건 정상이에요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "连接完成可能需要一分钟左右。电子纸屏幕在更新前会闪烁几下，这是正常的。"
           }
         }
       }
@@ -35072,6 +36808,47 @@
         }
       }
     },
+    "Progresso" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progress"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progreso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progression"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "進捗"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "진행 상황"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "进度"
+          }
+        }
+      }
+    },
     "Progresso do dia" : {
       "localizations" : {
         "en" : {
@@ -35514,6 +37291,46 @@
         }
       }
     },
+    "Quando alguém completar alguma tarefa no celular, o Harvii atualizará sozinho.\nPosicione seu Harvii em um local que todos os moradores passem, como a cozinha, a sala ou o corredor." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When someone completes a chore on their phone, Harvii updates on its own.\nPlace your Harvii somewhere everyone at home passes by, like the kitchen, the living room or the hallway."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuando alguien complete una tarea en el celular, Harvii se actualizará solo.\nColoca tu Harvii en un lugar por donde pasen todos en casa, como la cocina, la sala o el pasillo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quand quelqu’un termine une tâche sur son téléphone, Harvii se met à jour tout seul.\nPlacez votre Harvii là où tout le monde passe, comme la cuisine, le salon ou le couloir."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "誰かが携帯電話で家事を完了すると、Harviiが自動で更新されます。\nキッチンやリビング、廊下など、家族みんなが通る場所にHarviiを置いてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "누군가 휴대폰에서 집안일을 완료하면 Harvii가 알아서 업데이트돼요.\n주방, 거실, 복도처럼 모두가 지나다니는 곳에 Harvii를 두세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有人在手机上完成家务时，Harvii 会自动更新。\n把 Harvii 放在每位室友都会经过的地方，比如厨房、客厅或走廊。"
+          }
+        }
+      }
+    },
     "Quando as tarefas forem divididas, elas aparecem aqui." : {
       "localizations" : {
         "en" : {
@@ -35830,6 +37647,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@的数量"
+          }
+        }
+      }
+    },
+    "Quanto custou no total?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How much was it in total?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cuánto costó en total?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Combien ça a coûté au total ?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計でいくらでしたか?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 얼마였나요?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一共多少钱？"
           }
         }
       }
@@ -36439,6 +38296,47 @@
         }
       }
     },
+    "Ranking" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranking"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ranking"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Classement"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ランキング"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "랭킹"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "排行榜"
+          }
+        }
+      }
+    },
     "Ranking da casa" : {
       "localizations" : {
         "en" : {
@@ -37037,6 +38935,121 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "网络"
+          }
+        }
+      }
+    },
+    "rede da sua casa" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "your home network"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "red de tu casa"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "réseau de votre foyer"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おうちのネットワーク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집 네트워크"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你家的网络"
+          }
+        }
+      }
+    },
+    "rede do Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii network"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "red de Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "réseau Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiのネットワーク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 네트워크"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 的网络"
+          }
+        }
+      }
+    },
+    "Rede do Harvii" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii network"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Red de Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réseau Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiのネットワーク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 네트워크"
           }
         }
       }
@@ -37893,6 +39906,7 @@
       }
     },
     "Resetar" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37930,10 +39944,10 @@
             "value" : "重置"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Resetar o Harvii" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37971,10 +39985,10 @@
             "value" : "重置 Harvii"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Resetar o Harvii?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38012,8 +40026,7 @@
             "value" : "重置 Harvii？"
           }
         }
-      },
-      "extractionState" : "stale"
+      }
     },
     "Resgatar" : {
       "localizations" : {
@@ -39140,6 +41153,46 @@
         }
       }
     },
+    "Se a tela do Harvii mostrar “Não consegui conectar ao WiFi”, ele já está esperando um Wi-Fi novo. Se não, segure o botão BOOT dele por 5 segundos e depois configure o Wi-Fi." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If Harvii's screen shows “Couldn't connect to WiFi”, it's already waiting for a new Wi-Fi. If not, hold its BOOT button for 5 seconds, then set up the Wi-Fi."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si la pantalla de Harvii muestra “No pude conectarme al WiFi”, ya está esperando un Wi-Fi nuevo. Si no, mantén presionado su botón BOOT durante 5 segundos y luego configura el Wi-Fi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si l’écran de Harvii affiche « Je n’ai pas pu me connecter au WiFi », il attend déjà un nouveau Wi-Fi. Sinon, maintiens son bouton BOOT pendant 5 secondes, puis configure le Wi-Fi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiの画面に「WiFiに接続できませんでした」と表示されている場合、新しいWi-Fiを待っている状態です。表示されていない場合は、BOOTボタンを5秒間押してからWi-Fiを設定してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 화면에 “WiFi에 연결하지 못했어요”가 표시되면 이미 새 Wi-Fi를 기다리는 중이에요. 그렇지 않으면 BOOT 버튼을 5초간 누른 뒤 Wi-Fi를 설정하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果 Harvii 的屏幕显示“无法连接到 WiFi”，说明它已经在等待新的 Wi-Fi。如果没有，请按住它的 BOOT 按钮 5 秒钟，然后设置 Wi-Fi。"
+          }
+        }
+      }
+    },
     "Se esta tarefa for recorrente, apenas esta ocorrência será excluída — as demais continuam como estão. Essa ação é permanente." : {
       "localizations" : {
         "en" : {
@@ -39378,6 +41431,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "选择日期"
+          }
+        }
+      }
+    },
+    "Selecione as tarefas" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select the chores"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecciona las tareas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sélectionne les tâches"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事を選択"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일 선택"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择家务"
           }
         }
       }
@@ -39822,6 +41916,47 @@
         }
       }
     },
+    "Sem WiFi armazenado" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Wi-Fi saved"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ningún Wi-Fi guardado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun Wi-Fi enregistré"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存されたWi-Fiはありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장된 Wi-Fi 없음"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未保存 Wi-Fi"
+          }
+        }
+      }
+    },
     "semanal" : {
       "localizations" : {
         "en" : {
@@ -39898,6 +42033,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "密码"
+          }
+        }
+      }
+    },
+    "Senha da rede do Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii network password"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contraseña de la red de Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mot de passe du réseau Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiのネットワークのパスワード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 네트워크 비밀번호"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 的网络密码"
           }
         }
       }
@@ -40219,6 +42394,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你的努力换来了奖励，恭喜！"
+          }
+        }
+      }
+    },
+    "Seu Harvii está\n%@!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Harvii is\n%@!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Tu Harvii está\n%@!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre Harvii est\n%@ !"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiの\n%@が完了しました！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가\n%@되었어요!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的 Harvii\n%@！"
           }
         }
       }
@@ -41307,6 +43522,46 @@
         }
       }
     },
+    "Sua rede" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your network"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu red"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton réseau"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたのネットワーク"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 네트워크"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的网络"
+          }
+        }
+      }
+    },
     "Sua retrospectiva chegou" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -41384,6 +43639,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你的回顾来了！"
+          }
+        }
+      }
+    },
+    "Sua senha" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your password"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu contraseña"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton mot de passe"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パスワード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비밀번호"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的密码"
           }
         }
       }
@@ -44532,6 +46827,87 @@
         }
       }
     },
+    "Trocar o Wi-Fi do Harvii?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change Harvii's Wi-Fi?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Cambiar el Wi-Fi de Harvii?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changer le Wi-Fi de Harvii ?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HarviiのWi-Fiを変更しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii의 Wi-Fi를 바꿀까요?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要更换 Harvii 的 Wi-Fi 吗？"
+          }
+        }
+      }
+    },
+    "Trocar toalha" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change the towel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar la toalla"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changer la serviette"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タオル交換"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수건 교체"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更换毛巾"
+          }
+        }
+      }
+    },
     "Trocar toalhas" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -44569,6 +46945,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "更换毛巾"
+          }
+        }
+      }
+    },
+    "Trocar Wi-Fi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change Wi-Fi"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar Wi-Fi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changer de Wi-Fi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fiを変更"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi 바꾸기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更换 Wi-Fi"
+          }
+        }
+      }
+    },
+    "Troque o Wi-Fi ao qual o Harvii está conectado." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change the Wi-Fi Harvii is connected to."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia el Wi-Fi al que está conectado Harvii."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changez le Wi-Fi auquel Harvii est connecté."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiが接続しているWi-Fiを変更します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 연결된 Wi-Fi를 바꿔요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更换 Harvii 连接的 Wi-Fi。"
           }
         }
       }
@@ -45291,6 +47747,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "价格（可选）"
+          }
+        }
+      }
+    },
+    "Valor total" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total price"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valor total"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prix total"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計金額"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 금액"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总价"
+          }
+        }
+      }
+    },
+    "Valor total (R$ 0,00)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total price (R$ 0.00)"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Valor total (R$ 0,00)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prix total (0,00 R$)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計金額 (R$ 0,00)"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 금액 (R$ 0,00)"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "总价（R$ 0.00）"
           }
         }
       }
@@ -47228,6 +49764,46 @@
         }
       }
     },
+    "Você pode apagar as configurações do Harvii da casa mesmo assim: todos os moradores vão precisar configurá-lo de novo. O aparelho só esquece o Wi-Fi quando alguém segura o botão BOOT dele por 5 segundos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can erase Harvii's settings from the home anyway: every housemate will need to set it up again. The device itself only forgets the Wi-Fi when someone holds its BOOT button for 5 seconds."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes borrar la configuración de Harvii de la casa de todos modos: todos tendrán que configurarlo de nuevo. El dispositivo solo olvida el Wi-Fi cuando alguien mantiene presionado su botón BOOT durante 5 segundos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu peux quand même effacer les réglages de Harvii du foyer : tous les colocataires devront le configurer à nouveau. L’appareil n’oublie le Wi-Fi que lorsque quelqu’un maintient son bouton BOOT pendant 5 secondes."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "それでもおうちのHarvii設定を消去できます。住人全員がもう一度設定する必要があります。デバイス本体のWi-Fiは、誰かがBOOTボタンを5秒間押すまで消えません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래도 집의 Harvii 설정을 지울 수 있어요. 모든 구성원이 다시 설정해야 해요. 기기 자체는 누군가 BOOT 버튼을 5초간 눌러야 Wi-Fi를 지워요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你仍然可以清除家里的 Harvii 设置：所有室友都需要重新设置。设备本身要等有人按住 BOOT 按钮 5 秒钟，才会忘记 Wi-Fi。"
+          }
+        }
+      }
+    },
     "Você pode somar a quantidade ao item que já está na lista." : {
       "localizations" : {
         "en" : {
@@ -47626,2339 +50202,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "回到上一步？"
-          }
-        }
-      }
-    },
-    "%@ comprou" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ bought"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ compró"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ a acheté"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@さんが購入しました"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@님이 구매했어요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 购买了"
-          }
-        }
-      }
-    },
-    "Carro" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Car"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Auto"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voiture"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "車"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "자동차"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "汽车"
-          }
-        }
-      }
-    },
-    "Estender roupa" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hang the laundry"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tender la ropa"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Étendre le linge"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "洗濯物を干す"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "빨래 널기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "晾衣服"
-          }
-        }
-      }
-    },
-    "Limpeza" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cleaning"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Limpieza"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nettoyage"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "掃除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "청소"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清洁"
-          }
-        }
-      }
-    },
-    "Pix copia e cola" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pix copy and paste"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pix copiar y pegar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pix copier-coller"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pix コピー&ペースト"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pix 복사 후 붙여넣기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pix 复制粘贴"
-          }
-        }
-      }
-    },
-    "Progresso" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Progress"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Progreso"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Progression"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "進捗"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "진행 상황"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "进度"
-          }
-        }
-      }
-    },
-    "Ranking" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ranking"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ranking"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Classement"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ランキング"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "랭킹"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "排行榜"
-          }
-        }
-      }
-    },
-    "Selecione as tarefas" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select the chores"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selecciona las tareas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sélectionne les tâches"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "家事を選択"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "집안일 선택"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "选择家务"
-          }
-        }
-      }
-    },
-    "Trocar toalha" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Change the towel"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cambiar la toalla"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changer la serviette"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "タオル交換"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "수건 교체"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更换毛巾"
-          }
-        }
-      }
-    },
-    "Abrir ajustes" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open Settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abrir Ajustes"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvrir Réglages"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定を開く"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "설정 열기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "打开设置"
-          }
-        }
-      }
-    },
-    "Agora, digite o Wi-Fi da sua casa" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Now, enter your home Wi-Fi"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ahora, escribe el Wi-Fi de tu casa"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Maintenant, saisis le Wi-Fi de ta maison"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "次に、おうちのWi-Fiを入力してください"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이제 집 Wi-Fi를 입력하세요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "现在，输入你家的 Wi-Fi"
-          }
-        }
-      }
-    },
-    "Ajustes > Wi-Fi" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Settings > Wi-Fi"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajustes > Wi-Fi"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réglages > Wi-Fi"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "設定 > Wi-Fi"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "설정 > Wi-Fi"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "设置 > Wi-Fi"
-          }
-        }
-      }
-    },
-    "Apagar o Wi-Fi do Harvii?" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erase Harvii's Wi-Fi?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Borrar el Wi-Fi de Harvii?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Effacer le Wi-Fi de Harvii ?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HarviiのWi-Fiを消去しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii의 Wi-Fi를 지울까요?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要清除 Harvii 的 Wi-Fi 吗？"
-          }
-        }
-      }
-    },
-    "Apagar seu Wi-Fi do Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erase your Wi-Fi from Harvii"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Borrar tu Wi-Fi de Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Effacer votre Wi-Fi de Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HarviiからWi-Fiを消去"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii에서 Wi-Fi 지우기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从 Harvii 清除你的 Wi-Fi"
-          }
-        }
-      }
-    },
-    "As tarefas da casa, na parede" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your home's chores, on the wall"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Las tareas de la casa, en la pared"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les tâches du foyer, au mur"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "おうちの家事を、壁に"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "집안일을 벽에 한눈에"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "家里的家务，挂在墙上"
-          }
-        }
-      }
-    },
-    "Configurações do Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii Settings"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Configuración de Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réglages de Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiの設定"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 설정"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 设置"
-          }
-        }
-      }
-    },
-    "Desconectar o aparelho do Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disconnect from the Harvii device"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desconectar el dispositivo Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déconnecter l’appareil Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiデバイスとの接続を解除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 기기 연결 해제"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "断开 Harvii 设备"
-          }
-        }
-      }
-    },
-    "despareado" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "unpaired"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "desemparejado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "désappairé"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ペアリング解除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "페어링 해제"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未配对"
-          }
-        }
-      }
-    },
-    "Desparear" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unpair"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desemparejar"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désappairer"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ペアリングを解除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "페어링 해제"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消配对"
-          }
-        }
-      }
-    },
-    "Desparear este celular" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unpair this phone"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Desemparejar este celular"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désappairer ce téléphone"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この携帯電話のペアリングを解除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 휴대폰 페어링 해제"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消这部手机的配对"
-          }
-        }
-      }
-    },
-    "É por ele que o Harvii vai receber as tarefas." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "That's how Harvii will receive the chores."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Por ahí Harvii va a recibir las tareas."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "C’est par lui que Harvii recevra les tâches."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiはこのネットワークで家事を受け取ります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii는 이 네트워크로 집안일을 받아요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 会通过它接收家务。"
-          }
-        }
-      }
-    },
-    "Edite seu Wi-Fi" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit your Wi-Fi"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edita tu Wi-Fi"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modifier votre Wi-Fi"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wi-Fiを編集"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wi-Fi 수정"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "编辑你的 Wi-Fi"
-          }
-        }
-      }
-    },
-    "Entre na rede do Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Join the Harvii network"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Conéctate a la red de Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connecte-toi au réseau Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiのネットワークに接続"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 네트워크에 연결하세요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接 Harvii 的网络"
-          }
-        }
-      }
-    },
-    "Erro ao conectar!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't connect!"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¡Error al conectar!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur de connexion !"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "接続できませんでした！"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "연결 오류!"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接失败！"
-          }
-        }
-      }
-    },
-    "Esqueça o Harvii do seu iPhone." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Forget Harvii on your iPhone."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Olvida Harvii en tu iPhone."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oubliez Harvii sur votre iPhone."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このiPhoneでHarviiの登録を解除します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iPhone에서 Harvii를 지워요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在你的 iPhone 上忘记 Harvii。"
-          }
-        }
-      }
-    },
-    "Este celular não está pareado com o Harvii, então ele não recebe as atualizações feitas por aqui.\nConecte-se à rede da sua casa e toque em Parear." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This phone isn't paired with Harvii, so it doesn't get the updates made here.\nJoin your home network and tap Pair."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este celular no está emparejado con Harvii, así que no recibe las actualizaciones hechas desde aquí.\nConéctate a la red de tu casa y toca Emparejar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ce téléphone n’est pas appairé avec Harvii, il ne reçoit donc pas les mises à jour faites ici.\nConnectez-vous au réseau de votre foyer et touchez Appairer."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この携帯電話はHarviiとペアリングされていないため、ここでの更新はHarviiに届きません。\nおうちのネットワークに接続して「ペアリング」をタップしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 휴대폰은 Harvii와 페어링되어 있지 않아 여기서 한 업데이트가 전달되지 않아요.\n집 네트워크에 연결한 뒤 페어링을 탭하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这部手机还没有与 Harvii 配对，所以 Harvii 收不到在这里做的更新。\n连接你家的网络，然后轻点“配对”。"
-          }
-        }
-      }
-    },
-    "Ex.: Casa da Bela" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "E.g.: Bela's House"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ej.: Casa de Bela"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ex. : Maison de Bela"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "例: Belaの家"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "예: Bela의 집"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "例如：Bela 的家"
-          }
-        }
-      }
-    },
-    "Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii"
-          }
-        }
-      }
-    },
-    "Harvii está conectado!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii is connected!"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¡Harvii está conectado!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii est connecté !"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiが接続されました！"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가 연결되었어요!"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 已连接！"
-          }
-        }
-      }
-    },
-    "Harvii está recebendo as atualizações das tarefas da sua casa em tempo real!\nQuando alguém completar alguma tarefa no celular, o Harvii atualizará sozinho." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii is receiving your home's chore updates in real time!\nWhen someone completes a chore on their phone, Harvii updates on its own."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¡Harvii está recibiendo las actualizaciones de las tareas de tu casa en tiempo real!\nCuando alguien complete una tarea en el celular, Harvii se actualizará solo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii reçoit les mises à jour des tâches de votre foyer en temps réel !\nQuand quelqu’un termine une tâche sur son téléphone, Harvii se met à jour tout seul."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiはおうちの家事の更新をリアルタイムで受け取っています！\n誰かが携帯電話で家事を完了すると、Harviiが自動で更新されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가 집안일 업데이트를 실시간으로 받고 있어요!\n누군가 휴대폰에서 집안일을 완료하면 Harvii가 알아서 업데이트돼요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 正在实时接收你家的家务更新！\n有人在手机上完成家务时，Harvii 会自动更新。"
-          }
-        }
-      }
-    },
-    "Harvii está recebendo as suas tarefas" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii is getting your chores"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii está recibiendo tus tareas"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii reçoit vos tâches"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiが家事を受け取っています"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가 집안일을 받고 있어요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 正在接收你的家务"
-          }
-        }
-      }
-    },
-    "Não foi possível conectar o seu celular ao Harvii, verifique se a rede que você digitou é a mesma que você está e tente novamente." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "We couldn't connect your phone to Harvii. Check that the network you typed is the one you're on and try again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No fue posible conectar tu celular a Harvii. Verifica que la red que escribiste sea la misma en la que estás e inténtalo de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de connecter votre téléphone à Harvii. Vérifiez que le réseau saisi est bien celui auquel vous êtes connecté et réessayez."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "携帯電話をHarviiに接続できませんでした。入力したネットワークが今つながっているネットワークと同じか確認して、もう一度お試しください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "휴대폰을 Harvii에 연결하지 못했어요. 입력한 네트워크가 지금 연결된 네트워크와 같은지 확인하고 다시 시도하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法将你的手机连接到 Harvii。请确认你输入的网络就是你当前连接的网络，然后重试。"
-          }
-        }
-      }
-    },
-    "Não foi possível falar com o Harvii (código %lld)." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't talk to Harvii (code %lld)."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No fue posible comunicarse con Harvii (código %lld)."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de communiquer avec Harvii (code %lld)."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiと通信できませんでした（コード %lld）。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii와 통신하지 못했어요(코드 %lld)."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法与 Harvii 通信（代码 %lld）。"
-          }
-        }
-      }
-    },
-    "Nome da sua rede" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your network name"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nombre de tu red"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nom de votre réseau"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ネットワーク名"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "네트워크 이름"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的网络名称"
-          }
-        }
-      }
-    },
-    "Nos ajustes do celular, saia do Wi-Fi da sua casa e escolha a rede do Harvii." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In your phone's Settings, leave your home Wi-Fi and choose the Harvii network."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En los ajustes del celular, sal del Wi-Fi de tu casa y elige la red de Harvii."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dans les réglages du téléphone, quitte le Wi-Fi de ta maison et choisis le réseau Harvii."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "携帯電話の設定で、おうちのWi-Fiから切断し、Harviiのネットワークを選んでください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "휴대폰 설정에서 집 Wi-Fi 연결을 끊고 Harvii 네트워크를 선택하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在手机的设置中，断开你家的 Wi-Fi，然后选择 Harvii 的网络。"
-          }
-        }
-      }
-    },
-    "Nos ajustes do celular, saia do Wi-Fi do Harvii e volte para a rede da sua casa, a mesma que você digitou no passo anterior." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In your phone's Settings, leave the Harvii Wi-Fi and go back to your home network, the same one you typed in the previous step."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En los ajustes del celular, sal del Wi-Fi de Harvii y vuelve a la red de tu casa, la misma que escribiste en el paso anterior."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dans les Réglages du téléphone, quittez le Wi-Fi de Harvii et revenez sur le réseau de votre foyer, celui que vous avez saisi à l’étape précédente."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "携帯電話の設定でHarviiのWi-Fiから切断し、前のステップで入力したおうちのネットワークに戻ってください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "휴대폰 설정에서 Harvii Wi-Fi 연결을 끊고, 이전 단계에서 입력한 집 네트워크로 돌아가세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在手机的设置中，断开 Harvii 的 Wi-Fi，回到你家的网络，也就是上一步输入的那个网络。"
-          }
-        }
-      }
-    },
-    "O celular está sem conexão com a rede. Conecte-se ao Wi-Fi da sua casa e confira se o Pipa tem permissão de Rede Local nos Ajustes." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your phone isn't connected to a network. Join your home Wi-Fi and check that Pipa has Local Network permission in Settings."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El celular no tiene conexión a la red. Conéctate al Wi-Fi de tu casa y verifica que Pipa tenga permiso de Red local en Ajustes."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre téléphone n’est connecté à aucun réseau. Rejoignez le Wi-Fi de votre foyer et vérifiez que Pipa a l’autorisation Réseau local dans Réglages."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "携帯電話がネットワークにつながっていません。おうちのWi-Fiに接続し、設定でPipaに「ローカルネットワーク」の許可があるか確認してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "휴대폰이 네트워크에 연결되어 있지 않아요. 집 Wi-Fi에 연결하고 설정에서 Pipa에 로컬 네트워크 권한이 있는지 확인하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "手机没有连接到网络。请连接你家的 Wi-Fi，并在设置中确认 Pipa 拥有“本地网络”权限。"
-          }
-        }
-      }
-    },
-    "O celular pareou com o Harvii, mas a imagem das tarefas não chegou nele. Tente de novo." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your phone paired with Harvii, but the chores image didn't reach it. Try again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El celular se emparejó con Harvii, pero la imagen de las tareas no le llegó. Inténtalo de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le téléphone s’est appairé avec Harvii, mais l’image des tâches ne lui est pas parvenue. Réessayez."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "携帯電話はHarviiとペアリングしましたが、家事の画像が届きませんでした。もう一度お試しください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "휴대폰이 Harvii와 페어링됐지만 집안일 이미지가 전달되지 않았어요. 다시 시도하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "手机已与 Harvii 配对，但家务图片没有送达。请重试。"
-          }
-        }
-      }
-    },
-    "O Harvii ainda não recebeu o Wi-Fi da sua casa. Volte e envie o Wi-Fi de novo." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii hasn't received your home Wi-Fi yet. Go back and send the Wi-Fi again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii todavía no recibió el Wi-Fi de tu casa. Vuelve y envía el Wi-Fi de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii n’a pas encore reçu le Wi-Fi de votre foyer. Revenez en arrière et renvoyez le Wi-Fi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HarviiはまだおうちのWi-Fiを受け取っていません。戻ってもう一度Wi-Fiを送信してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가 아직 집 Wi-Fi를 받지 못했어요. 돌아가서 Wi-Fi를 다시 보내세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 还没有收到你家的 Wi-Fi。请返回并重新发送 Wi-Fi。"
-          }
-        }
-      }
-    },
-    "O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado e mostrando que se conectou ao Wi-Fi." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii didn't answer on your home network. Check that your phone is back on that network and that Harvii is on and shows it joined the Wi-Fi."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii no respondió en la red de tu casa. Verifica que el celular haya vuelto a esa red y que Harvii esté encendido y muestre que se conectó al Wi-Fi."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii n’a pas répondu sur le réseau de votre foyer. Vérifiez que votre téléphone est revenu sur ce réseau et que Harvii est allumé et indique qu’il a rejoint le Wi-Fi."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "おうちのネットワークでHarviiから応答がありませんでした。携帯電話がそのネットワークに戻っているか、Harviiの電源が入っていてWi-Fiに接続したと表示されているか確認してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "집 네트워크에서 Harvii가 응답하지 않았어요. 휴대폰이 그 네트워크로 돌아왔는지, Harvii가 켜져 있고 Wi-Fi에 연결되었다고 표시되는지 확인하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 在你家的网络中没有响应。请确认手机已回到这个网络，并且 Harvii 已开机、显示已连接到 Wi-Fi。"
-          }
-        }
-      }
-    },
-    "O Harvii recebe as tarefas da Pipa pelo Wi-Fi da sua casa e atualiza sozinho. Ninguém precisa abrir o celular nem escrever nada." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii gets the chores from Pipa over your home Wi-Fi and updates on its own. No one needs to open their phone or write anything."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii recibe las tareas de Pipa por el Wi-Fi de tu casa y se actualiza solo. Nadie necesita abrir el celular ni escribir nada."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii reçoit les tâches de Pipa par le Wi-Fi de votre foyer et se met à jour tout seul. Personne n’a besoin d’ouvrir son téléphone ni d’écrire quoi que ce soit."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HarviiはおうちのWi-Fiを通じてPipaから家事を受け取り、自動で更新されます。誰も携帯電話を開いたり、何かを書いたりする必要はありません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii는 집 Wi-Fi로 Pipa의 집안일을 받아 알아서 업데이트돼요. 누구도 휴대폰을 열거나 아무것도 적을 필요가 없어요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 通过你家的 Wi-Fi 接收 Pipa 的家务并自动更新。谁都不用打开手机，也不用写任何东西。"
-          }
-        }
-      }
-    },
-    "O Harvii respondeu, mas não aceitou o pareamento. Tente de novo; se continuar, segure o botão BOOT por 5 segundos para resetar o Harvii." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii answered but didn't accept the pairing. Try again; if it keeps happening, hold the BOOT button for 5 seconds to reset Harvii."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii respondió, pero no aceptó el emparejamiento. Inténtalo de nuevo; si sigue pasando, mantén presionado el botón BOOT durante 5 segundos para restablecer Harvii."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii a répondu mais n’a pas accepté l’appairage. Réessayez ; si cela continue, maintenez le bouton BOOT 5 secondes pour réinitialiser Harvii."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiは応答しましたが、ペアリングを受け付けませんでした。もう一度お試しください。続く場合は、BOOTボタンを5秒間押してHarviiをリセットしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가 응답했지만 페어링을 받아들이지 않았어요. 다시 시도하고, 계속되면 BOOT 버튼을 5초간 눌러 Harvii를 재설정하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 有响应，但没有接受配对。请重试；如果仍然失败，按住 BOOT 按钮 5 秒钟来重置 Harvii。"
-          }
-        }
-      }
-    },
-    "O Harvii vai esquecer o Wi-Fi atual e você vai configurá-lo de novo. Os outros celulares da casa também precisarão parear de novo." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii will forget its current Wi-Fi and you'll set it up again. The other phones at home will also need to pair again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii olvidará el Wi-Fi actual y lo configurarás de nuevo. Los demás celulares de la casa también tendrán que emparejarse de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii va oublier son Wi-Fi actuel et vous allez le configurer à nouveau. Les autres téléphones du foyer devront aussi être appairés à nouveau."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiは現在のWi-Fiを消去し、もう一度設定し直します。おうちのほかの携帯電話も、もう一度ペアリングが必要になります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가 현재 Wi-Fi를 지우고 다시 설정하게 돼요. 집의 다른 휴대폰도 다시 페어링해야 해요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 会忘记当前的 Wi-Fi，你需要重新设置。家里的其他手机也需要重新配对。"
-          }
-        }
-      }
-    },
-    "pareado" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "paired"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "emparejado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "appairé"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ペアリング"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "페어링"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已配对"
-          }
-        }
-      }
-    },
-    "Parear este celular" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pair this phone"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Emparejar este celular"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appairer ce téléphone"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この携帯電話をペアリング"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 휴대폰 페어링"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "配对这部手机"
-          }
-        }
-      }
-    },
-    "Pode levar até um minuto para a conexão estar completa. A tela do e-paper pisca um pouco antes de atualizar, é normal." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "It can take up to a minute for the connection to finish. The e-paper screen flickers a bit before updating; that's normal."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La conexión puede tardar hasta un minuto en completarse. La pantalla de e-paper parpadea un poco antes de actualizarse; es normal."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La connexion peut prendre jusqu’à une minute. L’écran e-paper clignote un peu avant de se mettre à jour, c’est normal."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "接続が完了するまで最大1分ほどかかることがあります。電子ペーパーの画面は更新前に少し点滅しますが、問題ありません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "연결이 완료되기까지 최대 1분 정도 걸릴 수 있어요. 전자 종이 화면이 업데이트 전에 조금 깜빡이는 건 정상이에요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接完成可能需要一分钟左右。电子纸屏幕在更新前会闪烁几下，这是正常的。"
-          }
-        }
-      }
-    },
-    "Quando alguém completar alguma tarefa no celular, o Harvii atualizará sozinho.\nPosicione seu Harvii em um local que todos os moradores passem, como a cozinha, a sala ou o corredor." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When someone completes a chore on their phone, Harvii updates on its own.\nPlace your Harvii somewhere everyone at home passes by, like the kitchen, the living room or the hallway."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cuando alguien complete una tarea en el celular, Harvii se actualizará solo.\nColoca tu Harvii en un lugar por donde pasen todos en casa, como la cocina, la sala o el pasillo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quand quelqu’un termine une tâche sur son téléphone, Harvii se met à jour tout seul.\nPlacez votre Harvii là où tout le monde passe, comme la cuisine, le salon ou le couloir."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "誰かが携帯電話で家事を完了すると、Harviiが自動で更新されます。\nキッチンやリビング、廊下など、家族みんなが通る場所にHarviiを置いてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "누군가 휴대폰에서 집안일을 완료하면 Harvii가 알아서 업데이트돼요.\n주방, 거실, 복도처럼 모두가 지나다니는 곳에 Harvii를 두세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有人在手机上完成家务时，Harvii 会自动更新。\n把 Harvii 放在每位室友都会经过的地方，比如厨房、客厅或走廊。"
-          }
-        }
-      }
-    },
-    "rede da sua casa" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "your home network"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "red de tu casa"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "réseau de votre foyer"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "おうちのネットワーク"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "집 네트워크"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你家的网络"
-          }
-        }
-      }
-    },
-    "rede do Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii network"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "red de Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "réseau Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiのネットワーク"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 네트워크"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 的网络"
-          }
-        }
-      }
-    },
-    "Rede do Harvii" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii network"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Red de Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Réseau Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiのネットワーク"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 네트워크"
-          }
-        }
-      }
-    },
-    "Sem WiFi armazenado" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Wi-Fi saved"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ningún Wi-Fi guardado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucun Wi-Fi enregistré"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "保存されたWi-Fiはありません"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "저장된 Wi-Fi 없음"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未保存 Wi-Fi"
-          }
-        }
-      }
-    },
-    "Senha da rede do Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii network password"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contraseña de la red de Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mot de passe du réseau Harvii"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiのネットワークのパスワード"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 네트워크 비밀번호"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii 的网络密码"
-          }
-        }
-      }
-    },
-    "Seu Harvii está\n%@!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your Harvii is\n%@!"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¡Tu Harvii está\n%@!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre Harvii est\n%@ !"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiの\n%@が完了しました！"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가\n%@되었어요!"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的 Harvii\n%@！"
-          }
-        }
-      }
-    },
-    "Sua rede" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your network"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu red"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton réseau"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "あなたのネットワーク"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내 네트워크"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的网络"
-          }
-        }
-      }
-    },
-    "Sua senha" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your password"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu contraseña"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton mot de passe"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "パスワード"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "비밀번호"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的密码"
-          }
-        }
-      }
-    },
-    "Trocar o Wi-Fi do Harvii?" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Change Harvii's Wi-Fi?"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Cambiar el Wi-Fi de Harvii?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changer le Wi-Fi de Harvii ?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "HarviiのWi-Fiを変更しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii의 Wi-Fi를 바꿀까요?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要更换 Harvii 的 Wi-Fi 吗？"
-          }
-        }
-      }
-    },
-    "Trocar Wi-Fi" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Change Wi-Fi"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cambiar Wi-Fi"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changer de Wi-Fi"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wi-Fiを変更"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wi-Fi 바꾸기"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更换 Wi-Fi"
-          }
-        }
-      }
-    },
-    "Troque o Wi-Fi ao qual o Harvii está conectado." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Change the Wi-Fi Harvii is connected to."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cambia el Wi-Fi al que está conectado Harvii."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Changez le Wi-Fi auquel Harvii est connecté."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harviiが接続しているWi-Fiを変更します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Harvii가 연결된 Wi-Fi를 바꿔요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "更换 Harvii 连接的 Wi-Fi。"
           }
         }
       }
