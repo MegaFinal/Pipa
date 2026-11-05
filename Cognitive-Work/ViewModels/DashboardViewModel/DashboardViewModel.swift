@@ -100,6 +100,11 @@ class DashboardViewModel {
     /// The member's chores per day of the selected week, split by room.
     var dailyRoomDistribution: [DaySlice] = []
     
+    // MARK: - Coins
+    
+    /// The member's coin balance, the same as on the rewards tab (``CoinWalletModel``).
+    var coins: Int = 0
+    
     // MARK: - Load
     
     /// `true` while the data is loading.
@@ -169,6 +174,11 @@ class DashboardViewModel {
         rooms = snapshot.rooms
         
         refresh()
+        coins = user?.coins ?? 0
+        if let userID = user?.recordID {
+            coins = await CoinWalletModel.balance(for: userID, legacyCoins: user?.coins ?? 0)
+            guard !Task.isCancelled else { return }
+        }
         await schedule.setup(users: snapshot.users, chores: snapshot.chores,
                              assignments: snapshot.assignments, rooms: snapshot.rooms,
                              me: user)

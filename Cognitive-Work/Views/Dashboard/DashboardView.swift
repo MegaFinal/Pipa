@@ -32,6 +32,9 @@ struct DashboardView: View {
                     // MARK: - Title and current division dates
                     header
                     
+                    // MARK: - Today at a glance: average time, to do, done, coins
+                    DashboardStatsRow(dashboard: carouselViewModel.dashboard, coins: viewModel.coins)
+                    
                     // MARK: - Today ring and points
                     HStack(spacing: 16) {
                         DoughnutChart(viewModel: $viewModel)

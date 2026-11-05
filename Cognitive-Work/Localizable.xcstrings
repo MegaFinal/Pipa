@@ -3593,6 +3593,28 @@
         }
       }
     },
+    "Moedas" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coins"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monedas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jetons"
+          }
+        }
+      }
+    },
     "Pipa andorinha I" : {
       "localizations" : {
         "en" : {
