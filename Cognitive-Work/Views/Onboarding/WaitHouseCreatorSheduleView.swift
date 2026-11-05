@@ -100,6 +100,8 @@ struct WaitHouseCreatorSheduleView: View {
         // MARK: - Checks for the division: on open, every few seconds, on CloudKit changes and on return
         .task {
             await viewModel.checkAndAdvanceIfScheduleReady()
+            // Still waiting: lets the admin know this guest is ready to be included.
+            await viewModel.notifyAdminGuestIsWaiting()
             
             while !Task.isCancelled {
                 try? await Task.sleep(for: pollingInterval)

@@ -76,14 +76,28 @@ struct HouseSettingsView: View {
         List {
             // MARK: - Add roommates
             Section {
-                NavigationLink("Adicionar moradores") {
-                    InviteAndWaitUsersFreeTimeOnboardingView(viewModel: $inviteViewModel, isFromSettings: true)
-                        .padding(.bottom, 30)
-                        .onAppear {
-                            inviteViewModel.currentHouse = viewModel.house
-                        }
+                // The admin can also remove members there.
+                NavigationLink {
+                    InviteAndWaitUsersFreeTimeOnboardingView(
+                        viewModel: $inviteViewModel,
+                        isFromSettings: true,
+                        onRemoveMember: removeMember
+                    )
+                    .padding(.bottom, 30)
+                    .onAppear {
+                        inviteViewModel.currentHouse = viewModel.house
+                    }
+                } label: {
+                    if viewModel.isUserAdmin {
+                        Text("Adicionar e gerenciar moradores")
+                    } else {
+                        Text("Adicionar moradores")
+                    }
                 }
-                .voiceControlNames([L10n.tr("Adicionar moradores"), L10n.tr("Convidar"), L10n.tr("Moradores")])
+                .voiceControlNames([
+                    L10n.tr("Adicionar e gerenciar moradores"), L10n.tr("Adicionar moradores"),
+                    L10n.tr("Convidar"), L10n.tr("Moradores")
+                ])
             }
             
             // MARK: - Rooms CRUD
@@ -125,6 +139,15 @@ struct HouseSettingsView: View {
         .navigationTitle("Ajustes da Casa")
         .navigationBarTitleDisplayMode(.inline)
         .hidesTabBar()
+    }
+    
+    /// What the members screen calls to remove someone. Only the admin gets it; `nil` makes the
+    /// screen read-only. Declared with its type, so the compiler doesn't have to infer it inside
+    /// the list.
+    private var removeMember: ((UserModel) async -> Bool)? {
+        guard viewModel.isUserAdmin else { return nil }
+        let viewModel = viewModel
+        return { member in await viewModel.removeMember(member) }
     }
     
     /// "Excluir Casa" for the admin; "Sair da Casa" for every other member.

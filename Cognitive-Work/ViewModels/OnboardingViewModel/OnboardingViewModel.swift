@@ -1226,6 +1226,36 @@ class OnboardingViewModel {
         goToNextView()
     }
     
+    /// Tells the admin that this guest chose their free time and is waiting for the division
+    /// (``NotificationManager/notifyGuestWaitingForDivision(named:houseID:)``).
+    ///
+    /// Called by the waiting screen. Sent once per house: the screen opens again every time the
+    /// app does while the guest waits, and the admin needs to hear it only once. Not sent when the
+    /// division already exists (the guest is about to move on) or when the user is the admin.
+    @MainActor
+    func notifyAdminGuestIsWaiting() async {
+        guard !isScheduleReady, stateMachine.current == .waitAdminScheduling else { return }
+
+        var house = currentHouse
+        if house == nil { house = try? await CloudKitManager.shared.currentHouse() }
+        guard let houseID = house?.recordID,
+              houseID.zoneID.ownerName != CKCurrentUserDefaultName
+        else { return }
+
+        let key = "onboarding.notifiedAdminGuestWaiting.\(houseID.zoneID.ownerName).\(houseID.recordName)"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+
+        var name = currentUser?.name
+        if name == nil { name = await CloudKitManager.shared.currentHouseUser()?.name }
+
+        if await NotificationManager.shared.notifyGuestWaitingForDivision(
+            named: name ?? L10n.tr("Morador"),
+            houseID: houseID
+        ) {
+            UserDefaults.standard.set(true, forKey: key)
+        }
+    }
+    
     // MARK: - Pending join
     
     /// `true` when the current house is someone else's (reached through an accepted invite) but
@@ -1324,6 +1354,12 @@ class OnboardingViewModel {
                 // missing for accounts that never saved one (or when it could not be read),
                 // and a house is never created without it (the owner would be stuck waiting).
                 _ = await restoreFreeTimeFromProfile()
+                
+                // Removed from the house (or it was deleted) while in the app: the notice was
+                // already shown, so skip the welcome screen and go to "create or enter".
+                if OnboardingStateMachine.consumeStartAtCreateOrEnterHomeRequest() {
+                    advanceFromWelcome()
+                }
             }
         }
     }

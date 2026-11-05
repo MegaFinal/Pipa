@@ -126,9 +126,13 @@ class ContentViewModel {
         }
     }
     
-    /// Sends a user whose house was deleted back to the start of the onboarding.
+    /// Sends a user who no longer has a house (removed by the admin, or the house was deleted)
+    /// to the onboarding, straight at "create or enter a house": their profile and free time are
+    /// kept, so there is nothing to ask again.
     func accountWithoutHouseReturnToOnboarding() {
         Self.resetOnboardingProgress()
+        OnboardingStateMachine.requestStartAtCreateOrEnterHome()
+        NotificationManager.shared.cancelAll()
         self.didOnboard = false
     }
     
@@ -196,8 +200,9 @@ class ContentViewModel {
         guard removed > 0 else { return }
         do {
             if try await CloudKitManager.shared.currentHouse(forceRefresh: true) == nil {
-                Self.resetOnboardingProgress()
-                didOnboard = false
+                // No house left (the admin removed this member): `fetchHouse()`, right after,
+                // finds none and shows the notice (`HouseAccessLostView`) before the onboarding.
+                userHasNoHouse = true
             } else {
                 NotificationCenter.default.post(name: .cloudKitDidChange, object: nil)
             }

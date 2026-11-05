@@ -378,6 +378,105 @@ extension CloudKitManager {
         return allLeft
     }
     
+    // MARK: - Removing a member (admin)
+
+    /// Removes the person `ownerRecordName` from the current user's house. Only the admin (the
+    /// owner of the house's zone) can do it, and not to themselves.
+    ///
+    /// Leaves the house as if the member had left it themselves (``unlinkFromSharedZone(_:ownerRecordName:profileIDs:requireFootprintRemoval:)``):
+    /// - their pending chores and the coupons they hold go back to the house;
+    /// - they leave the house's member list, and their member records (and what hangs from
+    ///   them, like their free time), points, coins and rank history are deleted;
+    /// - they are taken off the house's `CKShare`, so their device loses access to it. The next
+    ///   time it checks the house (opening the app, a push) it finds none and shows
+    ///   ``HouseAccessLostView``.
+    ///
+    /// - Parameters:
+    ///   - ownerRecordName: The iCloud identity of the member (``UserModel/ownerRecordName``).
+    ///   - house: The current user's house.
+    /// - Returns: `false` when the user isn't the admin, tries to remove themselves, or the
+    ///   member's records couldn't be deleted (see ``errorMessage``).
+    func removeMember(ownerRecordName: String, from house: HouseModel) async -> Bool {
+        guard let houseID = house.recordID,
+              houseID.zoneID.ownerName == CKCurrentUserDefaultName,
+              let myName = await fetchCurrentUserRecordID()?.recordName,
+              ownerRecordName != myName
+        else {
+            errorMessage = UserFacingError.friendly(technical: "Only the admin can remove other members")
+            return false
+        }
+
+        let zoneID = houseID.zoneID
+        let records: [CKRecord]
+        do {
+            records = try await scanZone(zoneID, in: privateDB)
+        } catch {
+            errorMessage = UserFacingError.message(for: error, doing: .load)
+            return false
+        }
+
+        let memberIDs = Set(
+            records
+                .filter { $0.recordType == UserModel.recordType && $0["ownerRecordName"] as? String == ownerRecordName }
+                .map(\.recordID)
+        )
+        guard !memberIDs.isEmpty else { return true }
+
+        // Chores and coupons back to the house, then out of the member list.
+        await releaseAssignments(of: memberIDs, in: records, database: privateDB)
+
+        if let houseRecord = records.first(where: { $0.recordID == houseID }),
+           let references = houseRecord["users"] as? [CKRecord.Reference] {
+            houseRecord["users"] = references.filter { !memberIDs.contains($0.recordID) }
+            _ = try? await privateDB.modifyRecords(saving: [houseRecord], deleting: [], savePolicy: .changedKeys, atomically: false)
+        }
+
+        // What hangs from the member records (free time…) goes first: a parent can only be
+        // deleted once its children are gone.
+        var childrenByParent: [CKRecord.ID: [CKRecord.ID]] = [:]
+        for record in records {
+            if let parentID = record.parent?.recordID {
+                childrenByParent[parentID, default: []].append(record.recordID)
+            }
+        }
+        var levels: [[CKRecord.ID]] = []
+        var current = memberIDs.flatMap { childrenByParent[$0] ?? [] }
+        var visited = memberIDs
+        while !current.isEmpty {
+            let level = current.filter { visited.insert($0).inserted }
+            guard !level.isEmpty else { break }
+            levels.append(level)
+            current = level.flatMap { childrenByParent[$0] ?? [] }
+        }
+
+        let gamificationIDs = gamificationRecordIDs(of: memberIDs, ownerRecordName: ownerRecordName, in: records)
+        do {
+            for level in levels.reversed() {
+                try await deleteRecordsIgnoringMissing(level, in: privateDB)
+            }
+            try await deleteRecordsIgnoringMissing(Array(memberIDs) + gamificationIDs, in: privateDB)
+        } catch {
+            errorMessage = UserFacingError.message(for: error, doing: .delete)
+            return false
+        }
+        RecentWrites.shared.deleted(levels.flatMap { $0 } + Array(memberIDs) + gamificationIDs, type: nil)
+
+        // Takes their access away. Best effort: without a member record, their device leaves the
+        // house anyway the next time it opens (`pruneOrphanedSharedMemberships()`).
+        if let houseRecord = records.first(where: { $0.recordID == houseID }),
+           let share = await fetchShare(for: houseRecord),
+           let participant = share.participants.first(where: {
+               $0.userIdentity.userRecordID?.recordName == ownerRecordName
+           }) {
+            share.removeParticipant(participant)
+            _ = try? await privateDB.modifyRecords(saving: [share], deleting: [])
+        }
+
+        invalidateSessionCache()
+        markDataChanged()
+        return true
+    }
+
     // MARK: - Account deletion
     
     /// Deletes everything this account has in the app
@@ -452,7 +551,14 @@ extension CloudKitManager {
     ///   `allResponsibleUsers`; once nobody is left they count as unassigned.
     /// - Coupons the member bought and that no division used yet are marked as used, so they go
     ///   back on sale for the others.
-    private func releaseAssignments(of userIDs: Set<CKRecord.ID>, in records: [CKRecord]) async {
+    ///
+    /// - Parameter database: Where `records` live: the shared database for a member leaving (the
+    ///   default), the private one when the admin removes someone from their own house.
+    private func releaseAssignments(
+        of userIDs: Set<CKRecord.ID>,
+        in records: [CKRecord],
+        database: CKDatabase? = nil
+    ) async {
         guard !userIDs.isEmpty else { return }
         
         var toSave: [CKRecord] = []
@@ -512,7 +618,7 @@ extension CloudKitManager {
         guard !toSave.isEmpty else { return }
         
         // Best effort: failing here must not stop the member from leaving.
-        _ = try? await sharedDB.modifyRecords(
+        _ = try? await (database ?? sharedDB).modifyRecords(
             saving: toSave,
             deleting: [],
             savePolicy: .changedKeys,

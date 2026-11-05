@@ -46,6 +46,16 @@ struct ContentView: View {
                 .transition(.opacity)
             }
         }
+        // MARK: No house anymore (removed by the admin, or the house was deleted)
+        .overlay {
+            if viewModel.userHasNoHouse {
+                HouseAccessLostView {
+                    viewModel.accountWithoutHouseReturnToOnboarding()
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut, value: viewModel.userHasNoHouse)
         // MARK: Invite while already in a house
         .onReceive(NotificationCenter.default.publisher(for: .notAcceptShare)) { cloudMetadata in
             viewModel.showInviteAcceptAlert = true
@@ -73,14 +83,6 @@ struct ContentView: View {
             Button("OK") { viewModel.errorMessage = nil }
         } message: {
             Text(viewModel.errorMessage ?? L10n.tr("Deu algum erro."))
-        }
-        
-        .alert("A casa que você pertencia foi deletada.", isPresented: $viewModel.userHasNoHouse) {
-            Button("Ok", role: .confirm) {
-                viewModel.accountWithoutHouseReturnToOnboarding()
-            }
-        } message: {
-            Text("Você será redirecionado ao início do aplicativo.")
         }
         
         // MARK: Blocking screens
