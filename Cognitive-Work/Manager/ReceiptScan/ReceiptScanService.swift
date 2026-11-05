@@ -25,17 +25,23 @@ nonisolated enum ReceiptScanService {
     static func read(_ pages: [UIImage]) async -> ReceiptScanResult {
         var parserLines: [ReceiptScanLine] = []
         var texts: [String] = []
+        var keptPages: [UIImage] = []
         var totals = Set<Double>()
         var printedItemCount: Int?
 
         for page in pages {
             let text = await ReceiptTextReader.text(from: page)
+            let pageLines = ReceiptParser.parse(text).map(ReceiptScanLine.init)
+            // The same part of the receipt photographed again: left out.
+            if isRepeat(pageLines, of: parserLines) { continue }
+            keptPages.append(page)
             texts.append(text)
-            parserLines += ReceiptParser.parse(text).map(ReceiptScanLine.init)
+            parserLines += pageLines
             totals.formUnion(ReceiptTotals.candidates(in: text))
             printedItemCount = ReceiptTotals.printedItemCount(in: text) ?? printedItemCount
         }
         parserLines = removingOverlap(parserLines)
+        let repeatedPages = pages.count - keptPages.count
 
         let printedTotals = totals.sorted()
         func result(_ lines: [ReceiptScanLine], readFromPhoto: Bool) -> ReceiptScanResult {
@@ -43,7 +49,8 @@ nonisolated enum ReceiptScanService {
                 lines: lines,
                 printedTotals: printedTotals,
                 printedItemCount: printedItemCount,
-                readFromPhoto: readFromPhoto
+                readFromPhoto: readFromPhoto,
+                repeatedPages: repeatedPages
             )
         }
 
@@ -53,7 +60,7 @@ nonisolated enum ReceiptScanService {
 
         // Step 2: photo + OCR, page by page. A page the model couldn't read gives nothing.
         var photoLines: [ReceiptScanLine] = []
-        for page in pages {
+        for page in keptPages {
             let text = await ReceiptTextReader.text(from: page, style: .plain)
             photoLines += await ReceiptPhotoReading.read(page, ocrText: text) ?? []
         }
@@ -108,6 +115,23 @@ nonisolated enum ReceiptScanService {
     }
 
     // MARK: - Pages
+
+    /// Whether a page shows products already read from earlier pages: most of its prices (60%,
+    /// and at least two, or its only one) are among theirs. Two photos of one long receipt
+    /// share a few rows at most; the same part photographed again shares nearly all.
+    static func isRepeat(_ page: [ReceiptScanLine], of earlier: [ReceiptScanLine]) -> Bool {
+        guard !page.isEmpty, !earlier.isEmpty else { return false }
+        var remaining = earlier.map { Int(($0.total * 100).rounded()) }
+        var shared = 0
+        for line in page {
+            let cents = Int((line.total * 100).rounded())
+            if let index = remaining.firstIndex(of: cents) {
+                remaining.remove(at: index)
+                shared += 1
+            }
+        }
+        return shared >= min(2, page.count) && shared * 10 >= page.count * 6
+    }
 
     /// Two photos that overlap read the products in between twice: keeps the first of each item
     /// number. Lines without a number are kept as they are.

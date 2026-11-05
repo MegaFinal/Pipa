@@ -718,6 +718,9 @@ final class ShopListViewModel {
         /// The weight actually bought, for a weighed product ("500 g" on the list, 0,364 kg on
         /// the receipt): the item's quantity becomes it. `nil` keeps the quantity.
         var amount: (quantity: Int, unit: UnitMeasurement)? = nil
+        /// Who it's for, when the person changed it on the review screen. `nil` keeps the
+        /// item's people.
+        var consumers: [UserModel]? = nil
     }
 
     /// A product read from a receipt that wasn't on the list, to add already bought.
@@ -728,6 +731,21 @@ final class ShopListViewModel {
         let unit: UnitMeasurement
         /// Who it's for; empty means the whole house.
         let consumers: [UserModel]
+        /// The aisle it goes in.
+        var category: ShopItemCategory = .other
+    }
+
+    /// The aisle of the latest item the house has with this exact name, unless it's "Outros",
+    /// for a product read from a receipt (same words, ignoring case and accents).
+    func receiptCategory(named name: String) -> ShopItemCategory? {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        return items
+            .filter { item in
+                item.category != .other && ShopItemDuplicateFinder.isExactMatch(trimmed, item.name)
+            }
+            .max { ($0.boughtAt ?? $0.createdAt) < ($1.boughtAt ?? $1.createdAt) }?
+            .category
     }
 
     /// What the house called products it scanned before (see ``ReceiptNameMemory``).
@@ -773,6 +791,11 @@ final class ShopListViewModel {
                     item.quantity = amount.quantity
                     item.unitMeasurement = amount.unit
                 }
+                if let people = purchase.consumers, !item.isBought {
+                    item.relatedUsersReference = people.compactMap { user in
+                        user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+                    }
+                }
                 if !item.isBought {
                     item.isBought = true
                     item.boughtAt = Date()
@@ -786,14 +809,22 @@ final class ShopListViewModel {
                 saved += 1
                 continue
             }
-            // The weight bought goes in the same save as the purchase.
+            // The amount bought and who it's for go in the same save as the purchase.
             let previousAmount = (item.quantity, item.unitMeasurement)
+            let previousPeople = item.relatedUsersReference
             if let amount = purchase.amount {
                 item.quantity = amount.quantity
                 item.unitMeasurement = amount.unit
             }
+            if let people = purchase.consumers {
+                let references = people.compactMap { user in
+                    user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+                }
+                if !references.isEmpty { item.relatedUsersReference = references }
+            }
             guard await item.markBought(by: currentUser, totalPrice: price) else {
                 (item.quantity, item.unitMeasurement) = previousAmount
+                item.relatedUsersReference = previousPeople
                 failed = true
                 continue
             }
@@ -819,7 +850,7 @@ final class ShopListViewModel {
                 quantity: newItem.quantity,
                 unitMeasurement: newItem.unit,
                 isBought: true,
-                category: .other,
+                category: newItem.category,
                 relatedUsers: people.isEmpty ? nil : people,
                 addedByUser: me,
                 buyerUser: me

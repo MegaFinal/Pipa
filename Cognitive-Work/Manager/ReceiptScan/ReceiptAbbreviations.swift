@@ -18,8 +18,7 @@ nonisolated enum ReceiptAbbreviations {
     /// spelled out and lowercased with a capital first letter; names already in mixed case
     /// (restaurants) are kept.
     static func expand(_ name: String) -> String {
-        let letters = name.filter(\.isLetter)
-        guard !letters.isEmpty, letters.filter(\.isUppercase).count * 5 >= letters.count * 4 else { return name }
+        guard isPrintedInCapitals(name) else { return name }
 
         let words = name
             .split(whereSeparator: { $0.isWhitespace || $0 == "." })
@@ -29,6 +28,12 @@ nonisolated enum ReceiptAbbreviations {
             }
         let text = words.joined(separator: " ")
         return text.prefix(1).uppercased() + text.dropFirst()
+    }
+
+    /// Whether a name is printed in capitals, as supermarkets print it (80% of its letters).
+    static func isPrintedInCapitals(_ name: String) -> Bool {
+        let letters = name.filter(\.isLetter)
+        return !letters.isEmpty && letters.filter(\.isUppercase).count * 5 >= letters.count * 4
     }
 
     /// Lowercased, without accents ("PÃO" -> "pao").

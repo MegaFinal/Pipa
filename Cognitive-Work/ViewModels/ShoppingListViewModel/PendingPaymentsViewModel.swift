@@ -21,8 +21,9 @@ final class PendingPaymentsViewModel {
         let cents: String
     }
 
-    /// The shopping list's data (items and members) the debts come from.
-    private let shopList: ShopListViewModel
+    /// The shopping list's data (items and members) the debts come from. The screen scans
+    /// receipts into it too.
+    let shopList: ShopListViewModel
 
     /// Which side of the debts is listed. The matching summary card is highlighted.
     var selectedDirection: DebtDirection = .youOwe

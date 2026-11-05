@@ -14,6 +14,9 @@ struct PendingPaymentsView: View {
     /// The debts, texts and settle actions.
     @State private var viewModel: PendingPaymentsViewModel
 
+    /// Set by the receipt menu at the top right; starts the scan.
+    @State private var receiptRequest: ReceiptSource?
+
     /// Creates the screen with a ready view model (previews).
     init(viewModel: PendingPaymentsViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -69,6 +72,16 @@ struct PendingPaymentsView: View {
         .background(Color.white.ignoresSafeArea())
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        // MARK: - Receipt scan, top right: what was bought goes to the list and the debts here
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                ReceiptScanMenu { receiptRequest = $0 } label: {
+                    Image(systemName: "doc.text.viewfinder")
+                }
+                .disabled(!viewModel.shopList.canAddItems)
+            }
+        }
+        .receiptScan(request: $receiptRequest, shopList: viewModel.shopList)
         .animation(.snappy, value: viewModel.selectedDirection)
         .animation(.snappy, value: viewModel.groups.map(\.id))
         // MARK: - "Pix copiado" toast

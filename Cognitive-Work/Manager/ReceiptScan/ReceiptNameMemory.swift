@@ -14,7 +14,8 @@ import Foundation
 /// A product is known by its barcode (the same in every receipt of a shop, and the most
 /// reliable) and by its printed name (for receipts without one, or when OCR misread a digit).
 /// The memory lives in the house's shopping list record (``ShopListModel/receiptNames``), so
-/// every housemate's scans use it.
+/// every housemate's scans use it. It keeps the aisle the house put a product in too, under the
+/// same keys with a "cat-" in front, so a product moved out of "Outros" once stays moved.
 nonisolated enum ReceiptNameMemory {
 
     /// How many products are remembered; the oldest go first.
@@ -35,6 +36,17 @@ nonisolated enum ReceiptNameMemory {
     /// The name the house gave this line before, if any (the barcode wins over the name).
     static func name(for line: ReceiptScanLine, in memory: [String: String]) -> String? {
         keys(for: line).lazy.compactMap { memory[$0] }.first
+    }
+
+    /// The keys a line's aisle is remembered by: its name's keys, with "cat-" in front.
+    static func categoryKeys(for line: ReceiptScanLine) -> [String] {
+        keys(for: line).map { "cat-" + $0 }
+    }
+
+    /// The aisle the house put this line in before, as stored (``ShopItemCategory`` raw
+    /// value), if any.
+    static func category(for line: ReceiptScanLine, in memory: [String: String]) -> String? {
+        categoryKeys(for: line).lazy.compactMap { memory[$0] }.first
     }
 
     /// "LTE COND.MOC.TP 395g" -> "lte cond moc tp 395g": case, accents and punctuation don't

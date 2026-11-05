@@ -24,9 +24,10 @@ struct ReceiptItemMatcherTests {
         "MOLHO TOMATE POMAROLA 340G",
     ]
 
-    /// The receipt line paired with `name`, or `nil`.
+    /// The receipt line paired with `name`, or `nil`. Names are spelled out first, as the
+    /// review screen does.
     private func line(for name: String, in list: [String]) -> String? {
-        let pairs = ReceiptItemMatcher.match(receiptNames: receipt, listNames: list)
+        let pairs = ReceiptItemMatcher.match(receiptNames: receipt.map(ReceiptAbbreviations.expand), listNames: list)
         guard let itemIndex = list.firstIndex(of: name), let lineIndex = pairs[itemIndex] else { return nil }
         return receipt[lineIndex]
     }
@@ -54,6 +55,14 @@ struct ReceiptItemMatcherTests {
         #expect(line(for: "Molho de tomate", in: list) == "MOLHO TOMATE POMAROLA 340G")
     }
 
+    @Test func lettersInOrderAreNotAnAbbreviation() {
+        // "DT" (an item number misread) isn't "desodorante"; "pão" isn't "pimentão".
+        let pairs = ReceiptItemMatcher.match(receiptNames: ["Dt queijo", "pão"], listNames: ["desodorante", "pimentão", "pão"])
+        #expect(pairs[0] == nil)
+        #expect(pairs[1] == nil)
+        #expect(pairs[2] == 1)
+    }
+
     @Test func aWordInTheMiddleIsNotTheProduct() {
         // Seen on a Krill receipt: yogurt "BAT" (batido), beer "BR" (Brahma), margarine "C/SAL".
         let names = ["IOG.BAT.NAT.IN.160g", "CE.BR.DU.MA.LT.269ml", "MA.QUALY C/SAL 250g", "BANANA PRATA kg"]
@@ -65,6 +74,18 @@ struct ReceiptItemMatcherTests {
         #expect(pairs[2] == nil)
         #expect(pairs[3] == 0)
         #expect(pairs[4] == 3)
+    }
+
+    @Test func changingTheQuantityScalesThePrice() {
+        let model = ReceiptScanViewModel()
+        let pasta = ReceiptScanLine(itemNumber: 11, name: "Macarrão", quantity: 1, weightKg: 0, total: 5.99, warning: nil)
+        model.lines = [pasta]
+        model.setQuantity(2, for: pasta)
+        #expect(model.lines[0].quantity == 2)
+        #expect(abs(model.lines[0].total - 11.98) < 0.001)
+        // Never below one.
+        model.setQuantity(0, for: pasta)
+        #expect(model.lines[0].quantity == 2)
     }
 
     @Test func weighedProductsGoToTheListInGrams() {

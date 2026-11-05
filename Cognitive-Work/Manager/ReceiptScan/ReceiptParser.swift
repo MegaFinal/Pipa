@@ -406,7 +406,11 @@ nonisolated enum ReceiptParser {
     /// The product name: no item number, barcode, amounts or tax columns.
     private static func cleanName(_ row: String) -> String {
         var parts = removingLeadingCode(row).split(whereSeparator: \.isWhitespace).map(String.init)
-        // Names only: also drop leading tokens without letters ("2", ")3", a second barcode).
+        if let barcodeIndex = parts.prefix(3).firstIndex(where: { part in
+            part.count >= 8 && part.filter(\.isNumber).count * 10 >= part.count * 7
+        }) {
+            parts.removeFirst(barcodeIndex + 1)
+        }
         while let first = parts.first,
               !first.contains(where: \.isLetter) || (first.count >= 7 && first.filter(\.isNumber).count >= first.count / 2) {
             parts.removeFirst()

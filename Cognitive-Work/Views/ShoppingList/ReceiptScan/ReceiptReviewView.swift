@@ -13,7 +13,8 @@ import SwiftUI
 /// product with a checkbox in front (ticked ones go to the list), and the blue checkmark at the
 /// top right to confirm. Products whose name matches a list item come first and check that
 /// item off; below a line, the ones bought outside the list, added already bought for who the
-/// person picks (the whole house by default). On top, whether their sum matches the receipt.
+/// person picks (the whole house by default) in the aisle guessed for them. On top, whether
+/// their sum matches the receipt.
 struct ReceiptReviewView: View {
 
     /// The scanned pages.
@@ -93,13 +94,16 @@ struct ReceiptReviewView: View {
                 pages,
                 linking: shopList.receiptLinkableItems,
                 houseUsers: shopList.houseUsers,
-                memory: shopList.receiptNameMemory
+                memory: shopList.receiptNameMemory,
+                knownCategory: { [shopList] name in shopList.receiptCategory(named: name) }
             )
             switch viewModel.phase {
             case .review: VoiceOver.announce(L10n.tr("\(viewModel.lines.count) itens"))
             case .empty: VoiceOver.announce(L10n.tr("Nenhum item encontrado"))
             case .reading: break
             }
+            // While the person reviews: aisles nothing else could tell.
+            await viewModel.guessCategoriesWithAI()
         }
     }
 
@@ -130,6 +134,7 @@ struct ReceiptReviewView: View {
                 .foregroundStyle(.subTitleGray)
                 .multilineTextAlignment(.center)
             scanAgainButton
+            addLineButton
         }
         .padding(32)
     }
@@ -195,6 +200,9 @@ struct ReceiptReviewView: View {
                         .padding(.horizontal, 6)
                 }
 
+                addLineButton
+                    .frame(maxWidth: .infinity)
+
                 scanAgainButton
                     .frame(maxWidth: .infinity)
                     .padding(.top, 8)
@@ -237,6 +245,13 @@ struct ReceiptReviewView: View {
             }
             .font(.system(size: 13))
 
+            // The same part of the receipt photographed twice: said, so the count makes sense.
+            if viewModel.repeatedPages > 0 {
+                Label(L10n.tr("Fotos repetidas ignoradas: \(viewModel.repeatedPages)"), systemImage: "photo.on.rectangle")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.subTitleGray)
+            }
+
             // The parser's sum didn't match, so the photo was read by the model instead.
             if viewModel.readFromPhoto {
                 Label(L10n.tr("Lido pela foto com Apple Intelligence"), systemImage: "sparkles")
@@ -261,11 +276,7 @@ struct ReceiptReviewView: View {
         let isIncluded = viewModel.isIncluded(line)
         let nameBinding = Binding(
             get: { viewModel.lines.first(where: { $0.id == line.id })?.name ?? "" },
-            set: { newValue in
-                if let index = viewModel.lines.firstIndex(where: { $0.id == line.id }) {
-                    viewModel.lines[index].name = newValue
-                }
-            }
+            set: { viewModel.rename(line, to: $0) }
         )
         let priceBinding = Binding(
             get: { viewModel.priceTexts[line.id] ?? "" },
@@ -311,28 +322,29 @@ struct ReceiptReviewView: View {
                     .foregroundStyle(.titleGray)
                 }
 
-                if !amount.isEmpty {
+                // Weighed: the weight read. Units: changeable.
+                if line.weightKg > 0 {
                     infoLine("dumbbell.fill", amount)
+                } else {
+                    quantityControl(for: line)
                 }
 
                 if isIncluded {
                     destination(for: line)
+                    // A new item goes in the aisle guessed for it; the person can change it.
+                    if viewModel.linkedItem(for: line) == nil {
+                        categoryMenu(for: line)
+                    }
                     // A weighed product changes the list's quantity to the weight bought: said
                     // here, before confirming.
                     if let change = viewModel.quantityChange(for: line) {
-                        Label(L10n.tr("Quantidade na lista: \(change.from) → \(change.to)"), systemImage: "scalemass.fill")
+                        Label(L10n.tr("Quantidade na lista: \(change.from) → \(change.to)"),
+                              systemImage: line.weightKg > 0 ? "scalemass.fill" : "number.circle.fill")
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundStyle(.blue)
                     }
-                    if let item = viewModel.linkedItem(for: line) {
-                        // A list item already says who it's for.
-                        let names = shopList.relatedUsers(for: item).map(\.name)
-                        if !names.isEmpty {
-                            infoLine("person.2.fill", ShopListViewModel.accessibilityList(names))
-                        }
-                    } else {
-                        consumersMenu(for: line)
-                    }
+                    // A list item starts with its own people; any line can change them.
+                    consumersMenu(for: line)
                 }
 
                 if let warning = line.warning {
@@ -390,6 +402,44 @@ struct ReceiptReviewView: View {
         .buttonStyle(.plain)
         .voiceOverLabel(L10n.tr("Na lista"))
         .voiceOverValue(title)
+    }
+
+    /// The aisle a product bought outside the list goes in, changeable like its destination.
+    /// One the model chose has the sparkles, so the person gives it a look.
+    private func categoryMenu(for line: ReceiptScanLine) -> some View {
+        let category = viewModel.category(for: line)
+        let isFromAI = viewModel.aiCategories.contains(line.id)
+
+        return Menu {
+            Picker(selection: Binding(
+                get: { viewModel.category(for: line) },
+                set: { newValue in
+                    HapticsManager.selection()
+                    viewModel.setCategory(newValue, for: line)
+                }
+            )) {
+                ForEach(ShopItemCategory.listOrder) { category in
+                    Text(category.displayName).tag(category)
+                }
+            } label: {
+                EmptyView()
+            }
+        } label: {
+            HStack(spacing: 3) {
+                Image(systemName: isFromAI ? "sparkles" : "square.grid.2x2.fill")
+                    .font(.system(size: 11))
+                    .frame(width: 16)
+                Text(category.displayName)
+                    .lineLimit(1)
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+            }
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(.subTitleGray)
+        }
+        .buttonStyle(.plain)
+        .voiceOverLabel(L10n.tr("Categoria"))
+        .voiceOverValue(category.displayName)
     }
 
     // MARK: - Who it's for
@@ -489,6 +539,71 @@ struct ReceiptReviewView: View {
         viewModel.isForEveryone(line)
             ? L10n.tr("Todos")
             : ShopListViewModel.accessibilityList(viewModel.consumers(for: line).map(\.name))
+    }
+
+    // MARK: - Quantity and added lines
+
+    /// "− 2 unidades +": the units of a line, changeable in place (the price follows). Lined up
+    /// with the other info lines' text.
+    private func quantityControl(for line: ReceiptScanLine) -> some View {
+        let quantity = line.quantity
+        let text = ShopListViewModel.accessibilityQuantity(quantity, unit: .unit)
+
+        return HStack(spacing: 6) {
+            Button {
+                HapticsManager.selection()
+                viewModel.setQuantity(quantity - 1, for: line)
+            } label: {
+                Image(systemName: "minus.circle.fill")
+                    .font(.system(size: 20))
+                    .frame(width: 30, height: 30)
+                    .contentShape(Rectangle())
+            }
+            .disabled(quantity <= QuantityStepper.allowedRange.lowerBound)
+            .accessibilityHidden(true)
+            Text(text)
+                .monospacedDigit()
+            Button {
+                HapticsManager.selection()
+                viewModel.setQuantity(quantity + 1, for: line)
+            } label: {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 20))
+                    .frame(width: 30, height: 30)
+                    .contentShape(Rectangle())
+            }
+            .disabled(quantity >= QuantityStepper.allowedRange.upperBound)
+            .accessibilityHidden(true)
+        }
+        .buttonStyle(.borderless)
+        .font(.system(size: 13, weight: .semibold))
+        .foregroundStyle(.subTitleGray)
+        .accessibilityElement(children: .ignore)
+        .voiceOverLabel(L10n.tr("Quantidade"))
+        .voiceOverValue(text)
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: viewModel.setQuantity(quantity + 1, for: line)
+            case .decrement: viewModel.setQuantity(quantity - 1, for: line)
+            @unknown default: break
+            }
+        }
+    }
+
+    /// "+ Adicionar item": an empty line for a product the reader missed.
+    private var addLineButton: some View {
+        Button {
+            HapticsManager.selection()
+            withAnimation(.snappy) { viewModel.addLine() }
+        } label: {
+            Label("Adicionar item", systemImage: "plus.circle.fill")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(.blue)
+                .padding(.vertical, 6)
+        }
+        .buttonStyle(.plain)
+        .disabled(viewModel.isApplying)
+        .voiceControlNames([L10n.tr("Adicionar item"), L10n.tr("Adicionar")])
     }
 
     /// A small grey line with its icon in front, like on the AI items.

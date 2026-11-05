@@ -42,6 +42,15 @@ struct ReceiptScanServiceTests {
         #expect(!ReceiptScanService.choosesPhoto(parser: lines([10]), photo: [], totals: [15.5]))
     }
 
+    @Test func theSamePhotoTwiceCountsOnce() {
+        let first = lines([10.49, 15.24, 9.27])
+        // Retaken: OCR read one price differently this time.
+        #expect(ReceiptScanService.isRepeat(lines([10.49, 15.24, 9.72]), of: first))
+        // Next part of a long receipt, one row shared with the first photo.
+        #expect(!ReceiptScanService.isRepeat(lines([9.27, 4.99, 12.50, 3.20]), of: first))
+        #expect(!ReceiptScanService.isRepeat(lines([10.49]), of: []))
+    }
+
     @Test func pricesAreFoundOnlyAsWholeNumbers() {
         #expect(ReceiptTotals.isPrinted(18.16, in: "QUEIJO 0,364KG X 49,90 18,16"))
         #expect(ReceiptTotals.isPrinted(1630.90, in: "VALOR TOTAL R$ 1.630,90"))

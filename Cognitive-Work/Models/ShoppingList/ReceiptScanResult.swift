@@ -81,6 +81,8 @@ nonisolated struct ReceiptScanResult {
     /// Whether the products came from the photo reading (``ReceiptPhotoReading``) instead of
     /// the parser.
     var readFromPhoto = false
+    /// Photos left out because they showed the same part of the receipt as an earlier one.
+    var repeatedPages = 0
 
     /// Item numbers between 1 and the last one (or the printed count) that weren't read:
     /// products the reader lost, for the person to add.
