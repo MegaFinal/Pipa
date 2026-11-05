@@ -106,6 +106,31 @@ extension CloudKitManager {
         }
     }
     
+    /// Fetches several raw records of one zone in a single request.
+    ///
+    /// - Parameters:
+    ///   - recordIDs: The records to fetch. Returns an empty dictionary when empty.
+    ///   - zoneID: Zone the records live in, used to pick the private or shared database.
+    /// - Returns: The records found, by ID (records that no longer exist are left out), or
+    ///   `nil` when the request fails (see ``errorMessage``).
+    func fetchRecords(withIDs recordIDs: [CKRecord.ID], zoneID: CKRecordZone.ID) async -> [CKRecord.ID: CKRecord]? {
+        guard !recordIDs.isEmpty else { return [:] }
+        
+        let database = zoneID.ownerName == CKCurrentUserDefaultName ? privateDB : sharedDB
+        
+        do {
+            let results = try await database.records(for: recordIDs)
+            var records: [CKRecord.ID: CKRecord] = [:]
+            for (recordID, result) in results {
+                if case .success(let record) = result { records[recordID] = record }
+            }
+            return records
+        } catch {
+            errorMessage = UserFacingError.message(for: error, doing: .load)
+            return nil
+        }
+    }
+    
     /// Fetches multiple records by their references using batch requests.
     ///
     /// - Parameters:

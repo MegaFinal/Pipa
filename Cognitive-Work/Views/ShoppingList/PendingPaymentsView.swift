@@ -145,6 +145,7 @@ struct PendingPaymentsView: View {
             settleSystemImage: nil,
             isPaid: viewModel.isPaid(group),
             isSettling: viewModel.isSettling,
+            isSavingThis: viewModel.isSaving(group),
             onSettle: { viewModel.settleTapped(for: group) },
             isConfirmingSettlement: viewModel.settlementRequest?.id == group.id,
             confirmationTitle: viewModel.confirmationTitle,

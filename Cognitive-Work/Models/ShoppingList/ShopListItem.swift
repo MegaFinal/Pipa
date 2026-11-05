@@ -338,6 +338,59 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         settledUsersReference = (settledUsersReference ?? []) + [CKRecord.Reference(recordID: debtorID, action: .none)]
     }
 
+    /// Records that each debtor paid their share of each item, saving every item in a single
+    /// CloudKit request (one per zone) instead of one request per item.
+    ///
+    /// All or nothing per zone: items only change in memory after CloudKit accepts the save.
+    /// Items that were deleted in the meantime are skipped.
+    ///
+    /// - Parameter shares: Pairs of item and the person who paid their share of it.
+    /// - Returns: `false` when CloudKit rejects the fetch or the save (see
+    ///   ``CloudKitManager/errorMessage``).
+    @discardableResult
+    static func markSettled(_ shares: [(item: ShopListItem, debtorID: CKRecord.ID)]) async -> Bool {
+        let pending = shares.filter { !$0.item.settledUserIDs.contains($0.debtorID) }
+        guard !pending.isEmpty else { return true }
+
+        // Every debtor of each item, so an item is saved once even with several debtors.
+        var debtorsByItem: [ObjectIdentifier: (item: ShopListItem, debtorIDs: [CKRecord.ID])] = [:]
+        for share in pending {
+            debtorsByItem[ObjectIdentifier(share.item), default: (share.item, [])].debtorIDs.append(share.debtorID)
+        }
+        let groupsByZone = Dictionary(grouping: debtorsByItem.values) { $0.item.recordID?.zoneID }
+
+        for (zoneID, groups) in groupsByZone {
+            guard let zoneID else { return false }
+            let recordIDs = groups.compactMap { $0.item.recordID }
+            guard let records = await CloudKitManager.shared.fetchRecords(withIDs: recordIDs, zoneID: zoneID) else {
+                return false
+            }
+
+            var recordsToSave: [CKRecord] = []
+            var updates: [(item: ShopListItem, settled: [CKRecord.Reference])] = []
+            for group in groups {
+                guard let recordID = group.item.recordID, let record = records[recordID] else { continue }
+                // Merges with the server: someone may have settled another share meanwhile.
+                var settled = record["settledUsers"] as? [CKRecord.Reference] ?? []
+                for debtorID in group.debtorIDs where !settled.contains(where: { $0.recordID == debtorID }) {
+                    settled.append(CKRecord.Reference(recordID: debtorID, action: .none))
+                }
+                record["settledUsers"] = settled
+                recordsToSave.append(record)
+                updates.append((group.item, settled))
+            }
+
+            guard !recordsToSave.isEmpty else { continue }
+            guard await CloudKitManager.shared.batchSave(records: recordsToSave, zoneID: zoneID) else {
+                return false
+            }
+            for update in updates {
+                update.item.settledUsersReference = update.settled
+            }
+        }
+        return true
+    }
+
     /// Records that `debtorID` paid their share of this item, and persists it. Rolled back if
     /// CloudKit rejects the update.
     @discardableResult

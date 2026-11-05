@@ -411,17 +411,27 @@ final class ShopListViewModel {
     /// Deletes every bought item whose debt is fully settled: once nobody owes anything for it,
     /// it leaves the "bought" section by itself. Called after a settlement and on every load.
     func cleanUpBoughtItems() async {
-        guard let list, !isPreview else { return }
-        let done = items.filter { isFullySettled($0) && !itemsBeingRemoved.contains($0.id) }
+        guard list != nil, !isPreview else { return }
+        let done = items.filter { isFullySettled($0) && !itemsBeingRemoved.contains($0.id) && $0.recordID != nil }
         guard !done.isEmpty else { return }
 
-        for item in done {
-            itemsBeingRemoved.insert(item.id)
-            defer { itemsBeingRemoved.remove(item.id) }
-            // Silent: a failure just leaves the item there until the next load tries again.
-            guard await list.removeItem(item) else { continue }
-            items.removeAll { $0.id == item.id }
+        let doneIDs = Set(done.map(\.id))
+        itemsBeingRemoved.formUnion(doneIDs)
+        defer { itemsBeingRemoved.subtract(doneIDs) }
+
+        // One delete request per zone (in practice, one for the whole house), so every item
+        // leaves the list at the same time instead of one by one.
+        var removedIDs: Set<String> = []
+        let itemsByZone = Dictionary(grouping: done) { $0.recordID!.zoneID }
+        for (zoneID, zoneItems) in itemsByZone {
+            // Silent: a failure just leaves the items there until the next load tries again.
+            guard await CloudKitManager.shared.delete(
+                recordIDs: zoneItems.compactMap(\.recordID),
+                zoneID: zoneID
+            ) else { continue }
+            removedIDs.formUnion(zoneItems.map(\.id))
         }
+        items.removeAll { removedIDs.contains($0.id) }
     }
 
     /// Adds `item`, or replaces the one with the same id — never creates a duplicate row.

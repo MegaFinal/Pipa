@@ -30,8 +30,17 @@ final class PendingPaymentsViewModel {
     /// The debt waiting for the user to confirm settling it, or `nil`.
     private(set) var settlementRequest: DebtGroup?
 
-    /// True while a settlement is being saved.
-    private(set) var isSettling = false
+    /// The debt being saved right now, or `nil`. Its button shows a spinner and the other
+    /// buttons wait, so two settlements never run at the same time.
+    private(set) var settlingGroupID: String?
+
+    /// Whether a settlement is being saved (any card).
+    var isSettling: Bool { settlingGroupID != nil }
+
+    /// Whether `group` is the one being saved: its button shows a spinner.
+    func isSaving(_ group: DebtGroup) -> Bool {
+        settlingGroupID == group.id
+    }
 
     /// An error to show, or `nil`.
     private(set) var errorMessage: String?
@@ -275,27 +284,28 @@ final class PendingPaymentsViewModel {
     /// Takes the group instead of reading ``settlementRequest``: the dialog clears the request as
     /// it dismisses, which can happen before this runs.
     func settle(_ group: DebtGroup) async {
-        guard !isSettling else { return }
+        guard settlingGroupID == nil else { return }
 
-        isSettling = true
-        defer {
-            isSettling = false
-            settlementRequest = nil
-        }
+        settlingGroupID = group.id
+        settlementRequest = nil
 
         if isPreview {
+            try? await Task.sleep(for: .seconds(1))
             group.entries.forEach { $0.item.settleLocally(for: $0.debtor) }
+            settlingGroupID = nil
             markPaid(group)
             return
         }
 
-        for entry in group.entries {
-            guard await entry.item.markSettled(for: entry.debtor) else {
-                errorTitle = L10n.tr("Não foi possível quitar a pendência")
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
-                return
-            }
-            settledKeys.insert(DebtCalculator.settlementKey(item: entry.item, debtor: entry.debtor))
+        // Every item of the debt is saved in one request, so they all change at the same time.
+        let shares = group.entries.map { (item: $0.item, debtorID: $0.debtor) }
+        let saved = await ShopListItem.markSettled(shares)
+        // The spinner stops here: "Pago!" only shows once the save went through.
+        settlingGroupID = nil
+        guard saved else {
+            errorTitle = L10n.tr("Não foi possível quitar a pendência")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
+            return
         }
         markPaid(group)
 
