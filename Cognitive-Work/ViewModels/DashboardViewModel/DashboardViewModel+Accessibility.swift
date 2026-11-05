@@ -103,10 +103,15 @@ nonisolated struct CategoryChartDescriptor: AXChartDescriptorRepresentable {
     /// One bar per category.
     let points: [(label: String, value: Double)]
 
+    /// `true` when the values are percentages (0...100): the axis goes to 100 and reads "40%".
+    var isPercentage = false
+
     /// Builds the chart description VoiceOver uses for its audio graph.
     func makeChartDescriptor() -> AXChartDescriptor {
         let categories = points.map(\.label)
-        let maxValue = max(points.map(\.value).max() ?? 0, 1)
+        let maxValue = isPercentage ? 100 : max(points.map(\.value).max() ?? 0, 1)
+        // Copied so the axis' formatter closure doesn't capture `self`.
+        let isPercentage = self.isPercentage
 
         let xAxis = AXCategoricalDataAxisDescriptor(
             title: categoryAxisTitle,
@@ -117,7 +122,9 @@ nonisolated struct CategoryChartDescriptor: AXChartDescriptorRepresentable {
             range: 0...maxValue,
             gridlinePositions: []
         ) { value in
-            "\(Int(value.rounded()))"
+            isPercentage
+                ? (value / 100).formatted(.percent.precision(.fractionLength(0)))
+                : "\(Int(value.rounded()))"
         }
         let series = AXDataSeriesDescriptor(
             name: title,

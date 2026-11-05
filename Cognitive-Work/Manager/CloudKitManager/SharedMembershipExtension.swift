@@ -380,9 +380,20 @@ extension CloudKitManager {
     ///
     /// - Returns: `true` on success; otherwise ``errorMessage`` says why.
     func deleteCurrentAccount() async -> Bool {
+        // A member who pays for the house's Premium releases it (and tells the others) while the
+        // house can still be written to. The admin's house is deleted with the account instead.
+        if let house = try? await currentHouse(forceRefresh: true),
+           let houseID = house.recordID,
+           houseID.zoneID.ownerName != CKCurrentUserDefaultName {
+            await PremiumManager.shared.releaseHouseBeforeLeaving(house)
+        }
+        
         invalidateSessionCache()
         
-        guard await unlinkFromAllSharedZones() else { return false }
+        guard await unlinkFromAllSharedZones() else {
+            await PremiumManager.shared.leavingFailed()
+            return false
+        }
         
         do {
             _ = try await privateDB.deleteRecordZone(withID: houseZoneID)

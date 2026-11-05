@@ -224,19 +224,19 @@ struct RetroRankContent: Equatable {
 
 #Preview("Bronze 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.aprendiz.cycleCoins, tier: .aprendiz, points: 30))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.aprendiz.cycleCoins, tier: .aprendiz, points: 60))
     }
 }
 
 #Preview("Ouro 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar, points: 192))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar, points: 384))
     }
 }
 
 #Preview("Mestre") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.almaDaCasa.cycleCoins, tier: .almaDaCasa, points: 410))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.almaDaCasa.cycleCoins, tier: .almaDaCasa, points: 820))
     }
 }
 #endif

@@ -28,6 +28,7 @@ struct RetroStreakView: View {
                 .frame(width: width * 0.54, height: height * 0.3)
                 .foregroundStyle(.gray)
                 .padding(.bottom, height * 0.037)
+                .accessibilityDecorative()
             
             // MARK: - Streak count and messages
             Text("0 dias")
@@ -36,6 +37,7 @@ struct RetroStreakView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .padding(.bottom, height * 0.014)
+                .accessibilityAddTraits(.isHeader)
             
             Text("seguidos sem atrasar nenhuma tarefa")
                 .fontWeight(.regular)

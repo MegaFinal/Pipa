@@ -25,7 +25,10 @@ struct CouponPricing: Equatable {
     var basePrice: Double = 5
 
     /// Coins per minute of work the coupon spares in one cycle.
-    var coinsPerMinute: Double = 0.1
+    ///
+    /// A member doing their fair share earns roughly 0.12 coins per minute of work, so sparing a
+    /// minute costs more than doing it.
+    var coinsPerMinute: Double = 0.2
 
     /// No coupon costs less than this.
     var minimumPrice: Int = 1
@@ -41,7 +44,7 @@ struct CouponPricing: Equatable {
     func price(frequency: Recurrence, durationMinutes: Double) -> Int {
         let minutes = max(durationMinutes, 0)
         let raw = basePrice + coinsPerMinute * minutes * frequency.occurrencesPerCycle
-        // The tolerance keeps floating-point noise (5 + 0.1 × 15 × 14 = 26.000000000000004) from
+        // The tolerance keeps floating-point noise (a price like 26.000000000000004) from
         // rounding up to the next coin.
         let rounded = Int((raw - 1e-9).rounded(.up))
         return max(minimumPrice, rounded)

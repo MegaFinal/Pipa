@@ -198,6 +198,7 @@ struct GeneralProfileSettingsView: View {
             }
         } message: {
             Text("Ao apagar seu perfil, você também sairá da casa e perderá o acesso às tarefas e ao histórico. A casa continuará existindo para os outros moradores. Essa ação não pode ser desfeita.")
+                + Text(verbatim: PremiumManager.shared.leaveWarning.map { "\n\n" + $0 } ?? "")
         }
         
         .alert("Excluir Perfil?", isPresented: $showAdminDeleteConfirmation) {
