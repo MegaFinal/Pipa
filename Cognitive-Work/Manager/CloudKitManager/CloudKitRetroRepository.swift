@@ -16,18 +16,20 @@ struct CloudKitRetroRepository: RetroRepository {
     /// The signed-in member's work in `period`, the house's rooms and whether they can start a
     /// new division.
     /// - Throws: ``RetroError/userNotFound`` when the member's profile in the house can't be found.
+    ///
+    /// Everything comes from the house data the app already holds (``HouseDataStore``), which is
+    /// loaded at launch and refreshed when it changes. Reading it all again from CloudKit (every
+    /// chore, occurrence and room of the house, plus the member and the admin check) kept the
+    /// "Ver minha retrospectiva" button disabled for several seconds.
     func fetchSnapshot(for period: RetroPeriod) async throws -> RetroSnapshot {
-        let manager = CloudKitManager.shared
-
-        async let fetchUser = manager.fetchMyHouseUser()
-        async let fetchChores = manager.fetchAll(ChoreModel.self)
-        async let fetchAssignments = manager.fetchAll(RecurrentAssignmentModel.self)
-        async let fetchRooms = manager.fetchAll(RoomModel.self)
-
-        let (user, chores, assignments, rooms) = await (fetchUser, fetchChores, fetchAssignments, fetchRooms)
+        let house = await HouseDataStore.shared.load()
         try Task.checkCancellation()
+        guard !house.isPlaceholder else { throw RetroError.networkUnavailable }
 
-        guard let user, let userID = user.recordID else { throw RetroError.userNotFound }
+        let chores = house.chores
+        let assignments = house.assignments
+        let rooms = house.rooms
+        guard let user = house.houseUser, let userID = user.recordID else { throw RetroError.userNotFound }
 
         let choresByID = Dictionary(
             chores.compactMap { chore in chore.recordID.map { ($0, chore) } },
@@ -63,10 +65,9 @@ struct CloudKitRetroRepository: RetroRepository {
             room.recordID.map { RetroRoom(id: $0.recordName, name: room.name, color: room.color) }
         }
 
-        // Same admin check as the rest of the app. If the house can't be read, the user is
+        // The admin created the house, so it lives in their own zone. Without a house the user is
         // treated as a resident (no new-division prompt).
-        let house = try? await manager.currentHouse()
-        let isHouseAdmin = await house?.isAdmin() == true
+        let isHouseAdmin = house.houseID?.zoneID.ownerName == CKCurrentUserDefaultName
 
         // Same rule as the automatic pop-up: the last scheduled day is in the past.
         let isDivisionOver = RetroTriggerPolicy.isDivisionOver(

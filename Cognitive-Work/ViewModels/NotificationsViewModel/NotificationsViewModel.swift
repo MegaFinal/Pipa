@@ -247,7 +247,7 @@ class NotificationsViewModel {
                   let createdAt = dto.userInfo[Keys.createdAt] as? Double,
                   let raw = dto.userInfo[Keys.kind] as? String,
                   let kind = Notifications(rawValue: raw),
-                  [.choreDoneForYou, .itemBought, .premiumEnded].contains(kind),
+                  [.choreDoneForYou, .itemBought, .premiumEnded, .guestWaitingDivision].contains(kind),
                   let titleKey = dto.userInfo[Keys.titleKey] as? String
             else { continue }
 
