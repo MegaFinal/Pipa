@@ -33093,7 +33093,8 @@
             "value" : "Harvii 将忘记 Wi-Fi，家里的每部手机都需要重新设置和配对。"
           }
         }
-      }
+      },
+      "extractionState" : "stale"
     },
     "O item que já está na lista usa outra unidade." : {
       "localizations" : {
@@ -40829,7 +40830,6 @@
       }
     },
     "Resetar" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40911,7 +40911,6 @@
       }
     },
     "Resetar o Harvii?" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -50772,6 +50771,166 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你仍然可以清除家里的 Harvii 设置：所有室友都需要重新设置。设备本身要等有人按住 BOOT 按钮 5 秒钟，才会忘记 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "Resetar Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Harvii"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restablecer Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiをリセット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 재설정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "重置 Harvii"
+          }
+        }
+      }
+    },
+    "Resetar mesmo assim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset anyway"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restablecer de todos modos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réinitialiser quand même"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "それでもリセット"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래도 재설정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍然重置"
+          }
+        }
+      }
+    },
+    "Você pode resetar o Harvii da casa mesmo assim: todos os moradores vão precisar configurá-lo de novo. O aparelho só esquece o Wi-Fi quando alguém segura o botão BOOT dele por 5 segundos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can reset Harvii for the home anyway: every housemate will need to set it up again. The device itself only forgets the Wi-Fi when someone holds its BOOT button for 5 seconds."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes restablecer Harvii en la casa de todos modos: todos tendrán que configurarlo de nuevo. El dispositivo solo olvida el Wi-Fi cuando alguien mantiene presionado su botón BOOT durante 5 segundos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu peux quand même réinitialiser Harvii pour le foyer : tous les colocataires devront le configurer à nouveau. L’appareil n’oublie le Wi-Fi que lorsque quelqu’un maintient son bouton BOOT pendant 5 secondes."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "それでもおうちのHarviiをリセットできます。住人全員がもう一度設定する必要があります。デバイス本体のWi-Fiは、誰かがBOOTボタンを5秒間押すまで消えません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래도 집의 Harvii를 재설정할 수 있어요. 모든 구성원이 다시 설정해야 해요. 기기 자체는 누군가 BOOT 버튼을 5초간 눌러야 Wi-Fi를 지워요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你仍然可以为家里重置 Harvii：所有室友都需要重新设置。设备本身要等有人按住 BOOT 按钮 5 秒钟，才会忘记 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "O Harvii vai esquecer o Wi-Fi da casa, e todos os celulares vão esquecer o Harvii e precisar parear de novo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii will forget your home Wi-Fi and every phone will forget Harvii, so they'll need to pair again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii olvidará el Wi-Fi de tu casa y todos los celulares olvidarán a Harvii, así que tendrán que emparejarse de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii va oublier le Wi-Fi du foyer et tous les téléphones vont oublier Harvii : il faudra les appairer à nouveau."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HarviiはおうちのWi-Fiを消去し、すべての携帯電話もHarviiの登録を解除するため、もう一度ペアリングが必要になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii가 집 Wi-Fi를 지우고 모든 휴대폰도 Harvii를 잊게 되어 다시 페어링해야 해요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 会忘记你家的 Wi-Fi，所有手机也会忘记 Harvii，需要重新配对。"
           }
         }
       }
