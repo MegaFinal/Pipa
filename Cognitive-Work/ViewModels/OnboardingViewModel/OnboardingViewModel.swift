@@ -230,7 +230,9 @@ class OnboardingViewModel {
             banner: user.banner,
             // Points (and the rank) live in the house's `UserScoreModel`, not on the user.
             tier: .novatoDaCasa,
-            coins: user.coins,
+            // Coins belong to a house (`CoinWalletModel`): a new house starts from zero, whatever
+            // the profile kept from another one.
+            coins: 0,
             badges: user.badgesReference,
             tasks: user.choresReference,
             // Free time is no longer copied from the private profile: those records live outside
@@ -1078,7 +1080,8 @@ class OnboardingViewModel {
             profilePicture: assetCopy,
             banner: profile.banner,
             tier: .novatoDaCasa,
-            coins: profile.coins,
+            // A new house starts from zero coins (see `CoinWalletModel`).
+            coins: 0,
             house: houseReference,
             couponLimit: profile.couponLimit,
             ownerRecordName: ownerRecordName

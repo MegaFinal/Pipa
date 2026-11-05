@@ -91,6 +91,7 @@ struct ContentView: View {
         .task {
             await viewModel.bootstrap()
             await viewModel.checkRetro()
+            await NotificationManager.shared.enableOnFirstUseIfNeeded()
         }
         .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
             Task { await viewModel.fetchHouse() }

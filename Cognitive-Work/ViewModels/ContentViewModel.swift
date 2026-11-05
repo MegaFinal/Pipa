@@ -48,24 +48,57 @@ class ContentViewModel {
     
     /// Opens the app: settles which house the user belongs to, then loads all of its data in
     /// one go.
+    ///
+    /// Only what the tabs need to show waits behind the loading screen: the house and its data.
+    /// The rest runs once the tabs are up. The rewards tab used to be prepared here too, and that
+    /// also settles closed cycles and reads the wallet, a chain of CloudKit round trips the user
+    /// waited through on every launch; it now shows the house data right away and fills the
+    /// coins when they arrive.
     func bootstrap() async {
         isLoading = true
-        defer { isLoading = false }
         
         store.reset()
         
         await leaveOrphanedHouses()
-        guard !Task.isCancelled, didOnboard else { return }
+        guard !Task.isCancelled, didOnboard else { isLoading = false; return }
         
         await fetchHouse()
-        guard !Task.isCancelled, !userHasNoHouse else { return }
+        guard !Task.isCancelled, !userHasNoHouse else { isLoading = false; return }
         
         await store.load(force: true)
+        isLoading = false
         guard !Task.isCancelled else { return }
         
-        await gamification.setup()
-        
+        Task { await gamification.setup() }
         Task { await syncFreeTime() }
+        Task { await repairHousePicture() }
+    }
+    
+    // MARK: - Profile photo
+
+    /// Copies the photo of the private profile to the member's record in the house when that
+    /// one has none.
+    ///
+    /// The house copy is what the chore lists and housemates show. It is made from the private
+    /// profile when the user creates or joins the house, and when the profile was read without its
+    /// photo at that moment, the copy was saved without one: the user saw their photo on the
+    /// profile screen and the placeholder everywhere else. Best effort, and a no-op once fixed.
+    func repairHousePicture() async {
+        let house = await store.current()
+        guard let houseUser = house.houseUser,
+              let houseUserID = houseUser.recordID,
+              houseUser.profilePicture == nil,
+              let fileURL = house.privateUser?.profilePicture?.fileURL,
+              let data = try? Data(contentsOf: fileURL),
+              let asset = CloudKitManager.shared.createAsset(from: data)
+        else { return }
+
+        houseUser.profilePicture = asset
+        if await CloudKitManager.shared.update(houseUser) {
+            await UserProfileCache.shared.invalidate(houseUserID)
+        } else {
+            houseUser.profilePicture = nil
+        }
     }
     
     /// Fetches the user house and verify if its exist
@@ -77,7 +110,8 @@ class ContentViewModel {
             guard !Task.isCancelled else { return }
             userHasNoHouse = (house == nil)
             // Reads the house's Premium status and, if this device pays, renews it in the record.
-            await PremiumManager.shared.refresh(house: house)
+            // Not awaited: it can write the house record, and nothing on screen waits for it.
+            Task { await PremiumManager.shared.refresh(house: house) }
         } catch let error as CKError where [.zoneNotFound, .userDeletedZone, .unknownItem].contains(error.code) {
             userHasNoHouse = true   // the house is really gone
         } catch {
@@ -129,7 +163,9 @@ class ContentViewModel {
     func checkRetro() async {
         guard !userHasNoHouse, !showRetro else { return }
 
-        let assignments = await CloudKitManager.shared.fetchAll(RecurrentAssignmentModel.self)
+        // The house data is already loaded (and refreshed when it changes): no extra query of
+        // every occurrence of the house before the retrospective can show.
+        let assignments = await store.load().assignments
         guard !Task.isCancelled, !showRetro else { return }
 
         guard RetroTriggerPolicy.shouldPresent(

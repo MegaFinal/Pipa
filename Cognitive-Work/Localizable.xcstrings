@@ -50291,46 +50291,6 @@
         }
       }
     },
-    "Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You hold this chore's coupon and can't take it this cycle."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tienes el cupón de esta tarea y no puedes tomarla en este ciclo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu as le coupon de cette tâche et tu ne peux pas la prendre ce cycle."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この家事のクーポンを持っているため、今サイクルは引き受けられません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 집안일의 쿠폰을 가지고 있어서 이번 사이클에는 맡을 수 없어요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你持有这项家务的优惠券，本周期不能领取它。"
-          }
-        }
-      }
-    },
     "Você tem o Premium vitalício." : {
       "localizations" : {
         "en" : {

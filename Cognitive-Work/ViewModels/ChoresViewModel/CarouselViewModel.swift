@@ -804,54 +804,106 @@ class CarouselViewModel {
     }
     
     /// Toggles the chore's (or, for a recurring chore, this specific day's) completion state
-    /// and persists it
+    /// and persists it, giving or taking back the points.
+    ///
+    /// Unchecking takes back the points saved with the completion (``ChoreModel/awardedPoints``),
+    /// not what the chore is worth now: it may have been edited in between.
     @MainActor
     @discardableResult
     func toggle(chore: ChoreModel) async -> Bool {
-        let willBeDone = !chore.isDone
-        var doer: UserModel?
-        if !willBeDone {
-            doer = await chore.userThatHaveDone
+        let scoreManager = ScoreManager.shared
+        
+        let isFromSettledSeason = await isInSettledSeason(chore.dueDate)
+        
+        if !chore.isDone {
+            let earned = isFromSettledSeason ? 0 : scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
+            guard await chore.toggle(awarding: earned) else { return false }
+            refreshVisible()
+            
+            notifyOwnersChoreDone(chore, assignment: nil)
+            return await scoreManager.assignScoreForMyUser(score: earned)
         }
+        
+        // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
+        // season already settled were reset with it: nothing left to take back.
+        let awarded = isFromSettledSeason
+        ? 0
+        : chore.awardedPoints ?? scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
+        let doer = await chore.userThatHaveDone
         
         guard await chore.toggle() else { return false }
         refreshVisible()
         
-        if willBeDone {
-            notifyOwnersChoreDone(chore, assignment: nil)
-            return await ScoreManager.shared.assignScoreForMyUser(chore: chore)
-        }
         if let doer {
-            return await ScoreManager.shared.removeScore(chore: chore, for: doer)
+            return await scoreManager.removeScore(score: awarded, for: doer)
         }
-        return await ScoreManager.shared.removeScoreForMyUser(chore: chore)
+        return await scoreManager.removeScoreForMyUser(score: awarded)
     }
 
     /// Checks or unchecks one occurrence and gives or takes back the points.
+    ///
+    /// The occurrence's day is its due date (see ``ScoreManager/points(forCompleting:dueOn:completedAt:calendar:)``),
+    /// so checking off the next days' occurrences ahead of time is worth little.
     /// - Returns: `false` when the change couldn't be saved.
     @MainActor
     @discardableResult
     func toggle(assignment: RecurrentAssignmentModel) async -> Bool {
-        let willBeDone = !assignment.isCompleted
-        var doer: UserModel?
-        if !willBeDone {
-            doer = await assignment.userThatHaveDone
+        let scoreManager = ScoreManager.shared
+        let chore = await parentChore(of: assignment)
+        let isFromSettledSeason = await isInSettledSeason(assignment.day)
+        
+        if !assignment.isCompleted {
+            let earned = isFromSettledSeason
+            ? 0
+            : chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) } ?? 0
+            guard await assignment.toggle(awarding: earned) else { return false }
+            refreshVisible()
+            
+            if let chore {
+                notifyOwnersChoreDone(chore, assignment: assignment)
+            }
+            return await scoreManager.assignScoreForMyUser(score: earned)
         }
+        
+        // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
+        // season already settled were reset with it: nothing left to take back.
+        let awarded = isFromSettledSeason
+        ? 0
+        : assignment.awardedPoints
+        ?? chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) }
+        ?? 0
+        let doer = await assignment.userThatHaveDone
         
         guard await assignment.toggle() else { return false }
         refreshVisible()
         
-        if willBeDone {
-            if let choreID = assignment.choreReference?.recordID,
-               let chore = cardModels.first(where: { $0.recordID == choreID }) {
-                notifyOwnersChoreDone(chore, assignment: assignment)
-            }
-            return await ScoreManager.shared.assignScoreForMyUser(assignment: assignment)
-        }
         if let doer {
-            return await ScoreManager.shared.removeScore(assignment: assignment, for: doer)
+            return await scoreManager.removeScore(score: awarded, for: doer)
         }
-        return await ScoreManager.shared.removeScoreForMyUser(assignment: assignment)
+        return await scoreManager.removeScoreForMyUser(score: awarded)
+    }
+    
+    /// Whether a chore due on `day` belongs to a gamification season already settled
+    /// (``HouseCycleModel/currentSeasonStart(_:asOf:calendar:)``).
+    ///
+    /// Its points were counted in that season and reset with it, so checking it off now pays
+    /// nothing and unchecking it takes nothing from the season running now. Before, unchecking a
+    /// chore of the last cycle took its points from the new one.
+    @MainActor
+    private func isInSettledSeason(_ day: Date?) async -> Bool {
+        guard let day else { return false }
+        let cycles = await HouseDataStore.shared.current().cycles
+        guard let seasonStart = HouseCycleModel.currentSeasonStart(cycles, asOf: .now) else { return false }
+        return Calendar.current.startOfDay(for: day) < seasonStart
+    }
+    
+    /// The chore `assignment` belongs to: the one already loaded on screen, or fetched.
+    private func parentChore(of assignment: RecurrentAssignmentModel) async -> ChoreModel? {
+        guard let choreID = assignment.choreReference?.recordID else { return nil }
+        if let loaded = cardModels.first(where: { $0.recordID == choreID }) {
+            return loaded
+        }
+        return await assignment.chore
     }
     
     /// Tells the members a chore was assigned to that someone else did it. Does nothing when
@@ -989,7 +1041,63 @@ class CarouselViewModel {
             return false
         }
         
+        let deletesWholeChore = chore.frequency == .none || targetOccurrences.isEmpty
+        await takeBackPoints(
+            ofDeleted: chore,
+            occurrences: deletesWholeChore ? snapshot.assignments : targetOccurrences,
+            wholeChore: deletesWholeChore
+        )
         return true
+    }
+    
+    /// Takes back the points a deleted chore gave in the current cycle: its creation
+    /// (``ChoreModel/creationPoints``, from whoever created it) and its completions
+    /// (``ChoreModel/awardedPoints``, ``RecurrentAssignmentModel/awardedPoints``, from whoever did
+    /// them).
+    ///
+    /// Otherwise a made-up chore could be created, checked off and deleted to hide it, keeping
+    /// the points. Only for chores created in the current cycle: a chore the house had before
+    /// it was real, and the work done on it keeps counting. Points saved before these fields
+    /// existed aren't known, so nothing is taken for those.
+    ///
+    /// - Parameters:
+    ///   - chore: The deleted chore.
+    ///   - occurrences: The deleted occurrences (all of them when the whole chore was deleted).
+    ///   - wholeChore: Whether the chore itself was deleted, not just some occurrences.
+    @MainActor
+    private func takeBackPoints(
+        ofDeleted chore: ChoreModel,
+        occurrences: [RecurrentAssignmentModel],
+        wholeChore: Bool
+    ) async {
+        let house = await HouseDataStore.shared.current()
+        // A chore not reloaded since it was created has no creation date yet: it is new.
+        let createdAt = chore.createdAt ?? .now
+        if let seasonStart = HouseCycleModel.currentSeasonStart(house.cycles, asOf: .now), createdAt < seasonStart {
+            return
+        }
+        
+        var pointsByUser: [CKRecord.ID: Int] = [:]
+        func takeBack(_ points: Int?, from reference: CKRecord.Reference?) {
+            guard let points, points > 0, let userID = reference?.recordID else { return }
+            pointsByUser[userID, default: 0] += points
+        }
+        
+        if wholeChore {
+            takeBack(chore.creationPoints, from: chore.createdByReference)
+            if chore.isDone {
+                takeBack(chore.awardedPoints, from: chore.userThatHaveDoneReference)
+            }
+        }
+        for occurrence in occurrences where occurrence.isCompleted {
+            takeBack(occurrence.awardedPoints, from: occurrence.userThatHaveDoneReference)
+        }
+        
+        let members = house.userRecords + house.users
+        for (userID, points) in pointsByUser {
+            guard let member = members.first(where: { $0.recordID == userID }) else { continue }
+            await ScoreManager.shared.removeScore(score: points, for: member)
+        }
     }
     
     /// Deletes a chore, or — for a recurring chore — just the given occurrence(s), and
@@ -1499,11 +1607,8 @@ class CarouselViewModel {
         
         guard let myUserID = myUser?.recordID else { return }
         
-        // Whoever holds this chore's coupon is spared it in this cycle.
-        if await CouponExemption.isExempt(userID: myUserID, choreID: item.chore.recordID) {
-            errorMessage = L10n.tr("Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo.")
-            return
-        }
+        // A coupon holder may still pick the chore: the coupon only keeps the division from giving
+        // it to them (see `CouponExemption`), it doesn't forbid doing it.
         
         let userRef = CKRecord.Reference(recordID: myUserID, action: .none)
         
@@ -1702,11 +1807,8 @@ class CarouselViewModel {
         }
         guard let myUserID = myUser?.recordID else { return false }
         
-        // Whoever holds this chore's coupon is spared it in this cycle.
-        if await CouponExemption.isExempt(userID: myUserID, choreID: item.chore.recordID) {
-            errorMessage = L10n.tr("Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo.")
-            return false
-        }
+        // A coupon holder may still pick the chore: the coupon only keeps the division from giving
+        // it to them (see `CouponExemption`), it doesn't forbid doing it.
         
         let userRef = CKRecord.Reference(recordID: myUserID, action: .none)
         let chore = item.chore

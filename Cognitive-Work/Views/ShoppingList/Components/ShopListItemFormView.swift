@@ -158,19 +158,6 @@ struct ShopListItemFormView: View {
         )
     }
 
-    /// Whether a price above zero was typed.
-    private var hasPrice: Bool {
-        (Double(valueText.replacingOccurrences(of: ",", with: ".")) ?? 0) > 0
-    }
-
-    /// Points saving a new item will earn (the same figure ``ShopListViewModel`` awards).
-    private var previewPoints: Int {
-        ShopListViewModel.creationScore(
-            beneficiaries: relatedUsers.count,
-            hasPrice: hasPrice
-        )
-    }
-
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {

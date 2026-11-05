@@ -675,16 +675,28 @@ func commitScheduleResults(_ results: [ScheduleResult], users: [UserModel], hous
 
 // MARK: - Reset Before Re-Division
 
+/// How many days of past occurrences a new division keeps (see `resetUpcomingSchedule(for:)`):
+/// two cycles, twice what the retrospective looks at.
+let occurrenceHistoryDays = 30
+
 /// Clears the schedule from tomorrow on so the division starts from scratch; today is left untouched.
 /// Recurring chores are reopened, pending one-off chores lose their date, and completed
 /// one-off chores are deleted (except today's).
+///
+/// Occurrences older than ``occurrenceHistoryDays`` are deleted too. They were never deleted
+/// before, so every division added to a pile that every screen read in full (the app's first load,
+/// the chores, the schedule, the retrospective), and each chore's list of occurrences kept
+/// growing. Nothing reads them: the retrospective looks at the last 15 days, and ranks and coins
+/// of past cycles live in their own records (``RankHistoryModel``, ``CoinPayoutModel``).
 ///
 /// - Parameter chores: Every chore currently loaded.
 @MainActor
 func resetUpcomingSchedule(for chores: [ChoreModel]) async {
     let calendar = Calendar.current
     let today = calendar.startOfDay(for: Date())
-    guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) else { return }
+    guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: today),
+          let oldestKept = calendar.date(byAdding: .day, value: -occurrenceHistoryDays, to: today)
+    else { return }
     
     var recordsToDelete: [CKRecord.ID] = []
     var zoneID: CKRecordZone.ID?
@@ -711,7 +723,9 @@ func resetUpcomingSchedule(for chores: [ChoreModel]) async {
         
         if let refs = chore.dailyAssignmentsReference, !refs.isEmpty {
             let existing = await chore.dailyAssignments
-            let removeIDs = existing.filter { $0.day >= tomorrow }.compactMap(\.recordID)
+            let removeIDs = existing
+                .filter { $0.day >= tomorrow || $0.day < oldestKept }
+                .compactMap(\.recordID)
             
             if !removeIDs.isEmpty {
                 if zoneID == nil { zoneID = removeIDs.first?.zoneID }

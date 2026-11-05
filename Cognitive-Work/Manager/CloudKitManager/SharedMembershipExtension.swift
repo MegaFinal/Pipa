@@ -251,8 +251,8 @@ extension CloudKitManager {
         
         let houses = records.filter { $0.recordType == HouseModel.recordType }
         
-        // Gives the leaving member's pending chores back to the house before the member record
-        // disappears, so the other residents can pick them up from the unassigned list.
+        // Gives the leaving member's pending chores (and the coupons they hold) back to the house
+        // before the member record disappears, so the other residents can pick them up.
         await releaseAssignments(of: myUserIDs, in: records)
         
         if !myUserIDs.isEmpty {
@@ -274,8 +274,12 @@ extension CloudKitManager {
             }
         }
         
+        // The member's points, coins and history go with them: their records have fixed names, so
+        // anything left here would come back if they joined this house again.
+        let gamificationIDs = gamificationRecordIDs(of: myUserIDs, ownerRecordName: ownerRecordName, in: records)
+        
         do {
-            try await deleteRecordsIgnoringMissing(Array(myUserIDs), in: sharedDB)
+            try await deleteRecordsIgnoringMissing(Array(myUserIDs) + gamificationIDs, in: sharedDB)
         } catch {
             errorMessage = UserFacingError.message(for: error, doing: .delete)
             if requireFootprintRemoval { return false }
@@ -446,6 +450,8 @@ extension CloudKitManager {
     ///   they count as unassigned. Completed ones keep their users, as history.
     /// - One-off chores not yet done drop the member from `currentResponsible` and
     ///   `allResponsibleUsers`; once nobody is left they count as unassigned.
+    /// - Coupons the member bought and that no division used yet are marked as used, so they go
+    ///   back on sale for the others.
     private func releaseAssignments(of userIDs: Set<CKRecord.ID>, in records: [CKRecord]) async {
         guard !userIDs.isEmpty else { return }
         
@@ -463,6 +469,18 @@ extension CloudKitManager {
                 
                 record["users"] = kept
                 record["calendarEventIdentifier"] = nil
+                toSave.append(record)
+                
+            case CouponModel.recordType:
+                // A coupon bought and not used yet stays taken by its holder; marking the purchase
+                // as used puts it back on sale (see `CouponModel.isAvailable(latestCycleKey:)`).
+                guard let holder = record["currentUser"] as? CKRecord.Reference,
+                      userIDs.contains(holder.recordID),
+                      record["consumedCycleKey"] == nil,
+                      let purchasedCycleKey = record["purchasedCycleKey"] as? String
+                else { continue }
+                
+                record["consumedCycleKey"] = purchasedCycleKey
                 toSave.append(record)
                 
             case ChoreModel.recordType:
@@ -500,6 +518,49 @@ extension CloudKitManager {
             savePolicy: .changedKeys,
             atomically: false
         )
+    }
+    
+    /// The gamification records of the leaving members in `records` (one house zone): the
+    /// person's ``UserScoreModel`` and, for each of `userIDs`, the ``CoinWalletModel``,
+    /// ``CoinPayoutModel``, ``RankHistoryModel`` and ``CouponHoldModel`` entries.
+    ///
+    /// They are named after the member record or the iCloud identity, which are the same every time
+    /// the person joins the same house. Left behind, they would bring the old rank and coins back
+    /// instead of starting from zero.
+    ///
+    /// - Parameters:
+    ///   - userIDs: The leaving member's records in the house.
+    ///   - ownerRecordName: The person's iCloud identity, which names their score.
+    ///   - records: Every record of the house zone.
+    /// - Returns: The IDs to delete together with the member records.
+    private func gamificationRecordIDs(
+        of userIDs: Set<CKRecord.ID>,
+        ownerRecordName: String?,
+        in records: [CKRecord]
+    ) -> [CKRecord.ID] {
+        guard !userIDs.isEmpty else { return [] }
+        
+        let perMemberTypes: Set<String> = [
+            CoinWalletModel.recordType,
+            CoinPayoutModel.recordType,
+            RankHistoryModel.recordType,
+            CouponHoldModel.recordType
+        ]
+        
+        return records.compactMap { record in
+            if record.recordType == UserScoreModel.recordType {
+                guard let ownerRecordName,
+                      record["ownerRecordName"] as? String == ownerRecordName
+                else { return nil }
+                return record.recordID
+            }
+            
+            guard perMemberTypes.contains(record.recordType),
+                  let user = record["user"] as? CKRecord.Reference,
+                  userIDs.contains(user.recordID)
+            else { return nil }
+            return record.recordID
+        }
     }
     
     /// Deletes `recordIDs`, treating records that are already gone as deleted.

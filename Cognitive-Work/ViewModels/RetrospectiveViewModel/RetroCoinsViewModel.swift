@@ -74,16 +74,19 @@ final class RetroCoinsViewModel {
     }
 
     /// Settles the closed cycles and reads the member's payouts (see ``load()``).
+    ///
+    /// The house, member, cycles and members come from the data the app already holds
+    /// (``HouseDataStore``); only the settlement and the payouts are read from CloudKit.
     private func performLoad() async {
         defer { isLoaded = true }
-        guard let houseID = try? await CloudKitManager.shared.currentHouse()?.recordID,
-              let user = await CloudKitManager.shared.currentHouseUser(),
+        let house = await HouseDataStore.shared.load()
+        guard let houseID = house.houseID,
+              let user = house.houseUser,
               let userID = user.recordID
         else { return }
 
-        async let fetchedCycles = HouseCycleModel.fetchAll(inHouseZone: houseID.zoneID)
-        async let fetchedMembers = CloudKitManager.shared.fetchHouseUsers()
-        let (cycles, members) = await (fetchedCycles, fetchedMembers)
+        let cycles = house.cycles
+        let members = house.users
 
         let service = CycleSettlementService()
         await service.prepareClosedCycles(cycles, members: members, houseID: houseID)

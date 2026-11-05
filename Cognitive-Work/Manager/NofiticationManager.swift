@@ -154,6 +154,32 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
+    /// Turns notifications on the first time the app opens in a house, asking iOS for permission,
+    /// unless the user already chose in the settings.
+    ///
+    /// The switch in the settings (``enabledKey``) used to start off and nothing asked for
+    /// permission elsewhere, so most people never got any notification (a new division, the
+    /// retrospective, a chore done for them). Runs once: after this the switch keeps whatever the
+    /// user picks.
+    func enableOnFirstUseIfNeeded() async {
+        guard defaults.object(forKey: Self.enabledKey) == nil else { return }
+
+        let enabled: Bool
+        switch await authorizationStatus() {
+        case .notDetermined:
+            enabled = await requestAuthorization()
+        case .authorized, .provisional, .ephemeral:
+            enabled = true
+        default:
+            enabled = false
+        }
+        defaults.set(enabled, forKey: Self.enabledKey)
+
+        guard enabled else { return }
+        await processIncoming()
+        await refreshReminders(force: true)
+    }
+
     /// The current permission status, which the user can change at any time in Settings.
     func authorizationStatus() async -> UNAuthorizationStatus {
         let status = await center.notificationSettings().authorizationStatus
