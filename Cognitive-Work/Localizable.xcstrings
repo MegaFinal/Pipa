@@ -2696,6 +2696,72 @@
     "+%lld" : {
       "shouldTranslate" : false
     },
+    "Este item ainda tem pendências" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This item still has pending payments"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ítem todavía tiene pendientes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet article a encore des paiements en attente"
+          }
+        }
+      }
+    },
+    "Este item sai da lista sozinho quando todos pagarem a sua parte. Se ele foi marcado como comprado por engano, desmarque-o na lista para poder excluir." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This item leaves the list by itself once everyone pays their share. If it was marked as bought by mistake, unmark it in the list to delete it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ítem sale de la lista solo cuando todos pagan su parte. Si se marcó como comprado por error, desmárcalo en la lista para poder eliminarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet article quitte la liste de lui-même quand tout le monde a payé sa part. S’il a été coché comme acheté par erreur, décoche-le dans la liste pour pouvoir le supprimer."
+          }
+        }
+      }
+    },
+    "Itens comprados saem da lista sozinhos quando todos pagarem a sua parte. Se ele foi marcado por engano, desmarque como comprado para poder excluir." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bought items leave the list by themselves once everyone pays their share. If it was marked by mistake, unmark it as bought to delete it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los ítems comprados salen de la lista solos cuando todos pagan su parte. Si se marcó por error, desmárcalo como comprado para poder eliminarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les articles achetés quittent la liste d’eux-mêmes quand tout le monde a payé sa part. S’il a été coché par erreur, décoche-le comme acheté pour pouvoir le supprimer."
+          }
+        }
+      }
+    },
     "×%lld" : {
       "shouldTranslate" : false
     },

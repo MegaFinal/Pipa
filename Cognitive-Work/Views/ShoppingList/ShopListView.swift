@@ -331,32 +331,44 @@ struct ShopListView: View {
             .frame(maxWidth: .infinity)
     }
 
-    /// One item card that can be swiped to delete and tapped to edit.
+    /// One item card, tapped to edit. It can be swiped to delete, except a bought item someone
+    /// still owes for: it leaves the list by itself once the debt is settled.
+    @ViewBuilder
     private func row(for item: ShopListItem) -> some View {
-        SwipeToDeleteRow(
-            id: item.id,
-            revealedID: $revealedItemID,
-            style: swipeStyle,
-            onDelete: {
-                Task { await viewModel.deleteItemAnnouncing(item) }
-            }
-        ) {
-            ShopListItemCard(
-                item: item,
-                relatedUsers: viewModel.relatedUsers(for: item),
-                onToggle: { await viewModel.toggleBoughtAnnouncing(item) },
-                onTap: {
-                    if revealedItemID != nil {
-                        withAnimation(.snappy) { revealedItemID = nil }
-                    } else {
-                        editingItem = item
+        Group {
+            if viewModel.canDelete(item) {
+                SwipeToDeleteRow(
+                    id: item.id,
+                    revealedID: $revealedItemID,
+                    style: swipeStyle,
+                    onDelete: {
+                        Task { await viewModel.deleteItemAnnouncing(item) }
                     }
+                ) {
+                    itemCard(item)
                 }
-            )
+            } else {
+                itemCard(item)
+            }
         }
         .accessibilityAction(named: Text(verbatim: L10n.tr("Editar"))) {
             editingItem = item
         }
+    }
+
+    private func itemCard(_ item: ShopListItem) -> some View {
+        ShopListItemCard(
+            item: item,
+            relatedUsers: viewModel.relatedUsers(for: item),
+            onToggle: { await viewModel.toggleBoughtAnnouncing(item) },
+            onTap: {
+                if revealedItemID != nil {
+                    withAnimation(.snappy) { revealedItemID = nil }
+                } else {
+                    editingItem = item
+                }
+            }
+        )
     }
 
     /// Opens ``AddMoreItensInteligence`` to add several items from one text.

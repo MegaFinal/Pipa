@@ -298,6 +298,9 @@ final class PendingPaymentsViewModel {
             settledKeys.insert(DebtCalculator.settlementKey(item: entry.item, debtor: entry.debtor))
         }
         markPaid(group)
+
+        // Items nobody owes anything for anymore leave the "bought" section.
+        await shopList.cleanUpBoughtItems()
     }
 
     /// How long the card says "Pago!" before it leaves the screen.

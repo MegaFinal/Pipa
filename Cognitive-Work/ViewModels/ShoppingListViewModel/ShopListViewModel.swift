@@ -127,8 +127,8 @@ final class ShopListViewModel {
         items.filter { !$0.isBought }
     }
 
-    /// Bought items still on the list: the ones whose shares were all paid leave it (they stay
-    /// stored, and ``items`` still has them, so the debts keep adding up).
+    /// Bought items still on the list. The ones whose shares were all paid are hidden here and
+    /// deleted right after by ``cleanUpBoughtItems()`` (they no longer count in any debt).
     var boughtItems: [ShopListItem] {
         items.filter { $0.isBought && !isFullySettled($0) }
     }
@@ -364,6 +364,64 @@ final class ShopListViewModel {
         if errorMessage == Self.missingListMessage { errorMessage = nil }
         list = shopList
         items = shopList.belonging(to: snapshot.shopItems)
+
+        // A debt may have been settled on another device: clear what's fully paid.
+        Task { await cleanUpBoughtItems() }
+    }
+
+    // MARK: - Bought items and debts
+
+    /// Item ids being removed automatically, so overlapping sweeps don't delete twice.
+    @ObservationIgnored
+    private var itemsBeingRemoved: Set<String> = []
+
+    /// Who a user record belongs to (their iCloud account), matching ``DebtCalculator``: the
+    /// same person can have more than one record, and an item may point at any of them.
+    private func person(_ id: CKRecord.ID) -> String {
+        let user = (houseUserRecords + houseUsers + [currentUser].compactMap { $0 })
+            .first { $0.recordID == id }
+        guard let user, !user.ownerRecordName.isEmpty else { return id.recordName }
+        return user.ownerRecordName
+    }
+
+    /// The housemates of a bought item who share its price with the buyer (everyone it was for,
+    /// except the buyer). Empty when the item makes no debt: no price, or only for the buyer.
+    private func debtorIDs(of item: ShopListItem) -> [CKRecord.ID] {
+        guard item.isBought, item.hasPrice, item.totalValue != nil,
+              let buyerID = item.buyerRecordID else { return [] }
+        let buyer = person(buyerID)
+        return item.consumerRecordIDs.filter { person($0) != buyer }
+    }
+
+    /// Whether someone still owes their share of `item`. While this is `true` the item stays in
+    /// the "bought" section and can't be deleted by hand: it's what the debts are built from.
+    func hasOpenDebt(_ item: ShopListItem) -> Bool {
+        // Matched by person, like ``isFullySettled(_:)``: the share may have been paid from
+        // another record of the same person.
+        let settled = Set(item.settledUserIDs.map(person))
+        return debtorIDs(of: item).contains { !settled.contains(person($0)) }
+    }
+
+    /// Whether `item` can be deleted by hand. A bought item can't while someone still owes for
+    /// it (unmarking it as bought brings it back to the list, where it can be deleted).
+    func canDelete(_ item: ShopListItem) -> Bool {
+        !hasOpenDebt(item)
+    }
+
+    /// Deletes every bought item whose debt is fully settled: once nobody owes anything for it,
+    /// it leaves the "bought" section by itself. Called after a settlement and on every load.
+    func cleanUpBoughtItems() async {
+        guard let list, !isPreview else { return }
+        let done = items.filter { isFullySettled($0) && !itemsBeingRemoved.contains($0.id) }
+        guard !done.isEmpty else { return }
+
+        for item in done {
+            itemsBeingRemoved.insert(item.id)
+            defer { itemsBeingRemoved.remove(item.id) }
+            // Silent: a failure just leaves the item there until the next load tries again.
+            guard await list.removeItem(item) else { continue }
+            items.removeAll { $0.id == item.id }
+        }
     }
 
     /// Adds `item`, or replaces the one with the same id — never creates a duplicate row.
@@ -694,6 +752,12 @@ final class ShopListViewModel {
     @discardableResult
     func deleteItem(_ item: ShopListItem) async -> Bool {
         guard list != nil || isPreview else { return false }
+        // The screen hides the option, but this is what keeps the debts safe.
+        guard canDelete(item) else {
+            errorTitle = L10n.tr("Este item ainda tem pendências")
+            errorMessage = L10n.tr("Itens comprados saem da lista sozinhos quando todos pagarem a sua parte. Se ele foi marcado por engano, desmarque como comprado para poder excluir.")
+            return false
+        }
         guard let index = items.firstIndex(where: { $0.id == item.id }) else { return true }
 
         items.remove(at: index)
