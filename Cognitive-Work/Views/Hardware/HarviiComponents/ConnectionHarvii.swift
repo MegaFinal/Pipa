@@ -143,7 +143,7 @@ private extension ConnectionHarvii {
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                Text("Erro ao conectar!")
+                Text("Não foi possível conectar o Harvii")
                     .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
                     .bold()
                     .fixedSize(horizontal: false, vertical: true)
@@ -151,7 +151,7 @@ private extension ConnectionHarvii {
                     .padding(.top, height * 0.052)
                     .padding(.bottom, height * 0.028)
                 
-                Text("Não foi possível conectar o seu celular ao Harvii, verifique se a rede que você digitou é a mesma que você está e tente novamente.")
+                Text("Confira se o celular está no mesmo Wi-Fi que você enviou para o Harvii e tente de novo.")
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
                 

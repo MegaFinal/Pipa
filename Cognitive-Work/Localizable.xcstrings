@@ -208,7 +208,6 @@
       }
     },
     "%@ de desconto no plano anual" : {
-      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -246,7 +245,8 @@
             "value" : "年度方案优惠 %@"
           }
         }
-      }
+      },
+      "extractionState" : "manual"
     },
     "%@ e %@" : {
       "localizations" : {
@@ -2695,6 +2695,46 @@
     },
     "+%lld" : {
       "shouldTranslate" : false
+    },
+    "Confira se o celular está no mesmo Wi-Fi que você enviou para o Harvii e tente de novo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make sure your phone is on the same Wi-Fi you sent to Harvii and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisa que el celular esté en el mismo Wi-Fi que enviaste a Harvii e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifiez que votre téléphone est sur le même Wi-Fi que celui envoyé à Harvii, puis réessayez."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "携帯電話がHarviiに送ったWi-Fiと同じネットワークにつながっているか確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰이 Harvii에 보낸 Wi-Fi와 같은 네트워크에 연결되어 있는지 확인하고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请确认手机连接的是你发送给 Harvii 的同一个 Wi-Fi，然后重试。"
+          }
+        }
+      }
     },
     "Este item ainda tem pendências" : {
       "localizations" : {
@@ -6315,7 +6355,6 @@
       }
     },
     "Anual Estudante" : {
-      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6353,7 +6392,8 @@
             "value" : "学生年度"
           }
         }
-      }
+      },
+      "extractionState" : "manual"
     },
     "Ao apagar seu perfil, você também sairá da casa e perderá o acesso às tarefas e ao histórico. A casa continuará existindo para os outros moradores. Essa ação não pode ser desfeita." : {
       "localizations" : {
@@ -6712,6 +6752,126 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "修剪枯枝，整理植物造型。"
+          }
+        }
+      }
+    },
+    "Não foi possível conectar o Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't connect Harvii"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fue posible conectar Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de connecter Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiを接続できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii를 연결하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接 Harvii"
+          }
+        }
+      }
+    },
+    "Não foi possível parear com o Harvii. Tente de novo; se continuar, segure o botão BOOT por 5 segundos para resetar o Harvii." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't pair with Harvii. Try again; if it keeps happening, hold the BOOT button for 5 seconds to reset Harvii."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fue posible vincular con Harvii. Inténtalo de nuevo; si sigue pasando, mantén presionado el botón BOOT por 5 segundos para restablecer Harvii."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de jumeler Harvii. Réessayez ; si le problème persiste, maintenez le bouton BOOT enfoncé pendant 5 secondes pour réinitialiser Harvii."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiとペアリングできませんでした。もう一度お試しください。解決しない場合は、BOOTボタンを5秒間長押ししてHarviiをリセットしてください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii와 페어링하지 못했어요. 다시 시도해 주세요. 계속 안 되면 BOOT 버튼을 5초 동안 눌러 Harvii를 재설정하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法与 Harvii 配对。请重试；如果问题仍然存在，请按住 BOOT 按钮 5 秒以重置 Harvii。"
+          }
+        }
+      }
+    },
+    "Não foi possível salvar o Harvii na sua casa. Confira a conexão com a internet e tente de novo." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save Harvii to your house. Check your internet connection and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fue posible guardar Harvii en tu casa. Revisa la conexión a internet e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’enregistrer Harvii dans votre maison. Vérifiez votre connexion Internet et réessayez."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiを家に保存できませんでした。インターネット接続を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii를 집에 저장하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法将 Harvii 保存到你的家。请检查网络连接后重试。"
           }
         }
       }
@@ -9270,6 +9430,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Téléphone déconnecté"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "携帯電話の接続が切れました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰 연결이 끊어졌어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "手机已断开连接"
           }
         }
       }
@@ -16662,46 +16840,6 @@
         }
       }
     },
-    "Erro ao conectar!" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't connect!"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¡Error al conectar!"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur de connexion !"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "接続できませんでした！"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "연결 오류!"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "连接失败！"
-          }
-        }
-      }
-    },
     "Erro ao criar a casa." : {
       "localizations" : {
         "en" : {
@@ -16738,46 +16876,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "创建家庭时出错。"
-          }
-        }
-      }
-    },
-    "Erro ao criar nome do host (Harvii)." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error creating the host name (Harvii)."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Error al crear el nombre del host (Harvii)."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Erreur lors de la création du nom d’hôte (Harvii)."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ホスト名(Harvii)の作成中にエラーが発生しました。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "호스트 이름(Harvii) 생성 중 오류가 발생했어요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "创建主机名称（Harvii）时出错。"
           }
         }
       }
@@ -27433,46 +27531,6 @@
         }
       }
     },
-    "Não foi possível conectar o seu celular ao Harvii, verifique se a rede que você digitou é a mesma que você está e tente novamente." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "We couldn't connect your phone to Harvii. Check that the network you typed is the one you're on and try again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No fue posible conectar tu celular a Harvii. Verifica que la red que escribiste sea la misma en la que estás e inténtalo de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de connecter votre téléphone à Harvii. Vérifiez que le réseau saisi est bien celui auquel vous êtes connecté et réessayez."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "携帯電話をHarviiに接続できませんでした。入力したネットワークが今つながっているネットワークと同じか確認して、もう一度お試しください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "휴대폰을 Harvii에 연결하지 못했어요. 입력한 네트워크가 지금 연결된 네트워크와 같은지 확인하고 다시 시도하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法将你的手机连接到 Harvii。请确认你输入的网络就是你当前连接的网络，然后重试。"
-          }
-        }
-      }
-    },
     "Não foi possível criar a casa" : {
       "localizations" : {
         "en" : {
@@ -28040,6 +28098,7 @@
       }
     },
     "Não foi possível falar com o Harvii. Segure o botão BOOT por 5 segundos para resetar direto no dispositivo." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28319,28 +28378,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de régler le paiement"
-          }
-        }
-      }
-    },
-    "Não foi possível resetar o Harvii" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't reset Harvii"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudo restablecer Harvii"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de réinitialiser Harvii"
           }
         }
       }
@@ -31658,6 +31695,7 @@
       }
     },
     "Ocorreu um erro." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -42801,7 +42839,6 @@
       }
     },
     "Sou estudante" : {
-      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -42839,7 +42876,8 @@
             "value" : "我是学生"
           }
         }
-      }
+      },
+      "extractionState" : "manual"
     },
     "Status" : {
       "localizations" : {
@@ -50036,6 +50074,247 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "回到上一步？"
+          }
+        }
+      }
+    },
+    "Apagar mesmo assim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erase anyway"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Borrar de todos modos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Effacer quand même"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "それでも消去"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래도 지우기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "仍然清除"
+          }
+        }
+      }
+    },
+    "Configurar o Wi-Fi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up the Wi-Fi"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurar el Wi-Fi"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurer le Wi-Fi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fiを設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wi-Fi 설정하기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置 Wi-Fi"
+          }
+        }
+      }
+    },
+    "Não foi possível falar com o Harvii" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't reach Harvii"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No fue posible comunicarse con Harvii"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de joindre Harvii"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiと通信できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii와 통신하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法与 Harvii 通信"
+          }
+        }
+      }
+    },
+    "O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado. Se a tela dele mostrar “Não consegui conectar ao WiFi”, a senha pode estar errada: volte, entre na rede HARVII e envie o Wi-Fi de novo." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii didn't answer on your home network. Check that your phone is back on that network and that Harvii is on. If its screen shows “Couldn't connect to WiFi”, the password may be wrong: go back, join the HARVII network and send the Wi-Fi again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii no respondió en la red de tu casa. Verifica que el celular haya vuelto a esa red y que Harvii esté encendido. Si su pantalla muestra “No pude conectarme al WiFi”, la contraseña puede estar mal: vuelve, conéctate a la red HARVII y envía el Wi-Fi de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii n’a pas répondu sur le réseau de ton foyer. Vérifie que ton téléphone est revenu sur ce réseau et que Harvii est allumé. Si son écran affiche « Je n’ai pas pu me connecter au WiFi », le mot de passe est peut-être faux : reviens en arrière, rejoins le réseau HARVII et renvoie le Wi-Fi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おうちのネットワークでHarviiから応答がありませんでした。携帯電話がそのネットワークに戻っているか、Harviiの電源が入っているか確認してください。Harviiの画面に「WiFiに接続できませんでした」と表示されている場合は、パスワードが間違っている可能性があります。戻ってHARVIIネットワークに接続し、もう一度Wi-Fiを送信してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집 네트워크에서 Harvii가 응답하지 않았어요. 휴대폰이 그 네트워크로 돌아왔는지, Harvii가 켜져 있는지 확인하세요. Harvii 화면에 “WiFi에 연결하지 못했어요”가 표시되면 비밀번호가 틀렸을 수 있어요. 돌아가서 HARVII 네트워크에 연결하고 Wi-Fi를 다시 보내세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 在你家的网络中没有响应。请确认手机已回到这个网络，并且 Harvii 已开机。如果它的屏幕显示“无法连接到 WiFi”，可能是密码错了：请返回，连接 HARVII 网络，然后重新发送 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "Se a tela do Harvii mostrar “Não consegui conectar ao WiFi”, ele já está esperando um Wi-Fi novo. Se não, segure o botão BOOT dele por 5 segundos e depois configure o Wi-Fi." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If Harvii's screen shows “Couldn't connect to WiFi”, it's already waiting for a new Wi-Fi. If not, hold its BOOT button for 5 seconds, then set up the Wi-Fi."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si la pantalla de Harvii muestra “No pude conectarme al WiFi”, ya está esperando un Wi-Fi nuevo. Si no, mantén presionado su botón BOOT durante 5 segundos y luego configura el Wi-Fi."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si l’écran de Harvii affiche « Je n’ai pas pu me connecter au WiFi », il attend déjà un nouveau Wi-Fi. Sinon, maintiens son bouton BOOT pendant 5 secondes, puis configure le Wi-Fi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiの画面に「WiFiに接続できませんでした」と表示されている場合、新しいWi-Fiを待っている状態です。表示されていない場合は、BOOTボタンを5秒間押してからWi-Fiを設定してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 화면에 “WiFi에 연결하지 못했어요”가 표시되면 이미 새 Wi-Fi를 기다리는 중이에요. 그렇지 않으면 BOOT 버튼을 5초간 누른 뒤 Wi-Fi를 설정하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果 Harvii 的屏幕显示“无法连接到 WiFi”，说明它已经在等待新的 Wi-Fi。如果没有，请按住它的 BOOT 按钮 5 秒钟，然后设置 Wi-Fi。"
+          }
+        }
+      }
+    },
+    "Você pode apagar as configurações do Harvii da casa mesmo assim: todos os moradores vão precisar configurá-lo de novo. O aparelho só esquece o Wi-Fi quando alguém segura o botão BOOT dele por 5 segundos." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can erase Harvii's settings from the home anyway: every housemate will need to set it up again. The device itself only forgets the Wi-Fi when someone holds its BOOT button for 5 seconds."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puedes borrar la configuración de Harvii de la casa de todos modos: todos tendrán que configurarlo de nuevo. El dispositivo solo olvida el Wi-Fi cuando alguien mantiene presionado su botón BOOT durante 5 segundos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu peux quand même effacer les réglages de Harvii du foyer : tous les colocataires devront le configurer à nouveau. L’appareil n’oublie le Wi-Fi que lorsque quelqu’un maintient son bouton BOOT pendant 5 secondes."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "それでもおうちのHarvii設定を消去できます。住人全員がもう一度設定する必要があります。デバイス本体のWi-Fiは、誰かがBOOTボタンを5秒間押すまで消えません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "그래도 집의 Harvii 설정을 지울 수 있어요. 모든 구성원이 다시 설정해야 해요. 기기 자체는 누군가 BOOT 버튼을 5초간 눌러야 Wi-Fi를 지워요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你仍然可以清除家里的 Harvii 设置：所有室友都需要重新设置。设备本身要等有人按住 BOOT 按钮 5 秒钟，才会忘记 Wi-Fi。"
           }
         }
       }
