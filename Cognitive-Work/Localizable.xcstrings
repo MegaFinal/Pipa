@@ -2696,166 +2696,6 @@
     "+%lld" : {
       "shouldTranslate" : false
     },
-    "Confira o valor: não aparece na nota" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Check the price: it isn't on the receipt"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Revisa el valor: no aparece en el recibo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vérifiez le prix : il n’apparaît pas sur le ticket"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "金額を確認：レシートに見当たりません"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "금액 확인: 영수증에 없습니다"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "核对金额：小票上没有这个数"
-          }
-        }
-      }
-    },
-    "Fotos repetidas ignoradas: %lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Repeated photos ignored: %lld"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fotos repetidas ignoradas: %lld"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Photos en double ignorées : %lld"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重複した写真を除外：%lld"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "중복된 사진 제외: %lld"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已忽略重复的照片：%lld 张"
-          }
-        }
-      }
-    },
-    "Lido pela foto com Apple Intelligence" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Read from the photo with Apple Intelligence"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leído de la foto con Apple Intelligence"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lu depuis la photo avec Apple Intelligence"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple Intelligenceで写真から読み取りました"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apple Intelligence로 사진에서 읽음"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "用 Apple Intelligence 从照片读取"
-          }
-        }
-      }
-    },
-    "Quantidade na lista: %@ → %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantity on the list: %1$@ → %2$@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cantidad en la lista: %1$@ → %2$@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantité dans la liste : %1$@ → %2$@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "リストの数量：%1$@ → %2$@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "목록 수량: %1$@ → %2$@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清单数量：%1$@ → %2$@"
-          }
-        }
-      }
-    },
     "×%lld" : {
       "shouldTranslate" : false
     },
@@ -6820,6 +6660,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "修剪枯枝，整理植物造型。"
+          }
+        }
+      }
+    },
+    "Soma dos itens" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items total"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suma de los artículos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somme des articles"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "商品の合計"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "상품 합계"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "商品合计"
           }
         }
       }
@@ -11556,42 +11436,162 @@
         }
       }
     },
-    "Confira o valor: calculado %@, impresso %@" : {
+    "Confira a quantidade." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Check the price: calculated %1$@, printed %2$@"
+            "value" : "Check the quantity."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Revisa el valor: calculado %1$@, impreso %2$@"
+            "value" : "Revisa la cantidad."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vérifiez le montant : calculé %1$@, imprimé %2$@"
+            "value" : "Vérifiez la quantité."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "金額を確認してください：計算 %1$@、印字 %2$@"
+            "value" : "数量を確認してください。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "금액을 확인하세요: 계산 %1$@, 인쇄 %2$@"
+            "value" : "수량을 확인하세요."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "请核对金额：计算 %1$@，印的 %2$@"
+            "value" : "请核对数量。"
+          }
+        }
+      }
+    },
+    "Confira este item" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check this item"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisa este ítem"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifiez cet article"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この項目を確認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 항목을 확인하세요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请核对此商品"
+          }
+        }
+      }
+    },
+    "Confira o valor." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the price."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisa el valor."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifiez le prix."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金額を確認してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "금액을 확인하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请核对金额。"
+          }
+        }
+      }
+    },
+    "Confira o valor. Na nota aparece %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the price. The receipt shows %@."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisa el valor. En el recibo aparece %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérifiez le prix. Le ticket indique %@."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "金額を確認してください。レシートには%@とあります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "금액을 확인하세요. 영수증에는 %@(으)로 나와요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请核对金额。小票上显示为 %@。"
           }
         }
       }
@@ -14409,46 +14409,6 @@
         }
       }
     },
-    "Diferença de %@ para o total da nota" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ off the receipt total"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diferencia de %@ con el total del recibo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Écart de %@ avec le total du ticket"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "レシートの合計との差：%@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "영수증 합계와 %@ 차이"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "与小票总额相差 %@"
-          }
-        }
-      }
-    },
     "Digite o nome para confirmar o item." : {
       "localizations" : {
         "en" : {
@@ -14485,6 +14445,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "输入名称以确认商品。"
+          }
+        }
+      }
+    },
+    "Digite o valor pago." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type the amount paid."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribe el valor pagado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisissez le montant payé."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "支払った金額を入力してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "결제한 금액을 입력하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请输入实付金额。"
           }
         }
       }
@@ -17967,46 +17967,6 @@
         }
       }
     },
-    "Escolha para quem são todos os itens fora da lista." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose who all the items not on the list are for."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elige para quién son todos los artículos fuera de la lista."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisissez pour qui sont tous les articles hors de la liste."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "リスト以外のすべての品目を誰の分にするか選びます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "목록에 없는 모든 항목을 누구 것으로 할지 선택합니다."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "选择清单外的所有商品是给谁的。"
-          }
-        }
-      }
-    },
     "Escolha pelo menos um dia para confirmar." : {
       "localizations" : {
         "en" : {
@@ -19211,46 +19171,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "此选择只适用于当前的家务分配"
-          }
-        }
-      }
-    },
-    "Esta nota está difícil de ler. Confira os itens marcados ou escaneie de novo." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This receipt is hard to read. Check the marked items or scan it again."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este recibo es difícil de leer. Revisa los artículos marcados o escanéalo de nuevo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ce ticket est difficile à lire. Vérifiez les articles signalés ou scannez-le à nouveau."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このレシートは読み取りにくいです。マークされた商品を確認するか、もう一度スキャンしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 영수증은 읽기 어려워요. 표시된 상품을 확인하거나 다시 스캔해 주세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这张小票不太好识别。请检查标出的商品，或重新扫描。"
           }
         }
       }
@@ -23711,46 +23631,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "重复的商品"
-          }
-        }
-      }
-    },
-    "Itens não lidos: %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Items not read: %@"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Artículos no leídos: %@"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Articles non lus : %@"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "読み取れなかった商品：%@"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "읽지 못한 상품: %@"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未读取的商品：%@"
           }
         }
       }
@@ -28311,46 +28191,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "找不到这项数据，它可能已被移除。"
-          }
-        }
-      }
-    },
-    "Não encontramos itens nesta foto. Tente fotografar a nota de novo, reta e bem iluminada." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "We couldn't find any items in this photo. Try scanning the receipt again, flat and well lit."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No encontramos artículos en esta foto. Intenta escanear el recibo de nuevo, recto y bien iluminado."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nous n’avons trouvé aucun article sur cette photo. Essayez de scanner à nouveau le ticket, bien à plat et bien éclairé."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この写真から商品が見つかりませんでした。レシートをまっすぐ、明るい場所でもう一度スキャンしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 사진에서 상품을 찾지 못했어요. 영수증을 반듯하게, 밝은 곳에서 다시 스캔해 보세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "这张照片里没有找到商品。请把小票摆正、在光线充足的地方重新扫描。"
           }
         }
       }
@@ -38933,46 +38773,6 @@
         }
       }
     },
-    "Quantidade não lida: usado o valor impresso" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantity not read: using the printed price"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cantidad no leída: se usó el valor impreso"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quantité non lue : montant imprimé utilisé"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "数量を読み取れませんでした：印字の金額を使用"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "수량을 읽지 못했어요: 인쇄된 금액을 사용"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未读取到数量：使用了印的金额"
-          }
-        }
-      }
-    },
     "Quanto custou no total?" : {
       "localizations" : {
         "en" : {
@@ -44225,46 +44025,6 @@
         }
       }
     },
-    "Soma dos itens" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Items total"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suma de los artículos"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Somme des articles"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "商品の合計"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "상품 합계"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "商品合计"
-          }
-        }
-      }
-    },
     "Somar" : {
       "localizations" : {
         "en" : {
@@ -46378,6 +46138,46 @@
         }
       }
     },
+    "Tente de novo com a nota reta e bem iluminada." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again with the receipt flat and well lit."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inténtalo de nuevo con el recibo derecho y bien iluminado."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réessayez avec le ticket bien à plat et bien éclairé."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レシートをまっすぐ、明るい場所でもう一度撮影してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "영수증을 반듯하게, 밝은 곳에서 다시 찍어 보세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "请将小票摆正，在光线充足处重试。"
+          }
+        }
+      }
+    },
     "Tente novamente." : {
       "localizations" : {
         "en" : {
@@ -47897,82 +47697,42 @@
         }
       }
     },
-    "Total da nota" : {
+    "Total da nota: %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Receipt total"
+            "value" : "Receipt total: %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Total del recibo"
+            "value" : "Total del recibo: %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Total du ticket"
+            "value" : "Total du ticket : %@"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レシートの合計"
+            "value" : "レシートの合計：%@"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "영수증 합계"
+            "value" : "영수증 합계: %@"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "小票总额"
-          }
-        }
-      }
-    },
-    "Total da nota não encontrado" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Receipt total not found"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se encontró el total del recibo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Total du ticket introuvable"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "レシートの合計が見つかりません"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "영수증 합계를 찾지 못했어요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未找到小票总额"
+            "value" : "小票总额：%@"
           }
         }
       }
@@ -49206,46 +48966,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "价格（可选）"
-          }
-        }
-      }
-    },
-    "Valor não encontrado" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Price not found"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Valor no encontrado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Montant introuvable"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "金額が見つかりません"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "금액을 찾지 못했어요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "未找到金额"
           }
         }
       }
