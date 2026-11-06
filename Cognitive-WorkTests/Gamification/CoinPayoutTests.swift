@@ -102,6 +102,44 @@ struct CoinPayoutTests {
         #expect(payouts.first?.tier == .escudeiroDaFaxina)
     }
 
+    @Test func coinsPaidDuringTheCycleAreNotPaidAgain() async throws {
+        let store = InMemoryAtomicRecordStore()
+        let service = CycleSettlementService(store: store)
+        let local = member(alice, points: 0, in: store)
+        // The rank's coins already reached the wallet as the rank went up.
+        let score = GamificationFixture.score(for: alice, points: escudeiroPoints)
+        score["cycleCoins"] = Tier.escudeiroDaFaxina.cycleCoins
+        store.seed(score)
+        store.seed(GamificationFixture.wallet(for: alice, balance: Tier.escudeiroDaFaxina.cycleCoins))
+
+        await service.prepareClosedCycles([closedCycle], members: [local], houseID: GamificationFixture.houseID, today: afterCycle)
+
+        let payout = await service.payouts(for: alice, cycles: [closedCycle], today: afterCycle).first
+        #expect(payout?.status == .confirmed)
+        #expect(payout?.amount == Tier.escudeiroDaFaxina.cycleCoins)
+        let confirmation = try await service.confirmPendingPayouts(
+            for: alice, cycles: [closedCycle], houseID: GamificationFixture.houseID, legacyCoins: 0, today: afterCycle
+        )
+        #expect(confirmation.credited == 0)
+        #expect(GamificationFixture.balance(of: alice, in: store) == Tier.escudeiroDaFaxina.cycleCoins)
+        #expect(store.stored(GamificationFixture.scoreID(of: alice))?["cycleCoins"] as? Int == 0)
+    }
+
+    @Test func cycleCutShortByANewDivisionKeepsThePoints() async {
+        let store = InMemoryAtomicRecordStore()
+        let service = CycleSettlementService(store: store)
+        var cut = GamificationFixture.cycle(start: GamificationFixture.day(2026, 10, 2), days: 5)
+        cut.wasCutShort = true
+        let local = member(alice, points: escudeiroPoints, in: store)
+
+        let created = await service.prepareClosedCycles([cut], members: [local], houseID: GamificationFixture.houseID, today: afterCycle)
+
+        // Redoing the division (to add a member, say) doesn't reset anyone's rank.
+        #expect(created == 0)
+        #expect(store.storedRecords(ofType: RankHistoryModel.recordType).isEmpty)
+        #expect(local.points == escudeiroPoints)
+    }
+
     @Test func eachClosedCycleStartsFromTheReset() async {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)

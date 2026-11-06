@@ -119,6 +119,11 @@ final class ShopListViewModel {
     /// An error to show, or `nil`.
     private(set) var errorMessage: String?
 
+    /// First day of the house's current gamification season, to know which purchases its points
+    /// still count (``HouseCycleModel/currentSeasonStart(_:asOf:calendar:)``).
+    @ObservationIgnored
+    private var currentCycleStart: Date?
+
     /// Items still to buy.
     var pendingItems: [ShopListItem] {
         items.filter { !$0.isBought }
@@ -360,6 +365,7 @@ final class ShopListViewModel {
         if errorMessage == Self.missingListMessage { errorMessage = nil }
         list = shopList
         items = shopList.belonging(to: snapshot.shopItems)
+        currentCycleStart = HouseCycleModel.currentSeasonStart(snapshot.cycles, asOf: .now)
     }
 
     /// Adds `item`, or replaces the one with the same id — never creates a duplicate row.
@@ -373,12 +379,38 @@ final class ShopListViewModel {
 
     // MARK: - Gamification
 
-    /// Points a new item is worth: the item itself, its beneficiaries, and a price.
-    static func creationScore(beneficiaries: Int, hasPrice: Bool) -> Int {
-        var score = ScoreValues.shoppingItemAdded.points
-        score += beneficiaries * ScoreValues.shoppingItemBeneficiaryAssigned.points
-        if hasPrice { score += ScoreValues.receiptScanned(itemCount: 1).points }
-        return score
+    /// The house member with record `id`, among every user record of the house.
+    private func houseUser(withID id: CKRecord.ID?) -> UserModel? {
+        guard let id else { return nil }
+        return houseUserRecords.first { $0.recordID == id } ?? houseUsers.first { $0.recordID == id }
+    }
+
+    /// Takes back the points of a purchase: the buyer's and the one paid to whoever added the item.
+    ///
+    /// Purchases saved before ``ShopListItem/awardedPoints`` existed paid the one who added the
+    /// item when it was added, not when it was bought, so only the buyer's points (recomputed)
+    /// are taken back from those.
+    ///
+    /// - Parameters:
+    ///   - awarded: The item's ``ShopListItem/awardedPoints`` before it was un-bought or deleted.
+    ///   - hasPrice: Whether the item had a price, for purchases without `awarded`.
+    ///   - buyerID: Who bought it.
+    ///   - adderID: Who added it to the list.
+    private func takeBackPurchasePoints(
+        awarded: Int?,
+        hasPrice: Bool,
+        buyerID: CKRecord.ID?,
+        adderID: CKRecord.ID?
+    ) async {
+        let scoreManager = ScoreManager.shared
+
+        if let buyer = houseUser(withID: buyerID) {
+            let buyerPoints = awarded ?? ScoreValues.shoppingPurchase(hasPrice: hasPrice)
+            await scoreManager.removeScore(score: buyerPoints, for: buyer)
+        }
+        if awarded != nil, let adder = houseUser(withID: adderID) {
+            await scoreManager.removeScore(score: ScoreValues.shoppingItemAdded.points, for: adder)
+        }
     }
 
     // MARK: - Items
@@ -473,23 +505,11 @@ final class ShopListViewModel {
             return true
         }
 
-        var score = 0
-        let hasNewPrice = (totalPrice ?? 0) > 0
+        // No points here: an item pays when it is bought (see `setBought(_:price:)`), so filling
+        // the list, or editing items, can't be repeated for points.
         let success: Bool
 
         if let existingItem {
-            let previousUserIDs = Set(existingItem.relatedUsers(in: houseUsers).compactMap(\.recordID))
-            let hadPrice = existingItem.hasPrice
-
-            let addedBeneficiaries = relatedUsers.filter { user in
-                guard let id = user.recordID else { return false }
-                return !previousUserIDs.contains(id)
-            }
-            score += addedBeneficiaries.count * ScoreValues.shoppingItemBeneficiaryAssigned.points
-            if hasNewPrice && !hadPrice {
-                score += ScoreValues.receiptScanned(itemCount: 1).points
-            }
-
             success = await updateItem(
                 existingItem,
                 name: name,
@@ -500,11 +520,6 @@ final class ShopListViewModel {
                 relatedUsers: relatedUsers
             )
         } else {
-            score = Self.creationScore(
-                beneficiaries: relatedUsers.count,
-                hasPrice: hasNewPrice
-            )
-
             success = await addItem(
                 name: name,
                 totalPrice: totalPrice,
@@ -516,9 +531,6 @@ final class ShopListViewModel {
             )
         }
 
-        if success && score > 0 {
-            await ScoreManager.shared.assignScoreForMyUser(score: score)
-        }
         return success
     }
 
@@ -639,17 +651,24 @@ final class ShopListViewModel {
         }
 
         if item.isBought {
+            // Read before the toggle clears the purchase.
+            let awarded = item.awardedPoints
             let buyerID = item.buyerRecordID
             guard await item.toggle() else {
                 errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
                 return
             }
-            let points = ScoreValues.shoppingItemBought.points
-            if let buyerID, let buyer = houseUsers.first(where: { $0.recordID == buyerID }) {
-                await ScoreManager.shared.removeScore(score: points, for: buyer)
-            }
+            await takeBackPurchasePoints(
+                awarded: awarded,
+                hasPrice: item.hasPrice,
+                buyerID: buyerID,
+                adderID: item.addedByRecordID
+            )
         } else if let currentUser {
-            let didSave = await item.markBought(by: currentUser, totalPrice: price)
+            // The buyer is paid for the purchase (and for recording the price); whoever added the
+            // item is paid now too, since the item turned out to be needed.
+            let points = ScoreValues.shoppingPurchase(hasPrice: price != nil || item.hasPrice)
+            let didSave = await item.markBought(by: currentUser, totalPrice: price, awarding: points)
             guard didSave else {
                 errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
                 return
@@ -657,9 +676,10 @@ final class ShopListViewModel {
 
             notifyItemBought(item, by: currentUser)
             
-            var points = ScoreValues.shoppingItemBought.points
-            if price != nil { points += ScoreValues.receiptScanned(itemCount: 1).points }
-            await ScoreManager.shared.assignScoreForMyUser(score: points)
+            await ScoreManager.shared.assignScore(score: points, for: currentUser)
+            if let adder = houseUser(withID: item.addedByRecordID) {
+                await ScoreManager.shared.assignScore(score: ScoreValues.shoppingItemAdded.points, for: adder)
+            }
         } else if await item.toggle() == false {
             errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
         }
@@ -696,14 +716,16 @@ final class ShopListViewModel {
             return false
         }
 
-        // Takes back everything the item gave when it was added (beneficiaries and price too),
-        // so adding and deleting items can't be repeated to farm points.
-        if !item.isBought, let me = currentUser?.recordID, item.addedByRecordID == me {
-            let score = Self.creationScore(
-                beneficiaries: item.relatedUsers(in: houseUsers).count,
-                hasPrice: item.hasPrice
+        // An item bought in this cycle and then deleted takes its purchase points back, so buying
+        // and deleting items can't be repeated for points. Items not bought never paid anything;
+        // purchases of a closed cycle were already counted in it.
+        if item.isBought, isInCurrentCycle(item.boughtAt) {
+            await takeBackPurchasePoints(
+                awarded: item.awardedPoints,
+                hasPrice: item.hasPrice,
+                buyerID: item.buyerRecordID,
+                adderID: item.addedByRecordID
             )
-            await ScoreManager.shared.removeScoreForMyUser(score: score)
         }
         return true
     }
@@ -822,15 +844,20 @@ final class ShopListViewModel {
                 }
                 if !references.isEmpty { item.relatedUsersReference = references }
             }
-            guard await item.markBought(by: currentUser, totalPrice: price) else {
+            // Same scoring as `setBought`: the buyer's points are saved in `awardedPoints`
+            // so un-buying takes back exactly them, and the adder is paid now.
+            let purchasePoints = ScoreValues.shoppingPurchase(hasPrice: price != nil || item.hasPrice)
+            guard await item.markBought(by: currentUser, totalPrice: price, awarding: purchasePoints) else {
                 (item.quantity, item.unitMeasurement) = previousAmount
                 item.relatedUsersReference = previousPeople
                 failed = true
                 continue
             }
             notifyItemBought(item, by: currentUser)
-            points += ScoreValues.shoppingItemBought.points
-            if price != nil { points += ScoreValues.receiptScanned(itemCount: 1).points }
+            points += purchasePoints
+            if let adder = houseUser(withID: item.addedByRecordID) {
+                await ScoreManager.shared.assignScore(score: ScoreValues.shoppingItemAdded.points, for: adder)
+            }
             saved += 1
         }
 
@@ -856,6 +883,9 @@ final class ShopListViewModel {
                 buyerUser: me
             )
             draft.boughtAt = Date()
+            // Bought on creation: saved like any purchase so un-buying takes these points back.
+            let purchasePoints = ScoreValues.shoppingPurchase(hasPrice: newItem.total > 0)
+            draft.awardedPoints = purchasePoints
 
             if isPreview {
                 draft.recordID = CKRecord.ID(recordName: "preview-item-\(UUID().uuidString)")
@@ -866,8 +896,8 @@ final class ShopListViewModel {
 
             guard let list, let created = await list.addItem(draft) else { failed = true; continue }
             upsert(created)
-            points += ScoreValues.shoppingItemAdded.points
-            if newItem.total > 0 { points += ScoreValues.receiptScanned(itemCount: 1).points }
+            // The current user both added and bought it: purchase points + the adder's points.
+            points += purchasePoints + ScoreValues.shoppingItemAdded.points
             saved += 1
         }
 
@@ -878,6 +908,13 @@ final class ShopListViewModel {
             await ScoreManager.shared.assignScoreForMyUser(score: points)
         }
         return saved
+    }
+
+    /// Whether `date` falls in the house's current season (any date does before the first one ends).
+    private func isInCurrentCycle(_ date: Date?) -> Bool {
+        guard let date else { return false }
+        guard let currentCycleStart else { return true }
+        return date >= currentCycleStart
     }
 
     // MARK: - Apple Intelligence

@@ -15,7 +15,9 @@ actor UserProfileCache {
     /// Decoded, display-ready avatars keyed by the owning user's record ID.
     private var images: [CKRecord.ID: UIImage] = [:]
 
-    /// Record IDs already known to have no avatar, so a miss is not retried on every row.
+    /// Record IDs already known to have no avatar, so a miss is not retried on every row. Only
+    /// a record read without a photo lands here: a download that failed (no network yet, at
+    /// launch) used to land here too, and the photo stayed blank for the rest of the session.
     private var knownEmpty: Set<CKRecord.ID> = []
 
     /// In-flight loads, so simultaneous requests for the same avatar coalesce into one.
@@ -52,33 +54,53 @@ actor UserProfileCache {
         if let running = inFlight[recordID] { return await running.value }
 
         let localAssetURL = user.profilePicture?.fileURL
-        let task = Task<UIImage?, Never> {
+        let task = Task<Download, Never> {
             if let localAssetURL, let image = await Self.decode(contentsOf: localAssetURL) {
-                return image
+                return .image(image)
             }
             return await Self.download(recordID: recordID)
         }
-        inFlight[recordID] = task
+        inFlight[recordID] = Task { await task.value.photo }
 
-        let image = await task.value
+        let result = await task.value
         inFlight[recordID] = nil
 
-        if let image {
-            images[recordID] = image
-        } else {
-            knownEmpty.insert(recordID)
+        switch result {
+        case .image(let image): images[recordID] = image
+        case .noPicture: knownEmpty.insert(recordID)
+        case .failed: break // Tried again next time the avatar shows.
         }
-        return image
+        return result.photo
+    }
+
+    /// What reading an avatar from CloudKit gave.
+    private enum Download {
+        /// The decoded photo.
+        case image(UIImage)
+        /// The record has no photo.
+        case noPicture
+        /// The record couldn't be read or decoded; worth trying again later.
+        case failed
+
+        /// The photo, when there is one.
+        var photo: UIImage? {
+            if case .image(let image) = self { return image }
+            return nil
+        }
     }
 
     // MARK: - Invalidation
 
-    /// Forgets the cached avatar for one user, e.g. right after they change their picture.
+    /// Forgets the cached avatar for one user, e.g. right after they change their picture, and
+    /// tells the avatars on screen to load it again (``Notification/Name/profilePictureDidChange``).
     func invalidate(_ recordID: CKRecord.ID) {
         images[recordID] = nil
         knownEmpty.remove(recordID)
         inFlight[recordID]?.cancel()
         inFlight[recordID] = nil
+        Task { @MainActor in
+            NotificationCenter.default.post(name: .profilePictureDidChange, object: recordID)
+        }
     }
 
     /// Forgets every cached avatar, e.g. after leaving or switching house.
@@ -100,7 +122,7 @@ actor UserProfileCache {
     }
 
     /// Fetches only the `profilePicture` field of one user record and decodes it.
-    private static func download(recordID: CKRecord.ID) async -> UIImage? {
+    private static func download(recordID: CKRecord.ID) async -> Download {
         let manager = CloudKitManager.shared
         let database = recordID.zoneID.ownerName == CKCurrentUserDefaultName
             ? manager.privateDB
@@ -111,12 +133,13 @@ actor UserProfileCache {
                 for: [recordID],
                 desiredKeys: ["profilePicture"]
             ),
-            let record = try? results[recordID]?.get(),
-            let fileURL = (record["profilePicture"] as? CKAsset)?.fileURL
+            let record = try? results[recordID]?.get()
         else {
-            return nil
+            return .failed
         }
+        guard let fileURL = (record["profilePicture"] as? CKAsset)?.fileURL else { return .noPicture }
 
-        return await decode(contentsOf: fileURL)
+        guard let image = await decode(contentsOf: fileURL) else { return .failed }
+        return .image(image)
     }
 }
