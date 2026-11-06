@@ -87,6 +87,8 @@ final class ReceiptScanViewModel {
     private var memory: [String: String] = [:]
     /// Whether the confirmed receipt is being saved.
     private(set) var isApplying = false
+    /// Lines the person added whose form wasn't confirmed yet; closing that form removes them.
+    private(set) var newLineIDs: Set<UUID> = []
 
     // MARK: - Reading
 
@@ -109,6 +111,18 @@ final class ReceiptScanViewModel {
     ) async {
         phase = .reading
         let result = await ReceiptScanService.read(pages)
+        load(result, linking: items, houseUsers: houseUsers, memory: memory, knownCategory: knownCategory)
+    }
+
+    /// Shows what was read from a receipt (``read(_:linking:houseUsers:memory:knownCategory:)``
+    /// after reading; previews and tests call it directly).
+    func load(
+        _ result: ReceiptScanResult,
+        linking items: [ShopListItem],
+        houseUsers: [UserModel],
+        memory: [String: String] = [:],
+        knownCategory: @escaping (String) -> ShopItemCategory? = { _ in nil }
+    ) {
         lines = result.lines.map { line in
             var line = line
             line.receiptName = line.name
@@ -134,6 +148,7 @@ final class ReceiptScanViewModel {
         included = Set(lines.map(\.id))
         links = [:]
         consumerIDs = [:]
+        newLineIDs = []
         let pairs = ReceiptItemMatcher.match(receiptNames: lines.map(\.name), listNames: items.map(\.name))
         for (itemIndex, lineIndex) in pairs {
             links[lines[lineIndex].id] = items[itemIndex].id
@@ -143,17 +158,6 @@ final class ReceiptScanViewModel {
     }
 
     // MARK: - Editing
-
-    /// A name typed by the person.
-    func rename(_ line: ReceiptScanLine, to name: String) {
-        guard let index = lines.firstIndex(where: { $0.id == line.id }) else { return }
-        lines[index].name = name
-        // The aisle follows the name until the person picks one.
-        if !editedCategories.contains(line.id) {
-            categories[line.id] = guessCategory(for: lines[index])
-            aiCategories.remove(line.id)
-        }
-    }
 
     /// Changes how many units a line has. The price follows the receipt's price per unit, as
     /// when a misread quantity is fixed ("1 UN" read for "2 UN").
@@ -170,24 +174,37 @@ final class ReceiptScanViewModel {
         editedQuantities.insert(line.id)
     }
 
-    /// Adds an empty line, ticked, for a product the reader missed.
-    func addLine() {
+    /// Adds an empty line, ticked, for a product the reader missed. It stays new (see
+    /// ``newLineIDs``) until its form is confirmed.
+    @discardableResult
+    func addLine() -> ReceiptScanLine {
         let line = ReceiptScanLine(itemNumber: nil, name: "", quantity: 1, weightKg: 0, total: 0, warning: nil)
         lines.append(line)
         priceTexts[line.id] = ""
         readNames[line.id] = ""
         categories[line.id] = .other
         included.insert(line.id)
+        newLineIDs.insert(line.id)
         if phase == .empty { phase = .review }
+        return line
     }
 
-    /// Applies a typed price to its line.
-    func updatePrice(_ text: String, for line: ReceiptScanLine) {
-        priceTexts[line.id] = text
-        guard let index = lines.firstIndex(where: { $0.id == line.id }) else { return }
-        lines[index].total = ShopListViewModel.parsePrice(text) ?? 0
-        // Once the person typed the value, it's theirs: no more warning.
-        lines[index].warning = nil
+    /// Takes `line` off the receipt (a line the person added and then gave up on). Without
+    /// lines left, the screen goes back to "nothing found".
+    func removeLine(_ line: ReceiptScanLine) {
+        let id = line.id
+        lines.removeAll { $0.id == id }
+        priceTexts[id] = nil
+        readNames[id] = nil
+        categories[id] = nil
+        included.remove(id)
+        links[id] = nil
+        consumerIDs[id] = nil
+        editedQuantities.remove(id)
+        editedCategories.remove(id)
+        aiCategories.remove(id)
+        newLineIDs.remove(id)
+        if lines.isEmpty { phase = .empty }
     }
 
     /// Whether `line` goes to the list.
@@ -209,26 +226,11 @@ final class ReceiptScanViewModel {
         links[line.id].flatMap { id in linkableItems.first { $0.id == id } }
     }
 
-    /// Links `line` to a list item (by id), or to none (`nil`: a new item).
-    func link(_ line: ReceiptScanLine, to itemID: String?) {
-        links[line.id] = itemID
-        included.insert(line.id)
-        // Its people follow the new destination until the person picks them again.
-        consumerIDs[line.id] = nil
-    }
-
     // MARK: - Aisle
 
     /// The aisle `line` goes in: the linked list item's, or the one guessed or picked.
     func category(for line: ReceiptScanLine) -> ShopItemCategory {
         linkedItem(for: line)?.category ?? categories[line.id] ?? .other
-    }
-
-    /// The aisle the person picked for a line added as a new item.
-    func setCategory(_ category: ShopItemCategory, for line: ReceiptScanLine) {
-        categories[line.id] = category
-        editedCategories.insert(line.id)
-        aiCategories.remove(line.id)
     }
 
     /// The aisle of a line, without the model: the one the house put it in before, the one the
@@ -241,6 +243,12 @@ final class ReceiptScanViewModel {
             return category
         }
         return knownCategory(line.name) ?? ReceiptCategories.guess(line.name) ?? .other
+    }
+
+    /// The aisle a typed name suggests, without the model: the one the house uses for it, or
+    /// the one its words tell; "Outros" when none does.
+    func guessCategory(named name: String) -> ShopItemCategory {
+        knownCategory(name) ?? ReceiptCategories.guess(name) ?? .other
     }
 
     /// For the products outside the list still in "Outros", asks the on-device model, one at a
@@ -275,6 +283,15 @@ final class ReceiptScanViewModel {
         lines.filter { links[$0.id] == nil }
     }
 
+    /// The lines grouped by the aisle they go in, in the shopping list's order, like the
+    /// list's cards.
+    var sections: [ReceiptCategorySection] {
+        let grouped = Dictionary(grouping: lines) { category(for: $0) }
+        return ShopItemCategory.listOrder.compactMap { category in
+            grouped[category].map { ReceiptCategorySection(category: category, lines: $0) }
+        }
+    }
+
     // MARK: - Who it's for
 
     /// Who `line` is for: who the person chose; otherwise the list item's people, or the whole
@@ -283,40 +300,16 @@ final class ReceiptScanViewModel {
         if let ids = consumerIDs[line.id] {
             return houseUsers.filter { ids.contains($0.id) }
         }
-        if let item = linkedItem(for: line) {
+        return defaultConsumers(forItemID: links[line.id])
+    }
+
+    /// Who a line is for before the person picks: the list item's people, or the whole house.
+    func defaultConsumers(forItemID itemID: String?) -> [UserModel] {
+        if let itemID, let item = linkableItems.first(where: { $0.id == itemID }) {
             let people = item.relatedUsers(in: houseUsers)
             if !people.isEmpty { return people }
         }
         return houseUsers
-    }
-
-    /// Whether `line` is for the whole house.
-    func isForEveryone(_ line: ReceiptScanLine) -> Bool {
-        consumers(for: line).count == houseUsers.count
-    }
-
-    /// Adds `user` to who `line` is for, or takes them out (someone always stays).
-    func toggleConsumer(_ user: UserModel, for line: ReceiptScanLine) {
-        var ids = consumerIDs[line.id] ?? Set(consumers(for: line).map(\.id))
-        if ids.contains(user.id) {
-            guard ids.count > 1 else { return }
-            ids.remove(user.id)
-        } else {
-            ids.insert(user.id)
-        }
-        consumerIDs[line.id] = ids
-    }
-
-    /// Makes `line` for `users` (`nil`: the whole house).
-    func setConsumers(_ users: [UserModel]?, for line: ReceiptScanLine) {
-        consumerIDs[line.id] = users.map { Set($0.map(\.id)) }
-    }
-
-    /// Makes every line outside the list for `users` (`nil`: the whole house).
-    func setConsumersForOtherLines(_ users: [UserModel]?) {
-        for line in otherLines {
-            setConsumers(users, for: line)
-        }
     }
 
     // MARK: - Confirming
@@ -453,14 +446,141 @@ final class ReceiptScanViewModel {
         return picked.map(consumers(for:))
     }
 
-    /// "500 gramas" -> "364 gramas": how a line will change its list item's quantity, shown on
-    /// the card before confirming.
-    func quantityChange(for line: ReceiptScanLine) -> (from: String, to: String)? {
-        guard let item = linkedItem(for: line), let amount = boughtAmount(for: item) else { return nil }
-        return (
-            ShopListViewModel.accessibilityQuantity(item.quantity, unit: item.unitMeasurement),
-            ShopListViewModel.accessibilityQuantity(amount.quantity, unit: amount.unit)
+    // MARK: - Editing one line (the line form)
+
+    /// A copy of `line` for ``ReceiptLineFormView``.
+    func draft(for line: ReceiptScanLine) -> ReceiptLineDraft {
+        let current = lines.first { $0.id == line.id } ?? line
+        let id = current.id
+        return ReceiptLineDraft(
+            id: id,
+            isNew: newLineIDs.contains(id),
+            weightKg: current.weightKg,
+            warning: current.warning,
+            name: current.name,
+            quantity: current.quantity,
+            priceText: priceTexts[id] ?? Self.priceText(for: current.total),
+            unitPrice: current.quantity > 0 ? current.total / Double(current.quantity) : current.total,
+            linkedItemID: links[id],
+            category: categories[id] ?? .other,
+            aiCategory: aiCategories.contains(id) ? categories[id] : nil,
+            didPickCategory: editedCategories.contains(id),
+            consumers: consumers(for: current),
+            didPickConsumers: consumerIDs[id] != nil
         )
+    }
+
+    /// A typed name. The aisle of a new item follows it until the person picks one.
+    func setName(_ name: String, in draft: inout ReceiptLineDraft) {
+        draft.name = name
+        if !draft.didPickCategory {
+            draft.category = guessCategory(named: name)
+        }
+    }
+
+    /// Units bought; the price follows the price of one unit, as on the review.
+    func setQuantity(_ quantity: Int, in draft: inout ReceiptLineDraft) {
+        draft.quantity = quantity
+        guard quantity > 0, draft.unitPrice > 0 else { return }
+        let total = (draft.unitPrice * Double(quantity) * 100).rounded() / 100
+        draft.priceText = Self.priceText(for: total)
+    }
+
+    /// A typed price; it becomes the new price of one unit.
+    func setPrice(_ text: String, in draft: inout ReceiptLineDraft) {
+        draft.priceText = text
+        guard draft.quantity > 0 else { return }
+        draft.unitPrice = (ShopListViewModel.parsePrice(text) ?? 0) / Double(draft.quantity)
+    }
+
+    /// The list item the line checks off (`nil`: a new item). The people follow it until the
+    /// person picks them.
+    func setLink(_ itemID: String?, in draft: inout ReceiptLineDraft) {
+        draft.linkedItemID = itemID
+        if !draft.didPickConsumers {
+            draft.consumers = defaultConsumers(forItemID: itemID)
+        }
+    }
+
+    /// The aisle the person picked.
+    func setCategory(_ category: ShopItemCategory, in draft: inout ReceiptLineDraft) {
+        draft.category = category
+        draft.didPickCategory = true
+    }
+
+    /// Who the person picked to split the price.
+    func setConsumers(_ users: [UserModel], in draft: inout ReceiptLineDraft) {
+        draft.consumers = users
+        draft.didPickConsumers = true
+    }
+
+    /// The list item a draft checks off, if any.
+    func linkedItem(for draft: ReceiptLineDraft) -> ShopListItem? {
+        draft.linkedItemID.flatMap { id in linkableItems.first { $0.id == id } }
+    }
+
+    /// What still keeps the form from being confirmed, one thing at a time; `nil` when it can be.
+    func missingFieldText(in draft: ReceiptLineDraft) -> String? {
+        // The same warnings as the item form.
+        if draft.trimmedName.isEmpty { return ShopItemField.name.warning }
+        if !draft.isWeighed, draft.quantity < 1 { return ShopItemField.quantity.warning }
+        if draft.consumers.isEmpty { return ShopItemField.consumers.warning }
+        return nil
+    }
+
+    /// Applies a confirmed draft to its line, which goes back to being ticked.
+    func save(_ draft: ReceiptLineDraft) {
+        guard missingFieldText(in: draft) == nil,
+              let index = lines.firstIndex(where: { $0.id == draft.id })
+        else { return }
+        let id = draft.id
+        let original = lines[index]
+        newLineIDs.remove(id)
+        included.insert(id)
+
+        lines[index].name = draft.trimmedName
+        if !draft.isWeighed, draft.quantity != original.quantity {
+            lines[index].quantity = draft.quantity
+            editedQuantities.insert(id)
+        }
+        if draft.priceText != priceTexts[id] {
+            priceTexts[id] = draft.priceText
+            lines[index].total = ShopListViewModel.parsePrice(draft.priceText) ?? 0
+            // The person checked the value: no more warning.
+            lines[index].warning = nil
+        }
+        links[id] = draft.linkedItemID
+        // Only an aisle the form changed: the model may have guessed one meanwhile.
+        if draft.didPickCategory || draft.trimmedName != original.name {
+            categories[id] = draft.category
+            if !draft.isCategoryFromAI { aiCategories.remove(id) }
+        }
+        if draft.didPickCategory { editedCategories.insert(id) }
+        consumerIDs[id] = draft.didPickConsumers ? Set(draft.consumers.map(\.id)) : nil
+    }
+
+    /// Closes a form without confirming: a line the person had just added goes away.
+    func discard(_ draft: ReceiptLineDraft) {
+        guard newLineIDs.contains(draft.id),
+              let line = lines.first(where: { $0.id == draft.id })
+        else { return }
+        removeLine(line)
+    }
+
+    // MARK: - What each card says
+
+    /// "2 unidades" or "0,364 kg".
+    static func quantityText(for line: ReceiptScanLine) -> String {
+        if line.weightKg > 0 { return amountText(for: line) }
+        return ShopListViewModel.accessibilityQuantity(line.quantity, unit: .unit)
+    }
+
+    /// The line under a product's name: "Na lista · 2 unidades · R$ 5,98" ("Na lista" when it
+    /// checks off a list item).
+    func detailText(for line: ReceiptScanLine) -> String {
+        var parts = [Self.quantityText(for: line), Self.money(line.total)]
+        if linkedItem(for: line) != nil { parts.insert(L10n.tr("Na lista"), at: 0) }
+        return parts.joined(separator: " · ")
     }
 
     // MARK: - Summary
@@ -509,25 +629,36 @@ final class ReceiptScanViewModel {
 
     /// "2 unidades" or "0,364 kg"; empty for a single unit.
     static func amountText(for line: ReceiptScanLine) -> String {
-        if line.weightKg > 0 {
-            let weight = line.weightKg.formatted(.number.precision(.fractionLength(3)).locale(L10n.locale))
-            return "\(weight) kg"
-        }
+        if line.weightKg > 0 { return weightText(line.weightKg) }
         guard line.quantity > 1 else { return "" }
         return "\(line.quantity) \(UnitMeasurement.unit.getDisplayName(for: Double(line.quantity)))"
     }
 
-    /// What a warning tells the person, translated.
+    /// "0,364 kg".
+    static func weightText(_ kilograms: Double) -> String {
+        let weight = kilograms.formatted(.number.precision(.fractionLength(3)).locale(L10n.locale))
+        return "\(weight) kg"
+    }
+
+    /// What to check on a line the reader flagged, shown under its price in the form.
     static func warningText(_ warning: ReceiptLineWarning) -> String {
         switch warning {
-        case .totalMismatch(let computed, let printed):
-            return L10n.tr("Confira o valor: calculado \(money(computed)), impresso \(money(printed))")
+        case .totalMismatch(_, let printed):
+            return L10n.tr("Confira o valor. Na nota aparece \(money(printed)).")
         case .quantityNotRead:
-            return L10n.tr("Quantidade não lida: usado o valor impresso")
+            return L10n.tr("Confira a quantidade.")
         case .noAmount:
-            return L10n.tr("Valor não encontrado")
+            return L10n.tr("Digite o valor pago.")
         case .notOnReceipt:
-            return L10n.tr("Confira o valor: não aparece na nota")
+            return L10n.tr("Confira o valor.")
         }
     }
+
+}
+
+/// The products of one aisle, shown in one card on the review.
+struct ReceiptCategorySection: Identifiable {
+    let category: ShopItemCategory
+    let lines: [ReceiptScanLine]
+    var id: ShopItemCategory { category }
 }
