@@ -19,6 +19,8 @@ struct ShopListView: View {
     @State private var editingItem: ShopListItem?
     /// Opens the "Pendências" screen.
     @State private var isShowingPendingPayments = false
+    /// What a tapped notification asks this tab to open (`nil` in previews).
+    @Environment(AppNavigation.self) private var navigation: AppNavigation?
 
     /// Whether the "add several items with AI" sheet is open.
     @State private var isPresentingAIBatch = false
@@ -53,6 +55,27 @@ struct ShopListView: View {
                     PendingPaymentsView(shopList: viewModel)
                 }
                 .premiumPaywall($paywall)
+        }
+        // MARK: - Tapped notification: the list ("item comprado") or "Pendências" (debts)
+        .task(id: navigation?.shopRoute?.id) {
+            guard let route = navigation?.shopRoute else { return }
+            navigation?.shopRoute = nil
+            switch route.destination {
+            case .list:
+                isShowingPendingPayments = false
+            case .pendingPayments:
+                openPendingPayments()
+            }
+        }
+    }
+
+    /// Opens "Pendências", or the paywall for a free house (prices are still recorded, so the
+    /// history is there the day they subscribe).
+    private func openPendingPayments() {
+        if PremiumManager.shared.allows(.debts) {
+            isShowingPendingPayments = true
+        } else {
+            paywall = .debts
         }
     }
 
@@ -222,13 +245,7 @@ struct ShopListView: View {
             HStack(spacing: 4) {
                 Button {
                     HapticsManager.selection()
-                    // Premium: free houses still record prices, so the history is there
-                    // the day they subscribe.
-                    if PremiumManager.shared.allows(.debts) {
-                        isShowingPendingPayments = true
-                    } else {
-                        paywall = .debts
-                    }
+                    openPendingPayments()
                 } label: {
                     Image(systemName: "banknote.fill")
                         .font(.system(size: 22))

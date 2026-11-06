@@ -10,7 +10,7 @@ import CloudKit
 
 /// Lets the user visually pick which house members are responsible for a chore.
 ///
-/// Selected users are presented as a stack of overlapping avatars. Tapping an avatar removes it from the
+/// Selected users are presented as a row of avatars that wraps to new lines when they don't fit. Tapping an avatar removes it from the
 /// active selection. The trailing "+" button invokes a `Menu` listing every available user to add.
 struct ResponsibleUserPicker: View {
     
@@ -29,7 +29,8 @@ struct ResponsibleUserPicker: View {
     private let avatarWidthMultiplier = 0.11
     
     var body: some View {
-        HStack(spacing: 10) {
+        // Wraps to a new line when the avatars don't fit (big houses), instead of squeezing them.
+        WrappingHStack(spacing: 10, lineSpacing: 12) {
             // MARK: - Selected members (tap one, or its "–" badge, to remove it)
             ForEach(selectedUsers) { selectedUser in
                 UserProfilePictureTag(user: selectedUser, widthMultiplier: avatarWidthMultiplier)
@@ -88,4 +89,20 @@ struct ResponsibleUserPicker: View {
                                 : selectedUsers.map(\.name).formatted(.list(type: .and).locale(L10n.locale)))
         }
     }
+}
+
+// MARK: - Previews
+
+#Preview("Muitos moradores") {
+    @Previewable @State var selected: [UserModel] = (1...9).map { index in
+        let user = UserModel(name: "Morador \(index)", tier: .tier1, ownerRecordName: "preview-\(index)")
+        user.recordID = CKRecord.ID(recordName: "preview-picker-user-\(index)")
+        return user
+    }
+    ResponsibleUserPicker(availableUsers: selected, selectedUsers: $selected)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .padding(22)
+        .background(Color(.systemGray6))
 }
