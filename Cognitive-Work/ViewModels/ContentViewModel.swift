@@ -111,6 +111,12 @@ class ContentViewModel {
         do {
             let house = try await CloudKitManager.shared.currentHouse(forceRefresh: true)
             guard !Task.isCancelled else { return }
+            // Removed by the admin while the house is still readable: leave it now, instead of
+            // showing the house without its members, chores or dates for this user.
+            if let house, await CloudKitManager.shared.wasRemovedFromHouse(house) {
+                await leaveRemovedHouse(house)
+                return
+            }
             userHasNoHouse = (house == nil)
             // Reads the house's Premium status and, if this device pays, renews it in the record.
             // Not awaited: it can write the house record, and nothing on screen waits for it.
@@ -198,6 +204,17 @@ class ContentViewModel {
     }
 
     // MARK: - Orphaned houses
+
+    /// Leaves a house the admin removed this member from and shows the notice
+    /// (`HouseAccessLostView`). The notice shows even when leaving fails (offline): the member
+    /// isn't in that house anymore, and the onboarding leaves it again before anything else.
+    private func leaveRemovedHouse(_ house: HouseModel) async {
+        _ = await CloudKitManager.shared.pruneOrphanedSharedMemberships()
+        store.invalidate()
+        let remaining = try? await CloudKitManager.shared.currentHouse(forceRefresh: true)
+        guard !Task.isCancelled else { return }
+        userHasNoHouse = remaining == nil || remaining?.recordID?.zoneID == house.recordID?.zoneID
+    }
 
     /// Leaves any house this iCloud account is still attached to without a member record
     func leaveOrphanedHouses() async {

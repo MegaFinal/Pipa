@@ -72,9 +72,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     /// `UserDefaults` key of the record names already handled, with the day each was handled.
     private static let processedKey = "notifications.processedRecords"
     
-    /// Set when the user taps a notification. The UI observes it, navigates and sets it back
-    /// to `nil`.
+    /// Set when the user taps a notification. ``ContentView`` observes it (through
+    /// ``pendingDestinationID``), navigates and sets it back to `nil`.
     var pendingDestination: NotificationDestination?
+    /// Changes with every tapped notification, so the UI notices even the same destination twice
+    /// (``NotificationDestination`` can't be compared).
+    private(set) var pendingDestinationID: UUID?
     
     /// Whether the notifications screen has something the user hasn't seen. Drives the red dot
     /// on the bell; see ``refreshUnseenNotifications(force:)``.
@@ -446,6 +449,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     @MainActor
     func route(to destination: NotificationDestination) {
         pendingDestination = destination
+        pendingDestinationID = UUID()
     }
     
     /// Turns a notification's `userInfo` into the screen it should open, or `nil` when it

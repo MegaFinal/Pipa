@@ -48,7 +48,8 @@ extension IntelligenceManager {
 
         return generated.items.compactMap { item in
             let name = String(item.trimmingCharacters(in: .whitespacesAndNewlines).prefix(TextLimits.shopItemName))
-            return name.isEmpty ? nil : name
+            // Same style as typed names: the model often writes them all in lower case.
+            return name.isEmpty ? nil : name.capitalizingFirstLetter()
         }
     }
 }

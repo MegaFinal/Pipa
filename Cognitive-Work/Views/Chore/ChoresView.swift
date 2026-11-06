@@ -24,6 +24,8 @@ struct ChoresView: View {
     
     /// Chore opened from a notification. Shown on top of everything until dismissed.
     @State private var choreFromNotification: ChoreOccurrence?
+    /// What a tapped notification asks this tab to open (`nil` in previews).
+    @Environment(AppNavigation.self) private var navigation: AppNavigation?
     
     /// Namespace used for matched geometry effect transitions between the list and carousel layouts.
     @Namespace private var cardAnimation
@@ -239,6 +241,10 @@ struct ChoresView: View {
             }
         }
         .premiumPaywall($paywall)
+        // MARK: - Tapped notification: the chore, the unassigned chores, the pop-up or progress
+        .task(id: navigation?.choresRoute?.id) {
+            openNotificationRoute()
+        }
         // MARK: - Loading and the progress cards' color
         .task {
             await carouselVM.fetchAllData()
@@ -534,6 +540,35 @@ private struct ProgressIndicatorCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 21))
         .shadow(color: .black.opacity(0.25), radius: 4.07717, x: 0, y: 1.23551)
         .accessibilityElement(children: .combine)
+    }
+}
+
+// MARK: - Notifications
+
+extension ChoresView {
+    /// Opens what a tapped notification points at (see ``AppNavigation/choresRoute``).
+    fileprivate func openNotificationRoute() {
+        guard let route = navigation?.choresRoute else { return }
+        navigation?.choresRoute = nil
+        open(route.destination)
+    }
+
+    /// Opens a chore notification's destination; the same handling as the notifications screen.
+    fileprivate func open(_ destination: NotificationDestination) {
+        switch destination {
+        case .chore(let chore, let assignment):
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+                choreFromNotification = ChoreOccurrence(chore: chore, assignment: assignment)
+            }
+        case .pickChores:
+            withAnimation { carouselVM.isShowingUnassignedList = true }
+        case .newMember:
+            carouselVM.presentNewUserPopUp()
+        case .dashboard:
+            isShowingProgress = true
+        default:
+            break
+        }
     }
 }
 
