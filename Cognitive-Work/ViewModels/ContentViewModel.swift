@@ -16,6 +16,9 @@ import SwiftUI
 class ContentViewModel {
     /// An error to show in an alert, or `nil` when there is none.
     var errorMessage: String? = nil
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
     
     /// Whether the "already in a house" warning is being presented.
     var showInviteAcceptAlert: Bool = false
@@ -127,7 +130,8 @@ class ContentViewModel {
                 print("   partial errors:", ck.partialErrorsByItemID ?? [:])
             }
             guard !Task.isCancelled else { return }
-            errorMessage = L10n.tr("Não foi possível carregar a casa. Verifique sua conexão.")
+            errorTitle = L10n.tr("Não foi possível carregar sua casa")
+            errorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
             return
         }
     }
@@ -151,6 +155,7 @@ class ContentViewModel {
     /// Leaves the current house, joins the one in `metadata` and reloads everything.
     func switchHouse(to metadata: CKShare.Metadata) async {
         await CloudKitManager.shared.switchHouse(to: metadata)
+        errorTitle = L10n.tr("Não foi possível trocar de casa")
         self.errorMessage = CloudKitManager.shared.errorMessage
         
         await bootstrap()

@@ -78,11 +78,11 @@ struct PairedView: View {
         }
         
         // MARK: - Alerts
-        .alert("Celular desconectado.", isPresented: $disconectThisPhone) {
+        .alert("Celular desconectado", isPresented: $disconectThisPhone) {
             // Stays here: the screen now shows "despareado" and the "Parear" button.
             Button("OK") { }
         } message: {
-            Text("Seu celular foi desconectado com sucesso!")
+            Text("Este celular não recebe mais as atualizações do Harvii. Você pode parear de novo quando quiser.")
         }
         .alert(
             HardwareViewModel.ConectionResult.failureParing.title,

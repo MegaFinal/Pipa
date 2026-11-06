@@ -178,7 +178,7 @@ class HardwareViewModel {
             case .invalidResponse, .invalidData:
                 return L10n.tr("O Harvii respondeu, mas não aceitou o pareamento. Tente de novo; se continuar, segure o botão BOOT por 5 segundos para resetar o Harvii.")
             default:
-                return apiError.errorDescription ?? L10n.tr("Erro desconhecido.")
+                return apiError.errorDescription ?? L10n.tr("Não foi possível parear com o Harvii. Tente de novo; se continuar, segure o botão BOOT por 5 segundos para resetar o Harvii.")
             }
         }
         return error.localizedDescription
@@ -197,8 +197,8 @@ class HardwareViewModel {
         var title: String {
             switch self {
             case .success: L10n.tr("Pareamento completo!")
-            case .failureWiFi: L10n.tr("Falha na conexão")
-            case .failureParing: L10n.tr("Falha no pareamento")
+            case .failureWiFi: L10n.tr("Não foi possível enviar o Wi-Fi ao Harvii")
+            case .failureParing: L10n.tr("Não foi possível parear com o Harvii")
             }
         }
 
@@ -399,7 +399,7 @@ class HardwareViewModel {
             zoneID: houseRecordID.zoneID,
             parent: houseReference
         ) else {
-            errorMessage = L10n.tr("Erro ao criar nome do host (Harvii).")
+            errorMessage = L10n.tr("Não foi possível salvar o Harvii na sua casa. Confira a conexão com a internet e tente de novo.")
             return false
         }
 

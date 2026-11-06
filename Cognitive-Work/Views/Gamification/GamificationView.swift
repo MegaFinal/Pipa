@@ -104,7 +104,7 @@ struct GamificationView: View {
             }
             // MARK: - Purchase error alert
             .alert(
-                "Não foi possível comprar",
+                "Não foi possível comprar o cupom",
                 isPresented: Binding(
                     get: { viewModel.alertMessage != nil },
                     set: { if !$0 { viewModel.alertMessage = nil } }

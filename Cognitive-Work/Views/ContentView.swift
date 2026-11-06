@@ -65,7 +65,7 @@ struct ContentView: View {
             viewModel.showInviteAcceptAlert = true
             viewModel.shareMetadata = cloudMetadata.object as? CKShare.Metadata
         }
-        .alert("Não é possivel estar em duas casas ao mesmo tempo", isPresented: $viewModel.showInviteAcceptAlert) {
+        .alert("Trocar de casa?", isPresented: $viewModel.showInviteAcceptAlert) {
             Button("Trocar de casa",role: .destructive) {
                 viewModel.isSwitchingHouse = true
                 Task {
@@ -76,17 +76,17 @@ struct ContentView: View {
                 }
             }
         } message: {
-            Text("Se você aceitar, você sairá da sua casa atual todos os seus dados serão perdidos")
+            Text("Você só pode participar de uma casa por vez. Ao aceitar o convite, você sai da casa atual e perde as suas tarefas, pontos e moedas nela.")
                 + Text(verbatim: PremiumManager.shared.leaveWarning.map { "\n\n" + $0 } ?? "")
         }
         // MARK: Errors and deleted house
-        .alert("Ops", isPresented: Binding(
+        .alert(viewModel.errorTitle ?? L10n.tr("Algo não funcionou"), isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
         )) {
             Button("OK") { viewModel.errorMessage = nil }
         } message: {
-            Text(viewModel.errorMessage ?? L10n.tr("Deu algum erro."))
+            Text(viewModel.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente."))
         }
         
         // MARK: Blocking screens

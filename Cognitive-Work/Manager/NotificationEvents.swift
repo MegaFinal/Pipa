@@ -93,18 +93,52 @@ extension NotificationManager {
         )
     }
 
-    /// The current user bought an item somebody else added to the shopping list: tells them.
+    /// The current user bought items `member` pays a part of, checked off on the list (one
+    /// shopping trip, see ``BoughtItemsNotifier``) or with a scanned receipt: tells them what
+    /// was bought for them and their part. Only who has something to pay hears about it.
+    ///
+    /// - "Ana comprou Leite para você" / "Sua parte: R$ 4,50"
+    /// - "Ana comprou Leite e Pão para você" / "Sua parte: R$ 9,00"
+    /// - "Ana comprou 5 itens para você" / "Sua parte: R$ 32,40"
+    ///
     /// - Parameters:
-    ///   - item: The item that was bought.
+    ///   - itemNames: The items `member` shares, in the order they were bought.
+    ///   - share: Their part, already formatted ("R$ 32,40").
     ///   - buyerName: The current user's name.
-    ///   - owner: The member who added the item.
-    func notifyItemBought(_ item: ShopListItem, by buyerName: String, to owner: UserModel) async {
+    ///   - member: Who pays the part.
+    ///   - fromReceipt: Bought with a scanned receipt: the notification shows the receipt's icon
+    ///     instead of the cart.
+    func notifyBoughtForYou(
+        _ itemNames: [String],
+        share: String,
+        by buyerName: String,
+        to member: UserModel,
+        fromReceipt: Bool
+    ) async {
+        let names = itemNames
+        guard let first = names.first, !member.ownerRecordName.isEmpty else { return }
+
+        let titleKey: String
+        let titleArgs: [String]
+        switch names.count {
+        case 1:
+            titleKey = Notifications.boughtForYou.rawValue
+            titleArgs = [buyerName, first]
+        case 2:
+            titleKey = "%@ comprou %@ e %@ para você"
+            titleArgs = [buyerName, names[0], names[1]]
+        default:
+            titleKey = "%@ comprou %@ itens para você"
+            titleArgs = [buyerName, String(names.count)]
+        }
+
         await sendEvent(
-            kind: .itemBought,
-            titleKey: Notifications.itemBought.rawValue,
-            titleArgs: [buyerName, item.name],
-            bodyKey: Notifications.itemBought.subTitle,
-            recipientIDs: [owner.ownerRecordName]
+            kind: fromReceipt ? .receiptBoughtForYou : .boughtForYou,
+            titleKey: titleKey,
+            titleArgs: titleArgs,
+            bodyKey: "Sua parte: %@",
+            bodyArgs: [share],
+            recipientIDs: [member.ownerRecordName]
         )
     }
 

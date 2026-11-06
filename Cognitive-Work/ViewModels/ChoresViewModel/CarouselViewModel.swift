@@ -88,6 +88,9 @@ class CarouselViewModel {
     /// Set when ``delete(chore:targetOccurrences:)`` fails, so a view can surface it in an
     /// alert. Left for the view to clear back to `nil` once shown.
     var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
     
     /// The last day of the division cycle in progress.
     var currentCycleEnd: Date? {
@@ -1037,7 +1040,8 @@ class CarouselViewModel {
             dailyAssignments.append(contentsOf: snapshot.assignments)
             refreshVisible()
             
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível excluir a tarefa.")
+            errorTitle = L10n.tr("Não foi possível excluir a tarefa")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         

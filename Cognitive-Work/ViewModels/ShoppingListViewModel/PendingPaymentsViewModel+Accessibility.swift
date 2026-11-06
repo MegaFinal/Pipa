@@ -43,7 +43,8 @@ extension PendingPaymentsViewModel {
 
     /// "Pago" once settled.
     func settleAccessibilityValue(for group: DebtGroup) -> String {
-        isPaid(group) ? L10n.tr("Pago") : ""
+        if isSaving(group) { return L10n.tr("Salvando") }
+        return isPaid(group) ? L10n.tr("Pago") : ""
     }
 
     /// What the dialog's confirm button runs: settles the requested debt, then says "Pago" when it
