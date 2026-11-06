@@ -880,19 +880,29 @@ final class ShopListViewModel {
     /// Applies a receipt the person reviewed. List items are checked off by the signed-in user
     /// with the price paid (one a housemate bought meanwhile is left as it is), and products that weren't
     /// on the list are added already bought, for who the person chose (the whole house when
-    /// nobody, like ``addSuggestedItems(_:)``). A failed save doesn't stop the rest;
-    /// ``errorMessage`` is set at the end.
+    /// nobody, like ``addSuggestedItems(_:)``).
+    ///
+    /// Fast, so the review screen closes soon: the list items go in one request and the new
+    /// items in another, all or nothing each (``errorMessage`` is set when one fails). The
+    /// points, the notifications (``notifyReceipt(_:by:)``) and the like run afterwards, in
+    /// the background.
     ///
     /// - Returns: How many purchases and new items were saved.
     func applyReceipt(purchases: [ReceiptPurchase], newItems: [ReceiptNewItem]) async -> Int {
-        guard let currentUser else {
+        guard let currentUser, let buyerID = currentUser.recordID else {
             errorMessage = L10n.tr("Erro ao editar item.")
             return 0
         }
         var saved = 0
-        var points = 0
         var failed = false
+        // The items this receipt bought, for the points and the notifications.
+        var bought: [ShopListItem] = []
+        // The signed-in user's points, and the points of who added the list items, by record.
+        var myPoints = 0
+        var adderPoints: [String: (user: UserModel, points: Int)] = [:]
 
+        // MARK: List items: one request
+        var checkedOff: [(item: ShopListItem, points: Int, undo: () -> Void)] = []
         for purchase in purchases {
             let item = purchase.item
             let price = purchase.total > 0 ? purchase.total : nil
@@ -937,25 +947,39 @@ final class ShopListViewModel {
             // Same scoring as `setBought`: the buyer's points are saved in `awardedPoints`
             // so un-buying takes back exactly them, and the adder is paid now.
             let purchasePoints = ScoreValues.shoppingPurchase(hasPrice: price != nil || item.hasPrice)
-            guard await item.markBought(by: currentUser, totalPrice: price, awarding: purchasePoints) else {
+            let undoPurchase = item.markBoughtLocally(by: buyerID, totalPrice: price, awarding: purchasePoints)
+            checkedOff.append((item, purchasePoints, {
+                undoPurchase()
                 (item.quantity, item.unitMeasurement) = previousAmount
                 item.relatedUsersReference = previousPeople
+            }))
+        }
+        if !checkedOff.isEmpty {
+            if await CloudKitManager.shared.batchUpdate(checkedOff.map(\.item)) {
+                for entry in checkedOff {
+                    bought.append(entry.item)
+                    myPoints += entry.points
+                    if let adder = houseUser(withID: entry.item.addedByRecordID) {
+                        if adder.ownerRecordName == currentUser.ownerRecordName {
+                            myPoints += ScoreValues.shoppingItemAdded.points
+                        } else if let key = adder.recordID?.recordName {
+                            adderPoints[key, default: (adder, 0)].points += ScoreValues.shoppingItemAdded.points
+                        }
+                    }
+                    saved += 1
+                }
+            } else {
+                checkedOff.forEach { $0.undo() }
                 failed = true
-                continue
             }
-            notifyItemBought(item, by: currentUser)
-            points += purchasePoints
-            if let adder = houseUser(withID: item.addedByRecordID) {
-                await ScoreManager.shared.assignScore(score: ScoreValues.shoppingItemAdded.points, for: adder)
-            }
-            saved += 1
         }
 
+        // MARK: New items: one request
         let house = houseUsers.compactMap { user in
             user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
         }
-        let me = currentUser.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
-
+        let me = CKRecord.Reference(recordID: buyerID, action: .none)
+        var drafts: [ShopListItem] = []
         for newItem in newItems {
             let chosen = newItem.consumers.compactMap { user in
                 user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
@@ -974,8 +998,7 @@ final class ShopListViewModel {
             )
             draft.boughtAt = Date()
             // Bought on creation: saved like any purchase so un-buying takes these points back.
-            let purchasePoints = ScoreValues.shoppingPurchase(hasPrice: newItem.total > 0)
-            draft.awardedPoints = purchasePoints
+            draft.awardedPoints = ScoreValues.shoppingPurchase(hasPrice: newItem.total > 0)
 
             if isPreview {
                 draft.recordID = CKRecord.ID(recordName: "preview-item-\(UUID().uuidString)")
@@ -983,21 +1006,130 @@ final class ShopListViewModel {
                 saved += 1
                 continue
             }
-
-            guard let list, let created = await list.addItem(draft) else { failed = true; continue }
-            upsert(created)
-            // The current user both added and bought it: purchase points + the adder's points.
-            points += purchasePoints + ScoreValues.shoppingItemAdded.points
-            saved += 1
+            drafts.append(draft)
+        }
+        if !drafts.isEmpty {
+            if let listID = list?.recordID {
+                // Created like `ShopListModel.addItem`: in the list's zone, with the list as parent.
+                let parent = CKRecord.Reference(recordID: listID, action: .none)
+                let records = drafts.map { draft -> CKRecord in
+                    let recordID = CKRecord.ID(recordName: UUID().uuidString, zoneID: listID.zoneID)
+                    let record = CKRecord(recordType: ShopListItem.recordType, recordID: recordID)
+                    draft.populate(record: record)
+                    record.parent = parent
+                    draft.recordID = recordID
+                    return record
+                }
+                if await CloudKitManager.shared.batchSave(records: records, zoneID: listID.zoneID) {
+                    CloudKitManager.shared.invalidateSessionCacheIfNeeded(for: ShopListItem.self)
+                    for draft in drafts {
+                        draft.listRecordID = listID
+                        upsert(draft)
+                        bought.append(draft)
+                        // The current user both added and bought it: purchase points + the adder's points.
+                        myPoints += (draft.awardedPoints ?? 0) + ScoreValues.shoppingItemAdded.points
+                        saved += 1
+                    }
+                } else {
+                    drafts.forEach { $0.recordID = nil }
+                    failed = true
+                }
+            } else {
+                failed = true
+            }
         }
 
         if failed {
             errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível salvar todos os itens.")
         }
-        if points > 0 {
-            await ScoreManager.shared.assignScoreForMyUser(score: points)
+
+        // MARK: Afterwards, in the background
+        guard !isPreview else { return saved }
+        let adders = Array(adderPoints.values)
+        let points = myPoints
+        Task {
+            if points > 0 {
+                await ScoreManager.shared.assignScoreForMyUser(score: points)
+            }
+            for adder in adders {
+                await ScoreManager.shared.assignScore(score: adder.points, for: adder.user)
+            }
+            await notifyReceipt(bought, by: currentUser)
         }
         return saved
+    }
+
+    /// Tells the housemates about a scanned receipt, right away: a receipt is the whole trip, so
+    /// it doesn't wait like the items checked off on the list (``BoughtItemsNotifier``).
+    ///
+    /// Everyone who shares an item gets one notification with what was bought for them and
+    /// their part, added up like "Pendências" does (``DebtCalculator``, so the amounts match).
+    /// Whoever added a list item without sharing anything still hears that it was bought.
+    private func notifyReceipt(_ bought: [ShopListItem], by buyer: UserModel) async {
+        guard !bought.isEmpty, !isPreview else { return }
+        let buyerPerson = buyer.ownerRecordName
+
+        // Who shares what, by person: one person may have more than one user record.
+        var order: [String] = []
+        var shared: [String: (member: UserModel, names: [String])] = [:]
+        for item in bought {
+            for id in item.consumerRecordIDs {
+                guard let member = houseUser(withID: id),
+                      !member.ownerRecordName.isEmpty, member.ownerRecordName != buyerPerson
+                else { continue }
+                let key = member.ownerRecordName
+                if shared[key] == nil {
+                    shared[key] = (member, [])
+                    order.append(key)
+                }
+                if !(shared[key]?.names.contains(item.name) ?? true) {
+                    shared[key]?.names.append(item.name)
+                }
+            }
+        }
+
+        // Their part of this receipt only.
+        let ledger = DebtCalculator.ledger(
+            items: bought,
+            users: houseUsers,
+            userRecords: houseUserRecords,
+            me: buyer
+        )
+        var shares: [String: Double] = [:]
+        for group in ledger.owedToYou {
+            shares[group.counterparty.ownerRecordName, default: 0] += group.total
+        }
+
+        for key in order {
+            guard let entry = shared[key] else { continue }
+            let share = shares[key].flatMap { $0 > 0 ? $0 : nil }
+            await NotificationManager.shared.notifyReceiptShare(
+                entry.names,
+                share: share.map { $0.formatted(.currency(code: "BRL").locale(L10n.locale)) },
+                by: buyer.name,
+                to: entry.member
+            )
+        }
+
+        // Added by someone who shares none of it: the usual "comprou", sent now.
+        var addedOrder: [String] = []
+        var added: [String: (owner: UserModel, names: [String])] = [:]
+        for item in bought {
+            guard let owner = houseUser(withID: item.addedByRecordID),
+                  !owner.ownerRecordName.isEmpty, owner.ownerRecordName != buyerPerson,
+                  shared[owner.ownerRecordName] == nil
+            else { continue }
+            let key = owner.ownerRecordName
+            if added[key] == nil {
+                added[key] = (owner, [])
+                addedOrder.append(key)
+            }
+            added[key]?.names.append(item.name)
+        }
+        for key in addedOrder {
+            guard let entry = added[key] else { continue }
+            await NotificationManager.shared.notifyItemsBought(entry.names, by: buyer.name, to: entry.owner)
+        }
     }
 
     /// Whether `date` falls in the house's current season (any date does before the first one ends).

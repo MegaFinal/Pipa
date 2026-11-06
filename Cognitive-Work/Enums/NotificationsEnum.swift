@@ -42,6 +42,9 @@ enum Notifications: String {
     /// A guest chose their free time and is waiting for the admin to divide the chores (only the
     /// admin gets it). The raw value is the title's format: who is waiting.
     case guestWaitingDivision = "%@ está esperando a divisão"
+    /// Someone scanned a receipt with items the user shares: what was bought for them and their
+    /// part of it. The raw value is the title's format for one item: who bought it, which item.
+    case receiptShared = "%@ comprou %@ para você"
     
     /// The second line of the notification, explaining what to do. Empty when the title is enough.
     var subTitle: String {
@@ -59,6 +62,8 @@ enum Notifications: String {
         case .calendarSync: return "Veja as suas tarefas direto no Apple Calendar"
         case .premiumEnded: return "Para continuar com o Premium, outra pessoa da casa precisa assinar"
         case .guestWaitingDivision: return "O tempo livre já foi definido. Refaça a divisão para incluir esse morador"
+        // Built for each notification: the person's part, or the items.
+        case .receiptShared: return ""
         }
     }
     
@@ -78,6 +83,7 @@ enum Notifications: String {
         case .calendarSync: return .lowOpacityPurple
         case .premiumEnded: return .lowOpacityYellow
         case .guestWaitingDivision: return .lowOpacityPurple
+        case .receiptShared: return .lowOpacityOrange
         }
     }
     
@@ -97,6 +103,7 @@ enum Notifications: String {
         case .calendarSync: return "calendar"
         case .premiumEnded: return "crown"
         case .guestWaitingDivision: return "hourglass"
+        case .receiptShared: return "doc.text.viewfinder"
         }
     }
 }

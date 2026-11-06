@@ -37,6 +37,10 @@ struct ReceiptReviewView: View {
                     empty
                 case .review:
                     review
+                        // Saving: what's on screen is what gets saved, so nothing changes now.
+                        .disabled(viewModel.isApplying)
+                        .opacity(viewModel.isApplying ? 0.5 : 1)
+                        .animation(.easeInOut(duration: 0.2), value: viewModel.isApplying)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -248,6 +248,88 @@
         }
       }
     },
+    "%@ comprou %@ e %@ para você" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ bought %2$@ and %3$@ for you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ compró %2$@ y %3$@ para ti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ a acheté %2$@ et %3$@ pour toi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@さんがあなたの分の%2$@と%3$@を購入しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@님이 나를 위해 %2$@와(과) %3$@을(를) 구매했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 为你购买了 %2$@ 和 %3$@"
+          }
+        }
+      }
+    },
+    "%@ comprou %@ itens para você" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ bought %2$@ items for you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ compró %2$@ artículos para ti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ a acheté %2$@ articles pour toi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@さんがあなたの分の%2$@点を購入しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@님이 나를 위해 항목 %2$@개를 구매했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 为你购买了 %2$@ 件商品"
+          }
+        }
+      }
+    },
     "%@ comprou %@ itens que você adicionou" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -285,6 +367,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ 购买了你添加的 %2$@ 件商品"
+          }
+        }
+      }
+    },
+    "%@ comprou %@ para você" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ bought %2$@ for you"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ compró %2$@ para ti"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ a acheté %2$@ pour toi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@さんがあなたの分の%2$@を購入しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@님이 나를 위해 %2$@을(를) 구매했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 为你购买了 %2$@"
           }
         }
       }
@@ -45425,6 +45548,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你本周承担的家庭心理负担"
+          }
+        }
+      }
+    },
+    "Sua parte: %@" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your share: %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu parte: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta part : %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたの負担分：%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 몫: %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的分摊：%@"
           }
         }
       }

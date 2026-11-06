@@ -320,6 +320,19 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     @discardableResult
     func markBought(by user: UserModel, totalPrice paid: Double? = nil, awarding points: Int = 0) async -> Bool {
         guard let buyerID = user.recordID else { return false }
+        let undo = markBoughtLocally(by: buyerID, totalPrice: paid, awarding: points)
+        guard await CloudKitManager.shared.update(self) else {
+            undo()
+            return false
+        }
+        return true
+    }
+
+    /// The changes of ``markBought(by:totalPrice:awarding:)``, in memory only, for saving many
+    /// items in one request (a scanned receipt).
+    ///
+    /// - Returns: What puts the item back as it was, for when the save fails.
+    func markBoughtLocally(by buyerID: CKRecord.ID, totalPrice paid: Double?, awarding points: Int) -> () -> Void {
         let previousBuyer = buyerUserReference
         let previousTotalPrice = totalPrice
         let previousSettled = settledUsersReference
@@ -334,16 +347,14 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         settledUsersReference = []
         if let paid { totalPrice = paid }
 
-        guard await CloudKitManager.shared.update(self) else {
+        return { [self] in
             isBought = false
             buyerUserReference = previousBuyer
             totalPrice = previousTotalPrice
             settledUsersReference = previousSettled
             boughtAt = previousBoughtAt
             awardedPoints = previousAwardedPoints
-            return false
         }
-        return true
     }
 
     /// Records, in memory only, that `debtorID` paid their share (used by previews and as the

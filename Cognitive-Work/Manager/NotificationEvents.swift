@@ -93,6 +93,64 @@ extension NotificationManager {
         )
     }
 
+    /// The current user scanned a receipt with items `member` shares: tells them right away (a
+    /// receipt is the whole trip) what was bought for them and their part of it.
+    ///
+    /// - "Ana comprou Leite para você" / "Sua parte: R$ 4,50"
+    /// - "Ana comprou Leite e Pão para você" / "Sua parte: R$ 9,00"
+    /// - "Ana comprou 5 itens para você" / "Sua parte: R$ 32,40"
+    /// - Without prices, the body lists the items when the title doesn't ("Leite, Pão, Café e
+    ///   mais 2"), or is empty.
+    ///
+    /// - Parameters:
+    ///   - itemNames: The items `member` shares, in the receipt's order.
+    ///   - share: Their part, already formatted ("R$ 32,40"), or `nil` when nothing had a price.
+    ///   - buyerName: The current user's name.
+    ///   - member: Who shares the items.
+    func notifyReceiptShare(_ itemNames: [String], share: String?, by buyerName: String, to member: UserModel) async {
+        let names = itemNames
+        guard let first = names.first, !member.ownerRecordName.isEmpty else { return }
+
+        let titleKey: String
+        let titleArgs: [String]
+        switch names.count {
+        case 1:
+            titleKey = Notifications.receiptShared.rawValue
+            titleArgs = [buyerName, first]
+        case 2:
+            titleKey = "%@ comprou %@ e %@ para você"
+            titleArgs = [buyerName, names[0], names[1]]
+        default:
+            titleKey = "%@ comprou %@ itens para você"
+            titleArgs = [buyerName, String(names.count)]
+        }
+
+        var bodyKey = ""
+        var bodyArgs: [String] = []
+        if let share {
+            bodyKey = "Sua parte: %@"
+            bodyArgs = [share]
+        } else if names.count >= 3 {
+            // The title only says how many: the body says which.
+            bodyArgs = Array(names.prefix(3))
+            if names.count == 3 {
+                bodyKey = "%@, %@ e %@"
+            } else {
+                bodyKey = "%@, %@, %@ e mais %@"
+                bodyArgs.append(String(names.count - 3))
+            }
+        }
+
+        await sendEvent(
+            kind: .receiptShared,
+            titleKey: titleKey,
+            titleArgs: titleArgs,
+            bodyKey: bodyKey,
+            bodyArgs: bodyArgs,
+            recipientIDs: [member.ownerRecordName]
+        )
+    }
+
     /// The current user bought items somebody else added to the shopping list: tells them in a
     /// single notification for the whole trip (see ``BoughtItemsNotifier``).
     ///

@@ -252,9 +252,10 @@ final class ReceiptScanViewModel {
             linkedItem(for: line) == nil && categories[line.id] == .other && !editedCategories.contains(line.id)
         }
         for line in unknown {
-            guard !Task.isCancelled else { return }
+            // Once the person confirmed, the screen stays as it is.
+            guard !Task.isCancelled, !isApplying else { return }
             guard let category = await IntelligenceManager.shared.receiptCategory(for: line.name) else { continue }
-            guard let current = lines.first(where: { $0.id == line.id }), current.name == line.name,
+            guard !isApplying, let current = lines.first(where: { $0.id == line.id }), current.name == line.name,
                   !editedCategories.contains(line.id), categories[line.id] == .other
             else { continue }
             categories[line.id] = category
@@ -364,7 +365,9 @@ final class ReceiptScanViewModel {
         }
 
         let saved = await shopList.applyReceipt(purchases: purchases, newItems: newItems)
-        await shopList.rememberReceiptNames(learnedNames())
+        // Nothing on screen waits for it.
+        let learned = learnedNames()
+        Task { await shopList.rememberReceiptNames(learned) }
         return saved == purchases.count + newItems.count
     }
 
