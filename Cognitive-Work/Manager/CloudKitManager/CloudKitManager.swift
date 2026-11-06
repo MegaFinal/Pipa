@@ -574,7 +574,7 @@ class CloudKitManager {
             profilePicture: profilePictureDuplicate,
             banner: profile.banner,
             tier: .novatoDaCasa,
-            coins: profile.coins,
+            coins: 0,
             house: CKRecord.Reference(recordID: houseID, action: .none),
             couponLimit: profile.couponLimit,
             ownerRecordName: ownerName
@@ -776,9 +776,14 @@ class CloudKitManager {
             )
             // `modifyRecords` only throws for whole-request failures; per-record errors
             // (e.g. serverRecordChanged) come back in the results and used to be ignored.
+            var saved: [CKRecord] = []
             for (_, result) in saveResults {
-                if case .failure(let error) = result { throw error }
+                switch result {
+                case .success(let record): saved.append(record)
+                case .failure(let error): throw error
+                }
             }
+            RecentWrites.shared.saved(saved)
         
             await HardwareViewModel.notifyDataChanged()
             markDataChanged()
@@ -822,7 +827,8 @@ class CloudKitManager {
 
                 guard !recordsToSave.isEmpty else { continue }
 
-                _ = try await database.modifyRecords(saving: recordsToSave, deleting: [])
+                let (saveResults, _) = try await database.modifyRecords(saving: recordsToSave, deleting: [])
+                RecentWrites.shared.saved(saveResults.values.compactMap { try? $0.get() })
                 
                 await HardwareViewModel.notifyDataChanged()
                 markDataChanged()

@@ -46,6 +46,16 @@ struct ContentView: View {
                 .transition(.opacity)
             }
         }
+        // MARK: No house anymore (removed by the admin, or the house was deleted)
+        .overlay {
+            if viewModel.userHasNoHouse {
+                HouseAccessLostView {
+                    viewModel.accountWithoutHouseReturnToOnboarding()
+                }
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut, value: viewModel.userHasNoHouse)
         // MARK: Invite while already in a house
         .onReceive(NotificationCenter.default.publisher(for: .notAcceptShare)) { cloudMetadata in
             viewModel.showInviteAcceptAlert = true
@@ -75,14 +85,6 @@ struct ContentView: View {
             Text(viewModel.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente."))
         }
         
-        .alert("Sua casa foi excluída", isPresented: $viewModel.userHasNoHouse) {
-            Button("Ok", role: .confirm) {
-                viewModel.accountWithoutHouseReturnToOnboarding()
-            }
-        } message: {
-            Text("Quem criou a casa a excluiu. Você vai voltar ao início para criar uma casa nova ou entrar em outra.")
-        }
-        
         // MARK: Blocking screens
         .blockingOperation(isPresented: $viewModel.isSwitchingHouse, message: "Trocando de casa...")
         .blockingWhileUnlinkingOrphanedHouse()
@@ -91,6 +93,7 @@ struct ContentView: View {
         .task {
             await viewModel.bootstrap()
             await viewModel.checkRetro()
+            await NotificationManager.shared.enableOnFirstUseIfNeeded()
         }
         .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
             Task { await viewModel.fetchHouse() }

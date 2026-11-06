@@ -71,16 +71,35 @@ struct GamificationView: View {
                 }
                 .padding(.bottom, 24)
             }
+            // Pull to refresh: reads the house, the ranking and the balance again.
+            .refreshable {
+                await viewModel.pullToRefresh()
+            }
             .background(Color.white.ignoresSafeArea())
             // MARK: - Loading and refreshing
             .task {
                 guard !viewModel.hasLoaded else { return }
                 await viewModel.setup()
             }
+            // Every visit to the tab reads the balance again. The tab is created the first time
+            // it's opened, so coins earned before that (chores checked off on the Tarefas tab)
+            // never reached its `coinsDidChange` listener, and it showed the balance of launch.
+            .onAppear {
+                guard viewModel.hasLoaded else { return }
+                viewModel.requestRefresh()
+            }
             .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
                 viewModel.requestRefresh(catchUp: true)
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                viewModel.requestRefresh()
+            }
+            // Coins arrive as the rank goes up, so the balance is read again right away.
+            .onReceive(NotificationCenter.default.publisher(for: .coinsDidChange)) { _ in
+                viewModel.requestRefresh()
+            }
+            // Any change saved on this device (points, a purchase, a chore of the ranking).
+            .onChange(of: CloudKitManager.shared.dataRevision) {
                 viewModel.requestRefresh()
             }
             // MARK: - Purchase error alert

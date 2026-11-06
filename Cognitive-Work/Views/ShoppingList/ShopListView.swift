@@ -144,8 +144,11 @@ struct ShopListView: View {
         .alert(
             viewModel.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
-                // The AI sheet shows its own errors.
-                get: { viewModel.errorMessage != nil && !isPresentingAddItem && editingItem == nil && !isPresentingAIBatch },
+                // The AI sheet shows its own errors; "Pendências" shows a receipt's.
+                get: {
+                    viewModel.errorMessage != nil && !isPresentingAddItem && editingItem == nil
+                        && !isPresentingAIBatch && !isShowingPendingPayments
+                },
                 set: { if !$0 { viewModel.clearError() } }
             )
         ) {

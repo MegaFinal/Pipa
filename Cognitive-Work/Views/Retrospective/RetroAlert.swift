@@ -75,6 +75,21 @@ struct RetroAlert: View {
             
             // MARK: - Loading or error status
             loadStatus
+            
+            // MARK: - Leave
+            // Always available, even while loading or after an error, so the card never holds
+            // the user. The retrospective can be opened again from the notifications.
+            Button {
+                withAnimation {
+                    viewModel.skipRetrospective()
+                }
+            } label: {
+                Text("ver depois")
+                    .fontWeight(.semibold)
+                    .font(.subheadline)
+                    .foregroundStyle(.gray)
+            }
+            .padding(.top, height * 0.012)
         }
         .padding(.horizontal)
         .padding(.bottom, height * 0.018)

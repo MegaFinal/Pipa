@@ -43,6 +43,30 @@ extension NotificationManager {
         )
     }
 
+    /// The current user is a guest who chose their free time and is waiting for the division:
+    /// tells the admin, who is the only one who can divide the chores.
+    ///
+    /// Sent from the waiting screen of the onboarding. ``notifyNewMember(named:houseID:)`` goes out
+    /// earlier, when the guest joins, before their free time is known.
+    /// - Parameters:
+    ///   - name: The guest's name.
+    ///   - houseID: The house's record ID. The owner of its zone is the admin.
+    /// - Returns: Whether the notification was saved (also `true` when the user is the admin, who
+    ///   has nobody to tell).
+    @discardableResult
+    func notifyGuestWaitingForDivision(named name: String, houseID: CKRecord.ID) async -> Bool {
+        let adminID = houseID.zoneID.ownerName
+        guard adminID != CKCurrentUserDefaultName else { return true }
+
+        return await sendEvent(
+            kind: .guestWaitingDivision,
+            titleKey: Notifications.guestWaitingDivision.rawValue,
+            titleArgs: [name],
+            bodyKey: Notifications.guestWaitingDivision.subTitle,
+            recipientIDs: [adminID]
+        )
+    }
+
     /// The current user did a chore that was assigned to other people: tells them.
     /// - Parameters:
     ///   - chore: The chore that was done.
@@ -139,6 +163,8 @@ extension NotificationManager {
     // MARK: - Building
 
     /// Builds the notification and sends it. Does nothing without recipients.
+    /// - Returns: Whether it was saved (`false` also without recipients).
+    @discardableResult
     private func sendEvent(
         kind: Notifications,
         titleKey: String,
@@ -147,8 +173,8 @@ extension NotificationManager {
         bodyArgs: [String] = [],
         recipientIDs: [String],
         extra: [AnyHashable: Any] = [:]
-    ) async {
-        guard !recipientIDs.isEmpty else { return }
+    ) async -> Bool {
+        guard !recipientIDs.isEmpty else { return false }
         
         var info = extra
         info[UserInfoKey.kind] = kind.rawValue
@@ -165,6 +191,6 @@ extension NotificationManager {
             recipientIDs: recipientIDs,
             userInfo: info
         )
-        _ = await send(dto)
+        return await send(dto)
     }
 }

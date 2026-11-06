@@ -54,6 +54,11 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     /// When the item was last marked bought
     var boughtAt: Date?
 
+    /// Points the buyer got for buying it (``ScoreValues/shoppingPurchase(hasPrice:)``), so
+    /// un-buying takes back exactly that. `nil` while not bought, and on items bought before
+    /// this was saved.
+    var awardedPoints: Int?
+
     /// The list this item belongs to (the record's `parent`).
     var listRecordID: CKRecord.ID?
 
@@ -202,6 +207,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         self.category = ShopItemCategory(rawValue: record["category"] as? String ?? "") ?? .other
         self.createdAt = record.creationDate ?? Date()
         self.boughtAt = record["boughtAt"] as? Date
+        self.awardedPoints = record["awardedPoints"] as? Int
         self.listRecordID = record.parent?.recordID
         self.buyerUserReference = record["buyerUser"] as? CKRecord.Reference
         self.relatedUsersReference = record["relatedUsers"] as? [CKRecord.Reference]
@@ -262,6 +268,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         record["isBought"] = isBought
         record["category"] = category.rawValue
         record["boughtAt"] = boughtAt
+        record["awardedPoints"] = awardedPoints
         
         if let buyerUserReference {
             record["buyerUser"] = buyerUserReference
@@ -286,14 +293,18 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     @discardableResult
     func toggle() async -> Bool {
         let previousBoughtAt = boughtAt
+        let previousAwardedPoints = awardedPoints
         isBought.toggle()
         // Keep the purchase date in step with the flag.
         boughtAt = isBought ? Date() : nil
+        // Un-buying gives the points back (see `ShopListViewModel`); a purchase made here pays none.
+        awardedPoints = nil
         // Optimistic update, rolled back if CloudKit rejects it (it used to stay flipped on
         // screen even though the change was never saved).
         guard await CloudKitManager.shared.update(self) else {
             isBought.toggle()
             boughtAt = previousBoughtAt
+            awardedPoints = previousAwardedPoints
             return false
         }
         return true
@@ -305,16 +316,19 @@ class ShopListItem: CloudKitSyncable, Identifiable {
     /// - Parameters:
     ///   - user: The user who bought the item.
     ///   - totalPrice: What was paid for the whole item, when it wasn't known before.
+    ///   - points: The points the buyer gets, saved in ``awardedPoints``.
     @discardableResult
-    func markBought(by user: UserModel, totalPrice paid: Double? = nil) async -> Bool {
+    func markBought(by user: UserModel, totalPrice paid: Double? = nil, awarding points: Int = 0) async -> Bool {
         guard let buyerID = user.recordID else { return false }
         let previousBuyer = buyerUserReference
         let previousTotalPrice = totalPrice
         let previousSettled = settledUsersReference
         let previousBoughtAt = boughtAt
+        let previousAwardedPoints = awardedPoints
 
         isBought = true
         boughtAt = Date()
+        awardedPoints = points
         buyerUserReference = CKRecord.Reference(recordID: buyerID, action: .none)
         // A new purchase starts with nobody having paid their share yet.
         settledUsersReference = []
@@ -326,6 +340,7 @@ class ShopListItem: CloudKitSyncable, Identifiable {
             totalPrice = previousTotalPrice
             settledUsersReference = previousSettled
             boughtAt = previousBoughtAt
+            awardedPoints = previousAwardedPoints
             return false
         }
         return true
