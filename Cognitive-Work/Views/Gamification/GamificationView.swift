@@ -159,6 +159,9 @@ struct GamificationView: View {
                     Capsule()
                         .foregroundColor(.lowOpacityYellow.opacity(0.35))
                 )
+                // VoiceOver reads the balance as one element ("120 moedas"), without the pig's asset name.
+                .accessibilityElement(children: .ignore)
+                .voiceOverLabel(viewModel.coins == 1 ? L10n.tr("1 moeda") : L10n.tr("\(viewModel.coins) moedas"))
             }
             
             Text(verbatim: itemsText)
