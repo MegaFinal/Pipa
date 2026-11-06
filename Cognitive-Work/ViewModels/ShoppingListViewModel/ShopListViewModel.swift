@@ -766,15 +766,13 @@ final class ShopListViewModel {
         }
     }
 
-    /// Tells the member who added `item` that somebody else bought it. Not right away: the
-    /// items of one shopping trip go out together, in one notification per person (see
-    /// ``BoughtItemsNotifier``).
+    /// Puts `item` in this shopping trip's notifications. Not sent right away: the items of
+    /// one trip go out together, once it's over (see ``BoughtItemsNotifier``), through
+    /// ``notifyPurchase(_:by:)``.
     private func notifyItemBought(_ item: ShopListItem, by buyer: UserModel) {
-        guard let addedByID = item.addedByRecordID,
-              let owner = houseUsers.first(where: { $0.recordID == addedByID }),
-              owner.ownerRecordName != buyer.ownerRecordName else { return }
-        
-        BoughtItemsNotifier.shared.add(item, by: buyer.name, to: owner)
+        BoughtItemsNotifier.shared.add(item, by: buyer) { [self] items, buyer in
+            await notifyPurchase(items, by: buyer, fromReceipt: false)
+        }
     }
     
     /// Dismisses the error shown by the view.
@@ -884,7 +882,7 @@ final class ShopListViewModel {
     ///
     /// Fast, so the review screen closes soon: the list items go in one request and the new
     /// items in another, all or nothing each (``errorMessage`` is set when one fails). The
-    /// points, the notifications (``notifyReceipt(_:by:)``) and the like run afterwards, in
+    /// points, the notifications (``notifyPurchase(_:by:)``) and the like run afterwards, in
     /// the background.
     ///
     /// - Returns: How many purchases and new items were saved.
@@ -1054,26 +1052,43 @@ final class ShopListViewModel {
             for adder in adders {
                 await ScoreManager.shared.assignScore(score: adder.points, for: adder.user)
             }
-            await notifyReceipt(bought, by: currentUser)
+            // A receipt is the whole trip: no waiting like the items checked off on the list.
+            await notifyPurchase(bought, by: currentUser, fromReceipt: true)
         }
         return saved
     }
 
-    /// Tells the housemates about a scanned receipt, right away: a receipt is the whole trip, so
-    /// it doesn't wait like the items checked off on the list (``BoughtItemsNotifier``).
+    /// Tells the housemates about one shopping trip: a scanned receipt, or the items checked
+    /// off on the list in a row (``BoughtItemsNotifier``).
     ///
-    /// Everyone who shares an item gets one notification with what was bought for them and
-    /// their part, added up like "Pendências" does (``DebtCalculator``, so the amounts match).
-    /// Whoever added a list item without sharing anything still hears that it was bought.
-    private func notifyReceipt(_ bought: [ShopListItem], by buyer: UserModel) async {
+    /// Only who has something to pay hears about it: one notification each, with what was
+    /// bought for them and their part, added up like "Pendências" does (``DebtCalculator``, so
+    /// the amounts match). Who added an item without paying for it isn't told.
+    ///
+    /// - Parameter fromReceipt: Bought with a scanned receipt (the receipt's icon instead of the
+    ///   cart).
+    private func notifyPurchase(_ bought: [ShopListItem], by buyer: UserModel, fromReceipt: Bool) async {
         guard !bought.isEmpty, !isPreview else { return }
         let buyerPerson = buyer.ownerRecordName
 
-        // Who shares what, by person: one person may have more than one user record.
+        // Their part of this trip only, by person: one person may have more than one record.
+        let ledger = DebtCalculator.ledger(
+            items: bought,
+            users: houseUsers,
+            userRecords: houseUserRecords,
+            me: buyer
+        )
+        var shares: [String: Double] = [:]
+        for group in ledger.owedToYou {
+            shares[group.counterparty.ownerRecordName, default: 0] += group.total
+        }
+
+        // What each of them shares, in the order it was bought.
         var order: [String] = []
         var shared: [String: (member: UserModel, names: [String])] = [:]
         for item in bought {
             for id in item.consumerRecordIDs {
+                // Every record of the house, not just one per person: the item may point at any.
                 guard let member = houseUser(withID: id),
                       !member.ownerRecordName.isEmpty, member.ownerRecordName != buyerPerson
                 else { continue }
@@ -1088,47 +1103,19 @@ final class ShopListViewModel {
             }
         }
 
-        // Their part of this receipt only.
-        let ledger = DebtCalculator.ledger(
-            items: bought,
-            users: houseUsers,
-            userRecords: houseUserRecords,
-            me: buyer
-        )
-        var shares: [String: Double] = [:]
-        for group in ledger.owedToYou {
-            shares[group.counterparty.ownerRecordName, default: 0] += group.total
-        }
-
         for key in order {
-            guard let entry = shared[key] else { continue }
-            let share = shares[key].flatMap { $0 > 0 ? $0 : nil }
-            await NotificationManager.shared.notifyReceiptShare(
+            // Nothing to pay (no prices): nothing to tell.
+            guard let entry = shared[key], let share = shares[key], share > 0 else { continue }
+            #if DEBUG
+            print("[BoughtItems] telling \(entry.member.name): \(entry.names), \(share)")
+            #endif
+            await NotificationManager.shared.notifyBoughtForYou(
                 entry.names,
-                share: share.map { $0.formatted(.currency(code: "BRL").locale(L10n.locale)) },
+                share: share.formatted(.currency(code: "BRL").locale(L10n.locale)),
                 by: buyer.name,
-                to: entry.member
+                to: entry.member,
+                fromReceipt: fromReceipt
             )
-        }
-
-        // Added by someone who shares none of it: the usual "comprou", sent now.
-        var addedOrder: [String] = []
-        var added: [String: (owner: UserModel, names: [String])] = [:]
-        for item in bought {
-            guard let owner = houseUser(withID: item.addedByRecordID),
-                  !owner.ownerRecordName.isEmpty, owner.ownerRecordName != buyerPerson,
-                  shared[owner.ownerRecordName] == nil
-            else { continue }
-            let key = owner.ownerRecordName
-            if added[key] == nil {
-                added[key] = (owner, [])
-                addedOrder.append(key)
-            }
-            added[key]?.names.append(item.name)
-        }
-        for key in addedOrder {
-            guard let entry = added[key] else { continue }
-            await NotificationManager.shared.notifyItemsBought(entry.names, by: buyer.name, to: entry.owner)
         }
     }
 

@@ -463,7 +463,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         case .newDivision: return .dashboard
         case .newUser, .guestWaitingDivision: return .newMember
         case .itemBought: return .shopList
-        case .debtYouOwe, .debtOwedToYou, .receiptShared: return .pendingPayments
+        case .debtYouOwe, .debtOwedToYou, .boughtForYou, .receiptBoughtForYou: return .pendingPayments
         case .calendarSync: return .calendarSync
         case .premiumEnded: return .premium
         case .yourDelayedChore, .noUserDelayedChore, .choreDoneForYou:

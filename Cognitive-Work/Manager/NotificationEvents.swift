@@ -93,21 +93,28 @@ extension NotificationManager {
         )
     }
 
-    /// The current user scanned a receipt with items `member` shares: tells them right away (a
-    /// receipt is the whole trip) what was bought for them and their part of it.
+    /// The current user bought items `member` pays a part of, checked off on the list (one
+    /// shopping trip, see ``BoughtItemsNotifier``) or with a scanned receipt: tells them what
+    /// was bought for them and their part. Only who has something to pay hears about it.
     ///
     /// - "Ana comprou Leite para você" / "Sua parte: R$ 4,50"
     /// - "Ana comprou Leite e Pão para você" / "Sua parte: R$ 9,00"
     /// - "Ana comprou 5 itens para você" / "Sua parte: R$ 32,40"
-    /// - Without prices, the body lists the items when the title doesn't ("Leite, Pão, Café e
-    ///   mais 2"), or is empty.
     ///
     /// - Parameters:
-    ///   - itemNames: The items `member` shares, in the receipt's order.
-    ///   - share: Their part, already formatted ("R$ 32,40"), or `nil` when nothing had a price.
+    ///   - itemNames: The items `member` shares, in the order they were bought.
+    ///   - share: Their part, already formatted ("R$ 32,40").
     ///   - buyerName: The current user's name.
-    ///   - member: Who shares the items.
-    func notifyReceiptShare(_ itemNames: [String], share: String?, by buyerName: String, to member: UserModel) async {
+    ///   - member: Who pays the part.
+    ///   - fromReceipt: Bought with a scanned receipt: the notification shows the receipt's icon
+    ///     instead of the cart.
+    func notifyBoughtForYou(
+        _ itemNames: [String],
+        share: String,
+        by buyerName: String,
+        to member: UserModel,
+        fromReceipt: Bool
+    ) async {
         let names = itemNames
         guard let first = names.first, !member.ownerRecordName.isEmpty else { return }
 
@@ -115,7 +122,7 @@ extension NotificationManager {
         let titleArgs: [String]
         switch names.count {
         case 1:
-            titleKey = Notifications.receiptShared.rawValue
+            titleKey = Notifications.boughtForYou.rawValue
             titleArgs = [buyerName, first]
         case 2:
             titleKey = "%@ comprou %@ e %@ para você"
@@ -125,80 +132,13 @@ extension NotificationManager {
             titleArgs = [buyerName, String(names.count)]
         }
 
-        var bodyKey = ""
-        var bodyArgs: [String] = []
-        if let share {
-            bodyKey = "Sua parte: %@"
-            bodyArgs = [share]
-        } else if names.count >= 3 {
-            // The title only says how many: the body says which.
-            bodyArgs = Array(names.prefix(3))
-            if names.count == 3 {
-                bodyKey = "%@, %@ e %@"
-            } else {
-                bodyKey = "%@, %@, %@ e mais %@"
-                bodyArgs.append(String(names.count - 3))
-            }
-        }
-
         await sendEvent(
-            kind: .receiptShared,
+            kind: fromReceipt ? .receiptBoughtForYou : .boughtForYou,
             titleKey: titleKey,
             titleArgs: titleArgs,
-            bodyKey: bodyKey,
-            bodyArgs: bodyArgs,
+            bodyKey: "Sua parte: %@",
+            bodyArgs: [share],
             recipientIDs: [member.ownerRecordName]
-        )
-    }
-
-    /// The current user bought items somebody else added to the shopping list: tells them in a
-    /// single notification for the whole trip (see ``BoughtItemsNotifier``).
-    ///
-    /// - "Ana comprou Leite" / "Um item que você adicionou à lista de compras"
-    /// - "Ana comprou Leite e Pão" / "Itens que você adicionou à lista de compras"
-    /// - "Ana comprou 5 itens que você adicionou" / "Leite, Pão, Café e mais 2"
-    ///
-    /// - Parameters:
-    ///   - itemNames: The items bought, in the order they were checked off.
-    ///   - buyerName: The current user's name.
-    ///   - owner: The member who added the items.
-    func notifyItemsBought(_ itemNames: [String], by buyerName: String, to owner: UserModel) async {
-        let names = itemNames
-        guard let first = names.first else { return }
-
-        let titleKey: String
-        let titleArgs: [String]
-        let bodyKey: String
-        var bodyArgs: [String] = []
-
-        switch names.count {
-        case 1:
-            titleKey = Notifications.itemBought.rawValue
-            titleArgs = [buyerName, first]
-            bodyKey = Notifications.itemBought.subTitle
-        case 2:
-            titleKey = "%@ comprou %@ e %@"
-            titleArgs = [buyerName, names[0], names[1]]
-            bodyKey = "Itens que você adicionou à lista de compras"
-        default:
-            titleKey = "%@ comprou %@ itens que você adicionou"
-            titleArgs = [buyerName, String(names.count)]
-            bodyArgs = Array(names.prefix(3))
-            if names.count == 3 {
-                bodyKey = "%@, %@ e %@"
-            } else {
-                bodyKey = "%@, %@, %@ e mais %@"
-                bodyArgs.append(String(names.count - 3))
-            }
-        }
-
-        await sendEvent(
-            kind: .itemBought,
-            titleKey: titleKey,
-            titleArgs: titleArgs,
-            bodyKey: bodyKey,
-            bodyArgs: bodyArgs,
-            recipientIDs: [owner.ownerRecordName]
         )
     }
 
