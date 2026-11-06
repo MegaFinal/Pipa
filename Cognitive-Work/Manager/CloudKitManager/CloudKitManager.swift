@@ -565,9 +565,8 @@ class CloudKitManager {
               let ownerName = await fetchCurrentUserRecordID()?.recordName
         else { return false }
         
-        guard let userPFP = profile.profilePicture,
-              let profilePictureDuplicate = try? duplicateCKAsset(userPFP)
-        else { return false }
+        // The profile picture is optional: a profile without one must still become a member.
+        let profilePictureDuplicate = profile.profilePicture.flatMap { try? duplicateCKAsset($0) }
         
         let member = UserModel(
             name: profile.name,
@@ -586,7 +585,7 @@ class CloudKitManager {
             parent: house.reference(action: .none)
         ) else { return false }
         
-        await house.appendUsers([saved])
+        guard await house.appendUsers([saved]) else { return false }
         clearPendingJoin(ifMatching: houseID.zoneID)
         
         // Tells the admin, who can redo the automatic division.
@@ -631,7 +630,9 @@ class CloudKitManager {
     func switchHouse(to metadata: CKShare.Metadata) async -> Bool {
         do {
             guard try await leaveCurrentHouse() else { return false }
-            return await acceptShare(metadata: metadata)
+            guard await acceptShare(metadata: metadata) else { return false }
+            // Accepting the share only grants access to the house: the member record still has
+            // to be created, or the user is in the house without showing up as a member.
             return await addMyselfToCurrentHouse()
         }
         catch {

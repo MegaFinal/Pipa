@@ -1103,7 +1103,6 @@ class OnboardingViewModel {
         if savedUser == nil {
             savedUser = await CloudKitManager.shared.create(sharedUser, id: sharedUserID, parent: house.reference(action: .none))
             if let savedUser {
-                await house.appendUsers([savedUser])
                 rollbackJournal.joinedMembership = savedUser.recordID.map(OnboardingRollbackJournal.StoredRecordID.init)
                 
                 // Tells the admin, who can redo the automatic division.
@@ -1112,11 +1111,19 @@ class OnboardingViewModel {
             }
         }
         
+        // Also runs for a member record that already existed: an earlier attempt may have created
+        // it and then failed to add it to the house's `users` list, leaving the member invisible.
+        // `appendUsers` skips users already in the list.
+        var linkedToHouse = false
+        if let savedUser {
+            linkedToHouse = await house.appendUsers([savedUser])
+        }
+        
         _ = try? await subTask
         
         isLoading = false
         
-        if let savedUser {
+        if let savedUser, linkedToHouse {
             self.currentUser = savedUser
             self.stateMachine.user = savedUser
             CloudKitManager.shared.clearPendingJoin(ifMatching: houseRecordID.zoneID)

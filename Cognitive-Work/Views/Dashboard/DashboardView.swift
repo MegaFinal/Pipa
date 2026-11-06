@@ -121,8 +121,8 @@ struct DashboardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
-
-#Preview {
-    HouseDataStore.shared.seed(.preview)
-    return DashboardView()
-}
+//
+//#Preview {
+//    HouseDataStore.shared.seed(.preview)
+//    return DashboardView()
+//}
