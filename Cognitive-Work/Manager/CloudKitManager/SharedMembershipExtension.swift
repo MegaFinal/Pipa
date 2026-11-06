@@ -162,6 +162,26 @@ extension CloudKitManager {
         return removed
     }
     
+    /// Whether the admin took this account out of `house`: the house is shared with it and still
+    /// reachable, but its member record is gone.
+    ///
+    /// Right after ``removeMember(ownerRecordName:from:)`` the removed device can usually still
+    /// read the house (its access goes last, and only best effort), so the house alone doesn't
+    /// tell it was removed. Checking the member record does.
+    ///
+    /// - Returns: `false` when the account owns the house, is still a member, is still joining
+    ///   it, or that couldn't be told (offline): it never sends a member away by mistake.
+    func wasRemovedFromHouse(_ house: HouseModel) async -> Bool {
+        guard let zoneID = house.recordID?.zoneID,
+              zoneID.ownerName != CKCurrentUserDefaultName,
+              !isJoinPending(for: zoneID),
+              let ownerRecordName = await fetchCurrentUserRecordID()?.recordName,
+              let profileIDs = try? await privateProfileRecordIDs(ownerRecordName: ownerRecordName),
+              !profileIDs.isEmpty
+        else { return false }
+        return await hasMemberRecord(in: zoneID, profileIDs: profileIDs) == false
+    }
+
     /// `true` when the zone holds this account's member record, `false` when it definitely
     /// doesn't, `nil` when that couldn't be determined.
     private func hasMemberRecord(
@@ -551,6 +571,9 @@ extension CloudKitManager {
     ///   `allResponsibleUsers`; once nobody is left they count as unassigned.
     /// - Coupons the member bought and that no division used yet are marked as used, so they go
     ///   back on sale for the others.
+    /// - Shopping items still to buy drop the member from who they're for; an item that was only
+    ///   for them is deleted, since nobody else needs it. Bought items keep their people: the
+    ///   debts on "Pendências" are worked out from them.
     ///
     /// - Parameter database: Where `records` live: the shared database for a member leaving (the
     ///   default), the private one when the admin removes someone from their own house.
@@ -562,9 +585,25 @@ extension CloudKitManager {
         guard !userIDs.isEmpty else { return }
         
         var toSave: [CKRecord] = []
+        var toDelete: [CKRecord.ID] = []
         
         for record in records {
             switch record.recordType {
+            case ShopListItem.recordType:
+                guard record["isBought"] as? Bool != true,
+                      let users = record["relatedUsers"] as? [CKRecord.Reference]
+                else { continue }
+                
+                let kept = users.filter { !userIDs.contains($0.recordID) }
+                guard kept.count != users.count else { continue }
+                
+                if kept.isEmpty {
+                    toDelete.append(record.recordID)
+                } else {
+                    record["relatedUsers"] = kept
+                    toSave.append(record)
+                }
+                
             case RecurrentAssignmentModel.recordType:
                 guard record["isCompleted"] as? Bool == false,
                       let users = record["users"] as? [CKRecord.Reference]
@@ -615,15 +654,23 @@ extension CloudKitManager {
             }
         }
         
-        guard !toSave.isEmpty else { return }
+        guard !toSave.isEmpty || !toDelete.isEmpty else { return }
         
         // Best effort: failing here must not stop the member from leaving.
-        _ = try? await (database ?? sharedDB).modifyRecords(
+        let result = try? await (database ?? sharedDB).modifyRecords(
             saving: toSave,
-            deleting: [],
+            deleting: toDelete,
             savePolicy: .changedKeys,
             atomically: false
         )
+        // Shopping queries see a deletion only once the server indexed it: tell this device's
+        // screens right away.
+        let deleted = result?.deleteResults.compactMap { id, outcome in
+            (try? outcome.get()) != nil ? id : nil
+        } ?? []
+        if !deleted.isEmpty {
+            RecentWrites.shared.deleted(deleted, type: nil)
+        }
     }
     
     /// The gamification records of the leaving members in `records` (one house zone): the

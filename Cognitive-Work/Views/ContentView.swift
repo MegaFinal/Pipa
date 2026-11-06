@@ -21,6 +21,9 @@ struct ContentView: View {
     /// Shared by every tab so pushed screens can hide the tab bar and animate it back.
     @State private var tabBarVisibility = TabBarVisibilityController()
     
+    /// Which tab is on screen, and what a tapped notification asks each tab to open.
+    @State private var navigation = AppNavigation()
+    
     /// Whether the app is active (re-checks the house and the retrospective when it comes back).
     @Environment(\.scenePhase) private var scenePhase
     
@@ -36,6 +39,7 @@ struct ContentView: View {
             }
         }
         .environment(tabBarVisibility)
+        .environment(navigation)
         // Over the whole TabView (tab bar included) once the last division's period is over.
         // MARK: Retrospective over everything
         .overlay {
@@ -98,6 +102,14 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
             Task { await viewModel.fetchHouse() }
         }
+        // MARK: Tapped notification: opens its screen (also once the loading screen goes away,
+        // for a notification that opened the app)
+        .onChange(of: NotificationManager.shared.pendingDestinationID) { _, _ in
+            openPendingDestination()
+        }
+        .onChange(of: viewModel.isLoading) { _, _ in
+            openPendingDestination()
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 Task {
@@ -108,31 +120,51 @@ struct ContentView: View {
         }
     }
     
+    // MARK: - Notifications
+
+    /// Opens the screen of the notification the user tapped, once the tabs are on screen.
+    private func openPendingDestination() {
+        guard !viewModel.isLoading, !viewModel.userHasNoHouse,
+              let destination = NotificationManager.shared.pendingDestination
+        else { return }
+        NotificationManager.shared.pendingDestination = nil
+
+        if case .retrospective = destination {
+            withAnimation(.easeInOut) { viewModel.showRetro = true }
+        } else {
+            navigation.open(destination)
+        }
+    }
+    
     // MARK: - Tabs
     
     /// The four tabs: Tarefas, Compras, Recompensas and Perfil. The progress screen is opened from
     /// the progress cards on Tarefas.
     private var tabs: some View {
-        TabView {
+        TabView(selection: $navigation.selectedTab) {
             ChoresView()
                 .tabItem {
                     Label("Tarefas", systemImage: "checklist")
                 }
+                .tag(AppTab.chores)
              
             ShopListView()
                 .tabItem {
                     Label("Compras", systemImage: "basket")
                 }
+                .tag(AppTab.shopping)
             
             GamificationView(viewModel: viewModel.gamification)
                 .tabItem {
                     Label("Recompensas", systemImage: "gift")
                 }
+                .tag(AppTab.rewards)
             
             UserProfileView()
                 .tabItem {
                     Label("Perfil", systemImage: "person.fill")
                 }
+                .tag(AppTab.profile)
         }
     }
 }

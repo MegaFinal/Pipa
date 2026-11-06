@@ -160,7 +160,12 @@ class CloudKitManager {
     /// The house this device belongs to, resolved once per session.
     /// - Parameter forceRefresh: Pass `true` to bypass the cache and re-resolve.
     func currentHouse(forceRefresh: Bool = false) async throws -> HouseModel? {
-        if forceRefresh { cachedHouse = nil }
+        // The list of shared zones goes too: a member the admin removed keeps the house's zone
+        // in that list for the whole session otherwise, and every lookup keeps asking it.
+        if forceRefresh {
+            cachedHouse = nil
+            cachedSharedZones = nil
+        }
 
         if let cachedHouse { return cachedHouse }
         // A fetch already in flight is fresh enough — share it instead of cancelling it.

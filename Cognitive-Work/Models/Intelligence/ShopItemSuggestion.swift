@@ -260,6 +260,8 @@ extension IntelligenceManager {
         if written.hasCJK, !name.hasCJK, let product = Self.cjkProductName(in: written) {
             name = String(product.prefix(TextLimits.shopItemName))
         }
+        // The model often writes names all in lower case ("arroz"): same style as typed names.
+        name = name.capitalizingFirstLetter()
         let range = QuantityStepper.allowedRange
         let quantity = min(max(generated.quantity, range.lowerBound), range.upperBound)
         // Resolved first: a per-person price needs to know how many people split the item.
