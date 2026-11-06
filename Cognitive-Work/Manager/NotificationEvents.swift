@@ -69,17 +69,53 @@ extension NotificationManager {
         )
     }
 
-    /// The current user bought an item somebody else added to the shopping list: tells them.
+    /// The current user bought items somebody else added to the shopping list: tells them in a
+    /// single notification for the whole trip (see ``BoughtItemsNotifier``).
+    ///
+    /// - "Ana comprou Leite" / "Um item que você adicionou à lista de compras"
+    /// - "Ana comprou Leite e Pão" / "Itens que você adicionou à lista de compras"
+    /// - "Ana comprou 5 itens que você adicionou" / "Leite, Pão, Café e mais 2"
+    ///
     /// - Parameters:
-    ///   - item: The item that was bought.
+    ///   - itemNames: The items bought, in the order they were checked off.
     ///   - buyerName: The current user's name.
-    ///   - owner: The member who added the item.
-    func notifyItemBought(_ item: ShopListItem, by buyerName: String, to owner: UserModel) async {
+    ///   - owner: The member who added the items.
+    func notifyItemsBought(_ itemNames: [String], by buyerName: String, to owner: UserModel) async {
+        let names = itemNames
+        guard let first = names.first else { return }
+
+        let titleKey: String
+        let titleArgs: [String]
+        let bodyKey: String
+        var bodyArgs: [String] = []
+
+        switch names.count {
+        case 1:
+            titleKey = Notifications.itemBought.rawValue
+            titleArgs = [buyerName, first]
+            bodyKey = Notifications.itemBought.subTitle
+        case 2:
+            titleKey = "%@ comprou %@ e %@"
+            titleArgs = [buyerName, names[0], names[1]]
+            bodyKey = "Itens que você adicionou à lista de compras"
+        default:
+            titleKey = "%@ comprou %@ itens que você adicionou"
+            titleArgs = [buyerName, String(names.count)]
+            bodyArgs = Array(names.prefix(3))
+            if names.count == 3 {
+                bodyKey = "%@, %@ e %@"
+            } else {
+                bodyKey = "%@, %@, %@ e mais %@"
+                bodyArgs.append(String(names.count - 3))
+            }
+        }
+
         await sendEvent(
             kind: .itemBought,
-            titleKey: Notifications.itemBought.rawValue,
-            titleArgs: [buyerName, item.name],
-            bodyKey: Notifications.itemBought.subTitle,
+            titleKey: titleKey,
+            titleArgs: titleArgs,
+            bodyKey: bodyKey,
+            bodyArgs: bodyArgs,
             recipientIDs: [owner.ownerRecordName]
         )
     }

@@ -721,6 +721,8 @@ final class ShopListViewModel {
                 errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
                 return
             }
+            // Unchecked before the trip's notification went out: nobody hears about it.
+            BoughtItemsNotifier.shared.remove(item)
             let points = ScoreValues.shoppingItemBought.points
             if let buyerID, let buyer = houseUsers.first(where: { $0.recordID == buyerID }) {
                 await ScoreManager.shared.removeScore(score: points, for: buyer)
@@ -744,13 +746,15 @@ final class ShopListViewModel {
         }
     }
 
-    /// Tells the member who added `item` that somebody else bought it.
+    /// Tells the member who added `item` that somebody else bought it. Not right away: the
+    /// items of one shopping trip go out together, in one notification per person (see
+    /// ``BoughtItemsNotifier``).
     private func notifyItemBought(_ item: ShopListItem, by buyer: UserModel) {
         guard let addedByID = item.addedByRecordID,
               let owner = houseUsers.first(where: { $0.recordID == addedByID }),
               owner.ownerRecordName != buyer.ownerRecordName else { return }
         
-        Task { await NotificationManager.shared.notifyItemBought(item, by: buyer.name, to: owner) }
+        BoughtItemsNotifier.shared.add(item, by: buyer.name, to: owner)
     }
     
     /// Dismisses the error shown by the view.
