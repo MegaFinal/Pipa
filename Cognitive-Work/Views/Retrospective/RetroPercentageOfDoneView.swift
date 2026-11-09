@@ -74,12 +74,12 @@ struct RetroPercentageOfDoneView: View {
                     .accessibilityAddTraits(.isHeader)
 //                Text(content.summary)
                 Text(try! AttributedString(markdown: content.summary))
-                    .font(.title)
+                    .font(.system(size: 28))
                     .multilineTextAlignment(.center)
                     .padding(.bottom, height * 0.008)
                     .frame(width: width * 0.796)
                 Text(content.subtitle)
-                    .font(.callout)
+                    .font(.system(size: 16))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.subTitleGray)
                 
@@ -88,7 +88,7 @@ struct RetroPercentageOfDoneView: View {
                 // MARK: Cheering word
                 Text(content.closing)
                     .bold()
-                    .font(.custom("Alan Sans", size: 40))
+                    .font(.custom("Alan Sans", fixedSize: 40))
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                     .padding(.bottom, height * 0.018)
@@ -101,7 +101,7 @@ struct RetroPercentageOfDoneView: View {
                 } label: {
                     Text("ver depois")
                         .fontWeight(.semibold)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundStyle(.subTitleGray)
                 }
                 .padding(.bottom, height * 0.014)

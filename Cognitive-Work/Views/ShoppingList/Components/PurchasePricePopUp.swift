@@ -7,18 +7,42 @@
 
 import SwiftUI
 
-/// Asks how much an item cost in total when it's checked off without a price.
 struct PurchasePricePopUp: View {
 
     let itemName: String
     let quantity: Int
     let unit: UnitMeasurement
+    /// The price the item already had, if any; pre-fills the field.
+    let initialPrice: Double?
     let onConfirm: (String) -> Void
     let onSkip: () -> Void
     let onCancel: () -> Void
 
-    @State private var text = ""
+    @State private var text: String
     @FocusState private var isFocused: Bool
+
+    init(
+        itemName: String,
+        quantity: Int,
+        unit: UnitMeasurement,
+        initialPrice: Double? = nil,
+        onConfirm: @escaping (String) -> Void,
+        onSkip: @escaping () -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        self.itemName = itemName
+        self.quantity = quantity
+        self.unit = unit
+        self.initialPrice = initialPrice
+        self.onConfirm = onConfirm
+        self.onSkip = onSkip
+        self.onCancel = onCancel
+        // Start with the known price, formatted like a typed one.
+        _text = State(initialValue: initialPrice.map(ShopListViewModel.priceInputText(for:)) ?? "")
+    }
+
+    /// Whether the item already had a price when the popup opened (confirm mode).
+    private var hasInitialPrice: Bool { (initialPrice ?? 0) > 0 }
 
     private var isValid: Bool { ShopListViewModel.isValidPrice(text) }
 
@@ -35,7 +59,8 @@ struct PurchasePricePopUp: View {
 
             // MARK: - Title and item name
             VStack(alignment: .leading, spacing: 6) {
-                Text("Quanto custou no total?")
+                // Confirm mode asks to check the price; otherwise asks for it.
+                Text(hasInitialPrice ? LocalizedStringKey("Confirme o valor total") : LocalizedStringKey("Quanto custou no total?"))
                     .font(.system(size: 24))
                     .bold()
                     .accessibilityAddTraits(.isHeader)
@@ -43,7 +68,8 @@ struct PurchasePricePopUp: View {
                 Text(itemName)
                     .font(.system(size: 18))
                     .foregroundColor(.black)
-                    .lineLimit(2)
+                    // Long names wrap in full instead of ending in "…".
+                    .fixedSize(horizontal: false, vertical: true)
 
                 // The amount the total covers ("3 unidades", "500 gramas").
                 Text(ShopListViewModel.accessibilityQuantity(quantity, unit: unit == .undefined ? .unit : unit))
@@ -83,7 +109,7 @@ struct PurchasePricePopUp: View {
                     ShopListViewModel.accessibilityUnitPrice(text: text, quantity: quantity, unit: unit) ?? caption
                 )
 
-            // MARK: - "Comprar sem valor"
+            // Always available; on an item that already had a price it buys it and removes the price.
             Button(action: onSkip) {
                 Text("Comprar sem valor")
                     .font(.system(size: 16, weight: .semibold))
@@ -150,5 +176,12 @@ struct PurchasePricePopUp: View {
     ZStack {
         Color.black.opacity(0.45).ignoresSafeArea()
         PurchasePricePopUp(itemName: "Amaciante", quantity: 3, unit: .unit, onConfirm: { _ in }, onSkip: {}, onCancel: {})
+    }
+}
+
+#Preview("Confirmar preço") {
+    ZStack {
+        Color.black.opacity(0.45).ignoresSafeArea()
+        PurchasePricePopUp(itemName: "Amaciante", quantity: 3, unit: .unit, initialPrice: 29.9, onConfirm: { _ in }, onSkip: {}, onCancel: {})
     }
 }

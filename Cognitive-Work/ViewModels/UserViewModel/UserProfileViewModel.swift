@@ -28,6 +28,9 @@ final class UserProfileViewModel {
     var isSaving = false
     /// An error to show, or `nil`.
     var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
     /// Set to `true` right after ``saveChanges()`` persists successfully, so the view can show
     /// a brief success confirmation. The view resets it once that confirmation is dismissed.
     var didSaveSuccessfully = false
@@ -165,6 +168,7 @@ final class UserProfileViewModel {
         user = snapshot.houseUser
         
         if privateUser == nil {
+            errorTitle = L10n.tr("Não foi possível carregar seu perfil")
             errorMessage = CloudKitManager.shared.errorMessage
         }
     }
@@ -211,7 +215,8 @@ final class UserProfileViewModel {
     /// its absence is not an error (see ``loadUser()``), it just means there is no house yet.
     func saveChanges() async {
         guard let privateUser else {
-            errorMessage = L10n.tr("Perfil não carregado. Tente novamente.")
+            errorTitle = L10n.tr("Não foi possível salvar seu perfil")
+            errorMessage = L10n.tr("Seu perfil ainda não carregou. Aguarde um instante e tente novamente.")
             return
         }
         
@@ -271,7 +276,8 @@ final class UserProfileViewModel {
                     user.profilePicture = previousHousePicture
                     user.banner = previousHouseBanner ?? .default
                 }
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro desconhecido.")
+                errorTitle = L10n.tr("Não foi possível salvar seu perfil")
+                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             }
         } else {
             let success = await CloudKitManager.shared.update(privateUser)
@@ -282,7 +288,8 @@ final class UserProfileViewModel {
                 privateUser.name = previousPrivateName
                 privateUser.profilePicture = previousPrivatePicture
                 privateUser.banner = previousPrivateBanner
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro desconhecido.")
+                errorTitle = L10n.tr("Não foi possível salvar seu perfil")
+                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             }
         }
         
@@ -326,7 +333,8 @@ final class UserProfileViewModel {
     @discardableResult
     func savePixKey() async -> Bool {
         guard let privateUser else {
-            errorMessage = L10n.tr("Perfil não carregado. Tente novamente.")
+            errorTitle = L10n.tr("Não foi possível salvar a chave Pix")
+            errorMessage = L10n.tr("Seu perfil ainda não carregou. Aguarde um instante e tente novamente.")
             return false
         }
         
@@ -360,7 +368,8 @@ final class UserProfileViewModel {
         guard privateSuccess && houseSuccess else {
             privateUser.pixKey = previousPrivateKey
             user?.pixKey = previousHouseKey
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro desconhecido.")
+            errorTitle = L10n.tr("Não foi possível salvar a chave Pix")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         
@@ -377,12 +386,15 @@ final class UserProfileViewModel {
         defer { isSaving = false }
         
         guard await CloudKitManager.shared.deleteCurrentAccount() else {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível excluir o perfil. Tente novamente.")
+            errorTitle = L10n.tr("Não foi possível excluir seu perfil")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return
         }
         
         privateUser = nil
         user = nil
+        // A new account starts over: the screens' first-visit tours show again.
+        CoachMarkTour.resetAll()
         onAccountDeleted()
     }
     

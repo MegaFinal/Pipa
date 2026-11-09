@@ -195,13 +195,13 @@ struct PremiumView: View {
         return VStack(alignment: .leading, spacing: 6) {
             Label {
                 Text(L10n.tr("Sua casa está no teste grátis até \(date)"))
-                    .font(.headline)
+                    .font(.system(size: 17, weight: .semibold))
             } icon: {
                 Image(systemName: "gift.fill")
                     .foregroundStyle(RoomColor.purple.uiColor)
             }
             Text("Todos os recursos Premium estão liberados. Depois disso, alguém da casa precisa assinar para continuar.")
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundStyle(.subTitleGray)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -215,15 +215,15 @@ struct PremiumView: View {
     private var subscriptionElsewhereNotice: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Sua assinatura é da casa onde você assinou")
-                .font(.headline)
+                .font(.system(size: 17, weight: .semibold))
             Text("Ela não vale para esta casa. Se não quiser mais ser cobrado por ela, cancele em Gerenciar assinatura.")
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundStyle(.subTitleGray)
                 .fixedSize(horizontal: false, vertical: true)
             Button("Gerenciar assinatura") {
                 isShowingManageSubscription = true
             }
-            .font(.subheadline.weight(.semibold))
+            .font(.system(size: 15).weight(.semibold))
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -241,7 +241,7 @@ struct PremiumView: View {
                  + " · "
                  + L10n.tr("Preço para \(tier.title.lowercased())"))
         }
-        .font(.subheadline.weight(.semibold))
+        .font(.system(size: 15).weight(.semibold))
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -317,7 +317,7 @@ struct PremiumView: View {
                 // TODO: replace with the app's privacy policy page.
                 Link("Política de Privacidade", destination: Self.privacyURL)
             }
-            .font(.caption.weight(.semibold))
+            .font(.system(size: 12).weight(.semibold))
 
             Button {
                 Task { await buySelectedPlan() }
@@ -327,9 +327,9 @@ struct PremiumView: View {
                         ProgressView().tint(.white)
                     } else {
                         Text("Aceitar Oferta")
-                            .font(.title3.weight(.semibold))
+                            .font(.system(size: 20).weight(.semibold))
                         Text(priceText(for: selectedPlan))
-                            .font(.caption)
+                            .font(.system(size: 12))
                     }
                 }
                 .foregroundStyle(.white)
@@ -430,7 +430,7 @@ struct PremiumView: View {
                 ProgressView()
             } else {
                 Text("Restaurar compras")
-                    .font(.footnote.weight(.semibold))
+                    .font(.system(size: 13).weight(.semibold))
             }
         }
         .tint(.secondary)
@@ -466,7 +466,7 @@ struct PremiumView: View {
 
             VStack(spacing: 8) {
                 Text("Sua casa é Premium")
-                    .font(.custom("Alan Sans", size: 30))
+                    .font(.custom("Alan Sans", fixedSize: 30))
                     .fontWeight(.bold)
                     .accessibilityAddTraits(.isHeader)
 
@@ -569,9 +569,9 @@ private struct PremiumFeatureRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(feature.title)
-                    .font(.title3.weight(.semibold))
+                    .font(.system(size: 20).weight(.semibold))
                 Text(feature.subtitle)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.subTitleGray)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -596,16 +596,16 @@ private struct PremiumPlanCard<Extra: View>: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text(title)
-                    .font(.title3.bold())
+                    .font(.system(size: 20).bold())
                 Spacer()
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.title2)
+                    .font(.system(size: 22))
                     .foregroundStyle(isSelected ? Color.blue : Color.secondary)
                     .accessibilityHidden(true)
             }
 
             Text(subtitle)
-                .font(.footnote)
+                .font(.system(size: 13))
                 .fixedSize(horizontal: false, vertical: true)
 
             extra()
@@ -676,7 +676,7 @@ struct PremiumAIHint: View {
                 Text(text)
                 PremiumBadge()
             }
-            .font(.footnote.weight(.semibold))
+            .font(.system(size: 13).weight(.semibold))
         }
         .buttonStyle(.plain)
         .foregroundStyle(.subTitleGray)

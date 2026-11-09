@@ -32,7 +32,7 @@ struct OnboardingHeader: View {
         VStack(alignment: .leading, spacing: height * 0.014) {
             // MARK: - Title
             Text(title)
-                .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                .font(.custom("Alan Sans", fixedSize: 32))
                 .bold()
                 .foregroundStyle(.titleGray)
                 .fixedSize(horizontal: false, vertical: true)

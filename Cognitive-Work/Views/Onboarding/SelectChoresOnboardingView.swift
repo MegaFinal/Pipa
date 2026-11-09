@@ -133,7 +133,7 @@ struct SelectChoresOnboardingView: View {
             }
         }
         .onboardingBackButton(viewModel: viewModel)
-        .alert("Não deu para salvar as tarefas", isPresented: Binding(
+        .alert("Não foi possível salvar as tarefas", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
         )) {
@@ -284,6 +284,7 @@ private struct RoomCapsule: View {
                 Text(room.name.localizedDefault)
                     .font(.system(size: 18, weight: .semibold))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                 
                 if selectedCount > 0 {
                     Text("\(selectedCount)")

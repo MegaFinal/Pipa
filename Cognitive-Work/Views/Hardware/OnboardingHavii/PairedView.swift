@@ -78,11 +78,11 @@ struct PairedView: View {
         }
         
         // MARK: - Alerts
-        .alert("Celular desconectado.", isPresented: $disconectThisPhone) {
+        .alert("Celular desconectado", isPresented: $disconectThisPhone) {
             // Stays here: the screen now shows "despareado" and the "Parear" button.
             Button("OK") { }
         } message: {
-            Text("Seu celular foi desconectado com sucesso!")
+            Text("Este celular não recebe mais as atualizações do Harvii. Você pode parear de novo quando quiser.")
         }
         .alert(
             HardwareViewModel.ConectionResult.failureParing.title,
@@ -111,7 +111,7 @@ private extension PairedView {
                 Text("Seu Harvii está\n\(Text("despareado").foregroundStyle(.choreOrange))!")
             }
         }
-        .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+        .font(.custom("Alan Sans", fixedSize: 32))
         .bold()
         .fixedSize(horizontal: false, vertical: true)
         .accessibilityAddTraits(.isHeader)
@@ -126,7 +126,7 @@ private extension PairedView {
                 Text("Este celular não está pareado com o Harvii, então ele não recebe as atualizações feitas por aqui.\nConecte-se à rede da sua casa e toque em Parear.")
             }
         }
-        .font(.body)
+        .font(.system(size: 17))
         .fixedSize(horizontal: false, vertical: true)
     }
     
@@ -138,10 +138,10 @@ private extension PairedView {
         
         return VStack(alignment: .leading, spacing: 8) {
             Text("Nome da sua rede")
-                .font(.subheadline.weight(.semibold))
+                .font(.system(size: 15).weight(.semibold))
             
             Text(wifiName)
-                .font(.body)
+                .font(.system(size: 17))
                 .foregroundStyle(.subTitleGray)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 16)
@@ -161,7 +161,7 @@ private extension PairedView {
                 disconectThisPhone = true
             } label: {
                 Text("Desparear")
-                    .font(.body.weight(.semibold))
+                    .font(.system(size: 17).weight(.semibold))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
@@ -176,7 +176,7 @@ private extension PairedView {
                 ZStack {
                     // Keeps the height while the spinner shows.
                     Text("Parear")
-                        .font(.body.weight(.semibold))
+                        .font(.system(size: 17).weight(.semibold))
                         .opacity(hardwareViewModel.isPairing ? 0 : 1)
                     if hardwareViewModel.isPairing {
                         ProgressView()

@@ -18,7 +18,10 @@ struct DebtGroupSection: View {
     let settleTitle: String
     var settleSystemImage: String? = nil
     let isPaid: Bool
-    let isSettling: Bool
+    /// A settlement is being saved (this card or another): the button waits.
+    var isSettling: Bool = false
+    /// This card's settlement is the one being saved: the button shows a spinner.
+    var isSavingThis: Bool = false
     let onSettle: () -> Void
 
     var isConfirmingSettlement: Bool = false
@@ -97,7 +100,7 @@ struct DebtGroupSection: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.custom("Alan Sans", size: 22))
+                    .font(.custom("Alan Sans", fixedSize: 22))
                     .fontWeight(.bold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -135,18 +138,20 @@ struct DebtGroupSection: View {
     private var itemRows: some View {
         VStack(spacing: 12) {
             ForEach(rows) { row in
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                // The name wraps as many lines as it needs; the dots and the amount sit on its last line.
+                HStack(alignment: .lastTextBaseline, spacing: 6) {
                     Text(row.name)
                         .font(.system(size: 16, design: .monospaced))
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Line()
                         .stroke(Color.gray.opacity(0.55), style: StrokeStyle(lineWidth: 2, lineCap: .round, dash: [0.1, 5]))
                         .frame(minWidth: 12, maxHeight: 2)
-                        .alignmentGuide(.firstTextBaseline) { $0[.bottom] }
+                        .alignmentGuide(.lastTextBaseline) { $0[.bottom] }
 
                     Text(row.amountText)
                         .font(.system(size: 16, weight: .semibold, design: .monospaced))
+                        .fixedSize()
                 }
                 .foregroundStyle(.titleGray)
                 .accessibilityElement(children: .ignore)
@@ -165,7 +170,7 @@ struct DebtGroupSection: View {
             Spacer(minLength: 12)
 
             Text(totalText)
-                .font(.custom("Alan Sans", size: 30))
+                .font(.custom("Alan Sans", fixedSize: 30))
                 .fontWeight(.bold)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -183,8 +188,9 @@ struct DebtGroupSection: View {
         }
         .buttonStyle(.plain)
         .disabled(isPaid || isSettling)
-        .opacity(isSettling && !isPaid ? 0.5 : 1)
+        .opacity(isSettling && !isSavingThis && !isPaid ? 0.5 : 1)
         .animation(.snappy, value: isPaid)
+        .animation(.snappy, value: isSavingThis)
         .popover(
             isPresented: Binding(
                 get: { isConfirmingSettlement },
@@ -249,7 +255,11 @@ struct DebtGroupSection: View {
     /// once paid.
     private var settleLabel: some View {
         HStack(spacing: 6) {
-            if isPaid {
+            if isSavingThis {
+                ProgressView()
+                    .tint(.white)
+                    .controlSize(.small)
+            } else if isPaid {
                 Image(systemName: "checkmark")
                     .font(.system(size: 13, weight: .bold))
             } else if let settleSystemImage {
@@ -286,11 +296,11 @@ struct DebtGroupSection: View {
         totalText: "R$45,00",
         rows: [
             .init(id: "1", name: "Pizza", amountText: "R$30,00"),
-            .init(id: "2", name: "Sabão em pó", amountText: "R$21,00")
+            .init(id: "2", name: "Sabão em pó", amountText: "R$21,00"),
+            .init(id: "3", name: "Papel higiênico folha dupla neutro com 12 rolos", amountText: "R$1.234,90")
         ],
         settleTitle: "Pagar",
         isPaid: false,
-        isSettling: false,
         onSettle: {}
     )
     .padding()

@@ -24,7 +24,7 @@ struct ChoreAttributeMenuRow<Options: View>: View {
 
                 if isSuggested {
                     Image(systemName: "sparkles")
-                        .font(.footnote.weight(.semibold))
+                        .font(.system(size: 13).weight(.semibold))
                         .foregroundStyle(.secondary)
                         .transition(.opacity)
                 }
@@ -47,7 +47,7 @@ struct ChoreAttributeMenuRow<Options: View>: View {
                         .lineLimit(1)
                     
                     Image(systemName: "chevron.up.chevron.down")
-                        .font(.footnote.weight(.semibold))
+                        .font(.system(size: 13).weight(.semibold))
                         .foregroundStyle(.secondary)
                 }
             }

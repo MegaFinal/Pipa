@@ -335,7 +335,10 @@ class ChoreModel: CloudKitSyncable, Identifiable {
     func postpone(byDays days: Int) async -> Bool {
         let calendar = Calendar.current
         let previousDueDate = dueDate
-        let currentDate = calendar.startOfDay(for: dueDate ?? Date())
+        // A late chore is postponed from today, not from its past due date: "Adiar 1 dia"
+        // must land on tomorrow, not on another day that has already gone by.
+        let today = calendar.startOfDay(for: Date())
+        let currentDate = max(calendar.startOfDay(for: dueDate ?? Date()), today)
         
         guard let newDate = calendar.date(byAdding: .day, value: days, to: currentDate) else { return false }
         dueDate = newDate

@@ -248,37 +248,70 @@ struct RankSkyCard: View {
             }
             .padding(.horizontal, 20)
 
-            HStack(spacing: -8) {
-                ForEach(group.users, id: \.id) { user in
-                    marker(of: user, tier: group.tier)
-                        .zIndex(user.ownerRecordName == myOwnerRecordName ? 1 : 0)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing, 8)
+            markers(for: group)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.trailing, 8)
         }
     }
 
-    /// A member's vehicle
-    private func marker(of user: UserModel, tier: Tier) -> some View {
+    /// Most vehicles one line holds; a rank with more members splits them into two lines.
+    private static let maxVehiclesPerLine = 3
+
+    /// How big the vehicles are drawn when a rank needs two lines, so both fit in its row.
+    private static let twoLineScale: CGFloat = 0.45
+
+    /// The members' vehicles at the end of the rank's line.
+    ///
+    /// Up to ``maxVehiclesPerLine`` members fly in one line, resting on the rank's line. With more,
+    /// they split into two smaller lines (the first one takes the extra member), and the pair is
+    /// centered on the rank's line, so they never run over the rank's name.
+    @ViewBuilder
+    private func markers(for group: TierGroup) -> some View {
+        let vehicle = RankVehicle(tier: group.tier)
+
+        if group.users.count <= Self.maxVehiclesPerLine {
+            markerLine(group.users, tier: group.tier, scale: 1)
+                .offset(y: -(vehicle.size.height / 2) + 6)
+        } else {
+            let firstLineCount = (group.users.count + 1) / 2
+            VStack(spacing: 0) {
+                markerLine(Array(group.users.prefix(firstLineCount)), tier: group.tier, scale: Self.twoLineScale)
+                markerLine(Array(group.users.dropFirst(firstLineCount)), tier: group.tier, scale: Self.twoLineScale)
+            }
+        }
+    }
+
+    /// One line of vehicles, slightly overlapped, with the signed-in member's on top.
+    private func markerLine(_ users: [UserModel], tier: Tier, scale: CGFloat) -> some View {
+        HStack(spacing: -8 * scale) {
+            ForEach(users, id: \.id) { user in
+                marker(of: user, tier: tier, scale: scale)
+                    .zIndex(user.ownerRecordName == myOwnerRecordName ? 1 : 0)
+            }
+        }
+    }
+
+    /// A member's vehicle and first name.
+    ///
+    /// - Parameter scale: `1` normally; smaller when the rank's members take two lines.
+    private func marker(of user: UserModel, tier: Tier, scale: CGFloat) -> some View {
         let vehicle = RankVehicle(tier: tier)
         let isMe = user.ownerRecordName == myOwnerRecordName
 
         return VStack(spacing: 2) {
             RankVehicleView(vehicle: vehicle)
-                .scaleEffect(isMe ? 1 : 0.85)
-                .shadow(color: .black.opacity(isMe ? 0.25 : 0.12), radius: 3, x: 0, y: 2)
+                .scaleEffect((isMe ? 1 : 0.85) * scale)
+                .frame(width: vehicle.size.width * scale, height: vehicle.size.height * scale)
 
             Text(verbatim: user.name.split(separator: " ").first.map(String.init) ?? user.name)
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: scale < 1 ? 10 : 12, weight: .bold))
                 .foregroundStyle(Self.lineColor)
                 .lineLimit(1)
-                .padding(.horizontal, 6)
+                .padding(.horizontal, scale < 1 ? 4 : 6)
                 .padding(.vertical, 1)
                 .background(.white.opacity(0.8), in: Capsule())
         }
-        .frame(maxWidth: 64)
-        .offset(y: -(vehicle.size.height / 2) + 6)
+        .frame(maxWidth: RankVehicle.maxWidth * scale)
     }
 
     // MARK: - Scrolling and accessibility
@@ -399,7 +432,7 @@ private struct RankLine: Shape {
     }
 }
 
-#Preview {
+#Preview("Uma linha por ranking") {
     let users = [
         UserModel(name: "Ana", tier: .aprendiz, points: 30, ownerRecordName: "ana"),
         UserModel(name: "Bia", tier: .vigiaDaCozinha, points: 105, ownerRecordName: "bia"),
@@ -410,6 +443,37 @@ private struct RankLine: Shape {
     RankSkyCard(
         groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
         myOwnerRecordName: "ana"
+    )
+    .padding(30)
+}
+
+#Preview("Mais de 3 no mesmo ranking") {
+    let names = ["Ana", "Bia", "Caio", "Davi", "Edu", "Fê", "Gabi"]
+    let crowded = names.enumerated().map { index, name in
+        UserModel(name: name, tier: .vigiaDaCozinha, points: 100 + index, ownerRecordName: name.lowercased())
+    }
+    let users = crowded + [
+        UserModel(name: "Hugo", tier: .aprendiz, points: 30, ownerRecordName: "hugo"),
+        UserModel(name: "Iara", tier: .aprendiz, points: 32, ownerRecordName: "iara"),
+        UserModel(name: "João", tier: .aprendiz, points: 34, ownerRecordName: "joao"),
+        UserModel(name: "Lia", tier: .aprendiz, points: 36, ownerRecordName: "lia")
+    ]
+    RankSkyCard(
+        groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
+        myOwnerRecordName: "bia"
+    )
+    .padding(30)
+}
+
+#Preview("Uma pessoa em cada ranking") {
+    let names = ["Ana", "Bia", "Caio", "Davi", "Edu", "Fê", "Gabi", "Hugo", "Iara", "João", "Lia", "Malu", "Nina"]
+    let users = Tier.allCases.enumerated().map { index, tier in
+        UserModel(name: names[index], tier: tier, points: index * 30, ownerRecordName: names[index].lowercased())
+    }
+    // The card scrolls: drag it to see every rank's kite.
+    RankSkyCard(
+        groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
+        myOwnerRecordName: "edu"
     )
     .padding(30)
 }

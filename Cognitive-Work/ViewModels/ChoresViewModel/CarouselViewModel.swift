@@ -88,6 +88,9 @@ class CarouselViewModel {
     /// Set when ``delete(chore:targetOccurrences:)`` fails, so a view can surface it in an
     /// alert. Left for the view to clear back to `nil` once shown.
     var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
     
     /// Set when checked chores couldn't be saved and went back to pending (see
     /// ``ChoreCompletionBatcher``). Left for the view to clear back to `nil` once shown.
@@ -220,7 +223,13 @@ class CarouselViewModel {
     /// - Note: This method has been reverted to not enforce forced occurrences from
     ///   focusedChoreAssignments, only from focusedChoreModel and focusedChoreRecordID.
     private func rebuildVisibleOccurrences() {
-        let selectedUserIDs = Set(filterChoices.users.compactMap { $0.recordID })
+        var selectedUserIDs = Set(filterChoices.users.compactMap { $0.recordID })
+        // The viewer may have more than one record in the house (see `viewerRecordIDs`): when
+        // they are in the filter, an occurrence given to any of them is theirs.
+        if let viewer = dashboardUser,
+           filterChoices.users.contains(where: { $0.ownerRecordName == viewer.ownerRecordName }) {
+            selectedUserIDs.formUnion(viewerRecordIDs)
+        }
         let today = Calendar.current.startOfDay(for: Date())
         var occurrences: [ChoreOccurrence] = []
         
@@ -455,8 +464,12 @@ class CarouselViewModel {
     ///    the occurrences assigned to them **and** every chore they are responsible for, even on
     ///    days the rotation gave the occurrence to someone else. Before, responsibility was
     ///    ignored, so a responsible user off the current rotation never saw the chore.
+    ///
+    /// 4. *late chores stay* — a chore the viewer didn't finish on its day (``isOverdue(_:)``)
+    ///    stays in the carousel, marked as late, until it's done or its next turn arrives.
     private func isVisibleInGrid(_ chore: ChoreModel) -> Bool {
         guard !chore.isDone else { return false }
+        if isOverdue(chore) { return true }
         
         let targetDay = Self.gridTargetDay()
         
@@ -476,6 +489,46 @@ class CarouselViewModel {
         guard let dueDate = chore.dueDate,
               Calendar.current.isDate(dueDate, inSameDayAs: targetDay) else { return false }
         guard !viewerRecordIDs.isEmpty else { return true }
+        return isViewerResponsible(for: chore)
+    }
+    
+    // MARK: - Late chores
+    
+    /// The viewer's late occurrence of a recurring chore: their most recent turn before the
+    /// grid's day, when it is still open and no newer turn of theirs has arrived since (on or
+    /// before the grid's day). A newer turn replaces it, so a daily chore missed for a week
+    /// shows up once, not seven times.
+    ///
+    /// `nil` for one-off chores, or while the viewer isn't known yet.
+    func overdueAssignment(for chore: ChoreModel) -> RecurrentAssignmentModel? {
+        guard !viewerRecordIDs.isEmpty,
+              let refs = chore.dailyAssignmentsReference, !refs.isEmpty else { return nil }
+        
+        let calendar = Calendar.current
+        let targetDay = Self.gridTargetDay()
+        
+        let latestTurn = refs
+            .compactMap { assignmentsByID[$0.recordID] }
+            .filter { calendar.startOfDay(for: $0.day) <= targetDay }
+            .filter { !Set(($0.userReferences ?? []).map(\.recordID)).isDisjoint(with: viewerRecordIDs) }
+            .max { $0.day < $1.day }
+        
+        guard let latestTurn,
+              !latestTurn.isCompleted,
+              calendar.startOfDay(for: latestTurn.day) < targetDay else { return nil }
+        return latestTurn
+    }
+    
+    /// Whether `chore` is late for the viewer: a one-off chore of theirs past its due date and
+    /// not done, or a recurring chore with an ``overdueAssignment(for:)``.
+    func isOverdue(_ chore: ChoreModel) -> Bool {
+        if !(chore.dailyAssignmentsReference ?? []).isEmpty {
+            return overdueAssignment(for: chore) != nil
+        }
+        guard !chore.isDone,
+              !viewerRecordIDs.isEmpty,
+              let dueDate = chore.dueDate,
+              Calendar.current.startOfDay(for: dueDate) < Self.gridTargetDay() else { return false }
         return isViewerResponsible(for: chore)
     }
     
@@ -515,7 +568,15 @@ class CarouselViewModel {
             }
         }
         
+        let isGrid = layoutMode == .grid
         visibleChores = result.sorted { a, b in
+            // In the carousel, late chores come first.
+            if isGrid {
+                let lateA = isOverdue(a)
+                let lateB = isOverdue(b)
+                if lateA != lateB { return lateA }
+            }
+            
             let dateA = nextDate(for: a)
             let dateB = nextDate(for: b)
             
@@ -606,6 +667,7 @@ class CarouselViewModel {
             self.roomModels = snapshot.rooms
             self.dailyAssignments = snapshot.assignments
             self.dashboardUser = snapshot.houseUser
+            self.applyDefaultUserFilterIfNeeded()
             // Checks not saved yet would show unchecked on the reloaded records.
             self.completions.overlay(chores: self.cardModels, assignments: self.dailyAssignments)
             
@@ -700,7 +762,16 @@ class CarouselViewModel {
     ///
     /// Ordered so `.first` is the right card for the viewer: their own open occurrence first,
     /// then any open one (a responsible user off the rotation), then completed ones.
+    ///
+    /// A late chore has no turn of the viewer's on the grid's day, so its late occurrence
+    /// (``overdueAssignment(for:)``) comes first: that's the one the card completes or postpones.
     func getAssignmentsForActiveContext(for chore: ChoreModel) -> [RecurrentAssignmentModel] {
+        let overdue = overdueAssignment(for: chore)
+        return (overdue.map { [$0] } ?? []) + assignmentsOnGridDay(for: chore)
+    }
+    
+    /// ``getAssignmentsForActiveContext(for:)`` without the late occurrence.
+    private func assignmentsOnGridDay(for chore: ChoreModel) -> [RecurrentAssignmentModel] {
         let viewerIDs = viewerRecordIDs
         func rank(_ assignment: RecurrentAssignmentModel) -> Int {
             let assignedIDs = Set((assignment.userReferences ?? []).map(\.recordID))
@@ -1096,7 +1167,8 @@ class CarouselViewModel {
             dailyAssignments.append(contentsOf: snapshot.assignments)
             refreshVisible()
             
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível excluir a tarefa.")
+            errorTitle = L10n.tr("Não foi possível excluir a tarefa")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         
@@ -1252,6 +1324,37 @@ class CarouselViewModel {
         
         // Rebuild visible chores after changing filters.
         rebuildDerivedState()
+    }
+    
+    /// Whether the list already opened filtered by the viewer (``applyDefaultUserFilterIfNeeded()``).
+    @ObservationIgnored
+    private var didApplyDefaultUserFilter = false
+    
+    /// Makes "Sua divisão" (the list) open with the viewer's own chores: the user filter starts
+    /// on them, the first time the viewer is known. From then on the filter is the user's: they
+    /// can add housemates or clear it to see the whole house, and a refresh doesn't put it back.
+    ///
+    /// The rebuild is left to the caller (``fetchAllData(afterRemoteChange:)`` rebuilds right after).
+    private func applyDefaultUserFilterIfNeeded() {
+        guard !didApplyDefaultUserFilter, let viewer = dashboardUser else { return }
+        didApplyDefaultUserFilter = true
+        
+        // The record the filter menu lists for the viewer, so its toggle shows as on.
+        let me = userModels.first { $0.ownerRecordName == viewer.ownerRecordName } ?? viewer
+        guard !filterChoices.users.contains(me) else { return }
+        filterChoices.users.append(me)
+        isFilterOn = true
+    }
+    
+    /// Whether the only filter is the viewer themself (the list's default), so an empty list
+    /// means "nothing in your division" rather than "nothing matches the filters".
+    var isFilteringOnlyViewer: Bool {
+        guard let viewer = dashboardUser, filterChoices.users.count == 1 else { return false }
+        return filterChoices.users[0].ownerRecordName == viewer.ownerRecordName
+        && filterChoices.tags.isEmpty
+        && filterChoices.frequencies.isEmpty
+        && filterChoices.rooms.isEmpty
+        && filterChoices.state == nil
     }
     
     /// Clears every filter.

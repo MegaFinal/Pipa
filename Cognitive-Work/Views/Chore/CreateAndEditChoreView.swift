@@ -64,8 +64,12 @@ struct CreateAndEditChoreView: View {
     @State private var preview: ChoreSuggestion?
     @State private var previewTask: Task<Void, Never>?
     @State private var isSuggesting = false
-    /// Whether the running request reads speech; then a spinner shows beside the sentence.
-    @State private var isReadingSpeech = false
+    /// Whether the running request reads the sentence shown above the name (spoken, or typed
+    /// and moved up there); then a spinner shows beside that sentence. When `false` while
+    /// ``isSuggesting``, the spinner shows beside the name instead.
+    @State private var isReadingSentence = false
+    /// The name the AI wrote last; a name still equal to it can be replaced by the next result.
+    @State private var lastAppliedName = ""
     @State private var aiDidFail = false
     @State private var suggestionTask: Task<Void, Never>?
     /// Typical checklist steps for the chore's name, offered inside the checklist card.
@@ -193,7 +197,7 @@ struct CreateAndEditChoreView: View {
                 // MARK: Name
                 VStack(alignment: .leading, spacing: 14) {
                     Text("Nome da tarefa")
-                        .font(.title2.bold())
+                        .font(.system(size: 22).bold())
                         .accessibilityHidden(true)
                     
                     // What was said, above the name; it can be corrected and read again.
@@ -222,6 +226,15 @@ struct CreateAndEditChoreView: View {
                             .voiceControlNames([L10n.tr("Nome da tarefa"), L10n.tr("Nome")])
                             .formField(in: Capsule())
 
+                        // The AI is reading what's in the name field itself (a short text that
+                        // stayed there): a small spinner beside it.
+                        if isSuggesting && !isReadingSentence {
+                            ProgressView()
+                                .controlSize(.small)
+                                .transition(.opacity)
+                                .accessibilityHidden(true)
+                        }
+
                         if canSuggest {
                             micButton
                         }
@@ -234,34 +247,39 @@ struct CreateAndEditChoreView: View {
 
                     if let voiceError = voice.errorMessage {
                         Text(voiceError)
-                            .font(.footnote)
+                            .font(.system(size: 13))
                             .foregroundStyle(.red)
                     }
 
                     if aiDidFail {
                         Text("Não foi possível preencher. Preencha manualmente.")
-                            .font(.footnote)
+                            .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                     }
 
-                    // Only when the name field takes descriptions.
+                    // Only when the name field takes descriptions, and only until one was given:
+                    // hidden once the sentence shows above the name and while the AI is thinking
+                    // (the spinner beside the sentence or the name already says so).
                     if canSuggest {
-                        Label {
-                            Text("Descreva a tarefa, quando se repete e quem faz, e preenchemos o resto.")
-                        } icon: {
-                            Image(systemName: "sparkles")
+                        if spokenText.isEmpty && !isSuggesting {
+                            Label {
+                                Text("Descreva a tarefa, quando se repete e quem faz, e preenchemos o resto.")
+                            } icon: {
+                                Image(systemName: "sparkles")
+                            }
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                            // Starts where the title starts; wrapped lines stay left-aligned.
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        // Starts where the title starts; wrapped lines stay left-aligned.
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     } else if viewModel.mode == .create && PremiumAIHint.isNeeded {
                         PremiumAIHint(text: "Descreva a tarefa e a IA preenche para você", paywall: $paywall)
                     }
                 }
                 .animation(.snappy, value: preview?.name)
                 .animation(.snappy, value: aiDidFail)
+                .animation(.snappy, value: isSuggesting)
                 .animation(.snappy, value: spokenText.isEmpty)
                 
                 // MARK: Room and the line in its color
@@ -490,7 +508,7 @@ struct CreateAndEditChoreView: View {
                     sectionTitle("Responsáveis")
                     if viewModel.isSuggested(.responsible) {
                         Image(systemName: "sparkles")
-                            .font(.footnote.weight(.semibold))
+                            .font(.system(size: 13).weight(.semibold))
                             .foregroundStyle(.secondary)
                             .voiceOverLabel(L10n.tr("Sugerido automaticamente"))
                     }
@@ -641,7 +659,7 @@ struct CreateAndEditChoreView: View {
                     .fontWeight(.semibold)
                 if viewModel.isSuggested(.date) {
                     Image(systemName: "sparkles")
-                        .font(.footnote.weight(.semibold))
+                        .font(.system(size: 13).weight(.semibold))
                         .foregroundStyle(.secondary)
                         .voiceOverLabel(L10n.tr("Sugerido automaticamente"))
                 }
@@ -756,7 +774,7 @@ struct CreateAndEditChoreView: View {
     private var spokenLine: some View {
         HStack(alignment: .center, spacing: 6) {
             Group {
-                if voice.isPreparing || voice.isFinishing || (isSuggesting && isReadingSpeech) {
+                if voice.isPreparing || voice.isFinishing || (isSuggesting && isReadingSentence) {
                     ProgressView()
                         .controlSize(.mini)
                 } else {
@@ -771,7 +789,7 @@ struct CreateAndEditChoreView: View {
             .accessibilityHidden(true)
 
             TextField(L10n.tr("Ouvindo"), text: $spokenText, axis: .vertical)
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundStyle(.secondary)
                 .lineLimit(1...3)
                 .submitLabel(.done)
@@ -799,7 +817,7 @@ struct CreateAndEditChoreView: View {
             apply(suggestion)
         } label: {
             Text(L10n.tr("Nome: \(suggestion.name)"))
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .padding(.horizontal, 16)
@@ -817,7 +835,7 @@ struct CreateAndEditChoreView: View {
             sectionTitle(title)
             if isSuggested {
                 Image(systemName: "sparkles")
-                    .font(.footnote.weight(.semibold))
+                    .font(.system(size: 13).weight(.semibold))
                     .foregroundStyle(.secondary)
                     .transition(.opacity)
                     .voiceOverLabel(L10n.tr("Sugerido automaticamente"))
@@ -955,7 +973,7 @@ struct CreateAndEditChoreView: View {
                 refillChecklistIdeas()
             } label: {
                 Text("Adicionar")
-                    .font(.subheadline.weight(.semibold))
+                    .font(.system(size: 15).weight(.semibold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
@@ -978,6 +996,9 @@ struct CreateAndEditChoreView: View {
     private func readTypedName() {
         let input = viewModel.draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard canSuggest, !voice.isBusy, !input.isEmpty, input != lastReadName else { return }
+        // The AI is still reading the sentence above: what's typed now is the person's own name
+        // for the chore, not a new description. Kept when the result arrives (see `apply`).
+        guard !(isSuggesting && isReadingSentence) else { return }
         lastReadName = input
         aiDidFail = false
         // The preview already read this exact text: use it instead of asking again.
@@ -985,7 +1006,33 @@ struct CreateAndEditChoreView: View {
             apply(preview)
             return
         }
+
+        // A description ("lavar a louça toda semana, eu e Ana"): it moves above the name right
+        // away, small and grey with a spinner, like a spoken one. The name field is free
+        // meanwhile, so the person can type the name while the AI thinks; the AI then only
+        // fills it if it's still empty.
+        if Self.looksLikeDescription(input) {
+            withAnimation(.snappy) {
+                spokenText = input
+                viewModel.draft.name = ""
+            }
+            lastReadSpoken = input
+            lastReadName = ""
+            requestSuggestion(for: input, fromSpeech: false, readsSentence: true)
+            return
+        }
+
+        // A short text (likely just the name) stays in the field; the spinner shows beside it.
         requestSuggestion(for: input, fromSpeech: false)
+    }
+
+    /// Whether `text` reads as a description rather than a plain name: longer than a name can
+    /// be, has a number in it ("2 vezes por semana") or has four words or more ("lavar a louça
+    /// sempre"). Short names ("Lavar a louça", "Tirar o lixo") stay in the name field.
+    private static func looksLikeDescription(_ text: String) -> Bool {
+        text.count > TextLimits.choreName
+            || text.contains(where: \.isNumber)
+            || text.split(whereSeparator: \.isWhitespace).count >= 4
     }
 
     /// Reads the spoken sentence (as spoken or as corrected), once per text.
@@ -1003,7 +1050,7 @@ struct CreateAndEditChoreView: View {
         previewTask?.cancel()
         preview = nil
         let input = viewModel.draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard canSuggest, isNameFocused, !didFillFromDescription, !voice.isBusy,
+        guard canSuggest, isNameFocused, !didFillFromDescription, !voice.isBusy, !isSuggesting,
               input != lastReadName,
               input.split(separator: " ").count >= 2
         else { return }
@@ -1024,17 +1071,24 @@ struct CreateAndEditChoreView: View {
         }
     }
 
-    private func requestSuggestion(for input: String, fromSpeech: Bool) {
+    /// Asks the AI to fill the form from `input`.
+    ///
+    /// - Parameters:
+    ///   - fromSpeech: The input was spoken.
+    ///   - readsSentence: The input shows above the name (spoken, or a typed description moved
+    ///     up); the spinner shows beside it. Spoken input always does.
+    private func requestSuggestion(for input: String, fromSpeech: Bool, readsSentence: Bool = false) {
         suggestionTask?.cancel()
         previewTask?.cancel()
         isSuggesting = true
-        isReadingSpeech = fromSpeech
+        isReadingSentence = fromSpeech || readsSentence
+        VoiceOver.announce(L10n.tr("Preenchendo com IA…"))
         suggestionTask = Task {
             defer {
                 // A request replaced by a newer one leaves the newer one's state alone.
                 if !Task.isCancelled {
                     isSuggesting = false
-                    isReadingSpeech = false
+                    isReadingSentence = false
                 }
             }
             let result = await viewModel.suggestChore(for: input)
@@ -1044,9 +1098,10 @@ struct CreateAndEditChoreView: View {
             } else {
                 aiDidFail = true
                 VoiceOver.announce(L10n.tr("Não foi possível preencher. Preencha manualmente."))
-                // Typed: keep it, cut to the name limit so the chore can still go on. Spoken: the
-                // sentence stays above and the name is left as it was.
-                if !fromSpeech {
+                // Typed in the name: keep it, cut to the name limit so the chore can still go on.
+                // Shown above (spoken or moved up): the sentence stays there and the name is
+                // left as it was.
+                if !fromSpeech && !readsSentence {
                     viewModel.draft.name = String(input.prefix(TextLimits.choreName))
                     lastReadName = viewModel.draft.name
                 }
@@ -1057,9 +1112,16 @@ struct CreateAndEditChoreView: View {
     private func apply(_ suggestion: ChoreSuggestion) {
         previewTask?.cancel()
         preview = nil
+        // A name the person typed while the AI was thinking is kept: not empty, not the text the
+        // AI read, and not the name the AI wrote last time.
+        let currentName = viewModel.draft.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let keepsName = !currentName.isEmpty
+            && currentName != suggestion.input
+            && currentName != lastAppliedName
         withAnimation(.snappy) {
-            viewModel.apply(suggestion)
+            viewModel.apply(suggestion, keepingName: keepsName)
         }
+        if !keepsName { lastAppliedName = viewModel.draft.name }
         lastReadName = viewModel.draft.name
         didFillFromDescription = suggestion.name != suggestion.input
         // The sentence (typed or spoken) moves above the name, where it can be edited and read
@@ -1075,7 +1137,7 @@ struct CreateAndEditChoreView: View {
     
     private func sectionTitle(_ title: LocalizedStringKey) -> some View {
         Text(title)
-            .font(.headline)
+            .font(.system(size: 17, weight: .semibold))
             .foregroundStyle(.primary)
             .textCase(nil)
             .accessibilityAddTraits(.isHeader)
@@ -1083,7 +1145,7 @@ struct CreateAndEditChoreView: View {
     
     private func warning(_ text: LocalizedStringKey) -> some View {
         Text(text)
-            .font(.footnote)
+            .font(.system(size: 13))
             .foregroundStyle(.red)
     }
 }

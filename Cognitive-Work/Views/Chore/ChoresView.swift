@@ -269,7 +269,7 @@ struct ChoresView: View {
         }
         // MARK: - Delete error alert and new member pop-up
         .alert(
-            "Não foi possível excluir",
+            carouselVM.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
                 get: { carouselVM.errorMessage != nil },
                 set: { if !$0 { carouselVM.errorMessage = nil } }
@@ -319,7 +319,7 @@ struct ChoresView: View {
         HStack {
             // MARK: Title
             Text(headerTitle)
-                .font(.custom("Alan Sans", size: 34))
+                .font(.custom("Alan Sans", fixedSize: 34))
                 .bold()
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
@@ -545,7 +545,7 @@ private struct ProgressIndicatorCard: View {
                 .foregroundColor(.white.opacity(0.8))
             
             Text(data)
-                .font(.custom("Alan Sans", size: 15))
+                .font(.custom("Alan Sans", fixedSize: 15))
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
             Spacer()

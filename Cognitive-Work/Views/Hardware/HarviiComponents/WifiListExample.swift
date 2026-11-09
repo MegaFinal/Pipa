@@ -25,7 +25,7 @@ struct WifiListExample: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Ajustes > Wi-Fi")
-                .font(.caption.weight(.semibold))
+                .font(.system(size: 12).weight(.semibold))
 
             WifiRow(
                 name: Text(verbatim: harviiNetworkName),
@@ -61,13 +61,13 @@ private struct WifiRow: View {
             Image(systemName: "wifi")
 
             name
-                .font(isSelected ? .headline : .body)
+                .font(isSelected ? .system(size: 17, weight: .semibold) : .system(size: 17))
 
             Spacer()
 
             if isSelected, let caption {
                 Text(caption)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
             }
         }
         .foregroundStyle(isSelected ? .primary : .secondary)

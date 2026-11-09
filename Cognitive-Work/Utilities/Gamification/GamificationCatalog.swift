@@ -23,6 +23,18 @@ struct CouponEntry: Identifiable {
     var price: Int { coupon.price }
     var isMine: Bool { state == .ownedByMe }
     var isAvailable: Bool { state != .taken && state != .ownedByMe }
+
+    /// The order coupons are listed in: cheapest first, then by name, then by record.
+    ///
+    /// Sorting by price alone left coupons with the same price in the order CloudKit returned
+    /// them, which changes from one fetch to the next: the lists reshuffled every time the tab
+    /// was opened. The name and the record name make the order the same every time.
+    static func isOrderedBefore(_ a: CouponEntry, _ b: CouponEntry) -> Bool {
+        if a.price != b.price { return a.price < b.price }
+        let byName = a.name.localizedStandardCompare(b.name)
+        if byName != .orderedSame { return byName == .orderedAscending }
+        return a.id < b.id
+    }
 }
 
 /// A rank and the members who are in it right now.
@@ -89,7 +101,7 @@ struct GamificationCatalog {
             )
         }
 
-        self.init(entries: entries.sorted { $0.price < $1.price }, users: users)
+        self.init(entries: entries.sorted(by: CouponEntry.isOrderedBefore), users: users)
     }
 
     /// Builds the catalog from entries already made (previews), grouping `users` by rank.
@@ -114,7 +126,12 @@ struct GamificationCatalog {
     private static func groups(of users: [UserModel]) -> [TierGroup] {
         let byTier = Dictionary(grouping: users, by: \.tier)
         return Tier.allCases.map { tier in
-            TierGroup(tier: tier, users: (byTier[tier] ?? []).sorted { $0.points > $1.points })
+            // Same points: by name, so the vehicles don't swap places between refreshes.
+            TierGroup(tier: tier, users: (byTier[tier] ?? []).sorted {
+                $0.points != $1.points
+                    ? $0.points > $1.points
+                    : $0.name.localizedStandardCompare($1.name) == .orderedAscending
+            })
         }
     }
 }

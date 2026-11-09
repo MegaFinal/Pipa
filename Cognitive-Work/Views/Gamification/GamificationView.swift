@@ -43,6 +43,7 @@ struct GamificationView: View {
                         groups: viewModel.catalog.tiers,
                         myOwnerRecordName: viewModel.myOwnerRecordName
                     )
+                    .coachMarkAnchor(GamificationTourStop.ranking)
                     .padding(.horizontal, 30)
                     
                     // MARK: - Coupons (or empty state)
@@ -61,12 +62,14 @@ struct GamificationView: View {
                             source: .available,
                             emptyText: L10n.tr("Nenhum cupom disponível agora.")
                         )
+                        .coachMarkAnchor(GamificationTourStop.availableCoupons)
                         couponSection(
                             title: L10n.tr("Seus cupons"),
                             entries: viewModel.myEntries,
                             source: .mine,
                             emptyText: L10n.tr("Você ainda não tem cupons neste ciclo.")
                         )
+                        .coachMarkAnchor(GamificationTourStop.myCoupons)
                     }
                 }
                 .padding(.bottom, 24)
@@ -76,6 +79,10 @@ struct GamificationView: View {
                 await viewModel.pullToRefresh()
             }
             .background(Color.white.ignoresSafeArea())
+            // MARK: - First visit: pop-ups presenting each component
+            .coachMarks(viewModel.tour)
+            .onAppear { viewModel.startTourIfNeeded() }
+            .onChange(of: viewModel.hasLoaded) { viewModel.startTourIfNeeded() }
             // MARK: - Loading and refreshing
             .task {
                 guard !viewModel.hasLoaded else { return }
@@ -104,7 +111,7 @@ struct GamificationView: View {
             }
             // MARK: - Purchase error alert
             .alert(
-                "Não foi possível comprar",
+                "Não foi possível comprar o cupom",
                 isPresented: Binding(
                     get: { viewModel.alertMessage != nil },
                     set: { if !$0 { viewModel.alertMessage = nil } }
@@ -137,7 +144,7 @@ struct GamificationView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
                 Text("Gamificação")
-                    .font(.custom("Alan Sans", size: 34))
+                    .font(.custom("Alan Sans", fixedSize: 34))
                     .fontWeight(.bold)
                     .accessibilityAddTraits(.isHeader)
                 
@@ -162,6 +169,7 @@ struct GamificationView: View {
                 // VoiceOver reads the balance as one element ("120 moedas"), without the pig's asset name.
                 .accessibilityElement(children: .ignore)
                 .voiceOverLabel(viewModel.coins == 1 ? L10n.tr("1 moeda") : L10n.tr("\(viewModel.coins) moedas"))
+                .coachMarkAnchor(GamificationTourStop.coins)
             }
             
             Text(verbatim: itemsText)

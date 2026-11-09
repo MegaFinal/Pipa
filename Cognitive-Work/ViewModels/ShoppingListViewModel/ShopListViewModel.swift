@@ -118,6 +118,9 @@ final class ShopListViewModel {
 
     /// An error to show, or `nil`.
     private(set) var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    private(set) var errorTitle: String?
 
     /// First day of the house's current gamification season, to know which purchases its points
     /// still count (``HouseCycleModel/currentSeasonStart(_:asOf:calendar:)``).
@@ -129,10 +132,11 @@ final class ShopListViewModel {
         items.filter { !$0.isBought }
     }
 
-    /// Bought items still on the list: the ones whose shares were all paid leave it, and so do the
-    /// ones bought with nobody to charge, from the day after the purchase (see
-    /// ``isFinishedPersonalPurchase(_:now:)``). They stay stored, and ``items`` still has them, so
-    /// the debts keep adding up and the suggestions keep learning from the purchases.
+    /// Bought items still on the list. The ones whose shares were all paid are hidden here and
+    /// deleted right after by ``cleanUpBoughtItems()`` (they no longer count in any debt). The ones
+    /// bought with nobody to charge leave it from the day after the purchase (see
+    /// ``isFinishedPersonalPurchase(_:now:)``); those stay stored, so the suggestions keep
+    /// learning from the purchases.
     var boughtItems: [ShopListItem] {
         items.filter { $0.isBought && !isFullySettled($0) && !isFinishedPersonalPurchase($0) }
     }
@@ -384,6 +388,7 @@ final class ShopListViewModel {
         guard let shopList = snapshot.shopList else {
             list = nil
             items = []
+            errorTitle = L10n.tr("Lista de compras indisponível")
             errorMessage = Self.missingListMessage
             return
         }
@@ -392,6 +397,74 @@ final class ShopListViewModel {
         list = shopList
         items = shopList.belonging(to: snapshot.shopItems)
         currentCycleStart = HouseCycleModel.currentSeasonStart(snapshot.cycles, asOf: .now)
+
+        // A debt may have been settled on another device: clear what's fully paid.
+        Task { await cleanUpBoughtItems() }
+    }
+
+    // MARK: - Bought items and debts
+
+    /// Item ids being removed automatically, so overlapping sweeps don't delete twice.
+    @ObservationIgnored
+    private var itemsBeingRemoved: Set<String> = []
+
+    /// Who a user record belongs to (their iCloud account), matching ``DebtCalculator``: the
+    /// same person can have more than one record, and an item may point at any of them.
+    private func person(_ id: CKRecord.ID) -> String {
+        let user = (houseUserRecords + houseUsers + [currentUser].compactMap { $0 })
+            .first { $0.recordID == id }
+        guard let user, !user.ownerRecordName.isEmpty else { return id.recordName }
+        return user.ownerRecordName
+    }
+
+    /// The housemates of a bought item who share its price with the buyer (everyone it was for,
+    /// except the buyer). Empty when the item makes no debt: no price, or only for the buyer.
+    private func debtorIDs(of item: ShopListItem) -> [CKRecord.ID] {
+        guard item.isBought, item.hasPrice, item.totalValue != nil,
+              let buyerID = item.buyerRecordID else { return [] }
+        let buyer = person(buyerID)
+        return item.consumerRecordIDs.filter { person($0) != buyer }
+    }
+
+    /// Whether someone still owes their share of `item`. While this is `true` the item stays in
+    /// the "bought" section and can't be deleted by hand: it's what the debts are built from.
+    func hasOpenDebt(_ item: ShopListItem) -> Bool {
+        // Matched by person, like ``isFullySettled(_:)``: the share may have been paid from
+        // another record of the same person.
+        let settled = Set(item.settledUserIDs.map(person))
+        return debtorIDs(of: item).contains { !settled.contains(person($0)) }
+    }
+
+    /// Whether `item` can be deleted by hand. A bought item can't while someone still owes for
+    /// it (unmarking it as bought brings it back to the list, where it can be deleted).
+    func canDelete(_ item: ShopListItem) -> Bool {
+        !hasOpenDebt(item)
+    }
+
+    /// Deletes every bought item whose debt is fully settled: once nobody owes anything for it,
+    /// it leaves the "bought" section by itself. Called after a settlement and on every load.
+    func cleanUpBoughtItems() async {
+        guard list != nil, !isPreview else { return }
+        let done = items.filter { isFullySettled($0) && !itemsBeingRemoved.contains($0.id) && $0.recordID != nil }
+        guard !done.isEmpty else { return }
+
+        let doneIDs = Set(done.map(\.id))
+        itemsBeingRemoved.formUnion(doneIDs)
+        defer { itemsBeingRemoved.subtract(doneIDs) }
+
+        // One delete request per zone (in practice, one for the whole house), so every item
+        // leaves the list at the same time instead of one by one.
+        var removedIDs: Set<String> = []
+        let itemsByZone = Dictionary(grouping: done) { $0.recordID!.zoneID }
+        for (zoneID, zoneItems) in itemsByZone {
+            // Silent: a failure just leaves the items there until the next load tries again.
+            guard await CloudKitManager.shared.delete(
+                recordIDs: zoneItems.compactMap(\.recordID),
+                zoneID: zoneID
+            ) else { continue }
+            removedIDs.formUnion(zoneItems.map(\.id))
+        }
+        items.removeAll { removedIDs.contains($0.id) }
     }
 
     /// Adds `item`, or replaces the one with the same id — never creates a duplicate row.
@@ -518,6 +591,7 @@ final class ShopListViewModel {
             relatedUsers: relatedUsers
         )
         if let firstMissing = missing.first {
+            errorTitle = L10n.tr("Faltam informações do item")
             errorMessage = firstMissing.warning
             return false
         }
@@ -572,7 +646,8 @@ final class ShopListViewModel {
         addedBy: UserModel?
     ) async -> Bool {
         guard let list else {
-            errorMessage = L10n.tr("Lista de compras ainda não carregada.")
+            errorTitle = L10n.tr("Não foi possível adicionar o item")
+            errorMessage = L10n.tr("A lista de compras ainda não carregou. Aguarde um instante e tente novamente.")
             return false
         }
 
@@ -593,7 +668,8 @@ final class ShopListViewModel {
         )
 
         guard let created = await list.addItem(draft) else {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao adicionar item.")
+            errorTitle = L10n.tr("Não foi possível adicionar o item")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
 
@@ -621,7 +697,8 @@ final class ShopListViewModel {
             category: category,
             relatedUsers: relatedUsers
         ) else {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+            errorTitle = L10n.tr("Não foi possível salvar o item")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         return true
@@ -629,7 +706,8 @@ final class ShopListViewModel {
 
     // MARK: - Buying
 
-    /// An item the user is checking off that has no price yet; the view asks for it first.
+    /// An item the user is checking off; the view asks for its price first (or, when it already
+    /// has one, asks the user to confirm or change it).
     struct PurchasePrompt: Identifiable {
         let item: ShopListItem
         var id: String { item.id }
@@ -649,8 +727,11 @@ final class ShopListViewModel {
     }
 
     /// Checks an item off, or puts it back on the list.
+    ///
+    /// Checking off always opens the price popup: empty when the item has no price, filled in
+    /// with the current price otherwise, so the user can confirm it or correct it.
     func toggleBought(_ item: ShopListItem) async {
-        if !item.isBought, !item.hasPrice {
+        if !item.isBought {
             purchasePrompt = PurchasePrompt(item: item)
             return
         }
@@ -659,17 +740,22 @@ final class ShopListViewModel {
 
     /// Finishes a purchase started from the price popup.
     ///
-    /// - Parameter valueText: The typed total, or `nil` to buy without informing it.
+    /// - Parameter valueText: The typed total, or `nil` to buy without a price ("Comprar sem
+    ///   valor"), which also removes a price the item already had.
     func confirmPurchase(of item: ShopListItem, valueText: String?) async {
         purchasePrompt = nil
 
         let price = valueText.flatMap(Self.parsePrice).flatMap { $0 > 0 ? $0 : nil }
-        await setBought(item, price: price)
+        await setBought(item, price: price, clearsPrice: valueText == nil)
     }
 
     /// Marks `item` as bought (or not), saving the total paid when given.
-    private func setBought(_ item: ShopListItem, price: Double?) async {
+    ///
+    /// - Parameter clearsPrice: When buying, removes the item's current price first, so it's
+    ///   bought without a value (no debts are created for it).
+    private func setBought(_ item: ShopListItem, price: Double?, clearsPrice: Bool = false) async {
         if isPreview {
+            if clearsPrice { item.totalPrice = nil }
             if let price { item.totalPrice = price }
             item.isBought.toggle()
             item.boughtAt = item.isBought ? Date() : nil // Keep the purchase date in step.
@@ -681,9 +767,12 @@ final class ShopListViewModel {
             let awarded = item.awardedPoints
             let buyerID = item.buyerRecordID
             guard await item.toggle() else {
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+                errorTitle = L10n.tr("Não foi possível atualizar a compra")
+                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
                 return
             }
+            // Unchecked before the trip's notification went out: nobody hears about it.
+            BoughtItemsNotifier.shared.remove(item)
             await takeBackPurchasePoints(
                 awarded: awarded,
                 hasPrice: item.hasPrice,
@@ -691,12 +780,19 @@ final class ShopListViewModel {
                 adderID: item.addedByRecordID
             )
         } else if let currentUser {
+            // "Comprar sem valor" on an item that had a price: drop it before saving, so the
+            // record is saved without it. Restored below if the save fails.
+            let previousPrice = item.totalPrice
+            if clearsPrice { item.totalPrice = nil }
+
             // The buyer is paid for the purchase (and for recording the price); whoever added the
             // item is paid now too, since the item turned out to be needed.
             let points = ScoreValues.shoppingPurchase(hasPrice: price != nil || item.hasPrice)
             let didSave = await item.markBought(by: currentUser, totalPrice: price, awarding: points)
             guard didSave else {
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+                item.totalPrice = previousPrice
+                errorTitle = L10n.tr("Não foi possível atualizar a compra")
+                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
                 return
             }
 
@@ -707,17 +803,18 @@ final class ShopListViewModel {
                 await ScoreManager.shared.assignScore(score: ScoreValues.shoppingItemAdded.points, for: adder)
             }
         } else if await item.toggle() == false {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao editar item.")
+            errorTitle = L10n.tr("Não foi possível atualizar a compra")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
         }
     }
 
-    /// Tells the member who added `item` that somebody else bought it.
+    /// Puts `item` in this shopping trip's notifications. Not sent right away: the items of
+    /// one trip go out together, once it's over (see ``BoughtItemsNotifier``), through
+    /// ``notifyPurchase(_:by:)``.
     private func notifyItemBought(_ item: ShopListItem, by buyer: UserModel) {
-        guard let addedByID = item.addedByRecordID,
-              let owner = houseUsers.first(where: { $0.recordID == addedByID }),
-              owner.ownerRecordName != buyer.ownerRecordName else { return }
-        
-        Task { await NotificationManager.shared.notifyItemBought(item, by: buyer.name, to: owner) }
+        BoughtItemsNotifier.shared.add(item, by: buyer) { [self] items, buyer in
+            await notifyPurchase(items, by: buyer, fromReceipt: false)
+        }
     }
     
     /// Dismisses the error shown by the view.
@@ -729,13 +826,20 @@ final class ShopListViewModel {
     @discardableResult
     func deleteItem(_ item: ShopListItem) async -> Bool {
         guard list != nil || isPreview else { return false }
+        // The screen hides the option, but this is what keeps the debts safe.
+        guard canDelete(item) else {
+            errorTitle = L10n.tr("Este item ainda tem pendências")
+            errorMessage = L10n.tr("Itens comprados saem da lista sozinhos quando todos pagarem a sua parte. Se ele foi marcado por engano, desmarque como comprado para poder excluir.")
+            return false
+        }
         guard let index = items.firstIndex(where: { $0.id == item.id }) else { return true }
 
         items.remove(at: index)
         if isPreview { return true }
 
         guard let list, await list.removeItem(item) else {
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Erro ao remover item.")
+            errorTitle = L10n.tr("Não foi possível excluir o item")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             if !items.contains(where: { $0.id == item.id }) {
                 items.insert(item, at: min(index, items.count))
             }
@@ -754,6 +858,307 @@ final class ShopListViewModel {
             )
         }
         return true
+    }
+
+    // MARK: - Scanned receipt
+
+    /// A list item and what the receipt says was paid for it (lines linked to the same item
+    /// already added up).
+    struct ReceiptPurchase {
+        let item: ShopListItem
+        let total: Double
+        /// The weight actually bought, for a weighed product ("500 g" on the list, 0,364 kg on
+        /// the receipt): the item's quantity becomes it. `nil` keeps the quantity.
+        var amount: (quantity: Int, unit: UnitMeasurement)? = nil
+        /// Who it's for, when the person changed it on the review screen. `nil` keeps the
+        /// item's people.
+        var consumers: [UserModel]? = nil
+    }
+
+    /// A product read from a receipt that wasn't on the list, to add already bought.
+    struct ReceiptNewItem {
+        let name: String
+        let total: Double
+        let quantity: Int
+        let unit: UnitMeasurement
+        /// Who it's for; empty means the whole house.
+        let consumers: [UserModel]
+        /// The aisle it goes in.
+        var category: ShopItemCategory = .other
+    }
+
+    /// The aisle of the latest item the house has with this exact name, unless it's "Outros",
+    /// for a product read from a receipt (same words, ignoring case and accents).
+    func receiptCategory(named name: String) -> ShopItemCategory? {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        return items
+            .filter { item in
+                item.category != .other && ShopItemDuplicateFinder.isExactMatch(trimmed, item.name)
+            }
+            .max { ($0.boughtAt ?? $0.createdAt) < ($1.boughtAt ?? $1.createdAt) }?
+            .category
+    }
+
+    /// What the house called products it scanned before (see ``ReceiptNameMemory``).
+    var receiptNameMemory: [String: String] {
+        list?.receiptNames ?? [:]
+    }
+
+    /// Remembers names for the next receipts. Failing only loses the shortcut, so it's silent.
+    func rememberReceiptNames(_ names: [String: String]) async {
+        guard !isPreview, !names.isEmpty else { return }
+        await list?.rememberReceiptNames(names)
+    }
+
+    /// The items a receipt line can be linked to: only the ones still to buy (what's already
+    /// in "Comprados" was bought before, not with this receipt).
+    var receiptLinkableItems: [ShopListItem] {
+        pendingItems
+    }
+
+    /// Applies a receipt the person reviewed. List items are checked off by the signed-in user
+    /// with the price paid (one a housemate bought meanwhile is left as it is), and products that weren't
+    /// on the list are added already bought, for who the person chose (the whole house when
+    /// nobody, like ``addSuggestedItems(_:)``).
+    ///
+    /// Fast, so the review screen closes soon: the list items go in one request and the new
+    /// items in another, all or nothing each (``errorMessage`` is set when one fails). The
+    /// points, the notifications (``notifyPurchase(_:by:)``) and the like run afterwards, in
+    /// the background.
+    ///
+    /// - Returns: How many purchases and new items were saved.
+    func applyReceipt(purchases: [ReceiptPurchase], newItems: [ReceiptNewItem]) async -> Int {
+        guard let currentUser, let buyerID = currentUser.recordID else {
+            errorMessage = L10n.tr("Erro ao editar item.")
+            return 0
+        }
+        var saved = 0
+        var failed = false
+        // The items this receipt bought, for the points and the notifications.
+        var bought: [ShopListItem] = []
+        // The signed-in user's points, and the points of who added the list items, by record.
+        var myPoints = 0
+        var adderPoints: [String: (user: UserModel, points: Int)] = [:]
+
+        // MARK: List items: one request
+        var checkedOff: [(item: ShopListItem, points: Int, undo: () -> Void)] = []
+        for purchase in purchases {
+            let item = purchase.item
+            let price = purchase.total > 0 ? purchase.total : nil
+
+            if isPreview {
+                if let price { item.totalPrice = price }
+                if let amount = purchase.amount, !item.isBought {
+                    item.quantity = amount.quantity
+                    item.unitMeasurement = amount.unit
+                }
+                if let people = purchase.consumers, !item.isBought {
+                    item.relatedUsersReference = people.compactMap { user in
+                        user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+                    }
+                }
+                if !item.isBought {
+                    item.isBought = true
+                    item.boughtAt = Date()
+                }
+                saved += 1
+                continue
+            }
+
+            // Bought by a housemate while the receipt was being reviewed: theirs stays.
+            if item.isBought {
+                saved += 1
+                continue
+            }
+            // The amount bought and who it's for go in the same save as the purchase.
+            let previousAmount = (item.quantity, item.unitMeasurement)
+            let previousPeople = item.relatedUsersReference
+            if let amount = purchase.amount {
+                item.quantity = amount.quantity
+                item.unitMeasurement = amount.unit
+            }
+            if let people = purchase.consumers {
+                let references = people.compactMap { user in
+                    user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+                }
+                if !references.isEmpty { item.relatedUsersReference = references }
+            }
+            // Same scoring as `setBought`: the buyer's points are saved in `awardedPoints`
+            // so un-buying takes back exactly them, and the adder is paid now.
+            let purchasePoints = ScoreValues.shoppingPurchase(hasPrice: price != nil || item.hasPrice)
+            let undoPurchase = item.markBoughtLocally(by: buyerID, totalPrice: price, awarding: purchasePoints)
+            checkedOff.append((item, purchasePoints, {
+                undoPurchase()
+                (item.quantity, item.unitMeasurement) = previousAmount
+                item.relatedUsersReference = previousPeople
+            }))
+        }
+        if !checkedOff.isEmpty {
+            if await CloudKitManager.shared.batchUpdate(checkedOff.map(\.item)) {
+                for entry in checkedOff {
+                    bought.append(entry.item)
+                    myPoints += entry.points
+                    if let adder = houseUser(withID: entry.item.addedByRecordID) {
+                        if adder.ownerRecordName == currentUser.ownerRecordName {
+                            myPoints += ScoreValues.shoppingItemAdded.points
+                        } else if let key = adder.recordID?.recordName {
+                            adderPoints[key, default: (adder, 0)].points += ScoreValues.shoppingItemAdded.points
+                        }
+                    }
+                    saved += 1
+                }
+            } else {
+                checkedOff.forEach { $0.undo() }
+                failed = true
+            }
+        }
+
+        // MARK: New items: one request
+        let house = houseUsers.compactMap { user in
+            user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+        }
+        let me = CKRecord.Reference(recordID: buyerID, action: .none)
+        var drafts: [ShopListItem] = []
+        for newItem in newItems {
+            let chosen = newItem.consumers.compactMap { user in
+                user.recordID.map { CKRecord.Reference(recordID: $0, action: .none) }
+            }
+            let people = chosen.isEmpty ? house : chosen
+            let draft = ShopListItem(
+                name: newItem.name,
+                totalPrice: newItem.total > 0 ? newItem.total : nil,
+                quantity: newItem.quantity,
+                unitMeasurement: newItem.unit,
+                isBought: true,
+                category: newItem.category,
+                relatedUsers: people.isEmpty ? nil : people,
+                addedByUser: me,
+                buyerUser: me
+            )
+            draft.boughtAt = Date()
+            // Bought on creation: saved like any purchase so un-buying takes these points back.
+            draft.awardedPoints = ScoreValues.shoppingPurchase(hasPrice: newItem.total > 0)
+
+            if isPreview {
+                draft.recordID = CKRecord.ID(recordName: "preview-item-\(UUID().uuidString)")
+                upsert(draft)
+                saved += 1
+                continue
+            }
+            drafts.append(draft)
+        }
+        if !drafts.isEmpty {
+            if let listID = list?.recordID {
+                // Created like `ShopListModel.addItem`: in the list's zone, with the list as parent.
+                let parent = CKRecord.Reference(recordID: listID, action: .none)
+                let records = drafts.map { draft -> CKRecord in
+                    let recordID = CKRecord.ID(recordName: UUID().uuidString, zoneID: listID.zoneID)
+                    let record = CKRecord(recordType: ShopListItem.recordType, recordID: recordID)
+                    draft.populate(record: record)
+                    record.parent = parent
+                    draft.recordID = recordID
+                    return record
+                }
+                if await CloudKitManager.shared.batchSave(records: records, zoneID: listID.zoneID) {
+                    CloudKitManager.shared.invalidateSessionCacheIfNeeded(for: ShopListItem.self)
+                    for draft in drafts {
+                        draft.listRecordID = listID
+                        upsert(draft)
+                        bought.append(draft)
+                        // The current user both added and bought it: purchase points + the adder's points.
+                        myPoints += (draft.awardedPoints ?? 0) + ScoreValues.shoppingItemAdded.points
+                        saved += 1
+                    }
+                } else {
+                    drafts.forEach { $0.recordID = nil }
+                    failed = true
+                }
+            } else {
+                failed = true
+            }
+        }
+
+        if failed {
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível salvar todos os itens.")
+        }
+
+        // MARK: Afterwards, in the background
+        guard !isPreview else { return saved }
+        let adders = Array(adderPoints.values)
+        let points = myPoints
+        Task {
+            if points > 0 {
+                await ScoreManager.shared.assignScoreForMyUser(score: points)
+            }
+            for adder in adders {
+                await ScoreManager.shared.assignScore(score: adder.points, for: adder.user)
+            }
+            // A receipt is the whole trip: no waiting like the items checked off on the list.
+            await notifyPurchase(bought, by: currentUser, fromReceipt: true)
+        }
+        return saved
+    }
+
+    /// Tells the housemates about one shopping trip: a scanned receipt, or the items checked
+    /// off on the list in a row (``BoughtItemsNotifier``).
+    ///
+    /// Only who has something to pay hears about it: one notification each, with what was
+    /// bought for them and their part, added up like "Pendências" does (``DebtCalculator``, so
+    /// the amounts match). Who added an item without paying for it isn't told.
+    ///
+    /// - Parameter fromReceipt: Bought with a scanned receipt (the receipt's icon instead of the
+    ///   cart).
+    private func notifyPurchase(_ bought: [ShopListItem], by buyer: UserModel, fromReceipt: Bool) async {
+        guard !bought.isEmpty, !isPreview else { return }
+        let buyerPerson = buyer.ownerRecordName
+
+        // Their part of this trip only, by person: one person may have more than one record.
+        let ledger = DebtCalculator.ledger(
+            items: bought,
+            users: houseUsers,
+            userRecords: houseUserRecords,
+            me: buyer
+        )
+        var shares: [String: Double] = [:]
+        for group in ledger.owedToYou {
+            shares[group.counterparty.ownerRecordName, default: 0] += group.total
+        }
+
+        // What each of them shares, in the order it was bought.
+        var order: [String] = []
+        var shared: [String: (member: UserModel, names: [String])] = [:]
+        for item in bought {
+            for id in item.consumerRecordIDs {
+                // Every record of the house, not just one per person: the item may point at any.
+                guard let member = houseUser(withID: id),
+                      !member.ownerRecordName.isEmpty, member.ownerRecordName != buyerPerson
+                else { continue }
+                let key = member.ownerRecordName
+                if shared[key] == nil {
+                    shared[key] = (member, [])
+                    order.append(key)
+                }
+                if !(shared[key]?.names.contains(item.name) ?? true) {
+                    shared[key]?.names.append(item.name)
+                }
+            }
+        }
+
+        for key in order {
+            // Nothing to pay (no prices): nothing to tell.
+            guard let entry = shared[key], let share = shares[key], share > 0 else { continue }
+            #if DEBUG
+            print("[BoughtItems] telling \(entry.member.name): \(entry.names), \(share)")
+            #endif
+            await NotificationManager.shared.notifyBoughtForYou(
+                entry.names,
+                share: share.formatted(.currency(code: "BRL").locale(L10n.locale)),
+                by: buyer.name,
+                to: entry.member,
+                fromReceipt: fromReceipt
+            )
+        }
     }
 
     /// Whether `date` falls in the house's current season (any date does before the first one ends).

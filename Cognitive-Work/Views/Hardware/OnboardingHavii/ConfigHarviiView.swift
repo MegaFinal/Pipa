@@ -104,10 +104,10 @@ struct ConfigHarviiView: View {
         } message: {
             Text("Você pode resetar o Harvii da casa mesmo assim: todos os moradores vão precisar configurá-lo de novo. O aparelho só esquece o Wi-Fi quando alguém segura o botão BOOT dele por 5 segundos.")
         }
-        .alert("Celular desconectado.", isPresented: $disconectThisPhone) {
+        .alert("Celular desconectado", isPresented: $disconectThisPhone) {
             Button("OK") { onClose() }
         } message: {
-            Text("Seu celular foi desconectado com sucesso!")
+            Text("Este celular não recebe mais as atualizações do Harvii. Você pode parear de novo quando quiser.")
         }
     }
     

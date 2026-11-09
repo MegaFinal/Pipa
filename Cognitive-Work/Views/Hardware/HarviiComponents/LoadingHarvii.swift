@@ -53,7 +53,7 @@ struct LoadingHarvii: View {
         VStack(alignment: .center, spacing: height * 0.014) {
             // MARK: - Title
             Text("Harvii está recebendo as suas tarefas")
-                .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                .font(.custom("Alan Sans", fixedSize: 32))
                 .bold()
                 .foregroundStyle(.titleGray)
                 .fixedSize(horizontal: false, vertical: true)

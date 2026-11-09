@@ -41,7 +41,7 @@ struct UnassignedChoresCard: View {
             
             if viewModel.isEmpty {
                 Text("Nenhuma tarefa disponível no momento.")
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.secondary)
                     .padding(16)
             } else {
@@ -55,13 +55,13 @@ struct UnassignedChoresCard: View {
     private var header: some View {
         HStack(alignment: .top, spacing: 12) {
             Text("\(viewModel.items.count)")
-                .font(.custom("Alan Sans", size: 64))
+                .font(.custom("Alan Sans", fixedSize: 64))
                 .bold()
                 .foregroundStyle(Color.choreOrange)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("Tarefas sem dono")
-                    .font(.custom("Alan Sans", size: 24))
+                    .font(.custom("Alan Sans", fixedSize: 24))
                     .bold()
                 
                 Text("O trabalho de notar, lembrar e distribuir tarefas também faz parte da organização da casa")

@@ -78,7 +78,7 @@ extension CarouselViewModel {
         var parts: [String] = [
             chore.localizedName,
             accessibilityRoomName(for: chore),
-            isDone(for: chore, assignment: assignment) ? L10n.tr("Concluída") : L10n.tr("Pendente"),
+            accessibilityStatusText(for: chore, assignment: assignment),
             accessibilityResponsibleText(for: accessibilityResponsibleUsers(for: chore, assignment: assignment)),
             accessibilityTagsText(for: chore)
         ]
@@ -88,6 +88,12 @@ extension CarouselViewModel {
         }
 
         return parts.joined(separator: ", ")
+    }
+
+    /// "Concluída", "Atrasada" or "Pendente".
+    private func accessibilityStatusText(for chore: ChoreModel, assignment: RecurrentAssignmentModel?) -> String {
+        if isDone(for: chore, assignment: assignment) { return L10n.tr("Concluída") }
+        return isOverdue(chore) ? L10n.tr("Atrasada") : L10n.tr("Pendente")
     }
 
     // MARK: - Carousel navigation

@@ -46,12 +46,12 @@ struct ChorePopOverComponent: View {
         VStack(alignment: .leading) {
             Text(room?.name.localizedDefault ?? L10n.tr("Cômodo"))
                 .fontWeight(.regular)
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .fixedSize(horizontal: false, vertical: true)
             
             Text(chore.localizedName)
                 .bold()
-                .font(.title2)
+                .font(.system(size: 22))
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
         }

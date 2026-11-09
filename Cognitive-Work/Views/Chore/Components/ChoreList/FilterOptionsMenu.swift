@@ -206,7 +206,7 @@ private struct FilterMenuRow: View {
             VStack(alignment: .leading) {
                 Text(title)
                 Text(subtitle)
-                    .font(.footnote)
+                    .font(.system(size: 13))
                     .foregroundStyle(.secondary)
             }
         } icon: {

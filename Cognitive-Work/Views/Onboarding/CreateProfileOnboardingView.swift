@@ -82,7 +82,7 @@ struct CreateProfileOnboardingView: View {
         }
         .padding(.horizontal, width * 0.0565)
         // MARK: - Error alert
-        .alert("Não deu para criar o perfil", isPresented: Binding(
+        .alert("Não foi possível criar seu perfil", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
         )) {

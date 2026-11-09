@@ -28,7 +28,7 @@ struct DebtSummaryCard: View {
             VStack(alignment: .leading, spacing: 4) {
                 // MARK: - Title
                 Text(title)
-                    .font(.custom("Alan Sans", size: 18))
+                    .font(.custom("Alan Sans", fixedSize: 18))
                     .fontWeight(.semibold)
                     .foregroundStyle(isSelected ? .white : .black)
                     .lineLimit(1)
@@ -40,7 +40,7 @@ struct DebtSummaryCard: View {
                         .font(.system(size: 20, weight: .semibold))
 
                     Text(amount.whole)
-                        .font(.custom("Alan Sans", size: 30))
+                        .font(.custom("Alan Sans", fixedSize: 30))
                         .fontWeight(.bold)
                         .lineLimit(1)
                         .minimumScaleFactor(0.4)

@@ -27,7 +27,7 @@ struct LoadingScreen: View {
             if let message {
                 // Same type as the onboarding titles (see ``OnboardingHeader``).
                 Text(message)
-                    .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                    .font(.custom("Alan Sans", fixedSize: 32))
                     .bold()
                     .foregroundStyle(.titleGray)
                     .multilineTextAlignment(.center)
