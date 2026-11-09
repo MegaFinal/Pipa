@@ -190,7 +190,8 @@ struct ShopListView: View {
 
     // MARK: - Price pop-up
 
-    /// "How much was it?", over a dimmed backdrop, when an item without a price is checked off.
+    /// "How much was it?", over a dimmed backdrop, when an item is checked off. Items that
+    /// already have a price open it pre-filled, to confirm or change the price.
     @ViewBuilder
     private var purchasePriceOverlay: some View {
         if let prompt = viewModel.purchasePrompt {
@@ -205,6 +206,7 @@ struct ShopListView: View {
                     itemName: prompt.item.name,
                     quantity: prompt.item.quantity,
                     unit: prompt.item.unitMeasurement,
+                    initialPrice: prompt.item.totalValue,
                     onConfirm: { text in
                         Task { await viewModel.confirmPurchaseAnnouncing(of: prompt.item, valueText: text) }
                     },
