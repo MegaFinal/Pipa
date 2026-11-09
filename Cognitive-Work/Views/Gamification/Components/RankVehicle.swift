@@ -7,62 +7,72 @@
 
 import SwiftUI
 
-/// What a member flies in the ranking sky. Climbing to a higher rank unlocks the next vehicle:
-/// a small kite, a big kite, a plane and, at the top, a rocket.
-enum RankVehicle: CaseIterable {
-    case smallKite
-    case bigKite
-    case plane
-    case rocket
+/// What a member flies in the ranking sky: each rank has its own kite, from the small
+/// traditional one at the bottom to the Chinese dragon at the top.
+///
+/// The artwork lives in `Assets.xcassets/Ranking`, one image per rank (``assetName``). The ranks
+/// that don't have one yet (14 Bis and the dragon) draw a stand-in, so dropping an image with
+/// that name into the catalog is enough to replace it.
+struct RankVehicle: Equatable {
+
+    /// The rank this vehicle belongs to.
+    let tier: Tier
 
     /// The vehicle a member at `tier` flies.
     init(tier: Tier) {
-        switch tier.position {
-        case ...2: self = .smallKite
-        case 3...6: self = .bigKite
-        case 7...10: self = .plane
-        default: self = .rocket
+        self.tier = tier
+    }
+
+    /// Name of the artwork in the asset catalog, or `nil` while the rank has none.
+    var assetName: String? {
+        switch tier {
+        case .novatoDaCasa: "tradicional"
+        case .aprendiz: "tradicional_II"
+        case .ajudanteOficial: "tradicional_III"
+        case .escudeiroDaFaxina: "delta_I"
+        case .vigiaDaCozinha: "delta_II"
+        case .sentinelaDaSala: "delta_III"
+        case .guardiaoDaCasa: "andorinha_I"
+        case .protetorDoLar: "andorinha_II"
+        case .cavaleiroDoRodo: "andorinha_III"
+        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa, .almaDaCasa: nil
         }
     }
 
-    /// The first rank that has this vehicle.
-    var unlockTier: Tier {
-        switch self {
-        case .smallKite: return .novatoDaCasa
-        case .bigKite: return .escudeiroDaFaxina
-        case .plane: return .protetorDoLar
-        case .rocket: return .lendaDaCasa
-        }
-    }
-
-    /// Name of the artwork in the asset catalog. While there is none, ``RankVehicleView`` draws a
-    /// stand-in, so dropping an image with this name into the catalog is enough to replace it.
-    var assetName: String {
-        switch self {
-        case .smallKite: return "rankVehicleSmallKite"
-        case .bigKite: return "rankVehicleBigKite"
-        case .plane: return "rankVehiclePlane"
-        case .rocket: return "rankVehicleRocket"
-        }
-    }
-
-    /// Size of the vehicle on the card.
+    /// Size of the vehicle on the card, following each artwork's proportions. Within a family
+    /// (traditional, delta, swallow) the higher rank is a bit bigger. Never wider than
+    /// ``maxWidth``, the width of a member's marker.
     var size: CGSize {
-        switch self {
-        case .smallKite: return CGSize(width: 30, height: 56)
-        case .bigKite: return CGSize(width: 46, height: 84)
-        case .plane: return CGSize(width: 64, height: 50)
-        case .rocket: return CGSize(width: 44, height: 70)
+        switch tier {
+        // Traditional: tall diamonds with a long tail.
+        case .novatoDaCasa: CGSize(width: 31, height: 80)
+        case .aprendiz: CGSize(width: 31, height: 86)
+        case .ajudanteOficial: CGSize(width: 37, height: 92)
+        // Delta: wide triangles.
+        case .escudeiroDaFaxina: CGSize(width: 76, height: 56)
+        case .vigiaDaCozinha: CGSize(width: 80, height: 48)
+        case .sentinelaDaSala: CGSize(width: 84, height: 44)
+        // Swallow: wide, with long wings.
+        case .guardiaoDaCasa: CGSize(width: 78, height: 45)
+        case .protetorDoLar: CGSize(width: 80, height: 53)
+        case .cavaleiroDoRodo: CGSize(width: 84, height: 47)
+        // No artwork yet (stand-ins).
+        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa: CGSize(width: 84, height: 66)
+        case .almaDaCasa: CGSize(width: 58, height: 92)
         }
     }
+
+    /// The widest a vehicle gets: a member's marker is this wide.
+    static let maxWidth: CGFloat = 84
 
     /// The name VoiceOver reads.
     var accessibilityName: String {
-        switch self {
-        case .smallKite: return L10n.tr("pipa pequena")
-        case .bigKite: return L10n.tr("pipa grande")
-        case .plane: return L10n.tr("avião")
-        case .rocket: return L10n.tr("foguete")
+        switch tier {
+        case .novatoDaCasa, .aprendiz, .ajudanteOficial: L10n.tr("pipa tradicional")
+        case .escudeiroDaFaxina, .vigiaDaCozinha, .sentinelaDaSala: L10n.tr("pipa delta")
+        case .guardiaoDaCasa, .protetorDoLar, .cavaleiroDoRodo: L10n.tr("pipa andorinha")
+        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa: L10n.tr("14 Bis")
+        case .almaDaCasa: L10n.tr("pipa dragão chinês")
         }
     }
 }
@@ -75,8 +85,8 @@ struct RankVehicleView: View {
 
     var body: some View {
         Group {
-            if UIImage(named: vehicle.assetName) != nil {
-                Image(vehicle.assetName)
+            if let assetName = vehicle.assetName, UIImage(named: assetName) != nil {
+                Image(assetName)
                     .resizable()
                     .scaledToFit()
             } else {
@@ -90,23 +100,41 @@ struct RankVehicleView: View {
     /// A drawing made of shapes and symbols, until the artwork exists.
     @ViewBuilder
     private var standIn: some View {
-        switch vehicle {
-        case .smallKite:
-            KiteArt(color: .choreOrange).rotationEffect(.degrees(18))
-        case .bigKite:
-            KiteArt(color: .chorePurple).rotationEffect(.degrees(-14))
-        case .plane:
+        switch vehicle.tier {
+        case .almaDaCasa:
+            KiteArt(color: .tagRed).rotationEffect(.degrees(-10))
+        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa:
             Image(systemName: "airplane")
                 .resizable()
                 .scaledToFit()
                 .foregroundStyle(Color.chorePurple)
                 .rotationEffect(.degrees(-30))
-        case .rocket:
-            Image(systemName: "paperplane.fill")
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(Color.tagRed)
+        default:
+            KiteArt(color: .choreOrange).rotationEffect(.degrees(18))
         }
+    }
+}
+
+// MARK: - Previews
+
+#Preview("Pipa de cada ranking") {
+    ScrollView {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100), spacing: 16)], spacing: 24) {
+            ForEach(Tier.allCases, id: \.self) { tier in
+                VStack(spacing: 10) {
+                    RankVehicleView(vehicle: RankVehicle(tier: tier))
+                        .frame(height: 96)
+                    Text(verbatim: tier.displayName)
+                        .font(.system(size: 12, weight: .bold))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Color(red: 0.27, green: 0.38, blue: 0.64))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Color(red: 223 / 255, green: 238 / 255, blue: 254 / 255), in: RoundedRectangle(cornerRadius: 16))
+            }
+        }
+        .padding(20)
     }
 }
 

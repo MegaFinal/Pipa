@@ -258,7 +258,7 @@ struct RankSkyCard: View {
     private static let maxVehiclesPerLine = 3
 
     /// How big the vehicles are drawn when a rank needs two lines, so both fit in its row.
-    private static let twoLineScale: CGFloat = 0.55
+    private static let twoLineScale: CGFloat = 0.45
 
     /// The members' vehicles at the end of the rank's line.
     ///
@@ -302,7 +302,6 @@ struct RankSkyCard: View {
             RankVehicleView(vehicle: vehicle)
                 .scaleEffect((isMe ? 1 : 0.85) * scale)
                 .frame(width: vehicle.size.width * scale, height: vehicle.size.height * scale)
-                .shadow(color: .black.opacity(isMe ? 0.25 : 0.12), radius: 3, x: 0, y: 2)
 
             Text(verbatim: user.name.split(separator: " ").first.map(String.init) ?? user.name)
                 .font(.system(size: scale < 1 ? 10 : 12, weight: .bold))
@@ -312,7 +311,7 @@ struct RankSkyCard: View {
                 .padding(.vertical, 1)
                 .background(.white.opacity(0.8), in: Capsule())
         }
-        .frame(maxWidth: 64 * scale)
+        .frame(maxWidth: RankVehicle.maxWidth * scale)
     }
 
     // MARK: - Scrolling and accessibility
@@ -462,6 +461,19 @@ private struct RankLine: Shape {
     RankSkyCard(
         groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
         myOwnerRecordName: "bia"
+    )
+    .padding(30)
+}
+
+#Preview("Uma pessoa em cada ranking") {
+    let names = ["Ana", "Bia", "Caio", "Davi", "Edu", "Fê", "Gabi", "Hugo", "Iara", "João", "Lia", "Malu", "Nina"]
+    let users = Tier.allCases.enumerated().map { index, tier in
+        UserModel(name: names[index], tier: tier, points: index * 30, ownerRecordName: names[index].lowercased())
+    }
+    // The card scrolls: drag it to see every rank's kite.
+    RankSkyCard(
+        groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
+        myOwnerRecordName: "edu"
     )
     .padding(30)
 }
