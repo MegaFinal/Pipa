@@ -3886,6 +3886,9 @@
         }
       }
     },
+    "14 Bis" : {
+
+    },
     "14 Bis I" : {
       "localizations" : {
         "en" : {
@@ -7968,6 +7971,7 @@
       }
     },
     "avião" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21605,6 +21609,7 @@
       }
     },
     "foguete" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36862,6 +36867,9 @@
         }
       }
     },
+    "pipa andorinha" : {
+
+    },
     "Pipa andorinha I" : {
       "localizations" : {
         "en" : {
@@ -36981,6 +36989,9 @@
           }
         }
       }
+    },
+    "pipa delta" : {
+
     },
     "Pipa delta I" : {
       "localizations" : {
@@ -37102,6 +37113,9 @@
         }
       }
     },
+    "pipa dragão chinês" : {
+
+    },
     "Pipa dragão chinês" : {
       "localizations" : {
         "en" : {
@@ -37143,6 +37157,7 @@
       }
     },
     "pipa grande" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37183,6 +37198,7 @@
       }
     },
     "pipa pequena" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37261,6 +37277,9 @@
           }
         }
       }
+    },
+    "pipa tradicional" : {
+
     },
     "Pipa Tradicional I" : {
       "localizations" : {
@@ -44375,9 +44394,6 @@
           }
         }
       }
-    },
-    "Seu rank no ciclo" : {
-
     },
     "Seu saldo" : {
       "localizations" : {

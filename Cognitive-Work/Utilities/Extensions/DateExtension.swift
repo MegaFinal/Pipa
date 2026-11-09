@@ -113,17 +113,6 @@ extension Date {
         return formatter.string(from: self)
     }
     
-    /// Transform Date to String, convert to the form you want
-    /// Ex.: toString(format: "dd/MM/yyyy") → "30/09/2026"
-    /// Ex.: toString(format: "HH:mm") → "15:45"
-    /// - Parameter format: Receives the date format you want
-    /// - Returns: Return Date in String
-    func toString(format: String) -> String{
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
-        return dateFormatter.string(from: self)
-    }
-    
     /// Day and abbreviated month in the app's language, without a dot.
     /// Ex.: Sep 28, 2026 → "28 set" (pt-BR) | "28 sept" (es) | "Sep 28" (en)
     var shortDayMonth: String {

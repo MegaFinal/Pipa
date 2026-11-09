@@ -75,11 +75,21 @@ class HardwareDailyChoresViewModel {
     /// The rendered day, formatted for the header in the app's language
     /// ("quinta-feira, 1 de outubro" / "Thursday, October 1").
     var targetDateFormatted: String {
-        let formatter = DateFormatter()
-        formatter.locale = L10n.locale
-        formatter.setLocalizedDateFormatFromTemplate("EEEEdMMMM")
+        // Reused (creating a DateFormatter is expensive); set up again only when the app's
+        // language changes.
+        let formatter = Self.headerFormatter
+        if Self.headerFormatterLocale != L10n.locale {
+            formatter.locale = L10n.locale
+            formatter.setLocalizedDateFormatFromTemplate("EEEEdMMMM")
+            Self.headerFormatterLocale = L10n.locale
+        }
         return formatter.string(from: Self.targetDay())
     }
+
+    /// The formatter behind ``targetDateFormatted``.
+    private static let headerFormatter = DateFormatter()
+    /// The language ``headerFormatter`` is set up for; `nil` until first used.
+    private static var headerFormatterLocale: Locale?
 
     // MARK: - Initialization
     /// Creates the view model with data already loaded (or empty, to load later).
