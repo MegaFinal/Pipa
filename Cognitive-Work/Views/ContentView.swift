@@ -31,8 +31,14 @@ struct ContentView: View {
     
     var body: some View {
         Group {
+            // MARK: No connection: retry (never "você não faz mais parte desta casa")
+            if let problem = viewModel.connectionError, !viewModel.isRetryingConnection {
+                ConnectionErrorView(message: problem) {
+                    Task { await viewModel.retryConnection() }
+                }
+                .transition(.opacity)
             // MARK: Loading screen, then the tabs
-            if viewModel.isLoading {
+            } else if viewModel.isLoading || viewModel.isRetryingConnection {
                 LoadingScreen(message: "Carregando sua casa...")
             } else {
                 tabs
@@ -60,6 +66,7 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut, value: viewModel.userHasNoHouse)
+        .animation(.easeInOut, value: viewModel.connectionError)
         // MARK: Invite while already in a house
         .onReceive(NotificationCenter.default.publisher(for: .notAcceptShare)) { cloudMetadata in
             viewModel.showInviteAcceptAlert = true
@@ -124,7 +131,7 @@ struct ContentView: View {
 
     /// Opens the screen of the notification the user tapped, once the tabs are on screen.
     private func openPendingDestination() {
-        guard !viewModel.isLoading, !viewModel.userHasNoHouse,
+        guard !viewModel.isLoading, !viewModel.userHasNoHouse, viewModel.connectionError == nil,
               let destination = NotificationManager.shared.pendingDestination
         else { return }
         NotificationManager.shared.pendingDestination = nil

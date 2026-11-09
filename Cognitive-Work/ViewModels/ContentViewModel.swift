@@ -37,6 +37,17 @@ class ContentViewModel {
     /// `true` when the user's house was deleted, so the app can send them back to the onboarding.
     var userHasNoHouse: Bool = false
     
+    /// Why iCloud couldn't be reached (no connection, a very slow one, no account). While set,
+    /// the root view shows ``ConnectionErrorView`` instead of the tabs, so being offline is never
+    /// mistaken for having lost the house.
+    var connectionError: String? = nil
+    
+    /// `true` while "Tentar novamente" runs.
+    private(set) var isRetryingConnection = false
+    
+    /// Whether ``bootstrap()`` already loaded the house data once.
+    private var didLoadHouseData = false
+    
     /// `true` while the app opens and ``bootstrap()`` loads everything the tabs show. The root
     /// view keeps ``LoadingScreen`` up for as long as this is set, and only builds the tabs
     /// afterwards, so each of them finds its data ready.
@@ -89,7 +100,9 @@ class ContentViewModel {
             guard !Task.isCancelled, !userHasNoHouse else { isLoading = false; return }
             await store.load(force: true)
         }
-        guard !userHasNoHouse else { isLoading = false; return }
+        // Offline, `fetchHouse` sets `connectionError` instead of "no house".
+        guard !userHasNoHouse, connectionError == nil else { isLoading = false; return }
+        didLoadHouseData = true
         
         isLoading = false
         guard !Task.isCancelled else { return }
@@ -141,6 +154,15 @@ class ContentViewModel {
                 await leaveRemovedHouse(house)
                 return
             }
+            // The lookup returns "no house" for any failure too: offline, that showed
+            // `HouseAccessLostView` ("você não faz mais parte desta casa"). Only a house really
+            // missing on a working connection counts.
+            if house == nil, let problem = await CloudKitManager.shared.connectionProblem() {
+                guard !Task.isCancelled else { return }
+                connectionError = problem
+                return
+            }
+            connectionError = nil
             userHasNoHouse = (house == nil)
             // Reads the house's Premium status and, if this device pays, renews it in the record.
             // Not awaited: it can write the house record, and nothing on screen waits for it.
@@ -154,10 +176,30 @@ class ContentViewModel {
                 print("   partial errors:", ck.partialErrorsByItemID ?? [:])
             }
             guard !Task.isCancelled else { return }
+            if let problem = await CloudKitManager.shared.connectionProblem() {
+                connectionError = problem
+                return
+            }
             errorTitle = L10n.tr("Não foi possível carregar sua casa")
             errorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
             return
         }
+    }
+    
+    /// "Tentar novamente" on ``ConnectionErrorView``: opens the app again when it never loaded,
+    /// otherwise checks the house again.
+    func retryConnection() async {
+        guard !isRetryingConnection else { return }
+        isRetryingConnection = true
+        defer { isRetryingConnection = false }
+        
+        connectionError = nil
+        if didLoadHouseData {
+            await fetchHouse()
+        } else {
+            await bootstrap()
+        }
+        await checkRetro()
     }
     
     /// Sends a user who no longer has a house (removed by the admin, or the house was deleted)
@@ -200,7 +242,7 @@ class ContentViewModel {
     /// Shows the retrospective when the period of the last division is over.
     /// Best effort: if the schedule can't be read there is nothing to compare, so nothing is shown.
     func checkRetro() async {
-        guard !userHasNoHouse, !showRetro else { return }
+        guard !userHasNoHouse, connectionError == nil, !showRetro else { return }
 
         // The house data is already loaded (and refreshed when it changes): no extra query of
         // every occurrence of the house before the retrospective can show.

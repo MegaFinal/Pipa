@@ -58,6 +58,8 @@ private extension WelcomeHarviiView {
             .frame(width: width, height: height - 100, alignment: .top)
             .offset(y: height * 0.04)
             .shadow(radius: 4.0)
+            // Illustration only: the pitch texts below describe the Harvii.
+            .accessibilityDecorative()
     }
     
     /// White panel with the pitch texts and the round "Continuar" button.

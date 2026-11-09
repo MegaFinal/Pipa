@@ -133,9 +133,12 @@ final class ShopListViewModel {
     }
 
     /// Bought items still on the list. The ones whose shares were all paid are hidden here and
-    /// deleted right after by ``cleanUpBoughtItems()`` (they no longer count in any debt).
+    /// deleted right after by ``cleanUpBoughtItems()`` (they no longer count in any debt). The ones
+    /// bought with nobody to charge leave it from the day after the purchase (see
+    /// ``isFinishedPersonalPurchase(_:now:)``); those stay stored, so the suggestions keep
+    /// learning from the purchases.
     var boughtItems: [ShopListItem] {
-        items.filter { $0.isBought && !isFullySettled($0) }
+        items.filter { $0.isBought && !isFullySettled($0) && !isFinishedPersonalPurchase($0) }
     }
 
     /// Whether the list has nothing to show. Not `items.isEmpty`: fully settled items stay in
@@ -150,17 +153,41 @@ final class ShopListViewModel {
     func isFullySettled(_ item: ShopListItem) -> Bool {
         guard item.isBought, item.hasPrice, let buyerID = item.buyerRecordID else { return false }
 
-        var ownerByRecord: [String: String] = [:]
-        for user in houseUserRecords + houseUsers {
-            if let name = user.recordID?.recordName { ownerByRecord[name] = user.ownerRecordName }
-        }
-        func person(_ id: CKRecord.ID) -> String { ownerByRecord[id.recordName] ?? id.recordName }
-
-        let buyer = person(buyerID)
+        let person = personResolver()
         let settled = Set(item.settledUserIDs.map(person))
-        let debtors = Set(item.consumerRecordIDs.map(person)).subtracting([buyer])
+        let debtors = Set(item.consumerRecordIDs.map(person)).subtracting([person(buyerID)])
 
         return !debtors.isEmpty && debtors.isSubset(of: settled)
+    }
+    
+    /// Whether `item` was bought by someone for themselves (or for nobody in particular), so
+    /// nobody owes anything for it, and it was bought before today.
+    ///
+    /// ``isFullySettled(_:)`` only takes an item off the list once somebody pays for it, so these
+    /// never left "Comprados". They stay there the rest of the day of the purchase (to undo a
+    /// check by mistake) and leave the list after that.
+    func isFinishedPersonalPurchase(_ item: ShopListItem, now: Date = .now) -> Bool {
+        guard item.isBought, let buyerID = item.buyerRecordID else { return false }
+
+        let person = personResolver()
+        let debtors = Set(item.consumerRecordIDs.map(person)).subtracting([person(buyerID)])
+        guard debtors.isEmpty else { return false }
+
+        let boughtDay = Calendar.current.startOfDay(for: item.boughtAt ?? item.createdAt)
+        return boughtDay < Calendar.current.startOfDay(for: now)
+    }
+    
+    /// Turns a user record id into the person it belongs to (`ownerRecordName`), like
+    /// ``DebtCalculator``: the same person may have more than one user record.
+    private func personResolver() -> (CKRecord.ID) -> String {
+        // The signed-in member too: the item may point at their record before the house list
+        // has it. Without an account name, the record itself (as in ``DebtCalculator``).
+        var ownerByRecord: [String: String] = [:]
+        for user in houseUserRecords + houseUsers + [currentUser].compactMap({ $0 }) {
+            guard let name = user.recordID?.recordName else { continue }
+            ownerByRecord[name] = user.ownerRecordName.isEmpty ? name : user.ownerRecordName
+        }
+        return { ownerByRecord[$0.recordName] ?? $0.recordName }
     }
 
     // MARK: - Presentation

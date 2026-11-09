@@ -2981,6 +2981,16 @@
         }
       }
     },
+    "%lld tarefas não puderam ser salvas e voltaram como pendentes. %@" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld tarefas não puderam ser salvas e voltaram como pendentes. %2$@"
+          }
+        }
+      }
+    },
     "%lld tarefas sem dono" : {
       "localizations" : {
         "en" : {
@@ -11415,6 +11425,9 @@
           }
         }
       }
+    },
+    "Conectando ao iCloud..." : {
+
     },
     "Conectar" : {
       "extractionState" : "stale",
@@ -28727,6 +28740,9 @@
         }
       }
     },
+    "Não foi possível conectar" : {
+
+    },
     "Não foi possível conectar o Harvii" : {
       "localizations" : {
         "en" : {
@@ -44358,6 +44374,9 @@
         }
       }
     },
+    "Seu rank no ciclo" : {
+
+    },
     "Seu saldo" : {
       "localizations" : {
         "en" : {
@@ -45251,6 +45270,9 @@
           }
         }
       }
+    },
+    "Sua conexão está lenta e não conseguimos falar com o iCloud. Verifique sua internet e tente novamente." : {
+
     },
     "Sua divisão" : {
       "localizations" : {
@@ -49535,6 +49557,9 @@
           }
         }
       }
+    },
+    "Uma tarefa não pôde ser salva e voltou como pendente. %@" : {
+
     },
     "única" : {
       "localizations" : {

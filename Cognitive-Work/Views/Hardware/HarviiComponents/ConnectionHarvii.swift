@@ -77,6 +77,8 @@ private extension ConnectionHarvii {
             .frame(width: width, height: height - 100, alignment: .top)
             .offset(y: height * 0.04)
             .shadow(radius: 4.0)
+            // Illustration only: the title already says how the connection went.
+            .accessibilityDecorative()
     }
     
     /// Round badge on the Harvii's corner: green check when it connected, orange X when it failed.

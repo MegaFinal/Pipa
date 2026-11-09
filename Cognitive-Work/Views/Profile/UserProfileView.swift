@@ -64,7 +64,7 @@ struct UserProfileView: View {
                 banner: viewModelUser.editedBanner,
                 image: viewModelUser.displayedImageData.flatMap(UIImage.init(data:)),
                 photoSelection: $viewModelUser.selectedPhotoItem,
-                photoPickerStyle: .pencilButton
+                photoPickerStyle: .avatarWithPencil
             ) { banner in
                 viewModelUser.editedBanner = banner
                 Task { await viewModelUser.saveChanges() }

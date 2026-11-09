@@ -92,6 +92,27 @@ class CarouselViewModel {
     /// together with ``errorMessage``, which says why and what to do.
     var errorTitle: String?
     
+    /// Set when checked chores couldn't be saved and went back to pending (see
+    /// ``ChoreCompletionBatcher``). Left for the view to clear back to `nil` once shown.
+    var completionErrorMessage: String?
+    
+    /// Saves the check-offs made close together in one go (see ``ChoreCompletionBatcher``).
+    @ObservationIgnored
+    private(set) lazy var completions: ChoreCompletionBatcher = {
+        let batcher = ChoreCompletionBatcher()
+        batcher.onRollback = { [weak self] in self?.refreshVisible() }
+        batcher.onError = { [weak self] message in self?.completionErrorMessage = message }
+        batcher.onSavedDone = { [weak self] chore, assignment in
+            self?.notifyOwnersChoreDone(chore, assignment: assignment)
+        }
+        return batcher
+    }()
+    
+    /// Records whose check-off is being prepared (points worked out), so a second tap on the same
+    /// card can't start from the same state.
+    @ObservationIgnored
+    private var preparingCompletionIDs: Set<CKRecord.ID> = []
+    
     /// The last day of the division cycle in progress.
     var currentCycleEnd: Date? {
         let today = Calendar.current.startOfDay(for: Date())
@@ -647,6 +668,8 @@ class CarouselViewModel {
             self.dailyAssignments = snapshot.assignments
             self.dashboardUser = snapshot.houseUser
             self.applyDefaultUserFilterIfNeeded()
+            // Checks not saved yet would show unchecked on the reloaded records.
+            self.completions.overlay(chores: self.cardModels, assignments: self.dailyAssignments)
             
             self.rebuildDerivedState()
             
@@ -674,6 +697,7 @@ class CarouselViewModel {
         await MainActor.run {
             self.cardModels = self.choresVisible(chores, to: self.dashboardUser, among: self.userModels)
             self.dailyAssignments = assignments
+            self.completions.overlay(chores: self.cardModels, assignments: assignments)
             self.rebuildDerivedState()
         }
     }
@@ -874,51 +898,66 @@ class CarouselViewModel {
         assignment?.isCompleted ?? chore.isDone
     }
     
-    /// Toggles the chore's (or, for a recurring chore, this specific day's) completion state
-    /// and persists it, giving or taking back the points.
+    /// Toggles the chore's (or, for a recurring chore, this specific day's) completion state,
+    /// giving or taking back the points.
     ///
-    /// Unchecking takes back the points saved with the completion (``ChoreModel/awardedPoints``),
-    /// not what the chore is worth now: it may have been edited in between.
+    /// The card changes right away; the save goes out with the other check-offs made close
+    /// together (``ChoreCompletionBatcher``). Unchecking takes back the points saved with the
+    /// completion (``ChoreModel/awardedPoints``), not what the chore is worth now: it may have
+    /// been edited in between.
+    /// - Returns: `false` when the tap was ignored (the same card is still being prepared, or the
+    ///   member couldn't be found). A save that fails later is reported in ``completionErrorMessage``.
     @MainActor
     @discardableResult
     func toggle(chore: ChoreModel) async -> Bool {
-        let scoreManager = ScoreManager.shared
+        guard let id = chore.recordID, preparingCompletionIDs.insert(id).inserted else { return false }
+        defer { preparingCompletionIDs.remove(id) }
         
+        guard let myID = await myHouseUserID() else { return false }
+        let scoreManager = ScoreManager.shared
         let isFromSettledSeason = await isInSettledSeason(chore.dueDate)
         
         if !chore.isDone {
             let earned = isFromSettledSeason ? 0 : scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
-            guard await chore.toggle(awarding: earned) else { return false }
-            refreshVisible()
-            
-            notifyOwnersChoreDone(chore, assignment: nil)
-            return await scoreManager.assignScoreForMyUser(score: earned)
+            completions.record(
+                .chore(chore),
+                to: .init(isDone: true, doer: CKRecord.Reference(recordID: myID, action: .none), awardedPoints: earned),
+                points: earned,
+                pointsOwner: nil,
+                choreToNotify: chore
+            )
+        } else {
+            // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
+            // season already settled were reset with it: nothing left to take back.
+            let awarded = isFromSettledSeason
+            ? 0
+            : chore.awardedPoints ?? scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
+            let doer = await resolveDoer(of: chore.userThatHaveDoneReference, fallback: { await chore.userThatHaveDone })
+            completions.record(
+                .chore(chore),
+                to: .init(isDone: false, doer: nil, awardedPoints: nil),
+                points: -awarded,
+                pointsOwner: doer,
+                choreToNotify: nil
+            )
         }
-        
-        // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
-        // season already settled were reset with it: nothing left to take back.
-        let awarded = isFromSettledSeason
-        ? 0
-        : chore.awardedPoints ?? scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
-        let doer = await chore.userThatHaveDone
-        
-        guard await chore.toggle() else { return false }
         refreshVisible()
-        
-        if let doer {
-            return await scoreManager.removeScore(score: awarded, for: doer)
-        }
-        return await scoreManager.removeScoreForMyUser(score: awarded)
+        return true
     }
 
     /// Checks or unchecks one occurrence and gives or takes back the points.
     ///
     /// The occurrence's day is its due date (see ``ScoreManager/points(forCompleting:dueOn:completedAt:calendar:)``),
-    /// so checking off the next days' occurrences ahead of time is worth little.
-    /// - Returns: `false` when the change couldn't be saved.
+    /// so checking off the next days' occurrences ahead of time is worth little. Saved like
+    /// ``toggle(chore:)``.
+    /// - Returns: `false` when the tap was ignored.
     @MainActor
     @discardableResult
     func toggle(assignment: RecurrentAssignmentModel) async -> Bool {
+        guard let id = assignment.recordID, preparingCompletionIDs.insert(id).inserted else { return false }
+        defer { preparingCompletionIDs.remove(id) }
+        
+        guard let myID = await myHouseUserID() else { return false }
         let scoreManager = ScoreManager.shared
         let chore = await parentChore(of: assignment)
         let isFromSettledSeason = await isInSettledSeason(assignment.day)
@@ -927,31 +966,51 @@ class CarouselViewModel {
             let earned = isFromSettledSeason
             ? 0
             : chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) } ?? 0
-            guard await assignment.toggle(awarding: earned) else { return false }
-            refreshVisible()
-            
-            if let chore {
-                notifyOwnersChoreDone(chore, assignment: assignment)
-            }
-            return await scoreManager.assignScoreForMyUser(score: earned)
+            completions.record(
+                .assignment(assignment),
+                to: .init(isDone: true, doer: CKRecord.Reference(recordID: myID, action: .none), awardedPoints: earned),
+                points: earned,
+                pointsOwner: nil,
+                choreToNotify: chore
+            )
+        } else {
+            // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
+            // season already settled were reset with it: nothing left to take back.
+            let awarded = isFromSettledSeason
+            ? 0
+            : assignment.awardedPoints
+            ?? chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) }
+            ?? 0
+            let doer = await resolveDoer(of: assignment.userThatHaveDoneReference, fallback: { await assignment.userThatHaveDone })
+            completions.record(
+                .assignment(assignment),
+                to: .init(isDone: false, doer: nil, awardedPoints: nil),
+                points: -awarded,
+                pointsOwner: doer,
+                choreToNotify: nil
+            )
         }
-        
-        // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
-        // season already settled were reset with it: nothing left to take back.
-        let awarded = isFromSettledSeason
-        ? 0
-        : assignment.awardedPoints
-        ?? chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) }
-        ?? 0
-        let doer = await assignment.userThatHaveDone
-        
-        guard await assignment.toggle() else { return false }
         refreshVisible()
-        
-        if let doer {
-            return await scoreManager.removeScore(score: awarded, for: doer)
+        return true
+    }
+    
+    /// The signed-in member's record in the house (who a check-off is saved for).
+    private func myHouseUserID() async -> CKRecord.ID? {
+        if let id = dashboardUser?.recordID { return id }
+        return await CloudKitManager.shared.currentHouseUser()?.recordID
+    }
+    
+    /// Who checked a chore off, to take their points back: the member already loaded, or fetched.
+    /// `nil` when nobody is recorded (old completions), in which case the signed-in member pays.
+    private func resolveDoer(
+        of reference: CKRecord.Reference?,
+        fallback: () async -> UserModel?
+    ) async -> UserModel? {
+        guard let reference else { return nil }
+        if let loaded = userModels.first(where: { $0.recordID == reference.recordID }) {
+            return loaded
         }
-        return await scoreManager.removeScoreForMyUser(score: awarded)
+        return await fallback()
     }
     
     /// Whether a chore due on `day` belongs to a gamification season already settled

@@ -84,11 +84,10 @@ struct WelcomeAnimatedOnboardingView: View{
                     Button("Continuar", systemImage: "chevron.right") {
                         // A returning user (profile and free time already saved) goes straight
                         // to "create or enter a house"; a new one goes on to the profile.
-                        viewModel.advanceFromWelcome()
+                        // While the account check still runs, the loading screen shows and
+                        // the flow moves on by itself when it ends.
+                        viewModel.continueFromWelcome()
                     }
-                    // Where "Continuar" leads depends on the account check that runs when this
-                    // screen opens.
-                    .disabled(viewModel.isCheckingAccount)
                     // Voice Control: short names for the icon-only chevron.
                     .voiceControlNames([L10n.tr("Continuar"), L10n.tr("Próximo"), L10n.tr("Avançar")])
                     .bold()

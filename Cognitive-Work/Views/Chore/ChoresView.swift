@@ -279,6 +279,22 @@ struct ChoresView: View {
         } message: {
             Text(carouselVM.errorMessage ?? "")
         }
+        // MARK: - Checks that couldn't be saved (went back to pending)
+        .alert(
+            "Não foi possível concluir",
+            isPresented: Binding(
+                get: { carouselVM.completionErrorMessage != nil },
+                set: { if !$0 { carouselVM.completionErrorMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(carouselVM.completionErrorMessage ?? "")
+        }
+        // Checks still waiting go out before the app leaves the screen.
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            carouselVM.completions.flushNow()
+        }
         .overlay { newUserPopUpOverlay }
     }
     
