@@ -218,3 +218,39 @@ class ScoreManager {
         return false
     }
 }
+
+// MARK: - Several changes at once
+
+extension ScoreManager {
+
+    /// Applies several point changes at the same time (each one is a fetch and a save), and
+    /// returns when all of them finished.
+    ///
+    /// Changes for the same person (``UserModel/ownerRecordName``, who may have more than one
+    /// record) are added up into one first: two changes for one person running together could
+    /// both settle the person's closed cycle, and the second settlement would wipe the points
+    /// the first change had just saved.
+    ///
+    /// - Parameter changes: Who and how many points; negative to remove.
+    func applyPoints(_ changes: [(user: UserModel, points: Int)]) async {
+        var merged: [String: (user: UserModel, points: Int)] = [:]
+        var order: [String] = []
+        for change in changes where change.points != 0 {
+            let owner = change.user.ownerRecordName
+            let key = owner.isEmpty ? (change.user.recordID?.recordName ?? change.user.id) : owner
+            if let existing = merged[key] {
+                merged[key] = (existing.user, existing.points + change.points)
+            } else {
+                merged[key] = change
+                order.append(key)
+            }
+        }
+
+        let perPerson = order.compactMap { merged[$0] }
+        await withTaskGroup(of: Void.self) { group in
+            for change in perPerson {
+                group.addTask { _ = await self.applyPoints(change.points, to: change.user) }
+            }
+        }
+    }
+}

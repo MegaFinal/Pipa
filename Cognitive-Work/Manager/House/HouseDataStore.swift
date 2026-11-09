@@ -156,17 +156,44 @@ final class HouseDataStore {
         isStale = true
     }
 
+    /// The remote refresh currently waiting or running, shared by every screen that asks for one
+    /// meanwhile (see ``refreshAfterRemoteChange()``).
+    @ObservationIgnored
+    private var remoteRefresh: Task<HouseSnapshot, Never>?
+
+    /// How long a remote refresh waits before invalidating, so every screen reacting to the same
+    /// push (or to coming back to the foreground) joins it, and the store's own invalidation
+    /// from ``CloudKitManager/markDataChanged()`` lands first instead of making the download
+    /// count as outdated the moment it ends.
+    private static let remoteRefreshDelay: Duration = .milliseconds(150)
+
     /// A change reported by CloudKit (push from another device): invalidates and reloads.
+    ///
+    /// Coalesced: Dashboard, Chores, Compras, Gamification and the app root all react to the same
+    /// push. Each used to invalidate the store and start its own download; now every call made
+    /// while one is pending or running waits for that one, so a push downloads the house once.
+    /// A change that lands while it's downloading still makes ``loadLatest()`` ask once more.
     @discardableResult
     func refreshAfterRemoteChange() async -> HouseSnapshot {
-        invalidate()
-        return await loadLatest()
+        if let remoteRefresh { return await remoteRefresh.value }
+
+        let task = Task { [self] in
+            try? await Task.sleep(for: Self.remoteRefreshDelay)
+            invalidate()
+            return await loadLatest()
+        }
+        remoteRefresh = task
+        let result = await task.value
+        // A newer refresh may have replaced it after a reset; leave that one alone.
+        if remoteRefresh == task { remoteRefresh = nil }
+        return result
     }
 
     /// Forgets everything, e.g. when a different account or house takes over.
     func reset() {
         inFlight?.cancel()
         inFlight = nil
+        remoteRefresh = nil
         latestFetchID = nil
         snapshot = nil
         isStale = true
