@@ -48,6 +48,40 @@ struct PieSlice: Shape {
     }
 }
 
+/// The part ``PieSlice`` removes: a slice that grows clockwise from the top. With
+/// `progress` 1 it covers the whole square, so nothing of what is behind it shows.
+struct PieRemovedSlice: Shape {
+    /// Fraction of the circle already removed, from `0` to `1`.
+    var progress: Double
+
+    /// Lets SwiftUI animate ``progress``.
+    var animatableData: Double {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    func path(in rect: CGRect) -> Path {
+        let removed = min(max(progress, 0), 1)
+        guard removed > 0.0001 else { return Path() }
+        // All gone: the whole square, like the background the white pie used to sit on.
+        guard removed < 0.9999 else { return Path(rect) }
+
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+        // Reaches the square's corners, so the slice fills it like the old background did.
+        let radius = hypot(rect.width, rect.height) / 2
+
+        var path = Path()
+        path.move(to: center)
+        path.addArc(center: center,
+                    radius: radius,
+                    startAngle: .degrees(-90),
+                    endAngle: .degrees(-90 + 360 * removed),
+                    clockwise: false)
+        path.closeSubpath()
+        return path
+    }
+}
+
 #Preview {
     PieSlice(progress: 0.35)
         .foregroundStyle(.purple)

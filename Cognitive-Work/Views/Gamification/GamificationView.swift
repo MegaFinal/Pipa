@@ -43,6 +43,7 @@ struct GamificationView: View {
                         groups: viewModel.catalog.tiers,
                         myOwnerRecordName: viewModel.myOwnerRecordName
                     )
+                    .coachMarkAnchor(GamificationTourStop.ranking)
                     .padding(.horizontal, 30)
                     
                     // MARK: - Coupons (or empty state)
@@ -61,21 +62,38 @@ struct GamificationView: View {
                             source: .available,
                             emptyText: L10n.tr("Nenhum cupom disponível agora.")
                         )
+                        .coachMarkAnchor(GamificationTourStop.availableCoupons)
                         couponSection(
                             title: L10n.tr("Seus cupons"),
                             entries: viewModel.myEntries,
                             source: .mine,
                             emptyText: L10n.tr("Você ainda não tem cupons neste ciclo.")
                         )
+                        .coachMarkAnchor(GamificationTourStop.myCoupons)
                     }
                 }
                 .padding(.bottom, 24)
             }
+            // Pull to refresh: reads the house, the ranking and the balance again.
+            .refreshable {
+                await viewModel.pullToRefresh()
+            }
             .background(Color.white.ignoresSafeArea())
+            // MARK: - First visit: pop-ups presenting each component
+            .coachMarks(viewModel.tour)
+            .onAppear { viewModel.startTourIfNeeded() }
+            .onChange(of: viewModel.hasLoaded) { viewModel.startTourIfNeeded() }
             // MARK: - Loading and refreshing
             .task {
                 guard !viewModel.hasLoaded else { return }
                 await viewModel.setup()
+            }
+            // Every visit to the tab reads the balance again. The tab is created the first time
+            // it's opened, so coins earned before that (chores checked off on the Tarefas tab)
+            // never reached its `coinsDidChange` listener, and it showed the balance of launch.
+            .onAppear {
+                guard viewModel.hasLoaded else { return }
+                viewModel.requestRefresh()
             }
             .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
                 viewModel.requestRefresh(catchUp: true)
@@ -83,9 +101,17 @@ struct GamificationView: View {
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
                 viewModel.requestRefresh()
             }
+            // Coins arrive as the rank goes up, so the balance is read again right away.
+            .onReceive(NotificationCenter.default.publisher(for: .coinsDidChange)) { _ in
+                viewModel.requestRefresh()
+            }
+            // Any change saved on this device (points, a purchase, a chore of the ranking).
+            .onChange(of: CloudKitManager.shared.dataRevision) {
+                viewModel.requestRefresh()
+            }
             // MARK: - Purchase error alert
             .alert(
-                "Não foi possível comprar",
+                "Não foi possível comprar o cupom",
                 isPresented: Binding(
                     get: { viewModel.alertMessage != nil },
                     set: { if !$0 { viewModel.alertMessage = nil } }
@@ -118,7 +144,7 @@ struct GamificationView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
                 Text("Gamificação")
-                    .font(.custom("Alan Sans", size: 34))
+                    .font(.custom("Alan Sans", fixedSize: 34))
                     .fontWeight(.bold)
                     .accessibilityAddTraits(.isHeader)
                 
@@ -140,6 +166,10 @@ struct GamificationView: View {
                     Capsule()
                         .foregroundColor(.lowOpacityYellow.opacity(0.35))
                 )
+                // VoiceOver reads the balance as one element ("120 moedas"), without the pig's asset name.
+                .accessibilityElement(children: .ignore)
+                .voiceOverLabel(viewModel.coins == 1 ? L10n.tr("1 moeda") : L10n.tr("\(viewModel.coins) moedas"))
+                .coachMarkAnchor(GamificationTourStop.coins)
             }
             
             Text(verbatim: itemsText)

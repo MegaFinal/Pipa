@@ -65,7 +65,7 @@ struct WaitHouseCreatorSheduleView: View {
                     }
                 
                 Text("Aguardando divisão de tarefas...")
-                    .font(.custom("Alan Sans", size: 32, relativeTo: .body))
+                    .font(.custom("Alan Sans", fixedSize: 32))
                     .bold()
                     .accessibilityAddTraits(.isHeader)
                     .foregroundStyle(.titleGray)
@@ -100,6 +100,8 @@ struct WaitHouseCreatorSheduleView: View {
         // MARK: - Checks for the division: on open, every few seconds, on CloudKit changes and on return
         .task {
             await viewModel.checkAndAdvanceIfScheduleReady()
+            // Still waiting: lets the admin know this guest is ready to be included.
+            await viewModel.notifyAdminGuestIsWaiting()
             
             while !Task.isCancelled {
                 try? await Task.sleep(for: pollingInterval)

@@ -75,7 +75,7 @@ private struct OnboardingBackButtonModifier: ViewModifier {
                     Text(confirmationMessage)
                 }
             }
-            .alert("Não deu para voltar", isPresented: Binding(
+            .alert("Não foi possível voltar", isPresented: Binding(
                 get: { viewModel.rollbackErrorMessage != nil },
                 set: { if !$0 { viewModel.rollbackErrorMessage = nil } }
             )) {

@@ -58,6 +58,8 @@ private extension WelcomeHarviiView {
             .frame(width: width, height: height - 100, alignment: .top)
             .offset(y: height * 0.04)
             .shadow(radius: 4.0)
+            // Illustration only: the pitch texts below describe the Harvii.
+            .accessibilityDecorative()
     }
     
     /// White panel with the pitch texts and the round "Continuar" button.
@@ -81,7 +83,7 @@ private extension WelcomeHarviiView {
     var pitchTexts: some View {
         VStack(alignment: .leading) {
             Text("As tarefas da casa, na parede")
-                .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                .font(.custom("Alan Sans", fixedSize: 32))
                 .bold()
                 .fixedSize(horizontal: false, vertical: true)
                 .accessibilityAddTraits(.isHeader)
@@ -89,7 +91,7 @@ private extension WelcomeHarviiView {
                 .padding(.bottom, height * 0.028)
             
             Text("O Harvii recebe as tarefas da Pipa pelo Wi-Fi da sua casa e atualiza sozinho. Ninguém precisa abrir o celular nem escrever nada.")
-                .font(.body)
+                .font(.system(size: 17))
                 .fixedSize(horizontal: false, vertical: true)
             
             Spacer()

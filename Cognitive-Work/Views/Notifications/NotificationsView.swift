@@ -17,12 +17,6 @@ struct NotificationsView: View {
     var onOpenChore: (ChoreModel, RecurrentAssignmentModel?) -> Void = { _, _ in }
     /// Runs on a "entrou na casa" notification (offers to divide again).
     var onNewMember: () -> Void = {}
-    /// Runs on an "item comprado" notification.
-    var onOpenShopList: () -> Void = {}
-    /// Runs on a debt notification.
-    var onOpenPendingPayments: () -> Void = {}
-    /// Runs on the calendar sync suggestion.
-    var onOpenCalendarSettings: () -> Void = {}
     
     /// Builds the notifications.
     @State private var viewModel = NotificationsViewModel()
@@ -100,7 +94,7 @@ struct NotificationsView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Notificações")
-                .font(.custom("Alan Sans", size: 34))
+                .font(.custom("Alan Sans", fixedSize: 34))
                 .fontWeight(.bold)
                 .accessibilityAddTraits(.isHeader)
             Text(viewModel.newCountText)
@@ -180,15 +174,11 @@ struct NotificationsView: View {
         case .newMember:
             dismiss()
             onNewMember()
-        case .shopList:
+        case .shopList, .pendingPayments, .calendarSync:
+            // Screens of other tabs: the same path as a tapped system notification
+            // (``AppNavigation``) switches the tab and opens them.
             dismiss()
-            onOpenShopList()
-        case .pendingPayments:
-            dismiss()
-            onOpenPendingPayments()
-        case .calendarSync:
-            dismiss()
-            onOpenCalendarSettings()
+            NotificationManager.shared.route(to: destination)
         case .premium:
             isShowingPremium = true
         }

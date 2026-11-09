@@ -19,6 +19,8 @@ struct ShopListView: View {
     @State private var editingItem: ShopListItem?
     /// Opens the "Pendências" screen.
     @State private var isShowingPendingPayments = false
+    /// What a tapped notification asks this tab to open (`nil` in previews).
+    @Environment(AppNavigation.self) private var navigation: AppNavigation?
 
     /// Whether the "add several items with AI" sheet is open.
     @State private var isPresentingAIBatch = false
@@ -53,6 +55,27 @@ struct ShopListView: View {
                     PendingPaymentsView(shopList: viewModel)
                 }
                 .premiumPaywall($paywall)
+        }
+        // MARK: - Tapped notification: the list ("item comprado") or "Pendências" (debts)
+        .task(id: navigation?.shopRoute?.id) {
+            guard let route = navigation?.shopRoute else { return }
+            navigation?.shopRoute = nil
+            switch route.destination {
+            case .list:
+                isShowingPendingPayments = false
+            case .pendingPayments:
+                openPendingPayments()
+            }
+        }
+    }
+
+    /// Opens "Pendências", or the paywall for a free house (prices are still recorded, so the
+    /// history is there the day they subscribe).
+    private func openPendingPayments() {
+        if PremiumManager.shared.allows(.debts) {
+            isShowingPendingPayments = true
+        } else {
+            paywall = .debts
         }
     }
 
@@ -142,10 +165,13 @@ struct ShopListView: View {
         }
         // MARK: - Error alert
         .alert(
-            "Não foi possível concluir",
+            viewModel.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
-                // The AI sheet shows its own errors.
-                get: { viewModel.errorMessage != nil && !isPresentingAddItem && editingItem == nil && !isPresentingAIBatch },
+                // The AI sheet shows its own errors; "Pendências" shows a receipt's.
+                get: {
+                    viewModel.errorMessage != nil && !isPresentingAddItem && editingItem == nil
+                        && !isPresentingAIBatch && !isShowingPendingPayments
+                },
                 set: { if !$0 { viewModel.clearError() } }
             )
         ) {
@@ -164,7 +190,8 @@ struct ShopListView: View {
 
     // MARK: - Price pop-up
 
-    /// "How much was it?", over a dimmed backdrop, when an item without a price is checked off.
+    /// "How much was it?", over a dimmed backdrop, when an item is checked off. Items that
+    /// already have a price open it pre-filled, to confirm or change the price.
     @ViewBuilder
     private var purchasePriceOverlay: some View {
         if let prompt = viewModel.purchasePrompt {
@@ -179,6 +206,7 @@ struct ShopListView: View {
                     itemName: prompt.item.name,
                     quantity: prompt.item.quantity,
                     unit: prompt.item.unitMeasurement,
+                    initialPrice: prompt.item.totalValue,
                     onConfirm: { text in
                         Task { await viewModel.confirmPurchaseAnnouncing(of: prompt.item, valueText: text) }
                     },
@@ -202,7 +230,7 @@ struct ShopListView: View {
             VStack(alignment: .leading, spacing: 2) {
                 // MARK: Title and pending summary
                 Text("Compras")
-                    .font(.custom("Alan Sans", size: 34))
+                    .font(.custom("Alan Sans", fixedSize: 34))
                     .fontWeight(.bold)
                     .accessibilityAddTraits(.isHeader)
 
@@ -222,13 +250,7 @@ struct ShopListView: View {
             HStack(spacing: 4) {
                 Button {
                     HapticsManager.selection()
-                    // Premium: free houses still record prices, so the history is there
-                    // the day they subscribe.
-                    if PremiumManager.shared.allows(.debts) {
-                        isShowingPendingPayments = true
-                    } else {
-                        paywall = .debts
-                    }
+                    openPendingPayments()
                 } label: {
                     Image(systemName: "banknote.fill")
                         .font(.system(size: 22))
@@ -331,32 +353,44 @@ struct ShopListView: View {
             .frame(maxWidth: .infinity)
     }
 
-    /// One item card that can be swiped to delete and tapped to edit.
+    /// One item card, tapped to edit. It can be swiped to delete, except a bought item someone
+    /// still owes for: it leaves the list by itself once the debt is settled.
+    @ViewBuilder
     private func row(for item: ShopListItem) -> some View {
-        SwipeToDeleteRow(
-            id: item.id,
-            revealedID: $revealedItemID,
-            style: swipeStyle,
-            onDelete: {
-                Task { await viewModel.deleteItemAnnouncing(item) }
-            }
-        ) {
-            ShopListItemCard(
-                item: item,
-                relatedUsers: viewModel.relatedUsers(for: item),
-                onToggle: { await viewModel.toggleBoughtAnnouncing(item) },
-                onTap: {
-                    if revealedItemID != nil {
-                        withAnimation(.snappy) { revealedItemID = nil }
-                    } else {
-                        editingItem = item
+        Group {
+            if viewModel.canDelete(item) {
+                SwipeToDeleteRow(
+                    id: item.id,
+                    revealedID: $revealedItemID,
+                    style: swipeStyle,
+                    onDelete: {
+                        Task { await viewModel.deleteItemAnnouncing(item) }
                     }
+                ) {
+                    itemCard(item)
                 }
-            )
+            } else {
+                itemCard(item)
+            }
         }
         .accessibilityAction(named: Text(verbatim: L10n.tr("Editar"))) {
             editingItem = item
         }
+    }
+
+    private func itemCard(_ item: ShopListItem) -> some View {
+        ShopListItemCard(
+            item: item,
+            relatedUsers: viewModel.relatedUsers(for: item),
+            onToggle: { await viewModel.toggleBoughtAnnouncing(item) },
+            onTap: {
+                if revealedItemID != nil {
+                    withAnimation(.snappy) { revealedItemID = nil }
+                } else {
+                    editingItem = item
+                }
+            }
+        )
     }
 
     /// Opens ``AddMoreItensInteligence`` to add several items from one text.

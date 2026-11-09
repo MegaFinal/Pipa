@@ -16,6 +16,9 @@ import SwiftUI
 class ContentViewModel {
     /// An error to show in an alert, or `nil` when there is none.
     var errorMessage: String? = nil
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
     
     /// Whether the "already in a house" warning is being presented.
     var showInviteAcceptAlert: Bool = false
@@ -34,6 +37,17 @@ class ContentViewModel {
     /// `true` when the user's house was deleted, so the app can send them back to the onboarding.
     var userHasNoHouse: Bool = false
     
+    /// Why iCloud couldn't be reached (no connection, a very slow one, no account). While set,
+    /// the root view shows ``ConnectionErrorView`` instead of the tabs, so being offline is never
+    /// mistaken for having lost the house.
+    var connectionError: String? = nil
+    
+    /// `true` while "Tentar novamente" runs.
+    private(set) var isRetryingConnection = false
+    
+    /// Whether ``bootstrap()`` already loaded the house data once.
+    private var didLoadHouseData = false
+    
     /// `true` while the app opens and ``bootstrap()`` loads everything the tabs show. The root
     /// view keeps ``LoadingScreen`` up for as long as this is set, and only builds the tabs
     /// afterwards, so each of them finds its data ready.
@@ -48,36 +62,111 @@ class ContentViewModel {
     
     /// Opens the app: settles which house the user belongs to, then loads all of its data in
     /// one go.
+    ///
+    /// Only what the tabs need to show waits behind the loading screen: the house and its data.
+    /// The rest runs once the tabs are up. The rewards tab used to be prepared here too, and that
+    /// also settles closed cycles and reads the wallet, a chain of CloudKit round trips the user
+    /// waited through on every launch; it now shows the house data right away and fills the
+    /// coins when they arrive.
+    ///
+    /// ## Faster launch
+    /// The three steps used to run one after the other: leaving orphaned houses, checking the
+    /// house (and the membership) and only then downloading the data, about ten CloudKit round
+    /// trips in a row behind the loading screen. They now run together, so the wait is the
+    /// slowest of them instead of their sum:
+    /// - the membership check of ``fetchHouse(checkingMembership:)`` is skipped, because leaving
+    ///   orphaned houses checks the same member records for every shared house;
+    /// - the data download shares the house lookup with ``fetchHouse(checkingMembership:)``
+    ///   (``CloudKitManager/currentHouse(forceRefresh:)`` joins the request in flight);
+    /// - in the rare launch where a house was just left, the house and the data are read again,
+    ///   as before, before the tabs show.
     func bootstrap() async {
         isLoading = true
-        defer { isLoading = false }
         
         store.reset()
         
-        await leaveOrphanedHouses()
-        guard !Task.isCancelled, didOnboard else { return }
+        async let pruned = CloudKitManager.shared.pruneOrphanedSharedMemberships()
+        async let houseChecked: Void = fetchHouse(checkingMembership: false)
+        async let downloaded = store.load(force: true)
         
-        await fetchHouse()
-        guard !Task.isCancelled, !userHasNoHouse else { return }
+        let removed = await pruned
+        await houseChecked
+        _ = await downloaded
+        guard !Task.isCancelled, didOnboard else { isLoading = false; return }
         
-        await store.load(force: true)
+        if removed > 0 {
+            // A house was left: what was read meanwhile may belong to it.
+            await settleAfterLeavingOrphanedHouses()
+            guard !Task.isCancelled, !userHasNoHouse else { isLoading = false; return }
+            await store.load(force: true)
+        }
+        // Offline, `fetchHouse` sets `connectionError` instead of "no house".
+        guard !userHasNoHouse, connectionError == nil else { isLoading = false; return }
+        didLoadHouseData = true
+        
+        isLoading = false
         guard !Task.isCancelled else { return }
         
-        await gamification.setup()
-        
+        Task { await gamification.setup() }
         Task { await syncFreeTime() }
+        Task { await repairHousePicture() }
+    }
+    
+    // MARK: - Profile photo
+
+    /// Copies the photo of the private profile to the member's record in the house when that
+    /// one has none.
+    ///
+    /// The house copy is what the chore lists and housemates show. It is made from the private
+    /// profile when the user creates or joins the house, and when the profile was read without its
+    /// photo at that moment, the copy was saved without one: the user saw their photo on the
+    /// profile screen and the placeholder everywhere else. Best effort, and a no-op once fixed.
+    func repairHousePicture() async {
+        let house = await store.current()
+        guard let houseUser = house.houseUser,
+              let houseUserID = houseUser.recordID,
+              houseUser.profilePicture == nil,
+              let fileURL = house.privateUser?.profilePicture?.fileURL,
+              let data = try? Data(contentsOf: fileURL),
+              let asset = CloudKitManager.shared.createAsset(from: data)
+        else { return }
+
+        houseUser.profilePicture = asset
+        if await CloudKitManager.shared.update(houseUser) {
+            await UserProfileCache.shared.invalidate(houseUserID)
+        } else {
+            houseUser.profilePicture = nil
+        }
     }
     
     /// Fetches the user house and verify if its exist
-    func fetchHouse() async {
-        print("fetchHouse")
-        
+    ///
+    /// - Parameter checkingMembership: Whether to also check that the admin didn't remove this
+    ///   member (three extra CloudKit requests). ``bootstrap()`` skips it, because leaving orphaned
+    ///   houses, which runs at the same time, checks exactly that.
+    func fetchHouse(checkingMembership: Bool = true) async {
         do {
             let house = try await CloudKitManager.shared.currentHouse(forceRefresh: true)
             guard !Task.isCancelled else { return }
+            // Removed by the admin while the house is still readable: leave it now, instead of
+            // showing the house without its members, chores or dates for this user.
+            if checkingMembership, let house, await CloudKitManager.shared.wasRemovedFromHouse(house) {
+                await leaveRemovedHouse(house)
+                return
+            }
+            // The lookup returns "no house" for any failure too: offline, that showed
+            // `HouseAccessLostView` ("você não faz mais parte desta casa"). Only a house really
+            // missing on a working connection counts.
+            if house == nil, let problem = await CloudKitManager.shared.connectionProblem() {
+                guard !Task.isCancelled else { return }
+                connectionError = problem
+                return
+            }
+            connectionError = nil
             userHasNoHouse = (house == nil)
             // Reads the house's Premium status and, if this device pays, renews it in the record.
-            await PremiumManager.shared.refresh(house: house)
+            // Not awaited: it can write the house record, and nothing on screen waits for it.
+            Task { await PremiumManager.shared.refresh(house: house) }
         } catch let error as CKError where [.zoneNotFound, .userDeletedZone, .unknownItem].contains(error.code) {
             userHasNoHouse = true   // the house is really gone
         } catch {
@@ -87,14 +176,39 @@ class ContentViewModel {
                 print("   partial errors:", ck.partialErrorsByItemID ?? [:])
             }
             guard !Task.isCancelled else { return }
-            errorMessage = L10n.tr("Não foi possível carregar a casa. Verifique sua conexão.")
+            if let problem = await CloudKitManager.shared.connectionProblem() {
+                connectionError = problem
+                return
+            }
+            errorTitle = L10n.tr("Não foi possível carregar sua casa")
+            errorMessage = L10n.tr("Verifique sua conexão e tente novamente.")
             return
         }
     }
     
-    /// Sends a user whose house was deleted back to the start of the onboarding.
+    /// "Tentar novamente" on ``ConnectionErrorView``: opens the app again when it never loaded,
+    /// otherwise checks the house again.
+    func retryConnection() async {
+        guard !isRetryingConnection else { return }
+        isRetryingConnection = true
+        defer { isRetryingConnection = false }
+        
+        connectionError = nil
+        if didLoadHouseData {
+            await fetchHouse()
+        } else {
+            await bootstrap()
+        }
+        await checkRetro()
+    }
+    
+    /// Sends a user who no longer has a house (removed by the admin, or the house was deleted)
+    /// to the onboarding, straight at "create or enter a house": their profile and free time are
+    /// kept, so there is nothing to ask again.
     func accountWithoutHouseReturnToOnboarding() {
         Self.resetOnboardingProgress()
+        OnboardingStateMachine.requestStartAtCreateOrEnterHome()
+        NotificationManager.shared.cancelAll()
         self.didOnboard = false
     }
     
@@ -107,6 +221,7 @@ class ContentViewModel {
     /// Leaves the current house, joins the one in `metadata` and reloads everything.
     func switchHouse(to metadata: CKShare.Metadata) async {
         await CloudKitManager.shared.switchHouse(to: metadata)
+        errorTitle = L10n.tr("Não foi possível trocar de casa")
         self.errorMessage = CloudKitManager.shared.errorMessage
         
         await bootstrap()
@@ -127,9 +242,11 @@ class ContentViewModel {
     /// Shows the retrospective when the period of the last division is over.
     /// Best effort: if the schedule can't be read there is nothing to compare, so nothing is shown.
     func checkRetro() async {
-        guard !userHasNoHouse, !showRetro else { return }
+        guard !userHasNoHouse, connectionError == nil, !showRetro else { return }
 
-        let assignments = await CloudKitManager.shared.fetchAll(RecurrentAssignmentModel.self)
+        // The house data is already loaded (and refreshed when it changes): no extra query of
+        // every occurrence of the house before the retrospective can show.
+        let assignments = await store.load().assignments
         guard !Task.isCancelled, !showRetro else { return }
 
         guard RetroTriggerPolicy.shouldPresent(
@@ -154,15 +271,28 @@ class ContentViewModel {
 
     // MARK: - Orphaned houses
 
-    /// Leaves any house this iCloud account is still attached to without a member record
-    func leaveOrphanedHouses() async {
-        let removed = await CloudKitManager.shared.pruneOrphanedSharedMemberships()
-        guard removed > 0 else { return }
+    /// Leaves a house the admin removed this member from and shows the notice
+    /// (`HouseAccessLostView`). The notice shows even when leaving fails (offline): the member
+    /// isn't in that house anymore, and the onboarding leaves it again before anything else.
+    private func leaveRemovedHouse(_ house: HouseModel) async {
+        _ = await CloudKitManager.shared.pruneOrphanedSharedMemberships()
+        store.invalidate()
+        let remaining = try? await CloudKitManager.shared.currentHouse(forceRefresh: true)
+        guard !Task.isCancelled else { return }
+        userHasNoHouse = remaining == nil || remaining?.recordID?.zoneID == house.recordID?.zoneID
+    }
+
+    /// After leaving at least one orphaned house (``bootstrap()``): shows the notice when no house
+    /// is left, otherwise reloads what the tabs show.
+    private func settleAfterLeavingOrphanedHouses() async {
+        store.invalidate()
         do {
             if try await CloudKitManager.shared.currentHouse(forceRefresh: true) == nil {
-                Self.resetOnboardingProgress()
-                didOnboard = false
+                // No house left (the admin removed this member): shows the notice
+                // (`HouseAccessLostView`) before the onboarding.
+                userHasNoHouse = true
             } else {
+                userHasNoHouse = false
                 NotificationCenter.default.post(name: .cloudKitDidChange, object: nil)
             }
         } catch {

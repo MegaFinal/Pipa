@@ -20,8 +20,8 @@ struct WifiCredentialsView: View {
         !viewModel.userWifiPassord.isEmpty
     }
     
-    /// The Wi-Fi was already sent before (the device has a host name), so this step only has to
-    /// move on to pairing.
+    /// The Wi-Fi was already sent before (the device has a host name): the fields stay, to send it
+    /// again (wrong password), and a shortcut moves straight on to pairing.
     private var wasWifiSent: Bool { !viewModel.hostName.isEmpty }
     
     /// Whether the continue button can be tapped.
@@ -44,7 +44,30 @@ struct WifiCredentialsView: View {
                 
                 VStack(alignment: .leading, spacing: 24) {
                     
-                    // MARK: - Skip to pairing (Wi-Fi already sent), or the Wi-Fi fields
+                    // MARK: - Wi-Fi fields (always: a wrong password can be sent again)
+                    LabeledInput(
+                        title: "Nome da sua rede",
+                        spokenAlternatives: [L10n.tr("Nome da rede"), L10n.tr("Rede")]
+                    ) {
+                        TextField("Ex.: Casa da Bela", text: $viewModel.userWifiName)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .characterLimit(TextLimits.wifiName, text: $viewModel.userWifiName)
+                    }
+                    
+                    // TODO: Colocar aquele negócio de olho pra ver a senha ou deixar bolina
+                    LabeledInput(
+                        title: "Sua senha",
+                        spokenAlternatives: [L10n.tr("Senha")]
+                    ) {
+                        SecureField("Senha do Wi-Fi", text: $viewModel.userWifiPassord)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .characterLimit(TextLimits.wifiPassword, text: $viewModel.userWifiPassord)
+                        
+                    }
+                    
+                    // MARK: - Shortcut: Wi-Fi already sent, straight to pairing
                     if wasWifiSent {
                         Button("Já enviei o WiFi, ir para o pareamento") {
                             viewModel.navigateToReturnHouseNetworkView = true
@@ -54,31 +77,8 @@ struct WifiCredentialsView: View {
                             L10n.tr("Pareamento"),
                             L10n.tr("Ir para o pareamento")
                         ])
-                        .font(.callout)
+                        .font(.system(size: 16))
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 8)
-                    } else {
-                        LabeledInput(
-                            title: "Nome da sua rede",
-                            spokenAlternatives: [L10n.tr("Nome da rede"), L10n.tr("Rede")]
-                        ) {
-                            TextField("Ex.: Casa da Bela", text: $viewModel.userWifiName)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-                                .characterLimit(TextLimits.wifiName, text: $viewModel.userWifiName)
-                        }
-                        
-                        // TODO: Colocar aquele negócio de olho pra ver a senha ou deixar bolina
-                        LabeledInput(
-                            title: "Sua senha",
-                            spokenAlternatives: [L10n.tr("Senha")]
-                        ) {
-                            SecureField("Senha do Wi-Fi", text: $viewModel.userWifiPassord)
-                                .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled()
-                                .characterLimit(TextLimits.wifiPassword, text: $viewModel.userWifiPassord)
-                            
-                        }
                     }
                 }
                 
@@ -113,6 +113,15 @@ struct WifiCredentialsView: View {
             }
             .resultAlert($viewModel.wifiResult)
             .dismissKeyboardOnTap()
+            // Coming back to fix the Wi-Fi: the name the Harvii got is kept, the password is typed again.
+            .onAppear {
+                if viewModel.userWifiName.isEmpty {
+                    viewModel.userWifiName = viewModel.wifiName
+                }
+                if wasWifiSent {
+                    viewModel.userWifiPassord = ""
+                }
+            }
             // Sending takes a few seconds behind a spinner; a failure arrives as an alert.
             .onChange(of: viewModel.isSending) { _, isSending in
                 if isSending { VoiceOver.announce(L10n.tr("Enviando dados do WiFi para o Harvii…")) }
@@ -122,14 +131,15 @@ struct WifiCredentialsView: View {
 }
 
 extension WifiCredentialsView {
-    /// Moves on to ``ReturnHouseNetwork`` when the Wi-Fi was already sent; otherwise sends it to
-    /// the device (``HardwareViewModel/sendWifiCredentials()`` moves on when it works and shows
-    /// the error alert when it doesn't).
+    /// Sends the Wi-Fi when both fields are filled (also to fix a wrong password); otherwise, if it
+    /// was already sent, moves on to ``ReturnHouseNetwork``.
+    /// (``HardwareViewModel/sendWifiCredentials()`` moves on when it works and shows the error
+    /// alert when it doesn't.)
     func continueTapped() async {
-        if wasWifiSent {
-            viewModel.navigateToReturnHouseNetworkView = true
-        } else {
+        if canSubmit {
             await viewModel.sendWifiCredentials()
+        } else if wasWifiSent {
+            viewModel.navigateToReturnHouseNetworkView = true
         }
     }
 }
@@ -156,7 +166,7 @@ struct LabeledInput<Content: View>: View {
         VStack(alignment: .leading, spacing: 8) {
             // MARK: Title
             Text(title)
-                .font(.body)
+                .font(.system(size: 17))
                 .padding(.leading, 12)
             // The field below reads this title as its own label.
                 .accessibilityHidden(true)

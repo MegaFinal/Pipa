@@ -199,9 +199,12 @@ final class CreateAndEditChoreViewModel {
         )
     }
 
-    /// Applies a suggestion to both steps of the form. 
-    func apply(_ suggestion: ChoreSuggestion) {
-        draft.name = suggestion.name
+    /// Applies a suggestion to both steps of the form.
+    ///
+    /// - Parameter keepingName: Leaves the name as it is, because the person typed their own
+    ///   while the AI was thinking.
+    func apply(_ suggestion: ChoreSuggestion, keepingName: Bool = false) {
+        if !keepingName { draft.name = suggestion.name }
 
         func fill(_ field: SuggestedField, _ update: () -> Void) {
             guard !handPickedFields.contains(field) else { return }
@@ -588,6 +591,10 @@ final class CreateAndEditChoreViewModel {
         let previousFrequency = originalModel.frequency
         let frequencyChanged = !isNewChore && previousFrequency != draft.frequency
         
+        if isNewChore {
+            await prepareCreationScore()
+        }
+        
         do {
             try await originalModel.save(
                 from: draft,
@@ -641,11 +648,39 @@ final class CreateAndEditChoreViewModel {
         return true
     }
     
-    /// Gives the points for creating a chore (with a bonus when every detail is filled in).
+    /// Records, on the chore about to be created, who creates it and the points that pays them
+    /// (a bonus when every detail is filled in, nothing past
+    /// ``ScoreValues/dailyChoreCreationBonusLimit`` chores today). Saved with the chore, so
+    /// deleting it takes back exactly that, from them.
+    private func prepareCreationScore() async {
+        if currentHouseUser == nil {
+            currentHouseUser = await cloudKit.currentHouseUser()
+        }
+        guard let myID = currentHouseUser?.recordID else { return }
+        
+        originalModel.createdByReference = CKRecord.Reference(recordID: myID, action: .none)
+        originalModel.creationPoints = paidCreationsToday(by: myID) < ScoreValues.dailyChoreCreationBonusLimit
+        ? ScoreValues.choreCreation(hasFullDetails: draft.hasFullDetails)
+        : 0
+    }
+    
+    /// How many chores `userID` created today that paid creation points.
+    private func paidCreationsToday(by userID: CKRecord.ID) -> Int {
+        let calendar = Calendar.current
+        let today = now()
+        return carouselViewModel.cardModels.filter { chore in
+            guard chore.createdByReference?.recordID == userID,
+                  (chore.creationPoints ?? 0) > 0,
+                  let createdAt = chore.createdAt
+            else { return false }
+            return calendar.isDate(createdAt, inSameDayAs: today)
+        }.count
+    }
+    
+    /// Gives the creation points recorded by ``prepareCreationScore()``.
     private func awardCreationScore() async {
-        let score = draft.hasFullDetails
-        ? ScoreValues.choreAdded.points + ScoreValues.choreCreatedWithFullDetails.points
-        : ScoreValues.choreAdded.points
+        let score = originalModel.creationPoints ?? 0
+        guard score > 0 else { return }
         _ = await scoreManager.assignScoreForMyUser(score: score)
     }
     

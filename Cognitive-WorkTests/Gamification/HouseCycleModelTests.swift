@@ -53,4 +53,33 @@ struct HouseCycleModelTests {
         #expect(HouseCycleModel.previous([b, c, a])?.key == b.key)
         #expect(HouseCycleModel.closed([c, a, b], asOf: F.day(2026, 10, 20)).map(\.key) == [a.key, b.key])
     }
+
+    // MARK: - Redoing the division
+
+    @Test func redoingTheDivisionMarksTheCycleAsCutShort() {
+        let old = F.cycle(start: F.day(2026, 10, 2))
+        let toSave = HouseCycleModel.cyclesToSave(newStart: F.day(2026, 10, 9), newEnd: F.day(2026, 10, 23), existing: [old])
+
+        #expect(toSave[0].isCutShort())
+        #expect(!toSave[1].isCutShort())
+        #expect(!old.isCutShort())
+    }
+
+    @Test func cyclesCutBeforeTheFlagExistedAreRecognizedByTheirLength() {
+        let short = F.cycle(start: F.day(2026, 10, 2), days: 6)
+        #expect(short.wasCutShort == nil)
+        #expect(short.isCutShort())
+    }
+
+    @Test func seasonStartsAfterTheLastCycleThatRanItsCourse() {
+        let full = F.cycle(start: F.day(2026, 9, 17))
+        var cut = F.cycle(start: F.day(2026, 10, 2), days: 4)
+        cut.wasCutShort = true
+        let current = F.cycle(start: F.day(2026, 10, 7))
+
+        // The cut cycle doesn't end the season: it began the day after the full one ended.
+        let start = HouseCycleModel.currentSeasonStart([full, cut, current], asOf: F.day(2026, 10, 10))
+        #expect(start == F.day(2026, 10, 2))
+        #expect(HouseCycleModel.currentSeasonStart([current], asOf: F.day(2026, 10, 10)) == nil)
+    }
 }

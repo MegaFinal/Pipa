@@ -101,8 +101,15 @@ final class GamificationViewModel {
 
     // MARK: - Init
 
+    /// The pop-ups that present the screen the first time it opens (see
+    /// ``startTourIfNeeded()``).
+    @ObservationIgnored
+    let tour: CoachMarkTour
+
     /// Creates an empty view model; data comes from ``HouseDataStore``.
-    init() {}
+    init() {
+        tour = CoachMarkTour(storageKey: Self.tourStorageKey)
+    }
 
     /// Creates a view model with fixed data, for previews.
     init(
@@ -114,6 +121,8 @@ final class GamificationViewModel {
         users: [UserModel] = [],
         myOwnerRecordName: String? = nil
     ) {
+        // Previews show the tour every time.
+        self.tour = CoachMarkTour(storageKey: Self.tourStorageKey, remembersCompletion: false)
         self.coins = previewCoins
         self.points = previewPoints
         self.rankHistory = previewHistory
@@ -161,7 +170,11 @@ final class GamificationViewModel {
     /// Coupons of the selected room, cheapest first.
     var selectedCoupons: [CouponModel] {
         guard let selectedRoomKey else { return [] }
-        return (couponsByRoom[selectedRoomKey] ?? []).sorted { $0.price < $1.price }
+        return (couponsByRoom[selectedRoomKey] ?? []).sorted {
+            $0.price != $1.price
+                ? $0.price < $1.price
+                : $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
     }
 
     /// How many coupons `room` has.
@@ -212,9 +225,17 @@ final class GamificationViewModel {
         await load()
     }
 
-    /// Reloads the screen (pull to refresh).
+    /// Reloads the screen from the house data in memory, fetching it only if it's outdated.
     func refresh() async {
         guard !isPreview else { return }
+        await load()
+    }
+
+    /// Pull to refresh: asks CloudKit again for the house data, then reloads the screen.
+    func pullToRefresh() async {
+        guard !isPreview else { return }
+        refreshTask?.cancel()
+        HouseDataStore.shared.invalidate()
         await load()
     }
 
@@ -257,16 +278,20 @@ final class GamificationViewModel {
             return
         }
 
-        // Automatic part of the payout: pending payouts for every cycle that ended.
-        let settled = await CycleSettlementService().prepareClosedCycles(snapshot.cycles, members: snapshot.users, houseID: houseID)
+        // Settling closed cycles and reading the balance don't depend on each other: both at once,
+        // instead of one round trip after the other.
+        let legacyCoins = snapshot.houseUser?.coins ?? 0
+        let userID = snapshot.houseUser?.recordID
+        async let settledCount = CycleSettlementService().prepareClosedCycles(snapshot.cycles, members: snapshot.users, houseID: houseID)
+        async let walletBalance: Int = {
+            guard let userID else { return legacyCoins }
+            return await CoinWalletModel.balance(for: userID, legacyCoins: legacyCoins)
+        }()
+        let (settled, balance) = await (settledCount, walletBalance)
+
         if settled > 0 {
             // A cycle was just settled: the points were reset, so the snapshot is outdated.
             snapshot = await HouseDataStore.shared.load(force: true)
-        }
-
-        var balance = snapshot.houseUser?.coins ?? 0
-        if let userID = snapshot.houseUser?.recordID {
-            balance = await CoinWalletModel.balance(for: userID, legacyCoins: snapshot.houseUser?.coins ?? 0)
         }
         guard !Task.isCancelled else { return }
 

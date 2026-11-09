@@ -12,28 +12,36 @@ import Foundation
 @MainActor
 struct RankProgressionTests {
 
-    /// 25 points per division.
-    let step = Tier.pointsPerDivision
-
     @Test func startsAtNovatoDaCasa() {
         #expect(Tier(points: 0) == .novatoDaCasa)
         #expect(Tier(points: -50) == .novatoDaCasa)
     }
 
-    @Test func climbsOneRankEveryStep() {
-        #expect(Tier(points: step - 1) == .novatoDaCasa)
-        #expect(Tier(points: step) == .aprendiz)
-        #expect(Tier(points: step * 2 - 1) == .aprendiz)
-        #expect(Tier(points: step * 2) == .ajudanteOficial)
-        #expect(Tier(points: step * 6) == .guardiaoDaCasa)
+    @Test func climbsAtEachThreshold() {
+        #expect(Tier(points: Tier.aprendiz.minimumPoints - 1) == .novatoDaCasa)
+        #expect(Tier(points: Tier.aprendiz.minimumPoints) == .aprendiz)
+        #expect(Tier(points: Tier.ajudanteOficial.minimumPoints - 1) == .aprendiz)
+        #expect(Tier(points: Tier.ajudanteOficial.minimumPoints) == .ajudanteOficial)
+    }
+
+    @Test func stepsGrowUpTheLadder() {
+        let thresholds = Tier.thresholds
+        #expect(thresholds.count == Tier.allCases.count)
+        #expect(thresholds.first == 0)
+        for index in 2..<thresholds.count {
+            let previousStep = thresholds[index - 1] - thresholds[index - 2]
+            let step = thresholds[index] - thresholds[index - 1]
+            #expect(step >= previousStep)
+        }
     }
 
     @Test func almaDaCasaIsTheTopAndFinal() {
         #expect(Tier.allCases.count == 13)
-        #expect(Tier(points: step * 12 - 1) == .lendaDaCasa)
-        #expect(Tier(points: step * 12) == .almaDaCasa)
+        #expect(Tier(points: Tier.topThreshold - 1) == .lendaDaCasa)
+        #expect(Tier(points: Tier.topThreshold) == .almaDaCasa)
         #expect(Tier(points: 1_000_000) == .almaDaCasa)
         #expect(Tier.almaDaCasa.next == nil)
+        #expect(Tier.almaDaCasa.divisionSize == nil)
     }
 
     @Test func oldStoredValuesLandOnTheSameHeightOfTheLadder() {
@@ -45,31 +53,35 @@ struct RankProgressionTests {
         #expect(Tier(stored: nil) == .novatoDaCasa)
     }
 
-    @Test func everyTierIsOneStepOfTheLadder() {
+    @Test func everyTierStartsAtItsThreshold() {
         for (index, tier) in Tier.allCases.enumerated() {
-            #expect(tier.minimumPoints == index * step)
-            #expect(Tier(points: index * step) == tier)
+            #expect(tier.minimumPoints == Tier.thresholds[index])
+            #expect(Tier(points: Tier.thresholds[index]) == tier)
         }
     }
 
     @Test func surplusCarriesOverIntoTheNextDivision() {
-        let progress = Tier.progress(forPoints: step * 3 + 10)
+        let start = Tier.escudeiroDaFaxina.minimumPoints
+        let size = Tier.escudeiroDaFaxina.divisionSize ?? 0
+        let progress = Tier.progress(forPoints: start + 10)
         #expect(progress.tier == .escudeiroDaFaxina)
         #expect(progress.pointsIntoDivision == 10)
-        #expect(progress.pointsToNext == step - 10)
+        #expect(progress.pointsToNext == size - 10)
         #expect(progress.nextTier == .vigiaDaCozinha)
+        #expect(progress.fraction == Double(10) / Double(size))
     }
 
     @Test func topProgressHasNoNextStep() {
-        let progress = Tier.progress(forPoints: step * 12 + 500)
+        let progress = Tier.progress(forPoints: Tier.topThreshold + 500)
         #expect(progress.tier == .almaDaCasa)
         #expect(progress.pointsIntoDivision == 500)
         #expect(progress.pointsToNext == nil)
+        #expect(progress.fraction == 1)
     }
 
     @Test func userTierFollowsPoints() {
         let user = UserModel(name: "Ana", tier: .novatoDaCasa, ownerRecordName: "ana")
-        user.points = step * 3
+        user.points = Tier.escudeiroDaFaxina.minimumPoints
         #expect(user.tier == .escudeiroDaFaxina)
         user.points = 0
         #expect(user.tier == .novatoDaCasa)

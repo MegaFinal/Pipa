@@ -30,6 +30,7 @@ class RecurrentAssignmentModel: CloudKitSyncable {
     var userReferences: [CKRecord.Reference]?
     /// The member who checked it off. `nil` while not done.
     var userThatHaveDoneReference: CKRecord.Reference?
+    var awardedPoints: Int?
     /// The chore this occurrence belongs to.
     var choreReference: CKRecord.Reference?
     
@@ -109,6 +110,7 @@ class RecurrentAssignmentModel: CloudKitSyncable {
         self.userReferences = record["users"] as? [CKRecord.Reference]
         self.choreReference = record["chore"] as? CKRecord.Reference
         self.userThatHaveDoneReference = record["userThatHaveDone"] as? CKRecord.Reference
+        self.awardedPoints = record["awardedPoints"] as? Int
         self.calendarEventIdentifier = record["calendarEventIdentifier"] as? String
     }
     
@@ -119,6 +121,7 @@ class RecurrentAssignmentModel: CloudKitSyncable {
         record["users"] = userReferences ?? []
         record["chore"] = choreReference
         record["userThatHaveDone"] = userThatHaveDoneReference
+        record["awardedPoints"] = awardedPoints
         record["calendarEventIdentifier"] = calendarEventIdentifier
     }
     
@@ -131,7 +134,10 @@ class RecurrentAssignmentModel: CloudKitSyncable {
         let calendar = Calendar.current
         let previousDay = day
         
-        guard let newDay = calendar.date(byAdding: .day, value: days, to: calendar.startOfDay(for: day)) else { return false }
+        // A late occurrence is postponed from today, not from its past day: "Adiar 1 dia"
+        // must land on tomorrow, not on another day that has already gone by.
+        let start = max(calendar.startOfDay(for: day), calendar.startOfDay(for: Date()))
+        guard let newDay = calendar.date(byAdding: .day, value: days, to: start) else { return false }
         day = newDay
         
         guard await CloudKitManager.shared.update(self) else {
@@ -144,10 +150,12 @@ class RecurrentAssignmentModel: CloudKitSyncable {
     /// Checks or unchecks the occurrence as done by the signed-in member, and saves it.
     ///
     /// Ignored while a previous toggle is still saving.
+    /// - Parameter points: The points the member gets for checking it off, saved in
+    ///   ``awardedPoints`` (cleared when unchecking).
     /// - Returns: `true` if it was saved; on failure the change is undone.
     @MainActor
     @discardableResult
-    func toggle() async -> Bool {
+    func toggle(awarding points: Int = 0) async -> Bool {
         guard !isUpdating else { return false }
         isUpdating = true
         defer { isUpdating = false }
@@ -157,15 +165,18 @@ class RecurrentAssignmentModel: CloudKitSyncable {
         
         let previousIsCompleted = isCompleted
         let previousDoer = userThatHaveDoneReference
+        let previousAwardedPoints = awardedPoints
         
         isCompleted.toggle()
         userThatHaveDoneReference = isCompleted
         ? CKRecord.Reference(recordID: myUserRecordID, action: .none)
         : nil
+        awardedPoints = isCompleted ? points : nil
         
         guard await CloudKitManager.shared.update(self) else {
             isCompleted = previousIsCompleted
             userThatHaveDoneReference = previousDoer
+            awardedPoints = previousAwardedPoints
             return false
         }
         return true

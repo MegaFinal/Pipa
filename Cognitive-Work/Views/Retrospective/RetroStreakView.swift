@@ -41,12 +41,12 @@ struct RetroStreakView: View {
             
             Text("seguidos sem atrasar nenhuma tarefa")
                 .fontWeight(.regular)
-                .font(.title)
+                .font(.system(size: 28))
                 .multilineTextAlignment(.center)
                 .padding(.bottom, height * 0.014)
             
             Text("Dá para começar ainda hoje!")
-                .font(.callout)
+                .font(.system(size: 16))
                 .foregroundStyle(.gray) //arrumar o cinza depois
                 .padding(.bottom, height * 0.093)
 
@@ -59,7 +59,7 @@ struct RetroStreakView: View {
             } label: {
                 Text("ver depois")
                     .fontWeight(.semibold)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.gray) //arrumar o cinza depois
             }
             

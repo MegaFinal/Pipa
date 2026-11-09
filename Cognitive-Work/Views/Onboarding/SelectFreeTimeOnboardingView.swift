@@ -157,7 +157,7 @@ struct SelectFreeTimeOnboardingView: View {
         .onboardingBackButton(viewModel: viewModel, isHidden: isFromSettings)
         .hidesTabBar()
         // MARK: - Error and "saved only on your profile" alerts
-        .alert("Não deu para salvar seus horários", isPresented: Binding(
+        .alert("Não foi possível salvar seus horários", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
         )) {

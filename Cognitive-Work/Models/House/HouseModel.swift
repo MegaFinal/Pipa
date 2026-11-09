@@ -207,13 +207,22 @@ class HouseModel: CloudKitSyncable {
     /// Appends the given users' record references to this house's `users` list and saves it.
     ///
     /// Unlike ``appendRoom(rooms:)``, this works even if `usersReference` starts as `nil`.
+    /// Users already in the list are skipped, so calling it again for the same member is safe;
+    /// when nothing is new, nothing is saved.
     @discardableResult
     func appendUsers(_ users: [UserModel]) async -> Bool {
-        let newReferences = users.compactMap { user -> CKRecord.Reference? in
-            guard let recordID = user.recordID else { return nil }
-            return CKRecord.Reference(recordID: recordID, action: .none)
+        let current = usersReference ?? []
+        let currentIDs = Set(current.map(\.recordID))
+        var newReferences: [CKRecord.Reference] = []
+        for user in users {
+            guard let recordID = user.recordID,
+                  !currentIDs.contains(recordID),
+                  !newReferences.contains(where: { $0.recordID == recordID })
+            else { continue }
+            newReferences.append(CKRecord.Reference(recordID: recordID, action: .none))
         }
-        usersReference = (usersReference ?? []) + newReferences
+        guard !newReferences.isEmpty else { return true }
+        usersReference = current + newReferences
         return await CloudKitManager.shared.update(self)
     }
     

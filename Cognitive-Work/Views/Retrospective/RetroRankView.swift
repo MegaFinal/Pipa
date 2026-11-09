@@ -79,13 +79,13 @@ struct RetroRankView: View {
             // MARK: - Subtitle and points detail
             Text(content.subtitle)
                 .fontWeight(.regular)
-                .font(.title)
+                .font(.system(size: 28))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
                 .padding(.bottom, height * 0.014)
             
             Text(content.detail)
-                .font(.callout)
+                .font(.system(size: 16))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.gray) //arrumar o cinza depois
                 .padding(.horizontal, 24)
@@ -95,7 +95,7 @@ struct RetroRankView: View {
             // MARK: - Message
             Text(content.message)
                 .bold()
-                .font(.title2)
+                .font(.system(size: 22))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
                 .padding(.bottom, height * 0.03)
@@ -108,7 +108,7 @@ struct RetroRankView: View {
             } label: {
                 Text("ver depois")
                     .fontWeight(.semibold)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.gray) //arrumar o cinza depois
             }
             .padding(.bottom, height * 0.014)
@@ -168,9 +168,7 @@ struct RetroRankContent: Equatable {
         }
 
         let progress = Tier.progress(forPoints: points)
-        let fraction = progress.nextTier == nil
-            ? 1
-            : Double(progress.pointsIntoDivision) / Double(Tier.pointsPerDivision)
+        let fraction = progress.fraction
 
         let pointsText = points == 1 ? L10n.tr("1 ponto") : L10n.tr("\(points) pontos")
         let detail: String
@@ -224,19 +222,19 @@ struct RetroRankContent: Equatable {
 
 #Preview("Bronze 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.aprendiz.cycleCoins, tier: .aprendiz, points: 30))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.aprendiz.cycleCoins, tier: .aprendiz, points: 35))
     }
 }
 
 #Preview("Ouro 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar, points: 192))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar, points: 340))
     }
 }
 
 #Preview("Mestre") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.almaDaCasa.cycleCoins, tier: .almaDaCasa, points: 410))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.almaDaCasa.cycleCoins, tier: .almaDaCasa, points: 820))
     }
 }
 #endif

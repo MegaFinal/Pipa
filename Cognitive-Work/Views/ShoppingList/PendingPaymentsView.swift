@@ -14,6 +14,9 @@ struct PendingPaymentsView: View {
     /// The debts, texts and settle actions.
     @State private var viewModel: PendingPaymentsViewModel
 
+    /// Set by the receipt menu at the top right; starts the scan.
+    @State private var receiptRequest: ReceiptSource?
+
     /// Creates the screen with a ready view model (previews).
     init(viewModel: PendingPaymentsViewModel) {
         self._viewModel = State(initialValue: viewModel)
@@ -31,7 +34,7 @@ struct PendingPaymentsView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Pendências")
-                    .font(.custom("Alan Sans", size: 34))
+                    .font(.custom("Alan Sans", fixedSize: 34))
                     .fontWeight(.bold)
                     .padding(.horizontal, 10)
                     .accessibilityAddTraits(.isHeader)
@@ -69,6 +72,16 @@ struct PendingPaymentsView: View {
         .background(Color.white.ignoresSafeArea())
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
+        // MARK: - Receipt scan, top right: what was bought goes to the list and the debts here
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                ReceiptScanMenu { receiptRequest = $0 } label: {
+                    Image(systemName: "doc.text.viewfinder")
+                }
+                .disabled(!viewModel.shopList.canAddItems)
+            }
+        }
+        .receiptScan(request: $receiptRequest, shopList: viewModel.shopList)
         .animation(.snappy, value: viewModel.selectedDirection)
         .animation(.snappy, value: viewModel.groups.map(\.id))
         // MARK: - "Pix copiado" toast
@@ -93,7 +106,7 @@ struct PendingPaymentsView: View {
             Text(viewModel.missingPixKeyMessage)
         }
         .alert(
-            "Não foi possível concluir",
+            viewModel.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
                 get: { viewModel.errorMessage != nil },
                 set: { if !$0 { viewModel.clearError() } }
@@ -145,6 +158,7 @@ struct PendingPaymentsView: View {
             settleSystemImage: nil,
             isPaid: viewModel.isPaid(group),
             isSettling: viewModel.isSettling,
+            isSavingThis: viewModel.isSaving(group),
             onSettle: { viewModel.settleTapped(for: group) },
             isConfirmingSettlement: viewModel.settlementRequest?.id == group.id,
             confirmationTitle: viewModel.confirmationTitle,
@@ -183,7 +197,7 @@ struct PendingPaymentsView: View {
                 .accessibilityHidden(true)
 
             Text(viewModel.emptyTitle)
-                .font(.custom("Alan Sans", size: 24))
+                .font(.custom("Alan Sans", fixedSize: 24))
                 .fontWeight(.bold)
                 .foregroundStyle(.titleGray)
 

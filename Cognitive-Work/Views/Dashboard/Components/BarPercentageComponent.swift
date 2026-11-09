@@ -128,7 +128,7 @@ struct BarPercentageComponent: View {
     private var myContribuitionPercentage: some View {
         HStack(alignment: .center, spacing: 8) {
             Text(viewModel.myCognitiveShareText)
-                .font(.custom("Alan Sans", size: 64))
+                .font(.custom("Alan Sans", fixedSize: 64))
                 .bold()
                 .foregroundStyle(.primary)
                 // Keeps "100%" on one line: the number shrinks instead of dropping the "%" down.
@@ -136,7 +136,7 @@ struct BarPercentageComponent: View {
                 .minimumScaleFactor(0.5)
             
             Text("do esforço mental da casa esta semana foi seu")
-                .font(.footnote)
+                .font(.system(size: 13))
                 .lineLimit(nil)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -193,7 +193,7 @@ struct BarPercentageComponent: View {
                 .foregroundStyle(color)
             
             Text(text)
-                .font(.caption)
+                .font(.system(size: 12))
         }
     }
     

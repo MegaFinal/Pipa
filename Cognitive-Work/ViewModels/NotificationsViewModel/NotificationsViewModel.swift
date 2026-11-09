@@ -235,7 +235,8 @@ class NotificationsViewModel {
         return result
     }
 
-    /// "X fez a tarefa Y por você" and "X comprou Y": the records addressed to `myID`. Other
+    /// "X fez a tarefa Y por você", "X comprou Y" and "X comprou Y para você": the records
+    /// addressed to `myID`. Other
     /// kinds of record (a new division, a new member) already show up from the house's data.
     private func recordNotifications(_ dtos: [NotificationCloudDTO], myID: String) async -> [NotificationModel] {
         typealias Keys = NotificationManager.UserInfoKey
@@ -247,7 +248,7 @@ class NotificationsViewModel {
                   let createdAt = dto.userInfo[Keys.createdAt] as? Double,
                   let raw = dto.userInfo[Keys.kind] as? String,
                   let kind = Notifications(rawValue: raw),
-                  [.choreDoneForYou, .itemBought, .premiumEnded].contains(kind),
+                  [.choreDoneForYou, .itemBought, .boughtForYou, .receiptBoughtForYou, .premiumEnded, .guestWaitingDivision].contains(kind),
                   let titleKey = dto.userInfo[Keys.titleKey] as? String
             else { continue }
 

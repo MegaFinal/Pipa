@@ -14,9 +14,10 @@ import CloudKit
 /// - when that division is being generated, X is still the latest cycle
 ///   (``toApply(coupons:cycles:newCycleKey:)``);
 /// - once it is recorded, the coupon is marked as used with the new cycle's key
-///   (``consume(_:inCycle:store:)``), so it can be bought again and isn't applied twice;
-/// - while that cycle is the latest, the holder still may not pick the chore
-///   (``active(coupons:cycles:)``).
+///   (``consume(_:inCycle:store:)``), so it can be bought again and isn't applied twice.
+///
+/// The coupon only keeps the division from giving the holder the chore: they may still pick it
+/// from the unassigned list if they want to.
 enum CouponExemption {
 
     /// Chore record ID → users that may not get it.
@@ -37,19 +38,6 @@ enum CouponExemption {
     /// Exemptions for the division about to be generated. See ``toApply(coupons:cycles:newCycleKey:)``.
     static func forNextDivision(coupons: [CouponModel], cycles: [HouseCycleModel], newCycleKey: String) -> Map {
         exemptions(from: toApply(coupons: coupons, cycles: cycles, newCycleKey: newCycleKey))
-    }
-
-    /// Exemptions in force in the cycle running now: coupons used by the latest division.
-    static func active(coupons: [CouponModel], cycles: [HouseCycleModel]) -> Map {
-        guard let latest = HouseCycleModel.latest(cycles) else { return [:] }
-        let previousKey = HouseCycleModel.previous(cycles)?.key
-        return exemptions(from: coupons.filter { coupon in
-            if let consumed = coupon.consumedCycleKey { return consumed == latest.key }
-            // A purchase never marked as used (bought before coupons were marked): the division
-            // after its cycle used it.
-            guard let previousKey else { return false }
-            return coupon.purchasedCycleKey == previousKey
-        })
     }
 
     /// Chore → holders of `coupons`.
@@ -104,12 +92,5 @@ enum CouponExemption {
         async let cycles = HouseCycleModel.fetchAll(inHouseZone: zoneID)
         let (allCoupons, houseCycles) = await (coupons, cycles)
         return (allCoupons.filter { $0.recordID?.zoneID == zoneID }, houseCycles)
-    }
-
-    /// Whether `userID` may not pick `choreID` in the cycle running now.
-    static func isExempt(userID: CKRecord.ID, choreID: CKRecord.ID?) async -> Bool {
-        guard let choreID else { return false }
-        let (coupons, cycles) = await load(houseZoneID: choreID.zoneID)
-        return active(coupons: coupons, cycles: cycles)[choreID]?.contains(userID) ?? false
     }
 }

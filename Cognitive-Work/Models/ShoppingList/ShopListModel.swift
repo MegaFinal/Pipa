@@ -34,6 +34,11 @@ class ShopListModel: CloudKitSyncable, Identifiable {
     /// The house this list belongs to.
     var houseReference: CKRecord.Reference?
 
+    /// What the house called products it scanned before, by receipt key (see
+    /// ``ReceiptNameMemory``). Saved only through ``rememberReceiptNames(_:)``, never by
+    /// ``populate(record:)``, so one housemate's save can't drop another's.
+    private(set) var receiptNames: [String: String] = [:]
+
     /// This list's items, queried from CloudKit by parent and sorted by creation date.
     var items: [ShopListItem] {
         get async {
@@ -74,6 +79,7 @@ class ShopListModel: CloudKitSyncable, Identifiable {
         self.name = name
         self.itemsReference = record["items"] as? [CKRecord.Reference]
         self.houseReference = record["house"] as? CKRecord.Reference
+        self.receiptNames = ReceiptNameMemory.decode(record["receiptNames"] as? [String])
     }
 
     /// Creates a new, unsaved shopping list.
@@ -107,6 +113,21 @@ class ShopListModel: CloudKitSyncable, Identifiable {
         if let houseReference {
             record["house"] = houseReference
         }
+    }
+
+    // MARK: - Receipt names
+
+    /// Adds `names` to the house's memory of receipt products. Fetches the record first and
+    /// merges, so names a housemate saved meanwhile are kept.
+    @discardableResult
+    func rememberReceiptNames(_ names: [String: String]) async -> Bool {
+        guard !names.isEmpty else { return true }
+        guard let record = await CloudKitManager.shared.fetchRecord(for: self) else { return false }
+        let merged = ReceiptNameMemory.merge(record["receiptNames"] as? [String], with: names)
+        record["receiptNames"] = merged
+        guard await CloudKitManager.shared.update(record: record) else { return false }
+        receiptNames = ReceiptNameMemory.decode(merged)
+        return true
     }
 
     // MARK: - Items

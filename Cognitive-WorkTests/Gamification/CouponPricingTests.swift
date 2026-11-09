@@ -12,18 +12,20 @@ import Foundation
 @MainActor
 struct CouponPricingTests {
 
-    /// base 5, 0.1 coin/min, daily = 14, weekly = 2, fortnightly/monthly/none = 1.
+    /// base 5, 0.2 coin/min, daily = 14, weekly = 2, fortnightly/monthly/none = 1.
     let pricing = CouponPricing()
 
     @Test func followsTheFormula() {
+        // 5 + 0.2 × 15 × 14 = 47
+        #expect(pricing.price(frequency: .daily, durationMinutes: 15) == 47)
+        // 5 + 0.2 × 30 × 2 = 17
+        #expect(pricing.price(frequency: .weekly, durationMinutes: 30) == 17)
+        // 5 + 0.2 × 120 × 1 = 29
+        #expect(pricing.price(frequency: .monthly, durationMinutes: 120) == 29)
+        // 5 + 0.2 × 22 × 1 = 9.4 → 10
+        #expect(pricing.price(frequency: .none, durationMinutes: 22) == 10)
         // 5 + 0.1 × 15 × 14 = 26 (not 27: floating-point noise must not round up)
-        #expect(pricing.price(frequency: .daily, durationMinutes: 15) == 26)
-        // 5 + 0.1 × 30 × 2 = 11
-        #expect(pricing.price(frequency: .weekly, durationMinutes: 30) == 11)
-        // 5 + 0.1 × 120 × 1 = 17
-        #expect(pricing.price(frequency: .monthly, durationMinutes: 120) == 17)
-        // 5 + 0.1 × 25 × 1 = 7.5 → 8
-        #expect(pricing.price(frequency: .none, durationMinutes: 25) == 8)
+        #expect(CouponPricing(coinsPerMinute: 0.1).price(frequency: .daily, durationMinutes: 15) == 26)
     }
 
     @Test func moreFrequentChoresCostMore() {
@@ -56,6 +58,6 @@ struct CouponPricingTests {
     @Test func pricesAChoreByItsFrequencyAndDuration() {
         let chore = ChoreModel(name: "Louça", description: "", frequency: .daily, duration: 15,
                                isPublic: true, priorityTag: .medium)
-        #expect(pricing.price(for: chore) == 26)
+        #expect(pricing.price(for: chore) == 47)
     }
 }

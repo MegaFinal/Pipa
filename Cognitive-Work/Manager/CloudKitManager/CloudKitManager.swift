@@ -114,6 +114,15 @@ class CloudKitManager {
         ) { [weak self] _ in
             self?.markDataChanged()
         }
+        
+        // Another iCloud account signed in: the cached account ID belongs to the old one.
+        NotificationCenter.default.addObserver(
+            forName: .CKAccountChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.userRecordIDLookup = nil }
+        }
     }
     
     
@@ -160,7 +169,12 @@ class CloudKitManager {
     /// The house this device belongs to, resolved once per session.
     /// - Parameter forceRefresh: Pass `true` to bypass the cache and re-resolve.
     func currentHouse(forceRefresh: Bool = false) async throws -> HouseModel? {
-        if forceRefresh { cachedHouse = nil }
+        // The list of shared zones goes too: a member the admin removed keeps the house's zone
+        // in that list for the whole session otherwise, and every lookup keeps asking it.
+        if forceRefresh {
+            cachedHouse = nil
+            cachedSharedZones = nil
+        }
 
         if let cachedHouse { return cachedHouse }
         // A fetch already in flight is fresh enough — share it instead of cancelling it.
@@ -382,9 +396,29 @@ class CloudKitManager {
         return recordName.hasSuffix(houseUserSuffix)
     }
     
+    /// The signed-in iCloud account's record ID, read once and reused.
+    ///
+    /// It used to be a network round trip on every call, and opening the app called it several
+    /// times in a row (leaving orphaned houses, checking the membership, notifications), each one
+    /// waiting for the previous. It only changes when the iCloud account does
+    /// (`CKAccountChanged`, which clears it); a failed read isn't kept, so the next call tries again.
+    @ObservationIgnored
+    private var userRecordIDLookup: Task<CKRecord.ID?, Never>?
+
     /// The record ID of the signed-in iCloud account, or `nil` when it can't be read.
     func fetchCurrentUserRecordID() async -> CKRecord.ID? {
-        return try? await container.userRecordID()
+        if let running = userRecordIDLookup {
+            let cached = await running.value
+            if let cached { return cached }
+        }
+        let container = self.container
+        let lookup: Task<CKRecord.ID?, Never> = Task {
+            try? await container.userRecordID()
+        }
+        userRecordIDLookup = lookup
+        let recordID = await lookup.value
+        if recordID == nil { userRecordIDLookup = nil }
+        return recordID
     }
     
     /// Fetches this device's own `UserModel` record *inside the current house* — the one
@@ -565,16 +599,15 @@ class CloudKitManager {
               let ownerName = await fetchCurrentUserRecordID()?.recordName
         else { return false }
         
-        guard let userPFP = profile.profilePicture,
-              let profilePictureDuplicate = try? duplicateCKAsset(userPFP)
-        else { return false }
+        // The profile picture is optional: a profile without one must still become a member.
+        let profilePictureDuplicate = profile.profilePicture.flatMap { try? duplicateCKAsset($0) }
         
         let member = UserModel(
             name: profile.name,
             profilePicture: profilePictureDuplicate,
             banner: profile.banner,
             tier: .novatoDaCasa,
-            coins: profile.coins,
+            coins: 0,
             house: CKRecord.Reference(recordID: houseID, action: .none),
             couponLimit: profile.couponLimit,
             ownerRecordName: ownerName
@@ -586,7 +619,7 @@ class CloudKitManager {
             parent: house.reference(action: .none)
         ) else { return false }
         
-        await house.appendUsers([saved])
+        guard await house.appendUsers([saved]) else { return false }
         clearPendingJoin(ifMatching: houseID.zoneID)
         
         // Tells the admin, who can redo the automatic division.
@@ -631,7 +664,9 @@ class CloudKitManager {
     func switchHouse(to metadata: CKShare.Metadata) async -> Bool {
         do {
             guard try await leaveCurrentHouse() else { return false }
-            return await acceptShare(metadata: metadata)
+            guard await acceptShare(metadata: metadata) else { return false }
+            // Accepting the share only grants access to the house: the member record still has
+            // to be created, or the user is in the house without showing up as a member.
             return await addMyselfToCurrentHouse()
         }
         catch {
@@ -776,9 +811,14 @@ class CloudKitManager {
             )
             // `modifyRecords` only throws for whole-request failures; per-record errors
             // (e.g. serverRecordChanged) come back in the results and used to be ignored.
+            var saved: [CKRecord] = []
             for (_, result) in saveResults {
-                if case .failure(let error) = result { throw error }
+                switch result {
+                case .success(let record): saved.append(record)
+                case .failure(let error): throw error
+                }
             }
+            RecentWrites.shared.saved(saved)
         
             await HardwareViewModel.notifyDataChanged()
             markDataChanged()
@@ -822,7 +862,8 @@ class CloudKitManager {
 
                 guard !recordsToSave.isEmpty else { continue }
 
-                _ = try await database.modifyRecords(saving: recordsToSave, deleting: [])
+                let (saveResults, _) = try await database.modifyRecords(saving: recordsToSave, deleting: [])
+                RecentWrites.shared.saved(saveResults.values.compactMap { try? $0.get() })
                 
                 await HardwareViewModel.notifyDataChanged()
                 markDataChanged()
@@ -834,6 +875,158 @@ class CloudKitManager {
         }
 
         return allSucceeded
+    }
+    
+    /// Like ``batchUpdate(_:)``, but tells which records failed and tries again when CloudKit asks
+    /// to (busy zone, rate limit, a newer copy on the server).
+    ///
+    /// Many saves fired at once in the same zone (checking several chores off in a row) get
+    /// `zoneBusy` / `requestRateLimited` back. ``batchUpdate(_:)`` and ``update(_:)`` gave up on
+    /// the first error, and per-record failures were dropped without a word.
+    ///
+    /// - Parameters:
+    ///   - items: The models to save. Each one is written over the latest server copy.
+    ///   - maxAttempts: How many times a retryable failure is sent again.
+    /// - Returns: The ids of the models that couldn't be saved (empty when all were). On failure
+    ///   ``errorMessage`` says why.
+    func batchUpdateRetrying<T: CloudKitSyncable>(_ items: [T], maxAttempts: Int = 4) async -> Set<CKRecord.ID> {
+        var remaining = items.filter { $0.recordID != nil }
+        var failed: Set<CKRecord.ID> = []
+        var attempt = 0
+        
+        while !remaining.isEmpty, attempt < maxAttempts {
+            attempt += 1
+            var retry: [T] = []
+            var wait: Double = 0
+            
+            func scheduleRetry(_ item: T, after error: Error) {
+                if let delay = Self.retryDelay(for: error) {
+                    retry.append(item)
+                    wait = max(wait, delay)
+                } else if let id = item.recordID {
+                    failed.insert(id)
+                    errorMessage = UserFacingError.message(for: error, doing: .save)
+                }
+            }
+            
+            // CloudKit rejects requests that mix the private and the shared database.
+            let grouped = Dictionary(grouping: remaining) { item in
+                item.recordID?.zoneID.ownerName == CKCurrentUserDefaultName
+            }
+            
+            for (isPrivate, group) in grouped {
+                let database = isPrivate ? privateDB : sharedDB
+                var byID: [CKRecord.ID: T] = [:]
+                for item in group { if let id = item.recordID { byID[id] = item } }
+                
+                do {
+                    // Written over the latest server copy, so a retry after `serverRecordChanged`
+                    // starts from the newer version.
+                    let fetched = try await database.records(for: Array(byID.keys))
+                    var records: [CKRecord] = []
+                    for (id, item) in byID {
+                        switch fetched[id] {
+                        case .success(let record)?:
+                            item.populate(record: record)
+                            records.append(record)
+                        case .failure(let error)?:
+                            scheduleRetry(item, after: error)
+                        case nil:
+                            failed.insert(id)
+                        }
+                    }
+                    guard !records.isEmpty else { continue }
+                    
+                    let (results, _) = try await database.modifyRecords(
+                        saving: records,
+                        deleting: [],
+                        savePolicy: .ifServerRecordUnchanged,
+                        atomically: false
+                    )
+                    var saved: [CKRecord] = []
+                    for (id, result) in results {
+                        switch result {
+                        case .success(let record): saved.append(record)
+                        case .failure(let error): if let item = byID[id] { scheduleRetry(item, after: error) }
+                        }
+                    }
+                    if !saved.isEmpty {
+                        RecentWrites.shared.saved(saved)
+                        await HardwareViewModel.notifyDataChanged()
+                        markDataChanged()
+                    }
+                } catch {
+                    for item in byID.values { scheduleRetry(item, after: error) }
+                }
+            }
+            
+            remaining = retry
+            if !remaining.isEmpty, attempt < maxAttempts {
+                try? await Task.sleep(for: .seconds(wait))
+            }
+        }
+        
+        if !remaining.isEmpty {
+            failed.formUnion(remaining.compactMap(\.recordID))
+            errorMessage = L10n.tr("O serviço está ocupado agora. Tente novamente em instantes.")
+        }
+        return failed
+    }
+    
+    // MARK: - Connection check
+    
+    /// How long ``connectionProblem()`` waits for iCloud before calling the connection too slow.
+    static let connectionCheckDeadline: Duration = .seconds(20)
+    
+    /// Shown when iCloud doesn't answer in time.
+    static var slowConnectionMessage: String {
+        L10n.tr("Sua conexão está lenta e não conseguimos falar com o iCloud. Verifique sua internet e tente novamente.")
+    }
+    
+    /// Asks CloudKit for something cheap that fails loudly, to tell "nothing there" apart from
+    /// "couldn't ask".
+    ///
+    /// The lookups (``fetchFirst(_:)``, ``fetchAll(_:predicate:)``, ``fetchMyUser()``) turn any
+    /// error into an empty result. Offline, that read as "no profile" in the onboarding and as
+    /// "no house" (``HouseAccessLostView``) when opening the app.
+    ///
+    /// - Returns: The message to show, or `nil` when iCloud answered (or failed for a reason that
+    ///   isn't the connection or the account).
+    func connectionProblem() async -> String? {
+        do {
+            _ = try await withDeadline(Self.connectionCheckDeadline) { () async throws -> [CKRecordZone] in
+                try await self.privateDB.allRecordZones()
+            }
+            return nil
+        } catch is DeadlineExceededError {
+            return Self.slowConnectionMessage
+        } catch let error as CKError where Self.connectionBlockingCodes.contains(error.code) {
+            return UserFacingError.message(for: error, doing: .load)
+        } catch let error as URLError {
+            return UserFacingError.message(for: error, doing: .load)
+        } catch {
+            return nil
+        }
+    }
+    
+    /// CloudKit failures that mean nothing else will work until the user fixes them.
+    private static let connectionBlockingCodes: Set<CKError.Code> = [
+        .networkUnavailable, .networkFailure, .serviceUnavailable, .requestRateLimited,
+        .serverResponseLost, .notAuthenticated, .accountTemporarilyUnavailable
+    ]
+    
+    /// How long to wait before sending a save again, or `nil` when trying again won't help.
+    static func retryDelay(for error: Error) -> Double? {
+        guard let ckError = error as? CKError else { return nil }
+        switch ckError.code {
+        case .zoneBusy, .requestRateLimited, .serviceUnavailable, .networkFailure, .serverResponseLost:
+            return ckError.retryAfterSeconds ?? 1
+        case .serverRecordChanged:
+            // Fetched again on the next attempt.
+            return 0.2
+        default:
+            return nil
+        }
     }
 }
 

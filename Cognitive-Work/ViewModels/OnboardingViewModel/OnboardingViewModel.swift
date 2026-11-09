@@ -84,6 +84,19 @@ class OnboardingViewModel {
     /// `true` while the previous session (step, house, profile) is being restored at launch.
     var isRestoringSession: Bool = true
     
+    // MARK: - Connection at launch
+    
+    /// Why the account check couldn't finish (no connection, a very slow one, no iCloud).
+    /// While set, the onboarding shows ``ConnectionErrorView`` instead of the current step.
+    var accountCheckError: String? = nil
+    
+    /// `true` when "Continuar" was tapped on the welcome screen before the account check
+    /// finished: the loading screen shows until it does, then the flow moves on by itself.
+    var isWaitingAccountCheck = false
+    
+    /// `true` while "Tentar novamente" runs the account check again.
+    private(set) var isRetryingAccountCheck = false
+    
     // MARK: - Going back
     
     /// True while a "voltar" is deleting the data of the step being returned to.
@@ -230,7 +243,9 @@ class OnboardingViewModel {
             banner: user.banner,
             // Points (and the rank) live in the house's `UserScoreModel`, not on the user.
             tier: .novatoDaCasa,
-            coins: user.coins,
+            // Coins belong to a house (`CoinWalletModel`): a new house starts from zero, whatever
+            // the profile kept from another one.
+            coins: 0,
             badges: user.badgesReference,
             tasks: user.choresReference,
             // Free time is no longer copied from the private profile: those records live outside
@@ -1012,6 +1027,39 @@ class OnboardingViewModel {
 
     // MARK: - Welcome
 
+    /// "Continuar" on the welcome screen: leaves it now, or once the account check finishes.
+    func continueFromWelcome() {
+        // Where "Continuar" leads depends on the account check: wait for it on the loading
+        // screen instead of a disabled button with no feedback.
+        guard !isCheckingAccount else {
+            isWaitingAccountCheck = true
+            return
+        }
+        advanceFromWelcome()
+    }
+    
+    /// Called when the account check ends: moves a user who already tapped "Continuar" on.
+    func finishWaitingAccountCheck() {
+        guard isWaitingAccountCheck, !isCheckingAccount else { return }
+        isWaitingAccountCheck = false
+        guard accountCheckError == nil, !isOnboardingSkipped,
+              stateMachine.current == .welcome
+        else { return }
+        advanceFromWelcome()
+    }
+    
+    /// "Tentar novamente" on ``ConnectionErrorView``: checks the account again and, when that
+    /// works, restores the saved step like the first launch does.
+    func retryAccountCheck() async {
+        guard !isRetryingAccountCheck else { return }
+        isRetryingAccountCheck = true
+        defer { isRetryingAccountCheck = false }
+        
+        await checkExistingAccount()
+        guard accountCheckError == nil, !isOnboardingSkipped else { return }
+        await restoreProgressIfNeeded()
+    }
+    
     /// Leaves the welcome screen. A new user goes on to create a profile; a user who already has
     /// a profile and free time (e.g. after leaving a house) goes straight to "create or enter a
     /// house", without being asked for either again.
@@ -1078,7 +1126,8 @@ class OnboardingViewModel {
             profilePicture: assetCopy,
             banner: profile.banner,
             tier: .novatoDaCasa,
-            coins: profile.coins,
+            // A new house starts from zero coins (see `CoinWalletModel`).
+            coins: 0,
             house: houseReference,
             couponLimit: profile.couponLimit,
             ownerRecordName: ownerRecordName
@@ -1100,7 +1149,6 @@ class OnboardingViewModel {
         if savedUser == nil {
             savedUser = await CloudKitManager.shared.create(sharedUser, id: sharedUserID, parent: house.reference(action: .none))
             if let savedUser {
-                await house.appendUsers([savedUser])
                 rollbackJournal.joinedMembership = savedUser.recordID.map(OnboardingRollbackJournal.StoredRecordID.init)
                 
                 // Tells the admin, who can redo the automatic division.
@@ -1109,11 +1157,19 @@ class OnboardingViewModel {
             }
         }
         
+        // Also runs for a member record that already existed: an earlier attempt may have created
+        // it and then failed to add it to the house's `users` list, leaving the member invisible.
+        // `appendUsers` skips users already in the list.
+        var linkedToHouse = false
+        if let savedUser {
+            linkedToHouse = await house.appendUsers([savedUser])
+        }
+        
         _ = try? await subTask
         
         isLoading = false
         
-        if let savedUser {
+        if let savedUser, linkedToHouse {
             self.currentUser = savedUser
             self.stateMachine.user = savedUser
             CloudKitManager.shared.clearPendingJoin(ifMatching: houseRecordID.zoneID)
@@ -1223,6 +1279,36 @@ class OnboardingViewModel {
         goToNextView()
     }
     
+    /// Tells the admin that this guest chose their free time and is waiting for the division
+    /// (``NotificationManager/notifyGuestWaitingForDivision(named:houseID:)``).
+    ///
+    /// Called by the waiting screen. Sent once per house: the screen opens again every time the
+    /// app does while the guest waits, and the admin needs to hear it only once. Not sent when the
+    /// division already exists (the guest is about to move on) or when the user is the admin.
+    @MainActor
+    func notifyAdminGuestIsWaiting() async {
+        guard !isScheduleReady, stateMachine.current == .waitAdminScheduling else { return }
+
+        var house = currentHouse
+        if house == nil { house = try? await CloudKitManager.shared.currentHouse() }
+        guard let houseID = house?.recordID,
+              houseID.zoneID.ownerName != CKCurrentUserDefaultName
+        else { return }
+
+        let key = "onboarding.notifiedAdminGuestWaiting.\(houseID.zoneID.ownerName).\(houseID.recordName)"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+
+        var name = currentUser?.name
+        if name == nil { name = await CloudKitManager.shared.currentHouseUser()?.name }
+
+        if await NotificationManager.shared.notifyGuestWaitingForDivision(
+            named: name ?? L10n.tr("Morador"),
+            houseID: houseID
+        ) {
+            UserDefaults.standard.set(true, forKey: key)
+        }
+    }
+    
     // MARK: - Pending join
     
     /// `true` when the current house is someone else's (reached through an accepted invite) but
@@ -1265,20 +1351,38 @@ class OnboardingViewModel {
         
         isCheckingAccount = true
         isLoading = true
+        accountCheckError = nil
         
         defer {
             isCheckingAccount = false
             isLoading = false
         }
         
-        // Leaves any house this iCloud account is still attached to without a member record
-        await CloudKitManager.shared.pruneOrphanedSharedMemberships()
+        // The lookups below turn network errors into `nil` ("no profile", "no house"), and on a
+        // weak connection CloudKit keeps retrying instead of failing. Without this the user was
+        // stuck on a disabled "Continuar", or sent to create a profile they already had.
+        if let problem = await CloudKitManager.shared.connectionProblem() {
+            accountCheckError = problem
+            return
+        }
         
-        async let fetchedUser = CloudKitManager.shared.fetchMyUser()
-        async let fetchedHouse = try? await CloudKitManager.shared.fetchFirst(HouseModel.self)
-        
-        let user = await fetchedUser
-        let house = await fetchedHouse
+        let user: UserModel?
+        let house: HouseModel?
+        do {
+            let fetched = try await withDeadline(CloudKitManager.connectionCheckDeadline) { () async -> (UserModel?, HouseModel?) in
+                // Leaves any house this iCloud account is still attached to without a member record
+                await CloudKitManager.shared.pruneOrphanedSharedMemberships()
+                
+                async let fetchedUser = CloudKitManager.shared.fetchMyUser()
+                async let fetchedHouse = try? await CloudKitManager.shared.fetchFirst(HouseModel.self)
+                return (await fetchedUser, await fetchedHouse)
+            }
+            user = fetched.0
+            house = fetched.1
+        } catch {
+            accountCheckError = CloudKitManager.slowConnectionMessage
+            return
+        }
         
         let hasOnboardingInProgress = stateMachine.flow != .notDefined && stateMachine.index > 0
         if hasOnboardingInProgress {
@@ -1321,6 +1425,12 @@ class OnboardingViewModel {
                 // missing for accounts that never saved one (or when it could not be read),
                 // and a house is never created without it (the owner would be stuck waiting).
                 _ = await restoreFreeTimeFromProfile()
+                
+                // Removed from the house (or it was deleted) while in the app: the notice was
+                // already shown, so skip the welcome screen and go to "create or enter".
+                if OnboardingStateMachine.consumeStartAtCreateOrEnterHomeRequest() {
+                    advanceFromWelcome()
+                }
             }
         }
     }

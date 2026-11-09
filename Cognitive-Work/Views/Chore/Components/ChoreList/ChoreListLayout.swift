@@ -186,7 +186,7 @@ struct ChoreListLayout: View {
     /// Shown when there's nothing to list — either the house has no chores, or the active
     /// filter matches none.
     private var emptyState: some View {
-        ChoresEmptyState(kind: viewModel.isFilterOn ? .filtered : .division)
+        ChoresEmptyState(kind: viewModel.isFilterOn && !viewModel.isFilteringOnlyViewer ? .filtered : .division)
     }
     
     // MARK: - Day grouping

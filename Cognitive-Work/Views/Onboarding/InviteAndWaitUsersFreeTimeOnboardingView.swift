@@ -9,7 +9,8 @@ import CloudKit
 import SwiftUI
 
 /// The step where the house creator invites the roomies and waits until every member has set
-/// their free time. Also opened from the house settings ("Adicionar moradores").
+/// their free time. Also opened from the house settings ("Adicionar moradores"), where the admin
+/// can also remove members ("Adicionar e gerenciar moradores", see ``onRemoveMember``).
 ///
 /// The member list is refreshed by polling, by CloudKit pushes and when the app comes back. Those
 /// refreshes can overlap, so only the latest one is allowed to show its result.
@@ -59,6 +60,19 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
     /// advance there, so the onboarding-only controls ("Continuar" and its hint) are hidden.
     var isFromSettings: Bool
     
+    /// Removes a member from the house. Set only when the admin opens the screen from the house
+    /// settings; `nil` everywhere else, and then the avatars can't be tapped.
+    var onRemoveMember: ((UserModel) async -> Bool)? = nil
+    
+    /// The member the admin tapped, waiting for the confirmation.
+    @State private var memberToRemove: UserModel?
+    /// `true` while a member is being removed (blocks the screen).
+    @State private var isRemovingMember = false
+    /// Shows the "couldn't remove" alert.
+    @State private var didFailToRemove = false
+    /// The signed-in user's iCloud identity, so the admin can't remove themselves.
+    @State private var myOwnerRecordName: String?
+    
     // MARK: - Body
     
     var body: some View {
@@ -73,11 +87,17 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             
             // MARK: - Member count and loading
             Text("Na casa \(Text("\(houseUsers.count)").fontWeight(.black))")
-                .font(.body)
+                .font(.system(size: 17))
                 .frame(width: width * 0.84, alignment: .leading)
                 .padding(.top, 30)
                 .padding(.bottom, width * 0.02)
                 .accessibilityLabel(Text(L10n.tr("\(houseUsers.count) moradores na casa")))
+            
+            if onRemoveMember != nil {
+                Text("Toque em um morador para removê-lo da casa.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.gray)
+            }
             
             if !hasLoadedUsers {
                 ProgressView()
@@ -90,7 +110,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     if !pendingUsers.isEmpty {
                         Text("Em configuração")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .fontWeight(.thin)
                         .accessibilityAddTraits(.isHeader)
                         pendingUsersView
@@ -98,7 +118,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                     
                     if !completedUsers.isEmpty {
                         Text("Moradores prontos")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .fontWeight(.thin)
                         .accessibilityAddTraits(.isHeader)
                         completedUsersView
@@ -159,6 +179,9 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             if !isFromSettings && !isRunningForPreviews {
                 await viewModel.flushPendingFreeTimeIfNeeded()
             }
+            if onRemoveMember != nil, !isRunningForPreviews, myOwnerRecordName == nil {
+                myOwnerRecordName = await CloudKitManager.shared.fetchCurrentUserRecordID()?.recordName
+            }
             await updateUsers()
             
             while !Task.isCancelled {
@@ -177,6 +200,29 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                 await updateUsers()
             }
         }
+        // MARK: - Removing a member (admin, from the house settings)
+        .confirmationDialog(
+            Text(L10n.tr("Remover \(memberToRemove?.name ?? "") da casa?")),
+            isPresented: Binding(
+                get: { memberToRemove != nil },
+                set: { if !$0 { memberToRemove = nil } }
+            ),
+            titleVisibility: .visible,
+            presenting: memberToRemove
+        ) { member in
+            Button("Remover da casa", role: .destructive) {
+                Task { await remove(member) }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: { _ in
+            Text("Essa pessoa deixa de ver a casa e as tarefas dela voltam para quem quiser pegar. Ela pode voltar com um novo convite.")
+        }
+        .alert("Não foi possível remover", isPresented: $didFailToRemove) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Verifique sua conexão e tente novamente.")
+        }
+        .blockingOperation(isPresented: $isRemovingMember, message: "Removendo morador...")
         .hidesTabBar()
     }
     
@@ -189,15 +235,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             ForEach(Array(completedUsers.chunked(into: maxUsersPerRow).enumerated()), id: \.offset) { _, row in
                 HStack(spacing: 20) {
                     ForEach(row) { user in
-                        ZStack {
-                            Circle()
-                                .foregroundColor(.green)
-                                .frame(width: width * 0.17)
-                            
-                            UserProfilePictureTag(user: user, widthMultiplier: 0.15)
-                        }
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(Text(L10n.tr("\(user.name), pronto")))
+                        memberAvatar(user, ring: .green, label: L10n.tr("\(user.name), pronto"))
                     }
                 }
             }
@@ -210,21 +248,49 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             ForEach(Array(pendingUsers.chunked(into: maxUsersPerRow).enumerated()), id: \.offset) { _, row in
                 HStack(spacing: 20) {
                     ForEach(row) { user in
-                        ZStack {
-                            Circle()
-                                .foregroundColor(.red)
-                                .frame(width: width * 0.17)
-                            
-                            UserProfilePictureTag(user: user, widthMultiplier: 0.15)
-                        }
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(Text(L10n.tr("\(user.name), ainda configurando o tempo livre")))
+                        memberAvatar(user, ring: .red, label: L10n.tr("\(user.name), ainda configurando o tempo livre"))
                     }
                 }
             }
         }
     }
     
+    
+    /// A member's photo in a colored ring. Tappable (to remove them) when the admin manages the
+    /// members, except for the admin's own photo.
+    @ViewBuilder
+    private func memberAvatar(_ user: UserModel, ring: Color, label: String) -> some View {
+        let avatar = ZStack {
+            Circle()
+                .foregroundColor(ring)
+                .frame(width: width * 0.17)
+            
+            UserProfilePictureTag(user: user, widthMultiplier: 0.15)
+        }
+        
+        if canRemove(user) {
+            Button {
+                memberToRemove = user
+            } label: {
+                avatar
+            }
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(label))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityHint(Text(L10n.tr("Toque duas vezes para remover da casa")))
+        } else {
+            avatar
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text(label))
+        }
+    }
+    
+    /// Whether the admin may remove `user`: managing members, and not themselves.
+    private func canRemove(_ user: UserModel) -> Bool {
+        guard onRemoveMember != nil, let myOwnerRecordName else { return false }
+        return user.ownerRecordName != myOwnerRecordName
+    }
     
     /// The invite button: share the link, try again, or a spinner while it's being made.
     @ViewBuilder
@@ -301,6 +367,21 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
         }
         
         didFailToPrepareInvite = shareURL == nil
+    }
+    
+    /// Removes `member` (after the admin confirmed) and refreshes the list.
+    private func remove(_ member: UserModel) async {
+        guard let onRemoveMember else { return }
+        isRemovingMember = true
+        let removed = await onRemoveMember(member)
+        isRemovingMember = false
+        
+        if removed {
+            VoiceOver.announce(L10n.tr("\(member.name) foi removido da casa"))
+            await updateUsers()
+        } else {
+            didFailToRemove = true
+        }
     }
     
     /// Fetches the members and splits them into ready and pending.

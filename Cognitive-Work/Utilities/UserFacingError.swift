@@ -20,12 +20,12 @@ enum UserFacingError {
 
         fileprivate var fallback: String {
             switch self {
-            case .create: return L10n.tr("Não foi possível criar. Tente novamente.")
-            case .load: return L10n.tr("Não foi possível carregar os dados. Tente novamente.")
-            case .save: return L10n.tr("Não foi possível salvar. Tente novamente.")
-            case .delete: return L10n.tr("Não foi possível excluir. Tente novamente.")
+            case .create: return L10n.tr("Não foi possível criar. Verifique sua conexão e tente novamente.")
+            case .load: return L10n.tr("Não foi possível carregar os dados. Verifique sua conexão e tente novamente.")
+            case .save: return L10n.tr("Não foi possível salvar. Verifique sua conexão e tente novamente.")
+            case .delete: return L10n.tr("Não foi possível excluir. Verifique sua conexão e tente novamente.")
             case .leave: return L10n.tr("Não foi possível sair da casa. Tente novamente.")
-            case .share: return L10n.tr("Não foi possível compartilhar. Tente novamente.")
+            case .share: return L10n.tr("Algo não funcionou como deveria. Verifique sua conexão e tente novamente.")
             }
         }
     }

@@ -39,7 +39,7 @@ struct HarviiPairingErrorTests {
     @Test(arguments: [URLError.Code.timedOut, .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed])
     func harviiDidNotAnswer(_ code: URLError.Code) {
         withLanguage(.portuguese) {
-            #expect(message(URLError(code)) == "O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado e mostrando que se conectou ao Wi-Fi.")
+            #expect(message(URLError(code)) == "O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado. Se a tela dele mostrar “Não consegui conectar ao WiFi”, a senha pode estar errada: volte, entre na rede HARVII e envie o Wi-Fi de novo.")
         }
     }
 
@@ -85,10 +85,40 @@ struct HarviiPairingErrorTests {
 
     // MARK: - Translation
 
-    @Test func translatesTheReasonToEnglish() {
-        withLanguage(.english) {
-            #expect(message(URLError(.timedOut)) == "Harvii didn't answer on your home network. Check that your phone is back on that network and that Harvii is on and shows it joined the Wi-Fi.")
-            #expect(message(URLError(.badServerResponse)) == "Couldn't talk to Harvii (code \(URLError(.badServerResponse).errorCode)).")
+    /// The "didn't answer" reason, in every language of the app.
+    nonisolated static let notAnsweredByLanguage: [(AppLanguage, String)] = [
+        (.portuguese, "O Harvii não respondeu na rede da sua casa. Confira se o celular voltou para essa rede e se o Harvii está ligado. Se a tela dele mostrar “Não consegui conectar ao WiFi”, a senha pode estar errada: volte, entre na rede HARVII e envie o Wi-Fi de novo."),
+        (.english, "Harvii didn't answer on your home network. Check that your phone is back on that network and that Harvii is on. If its screen shows “Couldn't connect to WiFi”, the password may be wrong: go back, join the HARVII network and send the Wi-Fi again."),
+        (.spanish, "Harvii no respondió en la red de tu casa. Verifica que el celular haya vuelto a esa red y que Harvii esté encendido. Si su pantalla muestra “No pude conectarme al WiFi”, la contraseña puede estar mal: vuelve, conéctate a la red HARVII y envía el Wi-Fi de nuevo."),
+        (.french, "Harvii n’a pas répondu sur le réseau de ton foyer. Vérifie que ton téléphone est revenu sur ce réseau et que Harvii est allumé. Si son écran affiche « Je n’ai pas pu me connecter au WiFi », le mot de passe est peut-être faux : reviens en arrière, rejoins le réseau HARVII et renvoie le Wi-Fi."),
+        (.chinese, "Harvii 在你家的网络中没有响应。请确认手机已回到这个网络，并且 Harvii 已开机。如果它的屏幕显示“无法连接到 WiFi”，可能是密码错了：请返回，连接 HARVII 网络，然后重新发送 Wi-Fi。"),
+        (.korean, "집 네트워크에서 Harvii가 응답하지 않았어요. 휴대폰이 그 네트워크로 돌아왔는지, Harvii가 켜져 있는지 확인하세요. Harvii 화면에 “WiFi에 연결하지 못했어요”가 표시되면 비밀번호가 틀렸을 수 있어요. 돌아가서 HARVII 네트워크에 연결하고 Wi-Fi를 다시 보내세요."),
+        (.japanese, "おうちのネットワークでHarviiから応答がありませんでした。携帯電話がそのネットワークに戻っているか、Harviiの電源が入っているか確認してください。Harviiの画面に「WiFiに接続できませんでした」と表示されている場合は、パスワードが間違っている可能性があります。戻ってHARVIIネットワークに接続し、もう一度Wi-Fiを送信してください。"),
+    ]
+
+    /// The reason with the error code, in every language of the app (`%lld` is the code).
+    nonisolated static let codeByLanguage: [(AppLanguage, String)] = [
+        (.portuguese, "Não foi possível falar com o Harvii (código %lld)."),
+        (.english, "Couldn't talk to Harvii (code %lld)."),
+        (.spanish, "No fue posible comunicarse con Harvii (código %lld)."),
+        (.french, "Impossible de communiquer avec Harvii (code %lld)."),
+        (.chinese, "无法与 Harvii 通信（代码 %lld）。"),
+        (.korean, "Harvii와 통신하지 못했어요(코드 %lld)."),
+        (.japanese, "Harviiと通信できませんでした（コード %lld）。"),
+    ]
+
+    @Test(arguments: notAnsweredByLanguage)
+    func translatesTheReason(_ language: AppLanguage, _ expected: String) {
+        withLanguage(language) {
+            #expect(message(URLError(.timedOut)) == expected)
+        }
+    }
+
+    @Test(arguments: codeByLanguage)
+    func translatesTheReasonWithItsCode(_ language: AppLanguage, _ template: String) {
+        let error = URLError(.badServerResponse)
+        withLanguage(language) {
+            #expect(message(error) == template.replacingOccurrences(of: "%lld", with: "\(error.errorCode)"))
         }
     }
 }

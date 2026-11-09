@@ -12,8 +12,8 @@ import Foundation
 /// The case names are the ranks' first names and stay as they are: they are the values saved in
 /// CloudKit. Only ``displayName`` (what the user sees) follows the current names.
 ///
-/// Thirteen ranks form one ladder, each one ``pointsPerDivision`` points above the one before
-/// (see the extension below).
+/// Thirteen ranks form one ladder, each one starting at its ``thresholds`` entry (see the
+/// extension below).
 enum Tier: String, CaseIterable {
     /// "Pipa Tradicional I": the lowest rank, where every cycle starts.
     case novatoDaCasa
@@ -101,11 +101,13 @@ enum Tier: String, CaseIterable {
 
 // MARK: - Progression
 
-/// The 13 cases form one ladder. Every step costs ``pointsPerDivision`` points:
-/// - Reaching the threshold moves to the next rank (Pipa Tradicional I → Pipa Tradicional II); points above a
-///   threshold carry over.
-/// - Pipa dragão chinês is reached at `12 × pointsPerDivision` points and is the top of the ladder:
-///   points keep adding up, the rank no longer changes.
+/// The 13 cases form one ladder, climbed with the points of the current cycle:
+/// - Each rank starts at ``minimumPoints``; points above it carry over toward the next one.
+/// - The steps grow as the ladder goes up (20 points to leave the first rank, 75 for the last
+///   one), so the first ranks come quickly and the top ones take steady work, as in most
+///   progression systems.
+/// - Pipa dragão chinês, at ``topThreshold`` points, is the top of the ladder: points keep adding
+///   up, the rank no longer changes.
 /// - Every cycle starts over: when a cycle is settled, its rank goes to the history and the
 ///   points go back to 0 (see ``CycleSettlementService``).
 ///
@@ -113,25 +115,36 @@ enum Tier: String, CaseIterable {
 /// removes its points) can also bring the rank back down.
 extension Tier {
 
-    /// Points needed to climb one rank.
-    static let pointsPerDivision = 25
+    /// Points at which each rank starts, in the order of ``allCases``.
+    ///
+    /// Calibrated on ``ScoreValues/choreCompletion(minutes:priority:)``, where a point is about a
+    /// minute of chores: the top takes about 9 hours of chores in the two-week cycle (~45 minutes a
+    /// day), what a member doing their fair share of a typical house (3 members, 5 rooms) gets.
+    /// The curve is `650 × (rank / 12)^1.4`, rounded to 5.
+    static let thresholds = [0, 20, 55, 95, 140, 190, 245, 305, 370, 435, 505, 575, 650]
+
+    /// Points to reach the top rank.
+    static var topThreshold: Int { thresholds[thresholds.count - 1] }
 
     /// Rank for `points`. Negative points count as zero.
     init(points: Int) {
-        let ladder = Tier.allCases
-        let step = max(points, 0) / Tier.pointsPerDivision
-        self = ladder[min(step, ladder.count - 1)]
+        let points = max(points, 0)
+        let step = Tier.thresholds.lastIndex { $0 <= points } ?? 0
+        self = Tier.allCases[step]
     }
 
-    private var step: Int { position }
-
     /// Points at which this rank starts.
-    var minimumPoints: Int { step * Tier.pointsPerDivision }
+    var minimumPoints: Int { Tier.thresholds[position] }
 
     /// The step after this rank, or `nil` for the top one.
     var next: Tier? {
         let ladder = Tier.allCases
-        return step + 1 < ladder.count ? ladder[step + 1] : nil
+        return position + 1 < ladder.count ? ladder[position + 1] : nil
+    }
+
+    /// Points from the start of this rank to the next one, or `nil` for the top one.
+    var divisionSize: Int? {
+        next.map { $0.minimumPoints - minimumPoints }
     }
 
     /// Where `points` stand inside the current division.
@@ -144,6 +157,12 @@ extension Tier {
         let pointsToNext: Int?
         /// The rank after ``tier``, or `nil` at the top.
         let nextTier: Tier?
+
+        /// How much of the way to the next rank is done, from 0 to 1 (1 at the top).
+        var fraction: Double {
+            guard let size = tier.divisionSize, size > 0 else { return 1 }
+            return min(Double(pointsIntoDivision) / Double(size), 1)
+        }
     }
 
     /// The rank of `points` and how far they are from the next rank.
@@ -166,10 +185,12 @@ extension Tier {
 
 extension Tier {
 
-    /// Coins paid at the end of each cycle to someone at this rank. A higher rank never pays
-    /// less than a lower one.
+    /// Coins a member has earned in the cycle by the time they reach this rank
+    /// (``ScoreValues/coins(forPoints:)`` of ``minimumPoints``). A higher rank never pays less.
+    ///
+    /// Coins follow the points, not the rank: this is only the figure at the rank's start. The
+    /// lowest rank starts at no coins.
     var cycleCoins: Int {
-        let coins = [10, 12, 15, 18, 22, 26, 31, 37, 44, 52, 62, 74, 90]
-        return coins[position]
+        ScoreValues.coins(forPoints: minimumPoints)
     }
 }

@@ -33,14 +33,18 @@ struct RetroPercentageOfDoneView: View {
 
     var body: some View {
         ZStack {
-            // MARK: - Background: purple with the white pie
-            Color(.chorePurple)
+            // MARK: - Background: white, with the purple growing as the pie empties
+            // Drawn the other way around from before (purple background under a white pie): when
+            // the page fades in, SwiftUI fades each view on its own, and the purple showed through
+            // the still-transparent white pie for a moment (a purple flash right after "Ver minha
+            // retrospectiva"). Now there is no purple at all until the pie starts to empty.
+            Color.white
                 .overlay{
-                    PieSlice(progress: percentage / 100)
+                    PieRemovedSlice(progress: percentage / 100)
                         .padding(.bottom, height * 0.127)
                         .frame(width: height * 2, height: height * 2)
                         .ignoresSafeArea()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color(.chorePurple))
                 }
                 .ignoresSafeArea()
                 .accessibilityDecorative()
@@ -70,12 +74,12 @@ struct RetroPercentageOfDoneView: View {
                     .accessibilityAddTraits(.isHeader)
 //                Text(content.summary)
                 Text(try! AttributedString(markdown: content.summary))
-                    .font(.title)
+                    .font(.system(size: 28))
                     .multilineTextAlignment(.center)
                     .padding(.bottom, height * 0.008)
                     .frame(width: width * 0.796)
                 Text(content.subtitle)
-                    .font(.callout)
+                    .font(.system(size: 16))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.subTitleGray)
                 
@@ -84,7 +88,7 @@ struct RetroPercentageOfDoneView: View {
                 // MARK: Cheering word
                 Text(content.closing)
                     .bold()
-                    .font(.custom("Alan Sans", size: 40))
+                    .font(.custom("Alan Sans", fixedSize: 40))
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                     .padding(.bottom, height * 0.018)
@@ -97,7 +101,7 @@ struct RetroPercentageOfDoneView: View {
                 } label: {
                     Text("ver depois")
                         .fontWeight(.semibold)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundStyle(.subTitleGray)
                 }
                 .padding(.bottom, height * 0.014)

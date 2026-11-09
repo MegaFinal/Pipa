@@ -102,13 +102,13 @@ struct RetroCoinsView: View {
             // MARK: - Subtitle and message
             Text(subtitle)
                 .fontWeight(.regular)
-                .font(.title)
+                .font(.system(size: 28))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
                 .padding(.bottom, height * 0.014)
             
             Text(content.message)
-                .font(.callout)
+                .font(.system(size: 16))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.gray) //arrumar o cinza depois
                 .padding(.horizontal, 24)
@@ -117,7 +117,7 @@ struct RetroCoinsView: View {
             // MARK: - Redeem error
             if let errorText = coinsViewModel.errorText {
                 Text(errorText)
-                    .font(.footnote)
+                    .font(.system(size: 13))
                     .foregroundStyle(.subTitleGray)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
@@ -132,7 +132,7 @@ struct RetroCoinsView: View {
             } label: {
                 Text("ver depois")
                     .fontWeight(.semibold)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.gray) //arrumar o cinza depois
             }
             

@@ -72,9 +72,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     /// `UserDefaults` key of the record names already handled, with the day each was handled.
     private static let processedKey = "notifications.processedRecords"
     
-    /// Set when the user taps a notification. The UI observes it, navigates and sets it back
-    /// to `nil`.
+    /// Set when the user taps a notification. ``ContentView`` observes it (through
+    /// ``pendingDestinationID``), navigates and sets it back to `nil`.
     var pendingDestination: NotificationDestination?
+    /// Changes with every tapped notification, so the UI notices even the same destination twice
+    /// (``NotificationDestination`` can't be compared).
+    private(set) var pendingDestinationID: UUID?
     
     /// Whether the notifications screen has something the user hasn't seen. Drives the red dot
     /// on the bell; see ``refreshUnseenNotifications(force:)``.
@@ -152,6 +155,32 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         catch {
             return false
         }
+    }
+
+    /// Turns notifications on the first time the app opens in a house, asking iOS for permission,
+    /// unless the user already chose in the settings.
+    ///
+    /// The switch in the settings (``enabledKey``) used to start off and nothing asked for
+    /// permission elsewhere, so most people never got any notification (a new division, the
+    /// retrospective, a chore done for them). Runs once: after this the switch keeps whatever the
+    /// user picks.
+    func enableOnFirstUseIfNeeded() async {
+        guard defaults.object(forKey: Self.enabledKey) == nil else { return }
+
+        let enabled: Bool
+        switch await authorizationStatus() {
+        case .notDetermined:
+            enabled = await requestAuthorization()
+        case .authorized, .provisional, .ephemeral:
+            enabled = true
+        default:
+            enabled = false
+        }
+        defaults.set(enabled, forKey: Self.enabledKey)
+
+        guard enabled else { return }
+        await processIncoming()
+        await refreshReminders(force: true)
     }
 
     /// The current permission status, which the user can change at any time in Settings.
@@ -420,6 +449,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     @MainActor
     func route(to destination: NotificationDestination) {
         pendingDestination = destination
+        pendingDestinationID = UUID()
     }
     
     /// Turns a notification's `userInfo` into the screen it should open, or `nil` when it
@@ -435,9 +465,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         case .grabChore: return .pickChores
         case .retrospective: return .retrospective
         case .newDivision: return .dashboard
-        case .newUser: return .newMember
+        case .newUser, .guestWaitingDivision: return .newMember
         case .itemBought: return .shopList
-        case .debtYouOwe, .debtOwedToYou: return .pendingPayments
+        case .debtYouOwe, .debtOwedToYou, .boughtForYou, .receiptBoughtForYou: return .pendingPayments
         case .calendarSync: return .calendarSync
         case .premiumEnded: return .premium
         case .yourDelayedChore, .noUserDelayedChore, .choreDoneForYou:

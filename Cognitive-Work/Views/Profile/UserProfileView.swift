@@ -64,7 +64,7 @@ struct UserProfileView: View {
                 banner: viewModelUser.editedBanner,
                 image: viewModelUser.displayedImageData.flatMap(UIImage.init(data:)),
                 photoSelection: $viewModelUser.selectedPhotoItem,
-                photoPickerStyle: .pencilButton
+                photoPickerStyle: .avatarWithPencil
             ) { banner in
                 viewModelUser.editedBanner = banner
                 Task { await viewModelUser.saveChanges() }
@@ -82,7 +82,7 @@ struct UserProfileView: View {
         }
         // MARK: - Save error alert and saving spinner
         .alert(
-            "Não foi possível salvar",
+            viewModelUser.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
                 get: { viewModelUser.errorMessage != nil },
                 set: { if !$0 { viewModelUser.errorMessage = nil } }
@@ -135,6 +135,10 @@ private struct SettingsButtonsSection: View {
     @State private var hardwareSheet: HardwareSheet?
     /// Shows ``PremiumView`` (plans or subscription status).
     @State private var isShowingPremium = false
+    /// Opens the general settings without a tap on its row (a calendar notification).
+    @State private var isShowingGeneralSettings = false
+    /// What a tapped notification asks this tab to open (`nil` in previews).
+    @Environment(AppNavigation.self) private var navigation: AppNavigation?
 
     var body: some View {
         List {
@@ -192,6 +196,18 @@ private struct SettingsButtonsSection: View {
         .scrollBounceBehavior(.basedOnSize)
         .sheet(isPresented: $isShowingPremium) {
             PremiumView()
+        }
+        .navigationDestination(isPresented: $isShowingGeneralSettings) {
+            GeneralProfileSettingsView(viewModel: viewModelUser, houseViewModel: viewModelHouse)
+        }
+        // MARK: - Tapped notification: the calendar sync (general settings) or Premium
+        .task(id: navigation?.profileRoute?.id) {
+            guard let route = navigation?.profileRoute else { return }
+            navigation?.profileRoute = nil
+            switch route.destination {
+            case .generalSettings: isShowingGeneralSettings = true
+            case .premium: isShowingPremium = true
+            }
         }
         // MARK: - Hardware screens (full screen)
         // Every opening starts the setup from its first step.

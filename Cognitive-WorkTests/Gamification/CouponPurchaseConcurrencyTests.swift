@@ -229,9 +229,7 @@ struct CouponPurchaseConcurrencyTests {
         #expect(CouponExemption.forNextDivision(coupons: [coupon], cycles: [bought], newCycleKey: next.key)[dishes] == [ana])
         // …and that division uses the coupon.
         coupon.consumedCycleKey = next.key
-        // While it runs, she still may not pick the chore…
-        #expect(CouponExemption.active(coupons: [coupon], cycles: [bought, next])[dishes] == [ana])
-        // …the coupon can be bought again…
+        // The coupon can be bought again…
         #expect(coupon.isAvailable(latestCycleKey: next.key))
         #expect(!coupon.isHeld(by: ana, inCycle: "2026-10-02"))
         // …and the division after it no longer spares her.
@@ -256,7 +254,6 @@ struct CouponPurchaseConcurrencyTests {
         #expect(!coupon.isHeld(by: ana, inCycle: latest.key))
         // Generated once more the same day: still applied, not lost.
         #expect(CouponExemption.forNextDivision(coupons: [coupon], cycles: [latest], newCycleKey: latest.key)[dishes] == [ana])
-        #expect(CouponExemption.active(coupons: [coupon], cycles: [latest])[dishes] == [ana])
         // A later division doesn't apply it again.
         let later = F.cycle(start: F.day(2026, 11, 4))
         #expect(CouponExemption.forNextDivision(coupons: [coupon], cycles: [latest], newCycleKey: later.key)[dishes] == nil)

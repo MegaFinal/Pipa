@@ -50,7 +50,8 @@ extension CloudKitManager {
         let database = recordID.zoneID.ownerName == CKCurrentUserDefaultName ? privateDB : sharedDB
         
         do {
-            _ = try await database.save(record)
+            let savedRecord = try await database.save(record)
+            RecentWrites.shared.saved([savedRecord])
             var saved = item
             saved.recordID = recordID
             invalidateSessionCacheIfNeeded(for: T.self)
@@ -106,6 +107,31 @@ extension CloudKitManager {
         }
     }
     
+    /// Fetches several raw records of one zone in a single request.
+    ///
+    /// - Parameters:
+    ///   - recordIDs: The records to fetch. Returns an empty dictionary when empty.
+    ///   - zoneID: Zone the records live in, used to pick the private or shared database.
+    /// - Returns: The records found, by ID (records that no longer exist are left out), or
+    ///   `nil` when the request fails (see ``errorMessage``).
+    func fetchRecords(withIDs recordIDs: [CKRecord.ID], zoneID: CKRecordZone.ID) async -> [CKRecord.ID: CKRecord]? {
+        guard !recordIDs.isEmpty else { return [:] }
+        
+        let database = zoneID.ownerName == CKCurrentUserDefaultName ? privateDB : sharedDB
+        
+        do {
+            let results = try await database.records(for: recordIDs)
+            var records: [CKRecord.ID: CKRecord] = [:]
+            for (recordID, result) in results {
+                if case .success(let record) = result { records[recordID] = record }
+            }
+            return records
+        } catch {
+            errorMessage = UserFacingError.message(for: error, doing: .load)
+            return nil
+        }
+    }
+    
     /// Fetches multiple records by their references using batch requests.
     ///
     /// - Parameters:
@@ -131,15 +157,16 @@ extension CloudKitManager {
         var fetchedRecords: [CKRecord] = []
         
         do {
-            // Batch fetch from the Private Database
-            if !privateIDs.isEmpty {
-                let result = try await privateDB.records(for: privateIDs)
-                fetchedRecords.append(contentsOf: result.values.compactMap { try? $0.get() })
-            }
-            // Batch fetch from the Shared Database
-            if !sharedIDs.isEmpty {
-                let result = try await sharedDB.records(for: sharedIDs)
-                fetchedRecords.append(contentsOf: result.values.compactMap { try? $0.get() })
+            // Batch fetch from each database, at most `maxRecordsPerRequest` IDs per request
+            // (a chore's list of occurrences can be longer than CloudKit accepts at once).
+            for (database, ids) in [(privateDB, privateIDs), (sharedDB, sharedIDs)] {
+                var start = ids.startIndex
+                while start < ids.endIndex {
+                    let end = min(start + Self.maxRecordsPerRequest, ids.endIndex)
+                    let result = try await database.records(for: Array(ids[start..<end]))
+                    fetchedRecords.append(contentsOf: result.values.compactMap { try? $0.get() })
+                    start = end
+                }
             }
         } catch {
             errorMessage = UserFacingError.message(for: error, doing: .load)
@@ -392,7 +419,14 @@ extension CloudKitManager {
             cursor = page.queryCursor
         }
         
-        return records
+        // A query only sees a change once the server indexed it, seconds after the save: merge
+        // what this device just wrote, so every screen reads its own changes right away.
+        return RecentWrites.shared.merged(
+            into: records,
+            recordType: query.recordType,
+            zoneID: zoneID,
+            matchesEverything: query.predicate.predicateFormat == NSPredicate(value: true).predicateFormat
+        )
     }
     
     /// Clears the session cache when the record type that was just written is one the cache
@@ -424,7 +458,8 @@ extension CloudKitManager {
         do {
             let record = try await database.record(for: recordID)
             item.populate(record: record)
-            _ = try await database.save(record)
+            let savedRecord = try await database.save(record)
+            RecentWrites.shared.saved([savedRecord])
             
             await HardwareViewModel.notifyDataChanged()
             markDataChanged()
@@ -441,7 +476,8 @@ extension CloudKitManager {
         let database = record.recordID.zoneID.ownerName == CKCurrentUserDefaultName ? privateDB : sharedDB
         
         do {
-            _ = try await database.save(record)
+            let savedRecord = try await database.save(record)
+            RecentWrites.shared.saved([savedRecord])
             
             await HardwareViewModel.notifyDataChanged()
             markDataChanged()
@@ -470,6 +506,7 @@ extension CloudKitManager {
         
         do {
             _ = try await database.deleteRecord(withID: recordID)
+            RecentWrites.shared.deleted([recordID], type: T.recordType)
             invalidateSessionCacheIfNeeded(for: T.self)
             
             await HardwareViewModel.notifyDataChanged()
@@ -489,6 +526,7 @@ extension CloudKitManager {
         
         do {
             _ = try await database.deleteRecord(withID: recordID)
+            RecentWrites.shared.deleted([recordID], type: T.recordType)
             
             await HardwareViewModel.notifyDataChanged()
             markDataChanged()
@@ -499,7 +537,11 @@ extension CloudKitManager {
         }
     }
     
-    /// Deletes several records in a single atomic batch.
+    /// Most records CloudKit takes in one modify request.
+    static let maxRecordsPerRequest = 400
+    
+    /// Deletes several records in atomic batches of up to ``maxRecordsPerRequest`` (one batch
+    /// for anything smaller).
     ///
     /// > Warning: Batching a parent together with its children does **not** make the parent
     /// > deletable. CloudKit checks each delete against the records currently on the server,
@@ -519,7 +561,15 @@ extension CloudKitManager {
         let database = zoneID.ownerName == CKCurrentUserDefaultName ? privateDB : sharedDB
         
         do {
-            _ = try await database.modifyRecords(saving: [], deleting: recordIDs)
+            // CloudKit refuses more than 400 items per request: big deletions (the old
+            // occurrences of a whole house) go in batches.
+            var start = recordIDs.startIndex
+            while start < recordIDs.endIndex {
+                let end = min(start + Self.maxRecordsPerRequest, recordIDs.endIndex)
+                _ = try await database.modifyRecords(saving: [], deleting: Array(recordIDs[start..<end]))
+                RecentWrites.shared.deleted(Array(recordIDs[start..<end]), type: nil)
+                start = end
+            }
             
             await HardwareViewModel.notifyDataChanged()
             markDataChanged()
@@ -713,5 +763,115 @@ enum DesiredKeys {
         case .list: return T.listDesiredKeys
         case .all: return nil
         }
+    }
+}
+
+// MARK: - Reading our own writes
+
+/// The records this device saved or deleted in the last ``window``, merged into query results.
+///
+/// A `CKQuery` only returns a change once the server has indexed it, a few seconds after the
+/// save. Every screen reads the house with queries (``HouseDataStore``), so right after checking
+/// off a chore, buying an item or earning points, the refresh that followed still got the old
+/// data: the progress and rewards screens looked like they never updated, and pulling to refresh
+/// "didn't work" until the index caught up. With this, queries reflect this device's own writes
+/// at once.
+///
+/// A record changed by another device after ours wins: the newer `modificationDate` is kept.
+final class RecentWrites: @unchecked Sendable {
+
+    /// The single instance used by ``CloudKitManager``.
+    static let shared = RecentWrites()
+
+    /// How long a write overrides what queries return. Comfortably longer than the index delay.
+    static let window: TimeInterval = 120
+
+    /// A write: the saved record, or `nil` for a deletion.
+    private struct Entry {
+        let record: CKRecord?
+        let recordType: String?
+        let writtenAt: Date
+    }
+
+    /// Guards ``entries``: writes come from any thread.
+    private let lock = NSLock()
+    private var entries: [CKRecord.ID: Entry] = [:]
+
+    /// Use ``shared``.
+    private init() {}
+
+    /// Remembers `records` as just saved (the versions the server returned).
+    func saved(_ records: [CKRecord]) {
+        let now = Date.now
+        lock.lock()
+        defer { lock.unlock() }
+        for record in records {
+            entries[record.recordID] = Entry(record: record.copy() as? CKRecord, recordType: record.recordType, writtenAt: now)
+        }
+    }
+
+    /// Remembers `ids` as just deleted. `type` is the record type, when known.
+    func deleted(_ ids: [CKRecord.ID], type: String?) {
+        let now = Date.now
+        lock.lock()
+        defer { lock.unlock() }
+        for id in ids {
+            entries[id] = Entry(record: nil, recordType: type, writtenAt: now)
+        }
+    }
+
+    /// `records` (a query's results for `recordType` in `zoneID`) with this device's recent writes
+    /// applied: deleted records removed, saved ones replaced by the saved version and, when the
+    /// query matches every record, added if the query doesn't return them yet.
+    func merged(
+        into records: [CKRecord],
+        recordType: String,
+        zoneID: CKRecordZone.ID,
+        matchesEverything: Bool,
+        now: Date = .now
+    ) -> [CKRecord] {
+        let recent = recentEntries(now: now).filter { id, entry in
+            id.zoneID == zoneID && (entry.recordType == nil || entry.recordType == recordType)
+        }
+        guard !recent.isEmpty else { return records }
+
+        var result: [CKRecord] = []
+        var seen: Set<CKRecord.ID> = []
+        for record in records {
+            seen.insert(record.recordID)
+            guard let entry = recent[record.recordID] else {
+                result.append(record)
+                continue
+            }
+            // Deleted here: gone, even if the index still lists it.
+            guard let saved = entry.record else { continue }
+            result.append(Self.newer(saved, record))
+        }
+
+        if matchesEverything {
+            for (id, entry) in recent where !seen.contains(id) {
+                guard let saved = entry.record, saved.recordType == recordType else { continue }
+                result.append(saved.copy() as? CKRecord ?? saved)
+            }
+        }
+        return result
+    }
+
+    /// The entries still inside ``window``; older ones are dropped.
+    private func recentEntries(now: Date) -> [CKRecord.ID: Entry] {
+        lock.lock()
+        defer { lock.unlock() }
+        entries = entries.filter { now.timeIntervalSince($0.value.writtenAt) < Self.window }
+        return entries
+    }
+
+    /// The more recent of our saved version and the one the server returned. Without dates, ours.
+    private static func newer(_ saved: CKRecord, _ fetched: CKRecord) -> CKRecord {
+        if let fetchedDate = fetched.modificationDate,
+           let savedDate = saved.modificationDate,
+           fetchedDate > savedDate {
+            return fetched
+        }
+        return saved.copy() as? CKRecord ?? saved
     }
 }

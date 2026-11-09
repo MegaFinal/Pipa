@@ -19,4 +19,10 @@ extension Notification.Name {
     static let shareAcceptFailed = Notification.Name("shareAcceptFailed")
     /// Data in CloudKit changed (a push from another device, or a change made here); screens reload.
     static let cloudKitDidChange = Notification.Name("cloudKitDidChange")
+    /// A member's coins changed on this device because they earned or lost points
+    /// (``ScoreManager``). The rewards tab reloads the balance.
+    static let coinsDidChange = Notification.Name("coinsDidChange")
+    /// A member's photo changed. The object is their `CKRecord.ID`; avatars showing it reload
+    /// (``UserProfileCache``).
+    static let profilePictureDidChange = Notification.Name("profilePictureDidChange")
 }

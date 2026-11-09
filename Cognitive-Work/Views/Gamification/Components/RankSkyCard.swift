@@ -7,8 +7,18 @@
 
 import SwiftUI
 import CloudKit
+import UIKit
 
 /// The rewards tab's ranking
+///
+/// The card scrolls inside the rewards tab, which scrolls too. Two things keep the two scrolls
+/// from fighting:
+/// - The card opens on the member's rank (``initialAnchor(width:viewport:)``) and moves only itself
+///   when it changes (``ScrollPosition``). `ScrollViewReader` used to do it, and its `scrollTo`
+///   scrolls every enclosing scroll view, so the whole tab jumped to the card.
+/// - The card doesn't bounce at its ends (``ScrollEdgeHandoff``). While it can still move, a drag
+///   on it scrolls the sky; once it reaches the top or the bottom, a drag that way scrolls the tab,
+///   instead of the card bouncing in place and holding on to it.
 struct RankSkyCard: View {
 
     /// Every rank, lowest first, with the members at it (``GamificationCatalog/tiers``).
@@ -19,6 +29,13 @@ struct RankSkyCard: View {
 
     /// When the clouds started to move.
     @State private var windStart = Date()
+
+    /// Where the sky is scrolled. Moved by code only to center the member's rank. It starts with
+    /// no target, so the initial anchor (``initialAnchor(width:viewport:)``) decides where it opens.
+    @State private var position = ScrollPosition()
+
+    /// Whether the card already appeared once, so coming back to the tab centers it again.
+    @State private var hasAppeared = false
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -88,19 +105,35 @@ struct RankSkyCard: View {
     var body: some View {
         GeometryReader { proxy in
             let width = proxy.size.width
+            let viewport = proxy.size.height
 
-            ScrollViewReader { reader in
-                ScrollView(.vertical, showsIndicators: false) {
-                    ZStack(alignment: .top) {
-                        artwork(width: width)
-                        cloudsLayer(width: width)
-                        rows(width: width)
-                    }
-                    .frame(width: width, height: contentHeight(width: width), alignment: .top)
-                    .clipped()
+            ScrollView(.vertical, showsIndicators: false) {
+                ZStack(alignment: .top) {
+                    artwork(width: width)
+                    cloudsLayer(width: width)
+                    rows(width: width)
                 }
-                .onAppear { scrollToMe(reader, animated: false) }
-                .onChange(of: myTier) { scrollToMe(reader, animated: true) }
+                .frame(width: width, height: contentHeight(width: width), alignment: .top)
+                .clipped()
+                .background(ScrollEdgeHandoff())
+            }
+            .scrollPosition($position)
+            // Opens on the member's rank. Scrolling to it in `onAppear` came too early: the scroll
+            // view didn't know the sky's height yet, cut the offset short and left the card at its
+            // end. The initial anchor is applied by SwiftUI once the content is laid out.
+            .defaultScrollAnchor(initialAnchor(width: width, viewport: viewport), for: .initialOffset)
+            // Coming back to the tab: back to the member's rank (the first appearance is the
+            // anchor's job).
+            .onAppear {
+                if hasAppeared {
+                    scrollToMe(width: width, viewport: viewport, animated: false)
+                }
+                hasAppeared = true
+            }
+            // The members load after the card appears (jump there), and the rank can change later
+            // on (glide there).
+            .onChange(of: myTier) { previous, _ in
+                scrollToMe(width: width, viewport: viewport, animated: previous != nil)
             }
         }
         .frame(height: Self.height)
@@ -215,48 +248,118 @@ struct RankSkyCard: View {
             }
             .padding(.horizontal, 20)
 
-            HStack(spacing: -8) {
-                ForEach(group.users, id: \.id) { user in
-                    marker(of: user, tier: group.tier)
-                        .zIndex(user.ownerRecordName == myOwnerRecordName ? 1 : 0)
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .padding(.trailing, 8)
+            markers(for: group)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .padding(.trailing, 8)
         }
     }
 
-    /// A member's vehicle
-    private func marker(of user: UserModel, tier: Tier) -> some View {
+    /// Most vehicles one line holds; a rank with more members splits them into two lines.
+    private static let maxVehiclesPerLine = 3
+
+    /// How big the vehicles are drawn when a rank needs two lines, so both fit in its row.
+    private static let twoLineScale: CGFloat = 0.45
+
+    /// The members' vehicles at the end of the rank's line.
+    ///
+    /// Up to ``maxVehiclesPerLine`` members fly in one line, resting on the rank's line. With more,
+    /// they split into two smaller lines (the first one takes the extra member), and the pair is
+    /// centered on the rank's line, so they never run over the rank's name.
+    @ViewBuilder
+    private func markers(for group: TierGroup) -> some View {
+        let vehicle = RankVehicle(tier: group.tier)
+
+        if group.users.count <= Self.maxVehiclesPerLine {
+            markerLine(group.users, tier: group.tier, scale: 1)
+                .offset(y: -(vehicle.size.height / 2) + 6)
+        } else {
+            let firstLineCount = (group.users.count + 1) / 2
+            VStack(spacing: 0) {
+                markerLine(Array(group.users.prefix(firstLineCount)), tier: group.tier, scale: Self.twoLineScale)
+                markerLine(Array(group.users.dropFirst(firstLineCount)), tier: group.tier, scale: Self.twoLineScale)
+            }
+        }
+    }
+
+    /// One line of vehicles, slightly overlapped, with the signed-in member's on top.
+    private func markerLine(_ users: [UserModel], tier: Tier, scale: CGFloat) -> some View {
+        HStack(spacing: -8 * scale) {
+            ForEach(users, id: \.id) { user in
+                marker(of: user, tier: tier, scale: scale)
+                    .zIndex(user.ownerRecordName == myOwnerRecordName ? 1 : 0)
+            }
+        }
+    }
+
+    /// A member's vehicle and first name.
+    ///
+    /// - Parameter scale: `1` normally; smaller when the rank's members take two lines.
+    private func marker(of user: UserModel, tier: Tier, scale: CGFloat) -> some View {
         let vehicle = RankVehicle(tier: tier)
         let isMe = user.ownerRecordName == myOwnerRecordName
 
         return VStack(spacing: 2) {
             RankVehicleView(vehicle: vehicle)
-                .scaleEffect(isMe ? 1 : 0.85)
-                .shadow(color: .black.opacity(isMe ? 0.25 : 0.12), radius: 3, x: 0, y: 2)
+                .scaleEffect((isMe ? 1 : 0.85) * scale)
+                .frame(width: vehicle.size.width * scale, height: vehicle.size.height * scale)
 
             Text(verbatim: user.name.split(separator: " ").first.map(String.init) ?? user.name)
-                .font(.system(size: 12, weight: .bold))
+                .font(.system(size: scale < 1 ? 10 : 12, weight: .bold))
                 .foregroundStyle(Self.lineColor)
                 .lineLimit(1)
-                .padding(.horizontal, 6)
+                .padding(.horizontal, scale < 1 ? 4 : 6)
                 .padding(.vertical, 1)
                 .background(.white.opacity(0.8), in: Capsule())
         }
-        .frame(maxWidth: 64)
-        .offset(y: -(vehicle.size.height / 2) + 6)
+        .frame(maxWidth: RankVehicle.maxWidth * scale)
     }
 
     // MARK: - Scrolling and accessibility
 
-    /// Centers the card on the member's rank.
-    private func scrollToMe(_ reader: ScrollViewProxy, animated: Bool) {
-        guard let myTier else { return }
+    /// How far down the sky must be scrolled to center the member's rank, or `nil` while their
+    /// rank isn't known (or the card has no size yet).
+    ///
+    /// - Parameters:
+    ///   - width: The card's width, which sets the size of everything in it.
+    ///   - viewport: The card's visible height.
+    private func offsetToMe(width: CGFloat, viewport: CGFloat) -> (offset: CGFloat, maxOffset: CGFloat)? {
+        guard width > 0, viewport > 0,
+              let myTier,
+              let index = groups.firstIndex(where: { $0.tier == myTier })
+        else { return nil }
+
+        // Same layout as `rows(width:)`: the rows go from the highest rank down, and the first
+        // one is centered at `firstRowCenter`.
+        let row = groups.count - 1 - index
+        let rowCenter = Self.firstRowCenter * width + CGFloat(row) * rowHeight(width: width)
+        let maxOffset = max(contentHeight(width: width) - viewport, 0)
+        return (min(max(rowCenter - viewport / 2, 0), maxOffset), maxOffset)
+    }
+
+    /// Where the sky opens: the member's rank in the middle, or the top while it isn't known.
+    ///
+    /// A unit point of the content lines up with the same point of the card, so the offset is
+    /// expressed as a fraction of the most the sky can scroll.
+    private func initialAnchor(width: CGFloat, viewport: CGFloat) -> UnitPoint {
+        guard let target = offsetToMe(width: width, viewport: viewport), target.maxOffset > 0 else {
+            return .top
+        }
+        return UnitPoint(x: 0.5, y: target.offset / target.maxOffset)
+    }
+
+    /// Centers the card on the member's rank, without moving the screen around it.
+    ///
+    /// - Parameters:
+    ///   - width: The card's width.
+    ///   - viewport: The card's visible height.
+    ///   - animated: Whether the sky glides there (the rank changed) or jumps.
+    private func scrollToMe(width: CGFloat, viewport: CGFloat, animated: Bool) {
+        guard let target = offsetToMe(width: width, viewport: viewport) else { return }
+
         if animated {
-            withAnimation(.snappy) { reader.scrollTo(myTier, anchor: .center) }
+            withAnimation(.snappy) { position.scrollTo(y: target.offset) }
         } else {
-            reader.scrollTo(myTier, anchor: .center)
+            position.scrollTo(y: target.offset)
         }
     }
 
@@ -266,6 +369,47 @@ struct RankSkyCard: View {
             .filter { !$0.users.isEmpty }
             .map { "\($0.tier.displayName): \($0.users.map(\.name).joined(separator: ", "))" }
             .joined(separator: ". ")
+    }
+}
+
+/// Turns off the bounce of the scroll view it is placed in, so that scroll hands the drag over to
+/// the scroll view around it once it reaches an end (UIKit only lets the outer one take a drag
+/// when the inner one can't move, and a bouncing scroll view always can).
+///
+/// SwiftUI has no modifier for it: ``SwiftUI/View/scrollBounceBehavior(_:axes:)`` only stops the
+/// bounce when the content fits, and the sky never does. Placed as the content's background, it
+/// finds the `UIScrollView` among its superviews, and sets it again on every layout in case
+/// SwiftUI resets it.
+private struct ScrollEdgeHandoff: UIViewRepresentable {
+
+    func makeUIView(context: Context) -> UIView {
+        let view = FinderView()
+        view.isUserInteractionEnabled = false
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+
+    /// Looks up the enclosing scroll view whenever it is placed or laid out.
+    private final class FinderView: UIView {
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            disableBounce()
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            disableBounce()
+        }
+
+        private func disableBounce() {
+            var view = superview
+            while let current = view, !(current is UIScrollView) {
+                view = current.superview
+            }
+            guard let scrollView = view as? UIScrollView, scrollView.bounces else { return }
+            scrollView.bounces = false
+        }
     }
 }
 
@@ -288,7 +432,7 @@ private struct RankLine: Shape {
     }
 }
 
-#Preview {
+#Preview("Uma linha por ranking") {
     let users = [
         UserModel(name: "Ana", tier: .aprendiz, points: 30, ownerRecordName: "ana"),
         UserModel(name: "Bia", tier: .vigiaDaCozinha, points: 105, ownerRecordName: "bia"),
@@ -299,6 +443,37 @@ private struct RankLine: Shape {
     RankSkyCard(
         groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
         myOwnerRecordName: "ana"
+    )
+    .padding(30)
+}
+
+#Preview("Mais de 3 no mesmo ranking") {
+    let names = ["Ana", "Bia", "Caio", "Davi", "Edu", "Fê", "Gabi"]
+    let crowded = names.enumerated().map { index, name in
+        UserModel(name: name, tier: .vigiaDaCozinha, points: 100 + index, ownerRecordName: name.lowercased())
+    }
+    let users = crowded + [
+        UserModel(name: "Hugo", tier: .aprendiz, points: 30, ownerRecordName: "hugo"),
+        UserModel(name: "Iara", tier: .aprendiz, points: 32, ownerRecordName: "iara"),
+        UserModel(name: "João", tier: .aprendiz, points: 34, ownerRecordName: "joao"),
+        UserModel(name: "Lia", tier: .aprendiz, points: 36, ownerRecordName: "lia")
+    ]
+    RankSkyCard(
+        groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
+        myOwnerRecordName: "bia"
+    )
+    .padding(30)
+}
+
+#Preview("Uma pessoa em cada ranking") {
+    let names = ["Ana", "Bia", "Caio", "Davi", "Edu", "Fê", "Gabi", "Hugo", "Iara", "João", "Lia", "Malu", "Nina"]
+    let users = Tier.allCases.enumerated().map { index, tier in
+        UserModel(name: names[index], tier: tier, points: index * 30, ownerRecordName: names[index].lowercased())
+    }
+    // The card scrolls: drag it to see every rank's kite.
+    RankSkyCard(
+        groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
+        myOwnerRecordName: "edu"
     )
     .padding(30)
 }

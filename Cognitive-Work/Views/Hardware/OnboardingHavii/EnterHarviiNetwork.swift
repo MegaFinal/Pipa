@@ -78,17 +78,17 @@ struct EnterHarviiNetwork: View {
     private var passwordCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Senha da rede do Harvii")
-                .font(.subheadline.weight(.semibold))
+                .font(.system(size: 15).weight(.semibold))
             
             HStack {
                 Text(verbatim: harviiPassword)
-                    .font(.title2.weight(.semibold))
+                    .font(.system(size: 22).weight(.semibold))
                 Spacer()
                 
                 Button(isPasswordCopied ? LocalizedStringKey("Copiado") : LocalizedStringKey("Copiar")) {
                     copyPassword()
                 }
-                .font(.subheadline.weight(.semibold))
+                .font(.system(size: 15).weight(.semibold))
                 .buttonStyle(.glass)
                 .buttonBorderShape(.capsule)
                 .voiceControlNames([L10n.tr("Copiar")])

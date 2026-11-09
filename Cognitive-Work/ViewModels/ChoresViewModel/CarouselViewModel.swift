@@ -88,6 +88,30 @@ class CarouselViewModel {
     /// Set when ``delete(chore:targetOccurrences:)`` fails, so a view can surface it in an
     /// alert. Left for the view to clear back to `nil` once shown.
     var errorMessage: String?
+    /// What failed, for the error alert's title (e.g. "Não foi possível excluir o cômodo"). Set
+    /// together with ``errorMessage``, which says why and what to do.
+    var errorTitle: String?
+    
+    /// Set when checked chores couldn't be saved and went back to pending (see
+    /// ``ChoreCompletionBatcher``). Left for the view to clear back to `nil` once shown.
+    var completionErrorMessage: String?
+    
+    /// Saves the check-offs made close together in one go (see ``ChoreCompletionBatcher``).
+    @ObservationIgnored
+    private(set) lazy var completions: ChoreCompletionBatcher = {
+        let batcher = ChoreCompletionBatcher()
+        batcher.onRollback = { [weak self] in self?.refreshVisible() }
+        batcher.onError = { [weak self] message in self?.completionErrorMessage = message }
+        batcher.onSavedDone = { [weak self] chore, assignment in
+            self?.notifyOwnersChoreDone(chore, assignment: assignment)
+        }
+        return batcher
+    }()
+    
+    /// Records whose check-off is being prepared (points worked out), so a second tap on the same
+    /// card can't start from the same state.
+    @ObservationIgnored
+    private var preparingCompletionIDs: Set<CKRecord.ID> = []
     
     /// The last day of the division cycle in progress.
     var currentCycleEnd: Date? {
@@ -199,7 +223,13 @@ class CarouselViewModel {
     /// - Note: This method has been reverted to not enforce forced occurrences from
     ///   focusedChoreAssignments, only from focusedChoreModel and focusedChoreRecordID.
     private func rebuildVisibleOccurrences() {
-        let selectedUserIDs = Set(filterChoices.users.compactMap { $0.recordID })
+        var selectedUserIDs = Set(filterChoices.users.compactMap { $0.recordID })
+        // The viewer may have more than one record in the house (see `viewerRecordIDs`): when
+        // they are in the filter, an occurrence given to any of them is theirs.
+        if let viewer = dashboardUser,
+           filterChoices.users.contains(where: { $0.ownerRecordName == viewer.ownerRecordName }) {
+            selectedUserIDs.formUnion(viewerRecordIDs)
+        }
         let today = Calendar.current.startOfDay(for: Date())
         var occurrences: [ChoreOccurrence] = []
         
@@ -434,8 +464,12 @@ class CarouselViewModel {
     ///    the occurrences assigned to them **and** every chore they are responsible for, even on
     ///    days the rotation gave the occurrence to someone else. Before, responsibility was
     ///    ignored, so a responsible user off the current rotation never saw the chore.
+    ///
+    /// 4. *late chores stay* — a chore the viewer didn't finish on its day (``isOverdue(_:)``)
+    ///    stays in the carousel, marked as late, until it's done or its next turn arrives.
     private func isVisibleInGrid(_ chore: ChoreModel) -> Bool {
         guard !chore.isDone else { return false }
+        if isOverdue(chore) { return true }
         
         let targetDay = Self.gridTargetDay()
         
@@ -455,6 +489,46 @@ class CarouselViewModel {
         guard let dueDate = chore.dueDate,
               Calendar.current.isDate(dueDate, inSameDayAs: targetDay) else { return false }
         guard !viewerRecordIDs.isEmpty else { return true }
+        return isViewerResponsible(for: chore)
+    }
+    
+    // MARK: - Late chores
+    
+    /// The viewer's late occurrence of a recurring chore: their most recent turn before the
+    /// grid's day, when it is still open and no newer turn of theirs has arrived since (on or
+    /// before the grid's day). A newer turn replaces it, so a daily chore missed for a week
+    /// shows up once, not seven times.
+    ///
+    /// `nil` for one-off chores, or while the viewer isn't known yet.
+    func overdueAssignment(for chore: ChoreModel) -> RecurrentAssignmentModel? {
+        guard !viewerRecordIDs.isEmpty,
+              let refs = chore.dailyAssignmentsReference, !refs.isEmpty else { return nil }
+        
+        let calendar = Calendar.current
+        let targetDay = Self.gridTargetDay()
+        
+        let latestTurn = refs
+            .compactMap { assignmentsByID[$0.recordID] }
+            .filter { calendar.startOfDay(for: $0.day) <= targetDay }
+            .filter { !Set(($0.userReferences ?? []).map(\.recordID)).isDisjoint(with: viewerRecordIDs) }
+            .max { $0.day < $1.day }
+        
+        guard let latestTurn,
+              !latestTurn.isCompleted,
+              calendar.startOfDay(for: latestTurn.day) < targetDay else { return nil }
+        return latestTurn
+    }
+    
+    /// Whether `chore` is late for the viewer: a one-off chore of theirs past its due date and
+    /// not done, or a recurring chore with an ``overdueAssignment(for:)``.
+    func isOverdue(_ chore: ChoreModel) -> Bool {
+        if !(chore.dailyAssignmentsReference ?? []).isEmpty {
+            return overdueAssignment(for: chore) != nil
+        }
+        guard !chore.isDone,
+              !viewerRecordIDs.isEmpty,
+              let dueDate = chore.dueDate,
+              Calendar.current.startOfDay(for: dueDate) < Self.gridTargetDay() else { return false }
         return isViewerResponsible(for: chore)
     }
     
@@ -494,7 +568,15 @@ class CarouselViewModel {
             }
         }
         
+        let isGrid = layoutMode == .grid
         visibleChores = result.sorted { a, b in
+            // In the carousel, late chores come first.
+            if isGrid {
+                let lateA = isOverdue(a)
+                let lateB = isOverdue(b)
+                if lateA != lateB { return lateA }
+            }
+            
             let dateA = nextDate(for: a)
             let dateB = nextDate(for: b)
             
@@ -585,6 +667,9 @@ class CarouselViewModel {
             self.roomModels = snapshot.rooms
             self.dailyAssignments = snapshot.assignments
             self.dashboardUser = snapshot.houseUser
+            self.applyDefaultUserFilterIfNeeded()
+            // Checks not saved yet would show unchecked on the reloaded records.
+            self.completions.overlay(chores: self.cardModels, assignments: self.dailyAssignments)
             
             self.rebuildDerivedState()
             
@@ -612,6 +697,7 @@ class CarouselViewModel {
         await MainActor.run {
             self.cardModels = self.choresVisible(chores, to: self.dashboardUser, among: self.userModels)
             self.dailyAssignments = assignments
+            self.completions.overlay(chores: self.cardModels, assignments: assignments)
             self.rebuildDerivedState()
         }
     }
@@ -676,7 +762,16 @@ class CarouselViewModel {
     ///
     /// Ordered so `.first` is the right card for the viewer: their own open occurrence first,
     /// then any open one (a responsible user off the rotation), then completed ones.
+    ///
+    /// A late chore has no turn of the viewer's on the grid's day, so its late occurrence
+    /// (``overdueAssignment(for:)``) comes first: that's the one the card completes or postpones.
     func getAssignmentsForActiveContext(for chore: ChoreModel) -> [RecurrentAssignmentModel] {
+        let overdue = overdueAssignment(for: chore)
+        return (overdue.map { [$0] } ?? []) + assignmentsOnGridDay(for: chore)
+    }
+    
+    /// ``getAssignmentsForActiveContext(for:)`` without the late occurrence.
+    private func assignmentsOnGridDay(for chore: ChoreModel) -> [RecurrentAssignmentModel] {
         let viewerIDs = viewerRecordIDs
         func rank(_ assignment: RecurrentAssignmentModel) -> Int {
             let assignedIDs = Set((assignment.userReferences ?? []).map(\.recordID))
@@ -803,55 +898,142 @@ class CarouselViewModel {
         assignment?.isCompleted ?? chore.isDone
     }
     
-    /// Toggles the chore's (or, for a recurring chore, this specific day's) completion state
-    /// and persists it
+    /// Toggles the chore's (or, for a recurring chore, this specific day's) completion state,
+    /// giving or taking back the points.
+    ///
+    /// The card changes right away; the save goes out with the other check-offs made close
+    /// together (``ChoreCompletionBatcher``). Unchecking takes back the points saved with the
+    /// completion (``ChoreModel/awardedPoints``), not what the chore is worth now: it may have
+    /// been edited in between.
+    /// - Returns: `false` when the tap was ignored (the same card is still being prepared, or the
+    ///   member couldn't be found). A save that fails later is reported in ``completionErrorMessage``.
     @MainActor
     @discardableResult
     func toggle(chore: ChoreModel) async -> Bool {
-        let willBeDone = !chore.isDone
-        var doer: UserModel?
-        if !willBeDone {
-            doer = await chore.userThatHaveDone
-        }
+        guard let id = chore.recordID, preparingCompletionIDs.insert(id).inserted else { return false }
+        defer { preparingCompletionIDs.remove(id) }
         
-        guard await chore.toggle() else { return false }
+        guard let myID = await myHouseUserID() else { return false }
+        let scoreManager = ScoreManager.shared
+        let isFromSettledSeason = await isInSettledSeason(chore.dueDate)
+        
+        if !chore.isDone {
+            let earned = isFromSettledSeason ? 0 : scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
+            completions.record(
+                .chore(chore),
+                to: .init(isDone: true, doer: CKRecord.Reference(recordID: myID, action: .none), awardedPoints: earned),
+                points: earned,
+                pointsOwner: nil,
+                choreToNotify: chore
+            )
+        } else {
+            // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
+            // season already settled were reset with it: nothing left to take back.
+            let awarded = isFromSettledSeason
+            ? 0
+            : chore.awardedPoints ?? scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
+            let doer = await resolveDoer(of: chore.userThatHaveDoneReference, fallback: { await chore.userThatHaveDone })
+            completions.record(
+                .chore(chore),
+                to: .init(isDone: false, doer: nil, awardedPoints: nil),
+                points: -awarded,
+                pointsOwner: doer,
+                choreToNotify: nil
+            )
+        }
         refreshVisible()
-        
-        if willBeDone {
-            notifyOwnersChoreDone(chore, assignment: nil)
-            return await ScoreManager.shared.assignScoreForMyUser(chore: chore)
-        }
-        if let doer {
-            return await ScoreManager.shared.removeScore(chore: chore, for: doer)
-        }
-        return await ScoreManager.shared.removeScoreForMyUser(chore: chore)
+        return true
     }
 
     /// Checks or unchecks one occurrence and gives or takes back the points.
-    /// - Returns: `false` when the change couldn't be saved.
+    ///
+    /// The occurrence's day is its due date (see ``ScoreManager/points(forCompleting:dueOn:completedAt:calendar:)``),
+    /// so checking off the next days' occurrences ahead of time is worth little. Saved like
+    /// ``toggle(chore:)``.
+    /// - Returns: `false` when the tap was ignored.
     @MainActor
     @discardableResult
     func toggle(assignment: RecurrentAssignmentModel) async -> Bool {
-        let willBeDone = !assignment.isCompleted
-        var doer: UserModel?
-        if !willBeDone {
-            doer = await assignment.userThatHaveDone
-        }
+        guard let id = assignment.recordID, preparingCompletionIDs.insert(id).inserted else { return false }
+        defer { preparingCompletionIDs.remove(id) }
         
-        guard await assignment.toggle() else { return false }
+        guard let myID = await myHouseUserID() else { return false }
+        let scoreManager = ScoreManager.shared
+        let chore = await parentChore(of: assignment)
+        let isFromSettledSeason = await isInSettledSeason(assignment.day)
+        
+        if !assignment.isCompleted {
+            let earned = isFromSettledSeason
+            ? 0
+            : chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) } ?? 0
+            completions.record(
+                .assignment(assignment),
+                to: .init(isDone: true, doer: CKRecord.Reference(recordID: myID, action: .none), awardedPoints: earned),
+                points: earned,
+                pointsOwner: nil,
+                choreToNotify: chore
+            )
+        } else {
+            // Completions saved before `awardedPoints` existed: recompute, as before. Points of a
+            // season already settled were reset with it: nothing left to take back.
+            let awarded = isFromSettledSeason
+            ? 0
+            : assignment.awardedPoints
+            ?? chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) }
+            ?? 0
+            let doer = await resolveDoer(of: assignment.userThatHaveDoneReference, fallback: { await assignment.userThatHaveDone })
+            completions.record(
+                .assignment(assignment),
+                to: .init(isDone: false, doer: nil, awardedPoints: nil),
+                points: -awarded,
+                pointsOwner: doer,
+                choreToNotify: nil
+            )
+        }
         refreshVisible()
-        
-        if willBeDone {
-            if let choreID = assignment.choreReference?.recordID,
-               let chore = cardModels.first(where: { $0.recordID == choreID }) {
-                notifyOwnersChoreDone(chore, assignment: assignment)
-            }
-            return await ScoreManager.shared.assignScoreForMyUser(assignment: assignment)
+        return true
+    }
+    
+    /// The signed-in member's record in the house (who a check-off is saved for).
+    private func myHouseUserID() async -> CKRecord.ID? {
+        if let id = dashboardUser?.recordID { return id }
+        return await CloudKitManager.shared.currentHouseUser()?.recordID
+    }
+    
+    /// Who checked a chore off, to take their points back: the member already loaded, or fetched.
+    /// `nil` when nobody is recorded (old completions), in which case the signed-in member pays.
+    private func resolveDoer(
+        of reference: CKRecord.Reference?,
+        fallback: () async -> UserModel?
+    ) async -> UserModel? {
+        guard let reference else { return nil }
+        if let loaded = userModels.first(where: { $0.recordID == reference.recordID }) {
+            return loaded
         }
-        if let doer {
-            return await ScoreManager.shared.removeScore(assignment: assignment, for: doer)
+        return await fallback()
+    }
+    
+    /// Whether a chore due on `day` belongs to a gamification season already settled
+    /// (``HouseCycleModel/currentSeasonStart(_:asOf:calendar:)``).
+    ///
+    /// Its points were counted in that season and reset with it, so checking it off now pays
+    /// nothing and unchecking it takes nothing from the season running now. Before, unchecking a
+    /// chore of the last cycle took its points from the new one.
+    @MainActor
+    private func isInSettledSeason(_ day: Date?) async -> Bool {
+        guard let day else { return false }
+        let cycles = await HouseDataStore.shared.current().cycles
+        guard let seasonStart = HouseCycleModel.currentSeasonStart(cycles, asOf: .now) else { return false }
+        return Calendar.current.startOfDay(for: day) < seasonStart
+    }
+    
+    /// The chore `assignment` belongs to: the one already loaded on screen, or fetched.
+    private func parentChore(of assignment: RecurrentAssignmentModel) async -> ChoreModel? {
+        guard let choreID = assignment.choreReference?.recordID else { return nil }
+        if let loaded = cardModels.first(where: { $0.recordID == choreID }) {
+            return loaded
         }
-        return await ScoreManager.shared.removeScoreForMyUser(assignment: assignment)
+        return await assignment.chore
     }
     
     /// Tells the members a chore was assigned to that someone else did it. Does nothing when
@@ -985,11 +1167,69 @@ class CarouselViewModel {
             dailyAssignments.append(contentsOf: snapshot.assignments)
             refreshVisible()
             
-            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível excluir a tarefa.")
+            errorTitle = L10n.tr("Não foi possível excluir a tarefa")
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
             return false
         }
         
+        let deletesWholeChore = chore.frequency == .none || targetOccurrences.isEmpty
+        await takeBackPoints(
+            ofDeleted: chore,
+            occurrences: deletesWholeChore ? snapshot.assignments : targetOccurrences,
+            wholeChore: deletesWholeChore
+        )
         return true
+    }
+    
+    /// Takes back the points a deleted chore gave in the current cycle: its creation
+    /// (``ChoreModel/creationPoints``, from whoever created it) and its completions
+    /// (``ChoreModel/awardedPoints``, ``RecurrentAssignmentModel/awardedPoints``, from whoever did
+    /// them).
+    ///
+    /// Otherwise a made-up chore could be created, checked off and deleted to hide it, keeping
+    /// the points. Only for chores created in the current cycle: a chore the house had before
+    /// it was real, and the work done on it keeps counting. Points saved before these fields
+    /// existed aren't known, so nothing is taken for those.
+    ///
+    /// - Parameters:
+    ///   - chore: The deleted chore.
+    ///   - occurrences: The deleted occurrences (all of them when the whole chore was deleted).
+    ///   - wholeChore: Whether the chore itself was deleted, not just some occurrences.
+    @MainActor
+    private func takeBackPoints(
+        ofDeleted chore: ChoreModel,
+        occurrences: [RecurrentAssignmentModel],
+        wholeChore: Bool
+    ) async {
+        let house = await HouseDataStore.shared.current()
+        // A chore not reloaded since it was created has no creation date yet: it is new.
+        let createdAt = chore.createdAt ?? .now
+        if let seasonStart = HouseCycleModel.currentSeasonStart(house.cycles, asOf: .now), createdAt < seasonStart {
+            return
+        }
+        
+        var pointsByUser: [CKRecord.ID: Int] = [:]
+        func takeBack(_ points: Int?, from reference: CKRecord.Reference?) {
+            guard let points, points > 0, let userID = reference?.recordID else { return }
+            pointsByUser[userID, default: 0] += points
+        }
+        
+        if wholeChore {
+            takeBack(chore.creationPoints, from: chore.createdByReference)
+            if chore.isDone {
+                takeBack(chore.awardedPoints, from: chore.userThatHaveDoneReference)
+            }
+        }
+        for occurrence in occurrences where occurrence.isCompleted {
+            takeBack(occurrence.awardedPoints, from: occurrence.userThatHaveDoneReference)
+        }
+        
+        // Everyone at once: each removal is a fetch and a save of its own.
+        let members = house.userRecords + house.users
+        let removals: [(member: UserModel, points: Int)] = pointsByUser.compactMap { userID, points in
+            members.first(where: { $0.recordID == userID }).map { ($0, points) }
+        }
+        await ScoreManager.shared.applyPoints(removals.map { (user: $0.member, points: -$0.points) })
     }
     
     /// Deletes a chore, or — for a recurring chore — just the given occurrence(s), and
@@ -1085,6 +1325,37 @@ class CarouselViewModel {
         
         // Rebuild visible chores after changing filters.
         rebuildDerivedState()
+    }
+    
+    /// Whether the list already opened filtered by the viewer (``applyDefaultUserFilterIfNeeded()``).
+    @ObservationIgnored
+    private var didApplyDefaultUserFilter = false
+    
+    /// Makes "Sua divisão" (the list) open with the viewer's own chores: the user filter starts
+    /// on them, the first time the viewer is known. From then on the filter is the user's: they
+    /// can add housemates or clear it to see the whole house, and a refresh doesn't put it back.
+    ///
+    /// The rebuild is left to the caller (``fetchAllData(afterRemoteChange:)`` rebuilds right after).
+    private func applyDefaultUserFilterIfNeeded() {
+        guard !didApplyDefaultUserFilter, let viewer = dashboardUser else { return }
+        didApplyDefaultUserFilter = true
+        
+        // The record the filter menu lists for the viewer, so its toggle shows as on.
+        let me = userModels.first { $0.ownerRecordName == viewer.ownerRecordName } ?? viewer
+        guard !filterChoices.users.contains(me) else { return }
+        filterChoices.users.append(me)
+        isFilterOn = true
+    }
+    
+    /// Whether the only filter is the viewer themself (the list's default), so an empty list
+    /// means "nothing in your division" rather than "nothing matches the filters".
+    var isFilteringOnlyViewer: Bool {
+        guard let viewer = dashboardUser, filterChoices.users.count == 1 else { return false }
+        return filterChoices.users[0].ownerRecordName == viewer.ownerRecordName
+        && filterChoices.tags.isEmpty
+        && filterChoices.frequencies.isEmpty
+        && filterChoices.rooms.isEmpty
+        && filterChoices.state == nil
     }
     
     /// Clears every filter.
@@ -1499,11 +1770,8 @@ class CarouselViewModel {
         
         guard let myUserID = myUser?.recordID else { return }
         
-        // Whoever holds this chore's coupon is spared it in this cycle.
-        if await CouponExemption.isExempt(userID: myUserID, choreID: item.chore.recordID) {
-            errorMessage = L10n.tr("Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo.")
-            return
-        }
+        // A coupon holder may still pick the chore: the coupon only keeps the division from giving
+        // it to them (see `CouponExemption`), it doesn't forbid doing it.
         
         let userRef = CKRecord.Reference(recordID: myUserID, action: .none)
         
@@ -1702,11 +1970,8 @@ class CarouselViewModel {
         }
         guard let myUserID = myUser?.recordID else { return false }
         
-        // Whoever holds this chore's coupon is spared it in this cycle.
-        if await CouponExemption.isExempt(userID: myUserID, choreID: item.chore.recordID) {
-            errorMessage = L10n.tr("Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo.")
-            return false
-        }
+        // A coupon holder may still pick the chore: the coupon only keeps the division from giving
+        // it to them (see `CouponExemption`), it doesn't forbid doing it.
         
         let userRef = CKRecord.Reference(recordID: myUserID, action: .none)
         let chore = item.chore
