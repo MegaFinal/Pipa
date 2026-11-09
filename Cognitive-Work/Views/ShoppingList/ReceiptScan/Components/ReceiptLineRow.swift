@@ -10,15 +10,22 @@ import SwiftUI
 /// One product read from the receipt, drawn like a shopping list row (``ShopListItemCard``):
 /// who it's for, the name and what was bought, and the round check, which here says whether it
 /// goes to the list. Tapping the row opens the product's form.
+///
+/// What the reader couldn't trust shows in orange (the quantity, the price or both), instead of
+/// a generic warning icon, so the person sees right away what to fix.
 struct ReceiptLineRow: View {
 
+    /// The list item's name for a product on the list, what was read otherwise.
     let name: String
-    /// "Na lista · 2 unidades · R$ 5,98".
-    let detailText: String
+    /// "2 unidades" or "0,364 kg".
+    let quantityText: String
+    /// "R$ 5,98" or "Sem preço".
+    let priceText: String
+    /// What the reader flagged, if anything (``ReceiptLineWarning/flagsQuantity`` and
+    /// ``ReceiptLineWarning/flagsPrice`` decide what turns orange).
+    var warning: ReceiptLineWarning? = nil
     /// Who splits it.
     let users: [UserModel]
-    /// The reader flagged the line: an orange mark beside the name.
-    var needsReview = false
     let isIncluded: Bool
     let onToggle: () -> Void
     let onEdit: () -> Void
@@ -35,21 +42,22 @@ struct ReceiptLineRow: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 6) {
-                    Text(name)
-                        .font(.system(size: 18))
-                        .fontWeight(.bold)
-                        .lineLimit(2)
-                    if needsReview {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .font(.system(size: 15))
-                            .foregroundStyle(.orange)
-                            .voiceOverLabel(L10n.tr("Confira este item"))
-                    }
-                }
-                .frame(minHeight: firstLineHeight, alignment: .leading)
+                Text(name)
+                    .font(.system(size: 18))
+                    .fontWeight(.bold)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(minHeight: firstLineHeight, alignment: .leading)
 
-                Text(detailText)
+                // MARK: - Quantity · price, the doubtful part in orange
+                HStack(spacing: 4) {
+                    Text(verbatim: quantityText)
+                        .foregroundStyle(warning?.flagsQuantity == true ? Color.orange : Color.primary)
+                        .fontWeight(warning?.flagsQuantity == true ? .semibold : .regular)
+                    Text(verbatim: "·")
+                    Text(verbatim: priceText)
+                        .foregroundStyle(warning?.flagsPrice == true ? Color.orange : Color.primary)
+                        .fontWeight(warning?.flagsPrice == true ? .semibold : .regular)
+                }
             }
 
             Spacer(minLength: 16)
@@ -75,6 +83,7 @@ struct ReceiptLineRow: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: onEdit)
         .accessibilityElement(children: .combine)
+        .voiceOverValue(warning.map(ReceiptScanViewModel.warningText) ?? "")
         .voiceOverHint(L10n.tr("Toque duas vezes para editar."))
         .accessibilityAction(named: L10n.tr("Editar \(name)"), onEdit)
     }
@@ -86,24 +95,39 @@ struct ReceiptLineRow: View {
     VStack(spacing: 24) {
         ReceiptLineRow(
             name: "Banana prata",
-            detailText: "Na lista · 0,364 kg · R$ 3,62",
+            quantityText: "0,364 kg",
+            priceText: "R$ 3,62",
             users: [ShopListPreviewData.anshu],
             isIncluded: true,
             onToggle: {},
             onEdit: {}
         )
+        // Price doesn't match quantity × unit price.
         ReceiptLineRow(
             name: "Refrigerante guaraná 2l",
-            detailText: "1 unidade · R$ 8,49",
+            quantityText: "1 unidade",
+            priceText: "R$ 8,49",
+            warning: .totalMismatch(computed: 8.49, printed: 8.94),
             users: ShopListPreviewData.users,
-            needsReview: true,
+            isIncluded: true,
+            onToggle: {},
+            onEdit: {}
+        )
+        // Nothing read: quantity and price in orange.
+        ReceiptLineRow(
+            name: "Pão de queijo",
+            quantityText: "1 unidade",
+            priceText: "Sem preço",
+            warning: .noAmount,
+            users: [ShopListPreviewData.jones],
             isIncluded: true,
             onToggle: {},
             onEdit: {}
         )
         ReceiptLineRow(
             name: "Chiclete",
-            detailText: "3 unidades · R$ 7,50",
+            quantityText: "3 unidades",
+            priceText: "R$ 7,50",
             users: [ShopListPreviewData.jones, ShopListPreviewData.carol],
             isIncluded: false,
             onToggle: {},
@@ -111,5 +135,4 @@ struct ReceiptLineRow: View {
         )
     }
     .padding(20)
-    .background(Color(.secondarySystemBackground))
 }
