@@ -7834,6 +7834,9 @@
         }
       }
     },
+    "Atrasada" : {
+
+    },
     "Aumentar" : {
       "localizations" : {
         "en" : {
@@ -8675,6 +8678,9 @@
           }
         }
       }
+    },
+    "Cada tarefa feita rende pontos e faz sua pipa subir no ranking. Arraste para ver todos os rankings." : {
+
     },
     "Cada tarefa feita te deixa mais perto do próximo rank!" : {
       "localizations" : {
@@ -10486,6 +10492,9 @@
           }
         }
       }
+    },
+    "Com um cupom, você fica livre da tarefa dele na próxima divisão. Toque em um para comprá-lo." : {
+
     },
     "Combina com o que está na lista." : {
       "localizations" : {
@@ -16781,6 +16790,9 @@
         }
       }
     },
+    "Entendi" : {
+
+    },
     "Entrando na casa" : {
       "localizations" : {
         "en" : {
@@ -21294,6 +21306,9 @@
           }
         }
       }
+    },
+    "Fechar dicas" : {
+
     },
     "Fechar editor" : {
       "localizations" : {
@@ -34127,6 +34142,9 @@
         }
       }
     },
+    "Os cupons que você comprou ficam aqui até serem usados na próxima divisão." : {
+
+    },
     "Os moradores não vão conseguir te pagar pelo app até você cadastrar outra." : {
       "localizations" : {
         "en" : {
@@ -45596,6 +45614,9 @@
         }
       }
     },
+    "Suas moedas" : {
+
+    },
     "Suas Tarefas" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -51710,6 +51731,9 @@
           }
         }
       }
+    },
+    "Você ganha moedas fazendo tarefas e contribuindo com a casa. Use para comprar cupons." : {
+
     },
     "Você já tem um cupom desse cômodo neste ciclo." : {
       "localizations" : {

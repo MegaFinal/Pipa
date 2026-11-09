@@ -94,7 +94,7 @@ struct NotificationsView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Notificações")
-                .font(.custom("Alan Sans", size: 34))
+                .font(.custom("Alan Sans", fixedSize: 34))
                 .fontWeight(.bold)
                 .accessibilityAddTraits(.isHeader)
             Text(viewModel.newCountText)

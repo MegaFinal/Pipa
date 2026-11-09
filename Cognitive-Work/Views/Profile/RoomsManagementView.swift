@@ -513,7 +513,7 @@ struct RoomFormSheet: View {
                     
                     if isLookLocked {
                         Label("A cor, o grafismo e o ícone dos cômodos padrão não podem ser alterados.", systemImage: "lock.fill")
-                            .font(.footnote)
+                            .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 32)
@@ -629,7 +629,7 @@ struct RoomFormSheet: View {
                     Text("Não foi possível salvar o cômodo. Verifique sua conexão e tente novamente.")
                 }
             }
-            .font(.footnote)
+            .font(.system(size: 13))
             .foregroundStyle(.red)
             .multilineTextAlignment(.center)
             .transition(.move(edge: .top).combined(with: .opacity))

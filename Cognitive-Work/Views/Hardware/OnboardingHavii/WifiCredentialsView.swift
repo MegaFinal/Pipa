@@ -77,7 +77,7 @@ struct WifiCredentialsView: View {
                             L10n.tr("Pareamento"),
                             L10n.tr("Ir para o pareamento")
                         ])
-                        .font(.callout)
+                        .font(.system(size: 16))
                         .frame(maxWidth: .infinity)
                     }
                 }
@@ -166,7 +166,7 @@ struct LabeledInput<Content: View>: View {
         VStack(alignment: .leading, spacing: 8) {
             // MARK: Title
             Text(title)
-                .font(.body)
+                .font(.system(size: 17))
                 .padding(.leading, 12)
             // The field below reads this title as its own label.
                 .accessibilityHidden(true)

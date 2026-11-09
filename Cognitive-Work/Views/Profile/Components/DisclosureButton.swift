@@ -34,7 +34,7 @@ struct DisclosureButton: View {
                     Text(value).foregroundStyle(.secondary)
                 }
                 Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.semibold))
+                    .font(.system(size: 13).weight(.semibold))
                     .foregroundStyle(.tertiary)
                     .accessibilityHidden(true)
             }

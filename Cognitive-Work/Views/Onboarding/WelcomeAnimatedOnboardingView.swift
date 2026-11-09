@@ -50,20 +50,20 @@ struct WelcomeAnimatedOnboardingView: View{
                 
                 VStack(alignment: .leading){
                     Text("Dividir a casa vai além da faxina")
-                        .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                        .font(.custom("Alan Sans", fixedSize: 32))
                         .bold()
-                        .font(.largeTitle)
+                        .font(.system(size: 34))
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityAddTraits(.isHeader)
                         .padding(.bottom, height * 0.028)
                         .padding(.top, height * 0.052)
                     Text("Cuidar da casa também é lembrar e perceber o que falta. O Pipa organiza as tarefas e reconhece o trabalho de todos.")
-                        .font(.body)
+                        .font(.system(size: 17))
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.bottom, height * 0.028)
                     
                     Text("Pipa. Para aqueles que notam.")
-                        .font(.headline)
+                        .font(.system(size: 17, weight: .semibold))
                         .fontWeight(.semibold)
                         .fixedSize(horizontal: false, vertical: true)
                     

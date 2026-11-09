@@ -65,7 +65,7 @@ struct WaitHouseCreatorSheduleView: View {
                     }
                 
                 Text("Aguardando divisão de tarefas...")
-                    .font(.custom("Alan Sans", size: 32, relativeTo: .body))
+                    .font(.custom("Alan Sans", fixedSize: 32))
                     .bold()
                     .accessibilityAddTraits(.isHeader)
                     .foregroundStyle(.titleGray)

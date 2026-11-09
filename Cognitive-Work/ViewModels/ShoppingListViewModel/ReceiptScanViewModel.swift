@@ -286,6 +286,21 @@ final class ReceiptScanViewModel {
     /// The lines grouped by the aisle they go in, in the shopping list's order, like the
     /// list's cards.
     var sections: [ReceiptCategorySection] {
+        sections(of: lines)
+    }
+
+    /// ``listLines`` by aisle: the review's "Da sua lista" part.
+    var listSections: [ReceiptCategorySection] {
+        sections(of: listLines)
+    }
+
+    /// ``otherLines`` by aisle: the review's "Fora da lista" part.
+    var otherSections: [ReceiptCategorySection] {
+        sections(of: otherLines)
+    }
+
+    /// `lines` grouped by aisle, in the shopping list's order.
+    private func sections(of lines: [ReceiptScanLine]) -> [ReceiptCategorySection] {
         let grouped = Dictionary(grouping: lines) { category(for: $0) }
         return ShopItemCategory.listOrder.compactMap { category in
             grouped[category].map { ReceiptCategorySection(category: category, lines: $0) }
@@ -575,13 +590,17 @@ final class ReceiptScanViewModel {
         return ShopListViewModel.accessibilityQuantity(line.quantity, unit: .unit)
     }
 
-    /// The line under a product's name: "Na lista · 2 unidades · R$ 5,98" ("Na lista" when it
-    /// checks off a list item).
-    func detailText(for line: ReceiptScanLine) -> String {
-        var parts = [Self.quantityText(for: line), Self.money(line.total)]
-        if linkedItem(for: line) != nil { parts.insert(L10n.tr("Na lista"), at: 0) }
-        return parts.joined(separator: " · ")
+    /// What a product cost, for its row: "R$ 5,98", or "Sem preço" when none was read.
+    static func priceText(for line: ReceiptScanLine) -> String {
+        line.total > 0 ? money(line.total) : L10n.tr("Sem preço")
     }
+
+    /// The name a product shows in the review: the list item's for one that checks off an item
+    /// (that's the name kept in the list), what was read otherwise.
+    func displayName(for line: ReceiptScanLine) -> String {
+        linkedItem(for: line)?.name ?? line.name
+    }
+
 
     // MARK: - Summary
 

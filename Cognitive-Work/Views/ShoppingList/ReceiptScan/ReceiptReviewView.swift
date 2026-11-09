@@ -9,11 +9,12 @@ import Foundation
 import SwiftUI
 
 /// The products read from a scanned receipt, reviewed before anything reaches the shopping
-/// list. Drawn like the shopping area: the total like the balance on "Pendências"
-/// (``ReceiptSummaryCard``), then one card per aisle like the list's (``ReceiptCategoryCard``),
-/// with rows like the list's (``ReceiptLineRow``). Tapping a row opens its form
-/// (``ReceiptLineFormView``); its check leaves it out, and the blue checkmark at the top right
-/// confirms.
+/// list. The total like the balance on "Pendências" (``ReceiptSummaryCard``), then the products
+/// in two parts (``ReceiptReviewSection``): "Da sua lista", which confirming checks off, and
+/// "Fora da lista", which confirming adds as already bought. Each part groups its products by
+/// aisle under a thin line in the aisle's color (``ReceiptCategoryGroup``), with rows like the
+/// list's (``ReceiptLineRow``). Tapping a row opens its form (``ReceiptLineFormView``); its
+/// check leaves it out, and the blue checkmark at the top right confirms.
 struct ReceiptReviewView: View {
 
     /// The scanned pages.
@@ -27,8 +28,6 @@ struct ReceiptReviewView: View {
     @State private var viewModel: ReceiptScanViewModel
     /// The product whose form is open.
     @State private var editing: ReceiptLineDraft?
-    /// Aisles whose card is collapsed to its banner.
-    @State private var collapsed: Set<ShopItemCategory> = []
 
     init(pages: [UIImage], shopList: ShopListViewModel, onScanAgain: @escaping () -> Void) {
         self.pages = pages
@@ -163,27 +162,35 @@ struct ReceiptReviewView: View {
 
     private var review: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 24) {
                 ReceiptSummaryCard(
                     totalText: ReceiptScanViewModel.money(viewModel.sum),
                     status: summaryStatus
                 )
 
-                Text("Revise os itens antes de adicionar.")
-                    .font(.system(size: 15))
-                    .foregroundStyle(.subTitleGray)
-                    .padding(.horizontal, 4)
-
-                VStack(spacing: 10) {
-                    ForEach(viewModel.sections) { section in
-                        ReceiptCategoryCard(
-                            section: section,
-                            isExpanded: !collapsed.contains(section.category),
-                            onToggle: { toggleCollapsed(section.category) }
-                        ) { line in
-                            row(for: line)
-                        }
+                // MARK: - Products that were on the list
+                if !viewModel.listSections.isEmpty {
+                    ReceiptReviewSection(
+                        title: L10n.tr("Da sua lista"),
+                        caption: L10n.tr("Vão ser marcados como comprados."),
+                        sections: viewModel.listSections
+                    ) { line in
+                        row(for: line)
                     }
+                    .padding(.top, 16)
+                }
+
+                // MARK: - Products bought outside the list
+                if !viewModel.otherSections.isEmpty {
+                    ReceiptReviewSection(
+                        title: L10n.tr("Fora da lista"),
+                        caption: L10n.tr("Vão entrar na lista já comprados."),
+                        sections: viewModel.otherSections
+                    ) { line in
+                        row(for: line)
+                    }
+                    // More room between the two parts than inside them.
+                    .padding(.top, viewModel.listSections.isEmpty ? 16 : 40)
                 }
 
                 VStack(spacing: 8) {
@@ -191,7 +198,7 @@ struct ReceiptReviewView: View {
                     scanAgainButton
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.top, 8)
+                .padding(.top, 24)
             }
             .padding(.horizontal, 20)
             .padding(.top, 12)
@@ -212,10 +219,11 @@ struct ReceiptReviewView: View {
     /// One product's row, inside its aisle's card.
     private func row(for line: ReceiptScanLine) -> some View {
         ReceiptLineRow(
-            name: line.name,
-            detailText: viewModel.detailText(for: line),
+            name: viewModel.displayName(for: line),
+            quantityText: ReceiptScanViewModel.quantityText(for: line),
+            priceText: ReceiptScanViewModel.priceText(for: line),
+            warning: line.warning,
             users: viewModel.consumers(for: line),
-            needsReview: line.warning != nil,
             isIncluded: viewModel.isIncluded(line),
             onToggle: {
                 withAnimation(.snappy) { viewModel.toggle(line) }
@@ -254,17 +262,6 @@ struct ReceiptReviewView: View {
     }
 
     // MARK: - Actions
-
-    /// Collapses an aisle's card to its banner, or opens it.
-    private func toggleCollapsed(_ category: ShopItemCategory) {
-        withAnimation(.snappy) {
-            if collapsed.contains(category) {
-                collapsed.remove(category)
-            } else {
-                collapsed.insert(category)
-            }
-        }
-    }
 
     /// Adds a product the reader missed and opens its form.
     private func addLine() {
@@ -311,6 +308,16 @@ struct ReceiptReviewView: View {
     let shopList = ReceiptScanPreviewData.shopList
     let viewModel = ReceiptScanPreviewData.review(of: shopList, lines: ReceiptScanPreviewData.lines, printedTotal: nil)
     viewModel.lines.suffix(2).forEach { viewModel.toggle($0) }
+    return Color.clear
+        .sheet(isPresented: .constant(true)) {
+            ReceiptReviewView(viewModel: viewModel, shopList: shopList)
+        }
+}
+
+#Preview("Nada da lista") {
+    let shopList = ReceiptScanPreviewData.shopList
+    let lines = ReceiptScanPreviewData.lines.filter { $0.name.hasPrefix("CHICLETE") || $0.name.hasPrefix("PAO") }
+    let viewModel = ReceiptScanPreviewData.review(of: shopList, lines: lines, printedTotal: nil)
     return Color.clear
         .sheet(isPresented: .constant(true)) {
             ReceiptReviewView(viewModel: viewModel, shopList: shopList)

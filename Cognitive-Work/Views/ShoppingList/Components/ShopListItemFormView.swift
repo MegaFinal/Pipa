@@ -238,7 +238,7 @@ struct ShopListItemFormView: View {
                         } icon: {
                             Image(systemName: "info.circle")
                         }
-                        .font(.footnote)
+                        .font(.system(size: 13))
                         .foregroundStyle(.subTitleGray)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     } else if isEditing {

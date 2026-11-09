@@ -21,6 +21,24 @@ nonisolated enum ReceiptLineWarning: Equatable {
     case notOnReceipt
 }
 
+extension ReceiptLineWarning {
+    /// Whether the warning is about the quantity: the review shows the quantity in orange.
+    var flagsQuantity: Bool {
+        switch self {
+        case .quantityNotRead, .noAmount: true
+        case .totalMismatch, .notOnReceipt: false
+        }
+    }
+
+    /// Whether the warning is about the price: the review shows the price in orange.
+    var flagsPrice: Bool {
+        switch self {
+        case .totalMismatch, .noAmount, .notOnReceipt: true
+        case .quantityNotRead: false
+        }
+    }
+}
+
 /// One product read from a receipt; the review screen lets the person fix it.
 nonisolated struct ReceiptScanLine: Identifiable, Equatable {
     let id = UUID()

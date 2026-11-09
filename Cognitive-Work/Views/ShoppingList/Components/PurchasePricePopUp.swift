@@ -68,7 +68,8 @@ struct PurchasePricePopUp: View {
                 Text(itemName)
                     .font(.system(size: 18))
                     .foregroundColor(.black)
-                    .lineLimit(2)
+                    // Long names wrap in full instead of ending in "…".
+                    .fixedSize(horizontal: false, vertical: true)
 
                 // The amount the total covers ("3 unidades", "500 gramas").
                 Text(ShopListViewModel.accessibilityQuantity(quantity, unit: unit == .undefined ? .unit : unit))

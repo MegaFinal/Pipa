@@ -26,14 +26,14 @@ struct RetroAlert: View {
             
             // MARK: - Title and subtitle
             Text("Sua retrospectiva chegou!")
-                .font(.custom("Alan Sans", size: 34))
+                .font(.custom("Alan Sans", fixedSize: 34))
                 .bold()
                 .multilineTextAlignment(.center)
                 .padding(.top, height * 0.052)
                 .accessibilityAddTraits(.isHeader)
             
             Text("Veja como você se saiu durante os últimos 15 dias")
-                .font(.title2)
+                .font(.system(size: 22))
                 .multilineTextAlignment(.center)
                 .fontWeight(.regular)
                 .padding(.top, height * 0.0187)
@@ -86,7 +86,7 @@ struct RetroAlert: View {
             } label: {
                 Text("ver depois")
                     .fontWeight(.semibold)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.gray)
             }
             .padding(.top, height * 0.012)
@@ -112,11 +112,11 @@ struct RetroAlert: View {
         case .failed(let error):
             VStack(spacing: 4) {
                 Text(error.localizedDescription)
-                    .font(.footnote)
+                    .font(.system(size: 13))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.gray)
                 Button("Tentar de novo") { viewModel.reload() }
-                    .font(.footnote.weight(.semibold))
+                    .font(.system(size: 13).weight(.semibold))
             }
             .padding(.top, height * 0.02)
         case .loaded:

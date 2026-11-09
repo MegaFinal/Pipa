@@ -44,7 +44,7 @@ struct ScheduleInfoPopUp: View {
             
             // MARK: - Title and intro
             Text("Sua escala está \npronta!")
-                .font(.custom("Alan Sans", size: 32, relativeTo: .title))
+                .font(.custom("Alan Sans", fixedSize: 32))
                 .bold()
                 .foregroundStyle(.titleGray)
                 .accessibilityAddTraits(.isHeader)

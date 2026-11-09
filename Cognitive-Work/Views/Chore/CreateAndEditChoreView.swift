@@ -197,7 +197,7 @@ struct CreateAndEditChoreView: View {
                 // MARK: Name
                 VStack(alignment: .leading, spacing: 14) {
                     Text("Nome da tarefa")
-                        .font(.title2.bold())
+                        .font(.system(size: 22).bold())
                         .accessibilityHidden(true)
                     
                     // What was said, above the name; it can be corrected and read again.
@@ -247,13 +247,13 @@ struct CreateAndEditChoreView: View {
 
                     if let voiceError = voice.errorMessage {
                         Text(voiceError)
-                            .font(.footnote)
+                            .font(.system(size: 13))
                             .foregroundStyle(.red)
                     }
 
                     if aiDidFail {
                         Text("Não foi possível preencher. Preencha manualmente.")
-                            .font(.footnote)
+                            .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                     }
 
@@ -267,7 +267,7 @@ struct CreateAndEditChoreView: View {
                             } icon: {
                                 Image(systemName: "sparkles")
                             }
-                            .font(.footnote)
+                            .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                             // Starts where the title starts; wrapped lines stay left-aligned.
                             .multilineTextAlignment(.leading)
@@ -508,7 +508,7 @@ struct CreateAndEditChoreView: View {
                     sectionTitle("Responsáveis")
                     if viewModel.isSuggested(.responsible) {
                         Image(systemName: "sparkles")
-                            .font(.footnote.weight(.semibold))
+                            .font(.system(size: 13).weight(.semibold))
                             .foregroundStyle(.secondary)
                             .voiceOverLabel(L10n.tr("Sugerido automaticamente"))
                     }
@@ -659,7 +659,7 @@ struct CreateAndEditChoreView: View {
                     .fontWeight(.semibold)
                 if viewModel.isSuggested(.date) {
                     Image(systemName: "sparkles")
-                        .font(.footnote.weight(.semibold))
+                        .font(.system(size: 13).weight(.semibold))
                         .foregroundStyle(.secondary)
                         .voiceOverLabel(L10n.tr("Sugerido automaticamente"))
                 }
@@ -789,7 +789,7 @@ struct CreateAndEditChoreView: View {
             .accessibilityHidden(true)
 
             TextField(L10n.tr("Ouvindo"), text: $spokenText, axis: .vertical)
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundStyle(.secondary)
                 .lineLimit(1...3)
                 .submitLabel(.done)
@@ -817,7 +817,7 @@ struct CreateAndEditChoreView: View {
             apply(suggestion)
         } label: {
             Text(L10n.tr("Nome: \(suggestion.name)"))
-                .font(.subheadline)
+                .font(.system(size: 15))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .padding(.horizontal, 16)
@@ -835,7 +835,7 @@ struct CreateAndEditChoreView: View {
             sectionTitle(title)
             if isSuggested {
                 Image(systemName: "sparkles")
-                    .font(.footnote.weight(.semibold))
+                    .font(.system(size: 13).weight(.semibold))
                     .foregroundStyle(.secondary)
                     .transition(.opacity)
                     .voiceOverLabel(L10n.tr("Sugerido automaticamente"))
@@ -973,7 +973,7 @@ struct CreateAndEditChoreView: View {
                 refillChecklistIdeas()
             } label: {
                 Text("Adicionar")
-                    .font(.subheadline.weight(.semibold))
+                    .font(.system(size: 15).weight(.semibold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 6)
@@ -1137,7 +1137,7 @@ struct CreateAndEditChoreView: View {
     
     private func sectionTitle(_ title: LocalizedStringKey) -> some View {
         Text(title)
-            .font(.headline)
+            .font(.system(size: 17, weight: .semibold))
             .foregroundStyle(.primary)
             .textCase(nil)
             .accessibilityAddTraits(.isHeader)
@@ -1145,7 +1145,7 @@ struct CreateAndEditChoreView: View {
     
     private func warning(_ text: LocalizedStringKey) -> some View {
         Text(text)
-            .font(.footnote)
+            .font(.system(size: 13))
             .foregroundStyle(.red)
     }
 }
