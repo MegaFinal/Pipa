@@ -199,9 +199,12 @@ final class CreateAndEditChoreViewModel {
         )
     }
 
-    /// Applies a suggestion to both steps of the form. 
-    func apply(_ suggestion: ChoreSuggestion) {
-        draft.name = suggestion.name
+    /// Applies a suggestion to both steps of the form.
+    ///
+    /// - Parameter keepingName: Leaves the name as it is, because the person typed their own
+    ///   while the AI was thinking.
+    func apply(_ suggestion: ChoreSuggestion, keepingName: Bool = false) {
+        if !keepingName { draft.name = suggestion.name }
 
         func fill(_ field: SuggestedField, _ update: () -> Void) {
             guard !handPickedFields.contains(field) else { return }

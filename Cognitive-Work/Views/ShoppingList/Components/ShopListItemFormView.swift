@@ -84,9 +84,10 @@ struct ShopListItemFormView: View {
     @State private var preview: ShopItemSuggestion?
     /// The pending preview request, restarted after each keystroke pause.
     @State private var previewTask: Task<Void, Never>?
-    /// Whether the running AI request reads what was spoken; then a small spinner shows beside
-    /// the spoken sentence (the mic itself never spins).
-    @State private var isReadingSpeech = false
+    /// Whether the running AI request reads the sentence shown above the name (spoken, or typed
+    /// and moved up there); then a small spinner shows beside that sentence (the mic itself
+    /// never spins). When `false` while ``isSuggesting``, the spinner shows beside the name.
+    @State private var isReadingSentence = false
     /// The description the form was filled from, typed in the name or spoken, shown above the
     /// name with ✨ and editable. Done (or Return) on it asks the AI to fill the form again.
     @State private var spokenText = ""
@@ -444,21 +445,34 @@ struct ShopListItemFormView: View {
                         }
                     }
                     
+                    // The AI is reading what's in the name field itself (a short text that
+                    // stayed there): a small spinner beside it.
+                    if isSuggesting && !isReadingSentence {
+                        ProgressView()
+                            .controlSize(.small)
+                            .transition(.opacity)
+                            .accessibilityHidden(true)
+                    }
+
                     if canSuggest {
                         micButton
                     }
                 }
                 
-                // Only when the AI can fill the form from a description.
+                // Only when the AI can fill the form from a description, and only until one was
+                // given: hidden once the sentence shows above the name and while the AI is
+                // thinking (the spinner beside the sentence or the name already says so).
                 if canSuggest {
-                    Label {
-                        Text("Descreva o que gostaria de comprar e preenchemos automaticamente.")
-                    } icon: {
-                        Image(systemName: "sparkles")
+                    if spokenText.isEmpty && !isSuggesting {
+                        Label {
+                            Text("Descreva o que gostaria de comprar e preenchemos automaticamente.")
+                        } icon: {
+                            Image(systemName: "sparkles")
+                        }
+                        .font(.system(size: 13))
+                        .foregroundStyle(.subTitleGray)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .font(.system(size: 13))
-                    .foregroundStyle(.subTitleGray)
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 } else if !isEditing && !isDraft && PremiumAIHint.isNeeded {
                     PremiumAIHint(text: "Descreva o item e a IA preenche para você", paywall: $paywall)
                 }
@@ -466,6 +480,7 @@ struct ShopListItemFormView: View {
         }
         .animation(.snappy, value: category)
         .animation(.snappy, value: aiDidFail)
+        .animation(.snappy, value: isSuggesting)
         .animation(.snappy, value: describedInput)
         .animation(.snappy, value: preview?.name)
         .animation(.snappy, value: spokenText.isEmpty)
@@ -535,7 +550,7 @@ struct ShopListItemFormView: View {
     private var spokenLine: some View {
         HStack(alignment: .center, spacing: 6) {
             Group {
-                if voice.isPreparing || voice.isFinishing || (isSuggesting && isReadingSpeech) {
+                if voice.isPreparing || voice.isFinishing || (isSuggesting && isReadingSentence) {
                     ProgressView()
                         .controlSize(.mini)
                 } else {
@@ -579,7 +594,7 @@ struct ShopListItemFormView: View {
         lastReadSpoken = input
         aiDidFail = false
         requestSuggestion(for: input)
-        isReadingSpeech = true
+        isReadingSentence = true
     }
 
     /// The warning on screen, if any; VoiceOver announces it whenever it appears or changes.
@@ -890,6 +905,9 @@ struct ShopListItemFormView: View {
     private func readDescription() -> Bool {
         let input = trimmedName
         guard canSuggest, !voice.isBusy, !input.isEmpty, input != lastReadName else { return false }
+        // The AI is still reading the sentence above: what's typed now is the person's own name
+        // for the item, not a new description. Kept when the result arrives (see `applySuggestion`).
+        guard !(isSuggesting && isReadingSentence) else { return false }
         lastReadName = input
         aiDidFail = false
 
@@ -898,9 +916,35 @@ struct ShopListItemFormView: View {
             applySuggestion(preview)
             return false
         }
-        isReadingSpeech = false // Typed by default; the speech path sets it back right after.
+
+        // A description ("2kg de arroz para mim"): it moves above the name right away, small and
+        // grey with a spinner, like a spoken one. The name field is free meanwhile, so the person
+        // can type the name while the AI thinks; the AI then only fills it if it's still empty.
+        if Self.looksLikeDescription(input) {
+            withAnimation(.snappy) {
+                spokenText = input
+                name = ""
+            }
+            lastReadSpoken = input
+            lastReadName = ""
+            requestSuggestion(for: input)
+            isReadingSentence = true
+            return true
+        }
+
+        // A short text (likely just the name) stays in the field; the spinner shows beside it.
+        isReadingSentence = false // The speech path sets it back right after.
         requestSuggestion(for: input)
         return true
+    }
+
+    /// Whether `text` reads as a description rather than a plain name: longer than a name can
+    /// be, has a number in it ("2kg", "10 reais") or has three words or more ("arroz para mim").
+    /// Two-word names ("Leite condensado") stay in the name field.
+    private static func looksLikeDescription(_ text: String) -> Bool {
+        text.count > TextLimits.shopItemName
+            || text.contains(where: \.isNumber)
+            || text.split(whereSeparator: \.isWhitespace).count >= 3
     }
 
     /// After a short pause in typing, asks the AI what it would fill, to show "Nome: …".
@@ -909,7 +953,7 @@ struct ShopListItemFormView: View {
         previewTask?.cancel()
         preview = nil
         let input = trimmedName
-        guard canSuggest, isNameFocused, describedInput == nil, !voice.isBusy,
+        guard canSuggest, isNameFocused, describedInput == nil, !voice.isBusy, !isSuggesting,
               input != lastReadName,
               input.split(separator: " ").count >= 2
         else { return }
@@ -938,12 +982,13 @@ struct ShopListItemFormView: View {
         suggestionTask?.cancel()
         previewTask?.cancel()
         isSuggesting = true
+        VoiceOver.announce(L10n.tr("Preenchendo com IA…"))
         suggestionTask = Task {
             defer {
                 // A request replaced by a newer one leaves the newer one's state alone.
                 if !Task.isCancelled {
                     isSuggesting = false
-                    isReadingSpeech = false
+                    isReadingSentence = false
                 }
             }
 
@@ -961,7 +1006,7 @@ struct ShopListItemFormView: View {
                 aiDidFail = true
                 // Typed: keep what they wrote, cut to the name limit so the item can still be
                 // saved. Spoken: the sentence stays above and the name is left as it was.
-                if !isReadingSpeech {
+                if !isReadingSentence {
                     name = String(input.prefix(TextLimits.shopItemName))
                     lastReadName = name
                 }
@@ -971,16 +1016,27 @@ struct ShopListItemFormView: View {
     }
 
     /// Fills name, category, quantity and unit, plus price and people when the person mentioned
-    /// them. The person asked for it with the button, so those fields are replaced; they can still
-    /// change any of them before saving.
+    /// them. Fields the person set by hand (before asking or while the AI was thinking) are kept;
+    /// only untouched fields and the ones the AI filled before are replaced.
     private func applySuggestion(_ result: ShopItemSuggestion) {
+        // Decided before `suggestion` changes: `isSetByHand` compares against the previous one.
+        let currentName = trimmedName
+        let keepsName = !currentName.isEmpty
+            && currentName != result.input
+            && currentName != suggestion?.name
+        let keepsCategory = isSetByHand(.category)
+        // Quantity and unit go together ("500 g"): either one set by hand keeps both.
+        let keepsAmount = isSetByHand(.quantity) || isSetByHand(.unit)
+        let keepsPrice = isSetByHand(.price)
+        let keepsConsumers = isSetByHand(.consumers)
+
         suggestion = result
         previewTask?.cancel()
         preview = nil
         withAnimation(.snappy) {
             // Kept only when the AI changed the name (see `describedInput`).
             describedInput = result.name.isEmpty || result.name == result.input ? nil : result.input
-            if !result.name.isEmpty { name = result.name }
+            if !result.name.isEmpty, !keepsName { name = result.name }
             lastReadName = name
             // The sentence (typed or spoken) moves above the name, where it can be edited and
             // read again; only when the AI changed it, so "Arroz" alone isn't repeated there.
@@ -988,17 +1044,32 @@ struct ShopListItemFormView: View {
                 spokenText = result.input
                 lastReadSpoken = result.input
             }
-            category = result.category
-            quantity = result.quantity
-            unitMeasurement = result.unit
-            if let totalPrice = result.totalPrice {
+            if !keepsCategory { category = result.category }
+            if !keepsAmount {
+                quantity = result.quantity
+                unitMeasurement = result.unit
+            }
+            if let totalPrice = result.totalPrice, !keepsPrice {
                 valueText = ShopListViewModel.priceInputText(for: totalPrice)
             }
-            if let consumers = result.consumers {
+            if let consumers = result.consumers, !keepsConsumers {
                 relatedUsers = consumers
             }
         }
         HapticsManager.notify(.success)
+    }
+
+    /// Whether the person set `field` by hand: it no longer holds the value it had when the
+    /// sheet opened, nor the value the AI filled in last time.
+    private func isSetByHand(_ field: SuggestedField) -> Bool {
+        guard let loaded = loadedFields, !isSuggested(field) else { return false }
+        switch field {
+        case .category: return category != loaded.category
+        case .quantity: return quantity != loaded.quantity
+        case .unit: return unitMeasurement != loaded.unit
+        case .price: return valueText.trimmingCharacters(in: .whitespacesAndNewlines) != loaded.price
+        case .consumers: return Set(relatedUsers.compactMap { $0.recordID?.recordName }) != loaded.userIDs
+        }
     }
 
     // MARK: - Actions
