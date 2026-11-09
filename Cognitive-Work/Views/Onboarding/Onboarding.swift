@@ -26,8 +26,21 @@ struct Onboarding: View {
     var body: some View {
         ZStack {
             Group {
+                // MARK: - No connection: retry instead of leaving the user stuck on a step
+                if let problem = viewModel.accountCheckError, !viewModel.isRetryingAccountCheck {
+                    ConnectionErrorView(message: problem) {
+                        Task { await viewModel.retryAccountCheck() }
+                    }
+                    .transition(.opacity)
+                // MARK: - Loading while the account check runs ("Continuar" tapped or retrying)
+                } else if viewModel.isWaitingAccountCheck || viewModel.isRetryingAccountCheck {
+                    LoadingScreen(
+                        accessibilityTitle: L10n.tr("Conectando ao iCloud..."),
+                        message: "Conectando ao iCloud..."
+                    )
+                    .transition(.opacity)
                 // MARK: - Loading animation while restoring, otherwise the current step
-                if viewModel.isRestoringSession && viewModel.stateMachine.index > 0 {
+                } else if viewModel.isRestoringSession && viewModel.stateMachine.index > 0 {
                     LoadingScreen(
                         animation: .burst,
                         accessibilityTitle: L10n.tr("Retomando de onde você parou..."),
@@ -43,6 +56,11 @@ struct Onboarding: View {
                 .onChange(of: viewModel.isOnboardingSkipped) {
                     didOnboard = true
                 }
+                // "Continuar" tapped while the account check was running: move on once it ends.
+                .onChange(of: viewModel.isCheckingAccount) {
+                    viewModel.finishWaitingAccountCheck()
+                }
+                .animation(.easeInOut, value: viewModel.accountCheckError)
                 // Each step replaces the whole screen: let VoiceOver start over from the top.
                 .onChange(of: viewModel.stateMachine.index) {
                     VoiceOver.screenChanged()
@@ -91,7 +109,8 @@ struct Onboarding: View {
         .task {
             await viewModel.checkExistingAccount()
 
-            if !viewModel.isOnboardingSkipped {
+            // Without a connection there is nothing to restore: ``ConnectionErrorView`` retries both.
+            if !viewModel.isOnboardingSkipped, viewModel.accountCheckError == nil {
                 await viewModel.restoreProgressIfNeeded()
             }
             

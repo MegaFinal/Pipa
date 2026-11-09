@@ -286,18 +286,29 @@ final class PendingPaymentsViewModel {
             return
         }
 
-        for entry in group.entries {
-            guard await entry.item.markSettled(for: entry.debtor) else {
-                errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível quitar. Tente novamente.")
-                return
-            }
-            settledKeys.insert(DebtCalculator.settlementKey(item: entry.item, debtor: entry.debtor))
-        }
+        // Optimistic, like the rest of the list: the whole debt leaves the totals at once and the
+        // card says "Pago!" right away. Saving item by item used to drop the total bit by bit,
+        // and a refresh in between brought part of the debt back.
         markPaid(group)
+
+        let saved = await ShopListItem.markSettled(group.entries.map { (item: $0.item, debtor: $0.debtor) })
+        guard saved else {
+            unmarkPaid(group)
+            errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Não foi possível quitar. Tente novamente.")
+            return
+        }
     }
 
     /// How long the card says "Pago!" before it leaves the screen.
     private let paidDisplayDuration: Duration = .milliseconds(1400)
+
+    /// Undoes ``markPaid(_:)`` when the settlement couldn't be saved: the debt comes back whole.
+    private func unmarkPaid(_ group: DebtGroup) {
+        for entry in group.entries {
+            settledKeys.remove(DebtCalculator.settlementKey(item: entry.item, debtor: entry.debtor))
+        }
+        paidGroups[group.id] = nil
+    }
 
     /// Updates the totals now, keeps the card with a "Pago!" button for a moment, then removes it.
     private func markPaid(_ group: DebtGroup) {

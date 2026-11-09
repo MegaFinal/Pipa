@@ -33,14 +33,18 @@ struct RetroPercentageOfDoneView: View {
 
     var body: some View {
         ZStack {
-            // MARK: - Background: purple with the white pie
-            Color(.chorePurple)
+            // MARK: - Background: white, with the purple growing as the pie empties
+            // Drawn the other way around from before (purple background under a white pie): when
+            // the page fades in, SwiftUI fades each view on its own, and the purple showed through
+            // the still-transparent white pie for a moment (a purple flash right after "Ver minha
+            // retrospectiva"). Now there is no purple at all until the pie starts to empty.
+            Color.white
                 .overlay{
-                    PieSlice(progress: percentage / 100)
+                    PieRemovedSlice(progress: percentage / 100)
                         .padding(.bottom, height * 0.127)
                         .frame(width: height * 2, height: height * 2)
                         .ignoresSafeArea()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color(.chorePurple))
                 }
                 .ignoresSafeArea()
                 .accessibilityDecorative()

@@ -381,6 +381,86 @@ class ShopListItem: CloudKitSyncable, Identifiable {
         return true
     }
 
+    /// Records several shares as paid at once (``markSettled(for:)`` for many items), in one
+    /// atomic save per zone with ``CloudKitManager/batchSave(records:zoneID:savePolicy:)``.
+    ///
+    /// Settling a debt one item at a time saved one record per round trip: the total went down
+    /// bit by bit, a refresh in between showed it half paid, and a failure halfway left part of
+    /// it settled. Here every share is applied locally first, the records are read in one request
+    /// and saved together; when CloudKit rejects the save nothing is settled and the local
+    /// values go back to what they were.
+    ///
+    /// - Parameter shares: Each item with the debtor whose share it settles.
+    /// - Returns: `true` when every share reached CloudKit (see ``CloudKitManager/errorMessage``).
+    @discardableResult
+    static func markSettled(_ shares: [(item: ShopListItem, debtor: CKRecord.ID)]) async -> Bool {
+        let pending = shares.filter { !$0.item.settledUserIDs.contains($0.debtor) }
+        guard !pending.isEmpty else { return true }
+
+        // Optimistic: the items show as paid right away, and are restored below on failure.
+        var previous: [ObjectIdentifier: [CKRecord.Reference]?] = [:]
+        for share in pending where previous[ObjectIdentifier(share.item)] == nil {
+            previous[ObjectIdentifier(share.item)] = .some(share.item.settledUsersReference)
+        }
+        pending.forEach { $0.item.settleLocally(for: $0.debtor) }
+
+        func rollback() {
+            for share in pending {
+                if let old = previous[ObjectIdentifier(share.item)] { share.item.settledUsersReference = old }
+            }
+        }
+
+        // Debtors per record. CloudKit saves atomically only inside one zone (and one database).
+        var debtorsByRecord: [CKRecord.ID: [CKRecord.ID]] = [:]
+        var itemsByRecord: [CKRecord.ID: ShopListItem] = [:]
+        for share in pending {
+            guard let recordID = share.item.recordID else { rollback(); return false }
+            debtorsByRecord[recordID, default: []].append(share.debtor)
+            itemsByRecord[recordID] = share.item
+        }
+
+        let manager = CloudKitManager.shared
+        let byZone = Dictionary(grouping: debtorsByRecord.keys, by: \.zoneID)
+
+        for (zoneID, recordIDs) in byZone {
+            let database = zoneID.ownerName == CKCurrentUserDefaultName ? manager.privateDB : manager.sharedDB
+
+            // The latest server copy of every record, in one request, so a share another
+            // housemate settled meanwhile is kept.
+            var records: [CKRecord] = []
+            do {
+                let fetched = try await database.records(for: recordIDs)
+                for recordID in recordIDs {
+                    guard case .success(let record)? = fetched[recordID] else {
+                        manager.errorMessage = L10n.tr("Não foi possível quitar. Tente novamente.")
+                        rollback()
+                        return false
+                    }
+                    var merged = record["settledUsers"] as? [CKRecord.Reference] ?? []
+                    for debtor in debtorsByRecord[recordID] ?? [] where !merged.contains(where: { $0.recordID == debtor }) {
+                        merged.append(CKRecord.Reference(recordID: debtor, action: .none))
+                    }
+                    record["settledUsers"] = merged
+                    records.append(record)
+                }
+            } catch {
+                manager.errorMessage = UserFacingError.message(for: error, doing: .save)
+                rollback()
+                return false
+            }
+
+            guard await manager.batchSave(records: records, zoneID: zoneID) else {
+                rollback()
+                return false
+            }
+
+            for record in records {
+                itemsByRecord[record.recordID]?.settledUsersReference = record["settledUsers"] as? [CKRecord.Reference]
+            }
+        }
+        return true
+    }
+
     /// Applies edited field values and persists them in one update. Mirrors
     /// ``ChoreModel/save(from:targetAssignments:)``: the editable fields live on this method
     /// rather than being set directly by callers, since ``relatedUsersReference`` is private.

@@ -452,7 +452,6 @@
       }
     },
     "%@ foi removido da casa" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -2695,6 +2694,16 @@
         }
       }
     },
+    "%lld tarefas não puderam ser salvas e voltaram como pendentes. %@" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld tarefas não puderam ser salvas e voltaram como pendentes. %2$@"
+          }
+        }
+      }
+    },
     "%lld tarefas sem dono" : {
       "localizations" : {
         "en" : {
@@ -3913,6 +3922,7 @@
       }
     },
     "A casa que você pertencia foi deletada." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5039,7 +5049,6 @@
       }
     },
     "Adicionar e gerenciar moradores" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6668,6 +6677,7 @@
       }
     },
     "Apagar o Wi-Fi do Harvii?" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -6708,6 +6718,7 @@
       }
     },
     "Apagar seu Wi-Fi do Harvii" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11032,6 +11043,9 @@
         }
       }
     },
+    "Conectando ao iCloud..." : {
+
+    },
     "Conectar" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -11521,7 +11535,6 @@
       }
     },
     "Configurar o Wi-Fi" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16367,7 +16380,6 @@
       }
     },
     "Entrar ou criar uma casa" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -18581,7 +18593,6 @@
       }
     },
     "Essa pessoa deixa de ver a casa e as tarefas dela voltam para quem quiser pegar. Ela pode voltar com um novo convite." : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28161,6 +28172,9 @@
         }
       }
     },
+    "Não foi possível conectar" : {
+
+    },
     "Não foi possível conectar o seu celular ao Harvii, verifique se a rede que você digitou é a mesma que você está e tente novamente." : {
       "localizations" : {
         "en" : {
@@ -28803,7 +28817,6 @@
       }
     },
     "Não foi possível falar com o Harvii" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28885,6 +28898,7 @@
       }
     },
     "Não foi possível falar com o Harvii. Segure o botão BOOT por 5 segundos para resetar direto no dispositivo." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29165,7 +29179,6 @@
       }
     },
     "Não foi possível remover" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31450,7 +31463,6 @@
       }
     },
     "O administrador removeu você da casa, ou ela foi excluída. Seu perfil continua salvo: é só entrar em outra casa ou criar a sua." : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -31977,7 +31989,6 @@
       }
     },
     "O Harvii vai esquecer o Wi-Fi da casa, e todos os celulares vão esquecer o Harvii e precisar parear de novo." : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32018,6 +32029,7 @@
       }
     },
     "O Harvii vai esquecer o WiFi e todos os celulares da casa precisarão configurar e parear de novo." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32539,6 +32551,7 @@
       }
     },
     "Ocorreu um erro." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -32659,6 +32672,7 @@
       }
     },
     "Ok" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40338,7 +40352,6 @@
       }
     },
     "Remover %@ da casa?" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40459,7 +40472,6 @@
       }
     },
     "Remover da casa" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40785,7 +40797,6 @@
       }
     },
     "Resetar" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40826,7 +40837,6 @@
       }
     },
     "Resetar Harvii" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40867,7 +40877,6 @@
       }
     },
     "Resetar mesmo assim" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -40949,7 +40958,6 @@
       }
     },
     "Resetar o Harvii?" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -42115,7 +42123,6 @@
       }
     },
     "Se a tela do Harvii mostrar “Não consegui conectar ao WiFi”, ele já está esperando um Wi-Fi novo. Se não, segure o botão BOOT dele por 5 segundos e depois configure o Wi-Fi." : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -43560,6 +43567,9 @@
         }
       }
     },
+    "Seu rank no ciclo" : {
+
+    },
     "Seu saldo" : {
       "localizations" : {
         "en" : {
@@ -43924,7 +43934,6 @@
       }
     },
     "Só o administrador pode remover moradores." : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -44369,6 +44378,9 @@
           }
         }
       }
+    },
+    "Sua conexão está lenta e não conseguimos falar com o iCloud. Verifique sua internet e tente novamente." : {
+
     },
     "Sua divisão" : {
       "localizations" : {
@@ -47277,7 +47289,6 @@
       }
     },
     "Toque duas vezes para remover da casa" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -47518,7 +47529,6 @@
       }
     },
     "Toque em um morador para removê-lo da casa." : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -48509,6 +48519,9 @@
           }
         }
       }
+    },
+    "Uma tarefa não pôde ser salva e voltou como pendente. %@" : {
+
     },
     "única" : {
       "localizations" : {
@@ -50787,7 +50800,6 @@
       }
     },
     "Você não faz mais parte desta casa" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -51035,7 +51047,6 @@
       }
     },
     "Você pode resetar o Harvii da casa mesmo assim: todos os moradores vão precisar configurá-lo de novo. O aparelho só esquece o Wi-Fi quando alguém segura o botão BOOT dele por 5 segundos." : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -51196,6 +51207,7 @@
       }
     },
     "Você será redirecionado ao início do aplicativo." : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -51234,9 +51246,6 @@
           }
         }
       }
-    },
-    "Você tem o cupom dessa tarefa e não pode pegá-la neste ciclo." : {
-
     },
     "Você tem o Premium vitalício." : {
       "localizations" : {
