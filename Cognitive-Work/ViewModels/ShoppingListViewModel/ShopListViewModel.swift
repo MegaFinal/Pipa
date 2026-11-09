@@ -200,9 +200,11 @@ final class ShopListViewModel {
         }
     }
 
-    /// The "Comprados" section, or `nil` when nothing was bought yet.
+    /// The "Comprados" section, or `nil` when nothing was bought yet. Latest purchase first,
+    /// whatever ``sortOption`` is: an item just checked off (also one bought again after being
+    /// unchecked) shows at the top, not back where it was added.
     var boughtSection: ShopListSection? {
-        let items = sorted(boughtItems)
+        let items = boughtItems.sorted { ($0.boughtAt ?? $0.createdAt) > ($1.boughtAt ?? $1.createdAt) }
         return items.isEmpty ? nil : ShopListSection(id: Self.boughtSectionID, title: L10n.tr("Comprados"), items: items)
     }
 
