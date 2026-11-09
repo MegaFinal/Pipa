@@ -679,7 +679,8 @@ final class ShopListViewModel {
 
     // MARK: - Buying
 
-    /// An item the user is checking off that has no price yet; the view asks for it first.
+    /// An item the user is checking off; the view asks for its price first (or, when it already
+    /// has one, asks the user to confirm or change it).
     struct PurchasePrompt: Identifiable {
         let item: ShopListItem
         var id: String { item.id }
@@ -699,8 +700,11 @@ final class ShopListViewModel {
     }
 
     /// Checks an item off, or puts it back on the list.
+    ///
+    /// Checking off always opens the price popup: empty when the item has no price, filled in
+    /// with the current price otherwise, so the user can confirm it or correct it.
     func toggleBought(_ item: ShopListItem) async {
-        if !item.isBought, !item.hasPrice {
+        if !item.isBought {
             purchasePrompt = PurchasePrompt(item: item)
             return
         }
@@ -709,17 +713,22 @@ final class ShopListViewModel {
 
     /// Finishes a purchase started from the price popup.
     ///
-    /// - Parameter valueText: The typed total, or `nil` to buy without informing it.
+    /// - Parameter valueText: The typed total, or `nil` to buy without a price ("Comprar sem
+    ///   valor"), which also removes a price the item already had.
     func confirmPurchase(of item: ShopListItem, valueText: String?) async {
         purchasePrompt = nil
 
         let price = valueText.flatMap(Self.parsePrice).flatMap { $0 > 0 ? $0 : nil }
-        await setBought(item, price: price)
+        await setBought(item, price: price, clearsPrice: valueText == nil)
     }
 
     /// Marks `item` as bought (or not), saving the total paid when given.
-    private func setBought(_ item: ShopListItem, price: Double?) async {
+    ///
+    /// - Parameter clearsPrice: When buying, removes the item's current price first, so it's
+    ///   bought without a value (no debts are created for it).
+    private func setBought(_ item: ShopListItem, price: Double?, clearsPrice: Bool = false) async {
         if isPreview {
+            if clearsPrice { item.totalPrice = nil }
             if let price { item.totalPrice = price }
             item.isBought.toggle()
             item.boughtAt = item.isBought ? Date() : nil // Keep the purchase date in step.
@@ -744,11 +753,17 @@ final class ShopListViewModel {
                 adderID: item.addedByRecordID
             )
         } else if let currentUser {
+            // "Comprar sem valor" on an item that had a price: drop it before saving, so the
+            // record is saved without it. Restored below if the save fails.
+            let previousPrice = item.totalPrice
+            if clearsPrice { item.totalPrice = nil }
+
             // The buyer is paid for the purchase (and for recording the price); whoever added the
             // item is paid now too, since the item turned out to be needed.
             let points = ScoreValues.shoppingPurchase(hasPrice: price != nil || item.hasPrice)
             let didSave = await item.markBought(by: currentUser, totalPrice: price, awarding: points)
             guard didSave else {
+                item.totalPrice = previousPrice
                 errorTitle = L10n.tr("Não foi possível atualizar a compra")
                 errorMessage = CloudKitManager.shared.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente.")
                 return
