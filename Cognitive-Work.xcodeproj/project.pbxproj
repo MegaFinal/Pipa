@@ -507,6 +507,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Pipa;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Precisamos de acesso ao seu calendário para sincronizar e atualizar as suas tarefas domésticas atribuídas.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Usamos a câmera para escanear notas fiscais e ler os itens comprados.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Usamos a rede local para encontrar e se comunicar com o Harvi.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Usamos o microfone para você adicionar itens falando.";
@@ -553,6 +554,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Pipa;
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Precisamos de acesso ao seu calendário para sincronizar e atualizar as suas tarefas domésticas atribuídas.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Usamos a câmera para escanear notas fiscais e ler os itens comprados.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "Usamos a rede local para encontrar e se comunicar com o Harvi.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Usamos o microfone para você adicionar itens falando.";

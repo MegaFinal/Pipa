@@ -18,7 +18,10 @@ struct DebtGroupSection: View {
     let settleTitle: String
     var settleSystemImage: String? = nil
     let isPaid: Bool
-    let isSettling: Bool
+    /// A settlement is being saved (this card or another): the button waits.
+    var isSettling: Bool = false
+    /// This card's settlement is the one being saved: the button shows a spinner.
+    var isSavingThis: Bool = false
     let onSettle: () -> Void
 
     var isConfirmingSettlement: Bool = false
@@ -185,8 +188,9 @@ struct DebtGroupSection: View {
         }
         .buttonStyle(.plain)
         .disabled(isPaid || isSettling)
-        .opacity(isSettling && !isPaid ? 0.5 : 1)
+        .opacity(isSettling && !isSavingThis && !isPaid ? 0.5 : 1)
         .animation(.snappy, value: isPaid)
+        .animation(.snappy, value: isSavingThis)
         .popover(
             isPresented: Binding(
                 get: { isConfirmingSettlement },
@@ -251,7 +255,11 @@ struct DebtGroupSection: View {
     /// once paid.
     private var settleLabel: some View {
         HStack(spacing: 6) {
-            if isPaid {
+            if isSavingThis {
+                ProgressView()
+                    .tint(.white)
+                    .controlSize(.small)
+            } else if isPaid {
                 Image(systemName: "checkmark")
                     .font(.system(size: 13, weight: .bold))
             } else if let settleSystemImage {
@@ -293,7 +301,6 @@ struct DebtGroupSection: View {
         ],
         settleTitle: "Pagar",
         isPaid: false,
-        isSettling: false,
         onSettle: {}
     )
     .padding()

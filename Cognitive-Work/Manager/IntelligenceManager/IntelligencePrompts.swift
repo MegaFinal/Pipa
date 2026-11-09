@@ -139,6 +139,40 @@ enum IntelligencePrompts {
         }
     }
 
+    /// Puts a product read from a receipt in its supermarket section, when neither the house's
+    /// memory nor the words of its name tell (see ``ReceiptCategories``).
+    enum ReceiptProductCategory {
+
+        static let id = "receipt-product-category-v1"
+
+        /// The section names match the cases of ``GeneratedShopCategory``; keep them in sync.
+        static let task = """
+        You put a product bought at a store into its supermarket section. The name was printed on a receipt, so it may be abbreviated, cut short or start with a brand.
+        food: groceries and packaged food, including meat, dairy, bread, sweets and snacks.
+        produce: fresh fruits, vegetables and herbs.
+        drinks: water, juice, soda, coffee, tea, beer and wine.
+        cleaning: products to clean the house, dishes and clothes.
+        hygiene: personal care products, medicine and toilet paper.
+        home: household items such as light bulbs, batteries and kitchen tools.
+        pets: pet food and pet supplies.
+        other: when you can't tell what the product is.
+        Examples:
+        "Bala fini minhoc" -> food
+        "Scotch brite esponja" -> cleaning
+        "Golden formula adulto" -> pets
+        "Duracell aa" -> home
+        "Antarctica 2l" -> drinks
+        "Colgate total 12" -> hygiene
+        "Xpt 4421" -> other
+        """
+
+        /// The product's name comes from the receipt, so it goes in the prompt, never the
+        /// instructions.
+        static func prompt(for name: String) -> String {
+            "Product: \(name)"
+        }
+    }
+
     /// Turns dishes the person wants to cook into the ingredients to buy.
     enum ShopRecipeExpansion {
 

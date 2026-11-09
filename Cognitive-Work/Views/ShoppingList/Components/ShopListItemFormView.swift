@@ -109,6 +109,12 @@ struct ShopListItemFormView: View {
         return false
     }
 
+    /// The item being edited, or `nil` when creating one.
+    private var editingItem: ShopListItem? {
+        if case .edit(let item) = mode { return item }
+        return nil
+    }
+
     /// Whether the sheet edits an existing item.
     private var isEditing: Bool {
         if case .edit = mode { return true }
@@ -224,7 +230,17 @@ struct ShopListItemFormView: View {
                         )
                     }
 
-                    if isEditing {
+                    if let item = editingItem, !viewModel.canDelete(item) {
+                        // Bought and someone still owes for it: it can't be deleted by hand.
+                        Label {
+                            Text("Este item sai da lista sozinho quando todos pagarem a sua parte. Se ele foi marcado como comprado por engano, desmarque-o na lista para poder excluir.")
+                        } icon: {
+                            Image(systemName: "info.circle")
+                        }
+                        .font(.system(size: 13))
+                        .foregroundStyle(.subTitleGray)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    } else if isEditing {
                         deleteButton
                     }
                 }
@@ -339,7 +355,7 @@ struct ShopListItemFormView: View {
             Text("Essa ação não pode ser desfeita.")
         }
         .alert(
-            "Não foi possível salvar",
+            "Não foi possível salvar o item",
             isPresented: Binding(
                 get: { saveErrorMessage != nil },
                 set: { if !$0 { saveErrorMessage = nil } }

@@ -82,7 +82,7 @@ struct UserProfileView: View {
         }
         // MARK: - Save error alert and saving spinner
         .alert(
-            "Não foi possível salvar",
+            viewModelUser.errorTitle ?? L10n.tr("Algo não funcionou"),
             isPresented: Binding(
                 get: { viewModelUser.errorMessage != nil },
                 set: { if !$0 { viewModelUser.errorMessage = nil } }

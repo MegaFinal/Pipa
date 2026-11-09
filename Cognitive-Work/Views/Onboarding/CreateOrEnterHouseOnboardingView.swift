@@ -155,7 +155,7 @@ struct CreateOrEnterHouseOnboardingView: View {
         }
         .onboardingBackButton(viewModel: viewModel, isDisabled: isBusy)
         // MARK: - Error alert
-        .alert("Não deu para criar a casa", isPresented: Binding(
+        .alert("Não foi possível criar a casa", isPresented: Binding(
             get: { viewModel.errorMessage != nil },
             set: { if !$0 { viewModel.errorMessage = nil } }
         )) {

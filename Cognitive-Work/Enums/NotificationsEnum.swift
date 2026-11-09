@@ -42,6 +42,13 @@ enum Notifications: String {
     /// A guest chose their free time and is waiting for the admin to divide the chores (only the
     /// admin gets it). The raw value is the title's format: who is waiting.
     case guestWaitingDivision = "%@ está esperando a divisão"
+    /// Someone checked off on the shopping list items the user pays a part of: what was bought
+    /// for them and their part. The raw value is the title's format for one item: who bought
+    /// it, which item.
+    case boughtForYou = "%@ comprou %@ para você"
+    /// The same, bought with a scanned receipt; only the icon tells them apart. The raw value
+    /// just names the kind: the title is ``boughtForYou``'s.
+    case receiptBoughtForYou = "receipt-bought-for-you"
     
     /// The second line of the notification, explaining what to do. Empty when the title is enough.
     var subTitle: String {
@@ -59,6 +66,8 @@ enum Notifications: String {
         case .calendarSync: return "Veja as suas tarefas direto no Apple Calendar"
         case .premiumEnded: return "Para continuar com o Premium, outra pessoa da casa precisa assinar"
         case .guestWaitingDivision: return "O tempo livre já foi definido. Refaça a divisão para incluir esse morador"
+        // Built for each notification: the person's part, or the items.
+        case .boughtForYou, .receiptBoughtForYou: return ""
         }
     }
     
@@ -78,6 +87,9 @@ enum Notifications: String {
         case .calendarSync: return .lowOpacityPurple
         case .premiumEnded: return .lowOpacityYellow
         case .guestWaitingDivision: return .lowOpacityPurple
+        // Like "X comprou Y", the cart the list's purchases always had.
+        case .boughtForYou: return .lowOpacityBlue
+        case .receiptBoughtForYou: return .lowOpacityOrange
         }
     }
     
@@ -97,6 +109,8 @@ enum Notifications: String {
         case .calendarSync: return "calendar"
         case .premiumEnded: return "crown"
         case .guestWaitingDivision: return "hourglass"
+        case .boughtForYou: return "cart"
+        case .receiptBoughtForYou: return "doc.text.viewfinder"
         }
     }
 }
