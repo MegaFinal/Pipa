@@ -36,7 +36,7 @@ struct NewUserPopUp: View {
         
                 // MARK: - Title and explanation
                 Text("Um novo morador entrou na casa!")
-                    .font(.title)
+                    .font(.system(size: 28))
                     .bold()
                     .multilineTextAlignment(.leading)
                     .padding(.bottom, 8)
@@ -44,7 +44,7 @@ struct NewUserPopUp: View {
                     .accessibilityFocused($isTitleFocused)
                 
                 Text("Clique no botão abaixo para dividir as tarefas novamente ou divida depois acessando a tela de notificações.")
-                    .font(.title3)
+                    .font(.system(size: 20))
                     .fontWeight(.regular)
                     .multilineTextAlignment(.leading)
                     .padding(.bottom, 32)
@@ -70,7 +70,7 @@ struct NewUserPopUp: View {
                 } label: {
                     Text("Dividir mais tarde")
                         .fontWeight(.semibold)
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .foregroundStyle(.gray) 
                 }
                 Spacer()

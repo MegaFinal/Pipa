@@ -101,8 +101,15 @@ final class GamificationViewModel {
 
     // MARK: - Init
 
+    /// The pop-ups that present the screen the first time it opens (see
+    /// ``startTourIfNeeded()``).
+    @ObservationIgnored
+    let tour: CoachMarkTour
+
     /// Creates an empty view model; data comes from ``HouseDataStore``.
-    init() {}
+    init() {
+        tour = CoachMarkTour(storageKey: Self.tourStorageKey)
+    }
 
     /// Creates a view model with fixed data, for previews.
     init(
@@ -114,6 +121,8 @@ final class GamificationViewModel {
         users: [UserModel] = [],
         myOwnerRecordName: String? = nil
     ) {
+        // Previews show the tour every time.
+        self.tour = CoachMarkTour(storageKey: Self.tourStorageKey, remembersCompletion: false)
         self.coins = previewCoins
         self.points = previewPoints
         self.rankHistory = previewHistory
@@ -161,7 +170,11 @@ final class GamificationViewModel {
     /// Coupons of the selected room, cheapest first.
     var selectedCoupons: [CouponModel] {
         guard let selectedRoomKey else { return [] }
-        return (couponsByRoom[selectedRoomKey] ?? []).sorted { $0.price < $1.price }
+        return (couponsByRoom[selectedRoomKey] ?? []).sorted {
+            $0.price != $1.price
+                ? $0.price < $1.price
+                : $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
     }
 
     /// How many coupons `room` has.

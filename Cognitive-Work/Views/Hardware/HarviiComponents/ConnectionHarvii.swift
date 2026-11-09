@@ -83,7 +83,7 @@ private extension ConnectionHarvii {
     var resultBadge: some View {
         let color = didConnectionSucced ? Color.choreGreen : Color.choreOrange
         return Image(systemName: didConnectionSucced ? "checkmark" : "xmark")
-            .font(.title.weight(.semibold))
+            .font(.system(size: 28).weight(.semibold))
             .foregroundStyle(.white)
             .frame(width: width * 0.16, height: width * 0.16)
             .background(color, in: .circle)
@@ -104,7 +104,7 @@ private extension ConnectionHarvii {
                 .foregroundStyle(Self.errorTextColor)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .font(.body)
+        .font(.system(size: 17))
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.choreOrange.opacity(0.12), in: .rect(cornerRadius: 20))
@@ -132,7 +132,7 @@ private extension ConnectionHarvii {
         VStack(alignment: .leading) {
             if didConnectionSucced {
                 Text("Harvii está conectado!")
-                    .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                    .font(.custom("Alan Sans", fixedSize: 32))
                     .bold()
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isHeader)
@@ -140,11 +140,11 @@ private extension ConnectionHarvii {
                     .padding(.bottom, height * 0.028)
                 
                 Text("Quando alguém completar alguma tarefa no celular, o Harvii atualizará sozinho.\nPosicione seu Harvii em um local que todos os moradores passem, como a cozinha, a sala ou o corredor.")
-                    .font(.body)
+                    .font(.system(size: 17))
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 Text("Erro ao conectar!")
-                    .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                    .font(.custom("Alan Sans", fixedSize: 32))
                     .bold()
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityAddTraits(.isHeader)
@@ -152,7 +152,7 @@ private extension ConnectionHarvii {
                     .padding(.bottom, height * 0.028)
                 
                 Text("Não foi possível conectar o seu celular ao Harvii, verifique se a rede que você digitou é a mesma que você está e tente novamente.")
-                    .font(.body)
+                    .font(.system(size: 17))
                     .fixedSize(horizontal: false, vertical: true)
                 
                 if let errorDetail {

@@ -27,18 +27,30 @@ struct ChoreCarouselCard: View {
             // MARK: - Chore name (top)
             VStack {
                 Text(chore.localizedName)
-                    .font(.custom("Alan Sans", size: 32))
+                    .font(.custom("Alan Sans", fixedSize: 32))
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
-                    .frame(width: width * 0.62)
+                    // A long name shrinks a little before it would run into the room icon.
+                    .lineLimit(3)
+                    .minimumScaleFactor(0.6)
+                    .frame(width: width * 0.61)
                 Spacer()
             }
-            .padding(.top, height * 0.05)
+            .padding(.top, height * 0.04)
             
             // MARK: - Room icon (center)
             SymbolImage(name: room?.symbol ?? chore.symbolName)
-                .frame(width: width * 0.6, height: height * 0.4)
-                .padding(.top, height * 0.07)
+                .frame(width: width * 0.5, height: height * 0.3)
+                .padding(.top, height * 0.08)
+            
+            // MARK: - Late badge (bottom)
+            if carouselViewModel.isOverdue(chore) {
+                VStack {
+                    Spacer()
+                    LateChoreBadge()
+                }
+                .padding(.bottom, height * 0.025)
+            }
         }
         // MARK: - Card style and accessibility
         .foregroundColor(.white)
@@ -68,6 +80,31 @@ struct ChoreCarouselCard: View {
             Color.gray
         }
     }
+}
+
+/// The "Atrasada" tag on a carousel card whose day has already gone by.
+struct LateChoreBadge: View {
+    var body: some View {
+        Label {
+            Text("Atrasada")
+        } icon: {
+            Image(systemName: "clock.badge.exclamationmark.fill")
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(.white, Color.choreOrange)
+        }
+        .font(.system(size: 15, weight: .semibold))
+        .foregroundStyle(.white)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 7)
+        .background(Capsule().fill(Color.black))
+        .accessibilityHidden(true)
+    }
+}
+
+#Preview("Selo de atraso") {
+    LateChoreBadge()
+        .padding(40)
+        .background(Color.choreBlue)
 }
 
 #Preview("Com cômodo") {

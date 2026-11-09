@@ -43,6 +43,7 @@ struct GamificationView: View {
                         groups: viewModel.catalog.tiers,
                         myOwnerRecordName: viewModel.myOwnerRecordName
                     )
+                    .coachMarkAnchor(GamificationTourStop.ranking)
                     .padding(.horizontal, 30)
                     
                     // MARK: - Coupons (or empty state)
@@ -61,12 +62,14 @@ struct GamificationView: View {
                             source: .available,
                             emptyText: L10n.tr("Nenhum cupom disponível agora.")
                         )
+                        .coachMarkAnchor(GamificationTourStop.availableCoupons)
                         couponSection(
                             title: L10n.tr("Seus cupons"),
                             entries: viewModel.myEntries,
                             source: .mine,
                             emptyText: L10n.tr("Você ainda não tem cupons neste ciclo.")
                         )
+                        .coachMarkAnchor(GamificationTourStop.myCoupons)
                     }
                 }
                 .padding(.bottom, 24)
@@ -76,6 +79,10 @@ struct GamificationView: View {
                 await viewModel.pullToRefresh()
             }
             .background(Color.white.ignoresSafeArea())
+            // MARK: - First visit: pop-ups presenting each component
+            .coachMarks(viewModel.tour)
+            .onAppear { viewModel.startTourIfNeeded() }
+            .onChange(of: viewModel.hasLoaded) { viewModel.startTourIfNeeded() }
             // MARK: - Loading and refreshing
             .task {
                 guard !viewModel.hasLoaded else { return }
@@ -137,7 +144,7 @@ struct GamificationView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
                 Text("Gamificação")
-                    .font(.custom("Alan Sans", size: 34))
+                    .font(.custom("Alan Sans", fixedSize: 34))
                     .fontWeight(.bold)
                     .accessibilityAddTraits(.isHeader)
                 
@@ -159,6 +166,7 @@ struct GamificationView: View {
                     Capsule()
                         .foregroundColor(.lowOpacityYellow.opacity(0.35))
                 )
+                .coachMarkAnchor(GamificationTourStop.coins)
             }
             
             Text(verbatim: itemsText)

@@ -49,14 +49,14 @@ struct RetroRoomsView: View {
             // MARK: - Title ("N cômodos") and the room worked on most
             Text(content.title)
                 .bold()
-                .font(.custom("Alan Sans", size: 64))
+                .font(.custom("Alan Sans", fixedSize: 64))
                 .lineLimit(1)
                 .minimumScaleFactor(0.5)
                 .padding(.top, height * 0.071)
                 .accessibilityAddTraits(.isHeader)
             
             Text(content.subtitle)
-                .font(.title)
+                .font(.system(size: 28))
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: width * 0.877)
                 .padding(.bottom, height * 0.02)
@@ -68,7 +68,7 @@ struct RetroRoomsView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(content.bars.enumerated()), id: \.element.id) { index, bar in
                             Text(bar.roomName)
-                                .font(.body)
+                                .font(.system(size: 17))
                                 .fontWeight(.semibold)
                                 .padding(.bottom, 0.01)
                                 // Read together with its bar below, as one element.
@@ -79,7 +79,7 @@ struct RetroRoomsView: View {
                                 .foregroundStyle(bar.color.uiColor)
                                 .overlay(alignment: .leading) {
                                     Text("\(bar.choreCount) tarefas")
-                                        .font(.subheadline)
+                                        .font(.system(size: 15))
                                         .fontWeight(.semibold)
                                         .foregroundStyle(.white)
                                         .padding(.horizontal)

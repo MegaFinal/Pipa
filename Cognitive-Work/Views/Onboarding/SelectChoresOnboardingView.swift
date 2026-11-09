@@ -284,6 +284,7 @@ private struct RoomCapsule: View {
                 Text(room.name.localizedDefault)
                     .font(.system(size: 18, weight: .semibold))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.75)
                 
                 if selectedCount > 0 {
                     Text("\(selectedCount)")

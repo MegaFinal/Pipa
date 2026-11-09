@@ -383,6 +383,8 @@ final class UserProfileViewModel {
         
         privateUser = nil
         user = nil
+        // A new account starts over: the screens' first-visit tours show again.
+        CoachMarkTour.resetAll()
         onAccountDeleted()
     }
     

@@ -28,13 +28,13 @@ struct RetroNewChoresDivision: View {
             
             // MARK: - Title and explanation
             Text("Comece a nova divisão de tarefas da casa!")
-                .font(.title)
+                .font(.system(size: 28))
                 .bold()
                 .multilineTextAlignment(.leading)
                 .accessibilityAddTraits(.isHeader)
             
             Text("Clique no botão abaixo para dividir as tarefas entre todos os moradores da casa automaticamente")
-                .font(.title3)
+                .font(.system(size: 20))
                 .fontWeight(.regular)
                 .multilineTextAlignment(.leading)
 
@@ -58,7 +58,7 @@ struct RetroNewChoresDivision: View {
             } label: {
                 Text("Dividir mais tarde")
                     .fontWeight(.semibold)
-                    .font(.subheadline)
+                    .font(.system(size: 15))
                     .foregroundStyle(.gray) //arrumar o cinza depois
             }
         }

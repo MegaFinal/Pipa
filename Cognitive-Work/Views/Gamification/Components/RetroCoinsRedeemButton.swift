@@ -51,7 +51,7 @@ struct RetroCoinsRedeemButton: View {
             // MARK: - Error
             if let errorText = viewModel.errorText {
                 Text(errorText)
-                    .font(.footnote)
+                    .font(.system(size: 13))
                     .foregroundStyle(.subTitleGray)
                     .multilineTextAlignment(.center)
             }
