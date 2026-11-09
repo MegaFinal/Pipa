@@ -715,6 +715,24 @@
             "state" : "translated",
             "value" : "%1$@ gratuite, puis %2$@/an"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@無料、その後%2$@/年"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 무료, 이후 %2$@/년"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 免费，之后 %2$@/年"
+          }
         }
       }
     },
@@ -736,6 +754,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@ gratuite, puis %2$@/mois"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@無料、その後%2$@/月"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 무료, 이후 %2$@/월"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ 免费，之后 %2$@/月"
           }
         }
       }
@@ -961,6 +997,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ est parti et la maison est revenue à l’offre gratuite"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@さんが退出したため、家は無料プランに戻りました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@님이 나가서 집이 무료 플랜으로 돌아갔어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ 已离开，这个家已恢复为免费方案"
           }
         }
       }
@@ -1433,6 +1487,24 @@
             "state" : "translated",
             "value" : "%@/an"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/年"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/년"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/年"
+          }
         }
       }
     },
@@ -1454,6 +1526,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@/mois"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/月"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/월"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/月"
           }
         }
       }
@@ -2983,10 +3073,46 @@
     },
     "%lld tarefas não puderam ser salvas e voltaram como pendentes. %@" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld chores couldn't be saved and went back to pending. %2$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld tareas no se pudieron guardar y volvieron a pendientes. %2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld tâches n’ont pas pu être enregistrées et sont repassées en attente. %2$@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事%1$lld件を保存できず、保留中に戻りました。%2$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일 %1$lld개를 저장하지 못해 대기 중으로 돌아갔어요. %2$@"
+          }
+        },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$lld tarefas não puderam ser salvas e voltaram como pendentes. %2$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有 %1$lld 项家务无法保存，已改回待处理。%2$@"
           }
         }
       }
@@ -3887,7 +4013,44 @@
       }
     },
     "14 Bis" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 Bis"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 Bis"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 Bis"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 Bis"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 Bis"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "14 Bis"
+          }
+        }
+      }
     },
     "14 Bis I" : {
       "localizations" : {
@@ -4391,6 +4554,24 @@
             "state" : "translated",
             "value" : "La liste de courses n’est pas encore chargée. Patiente un instant et réessaie."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "買い物リストがまだ読み込まれていません。少し待ってから、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "장보기 목록이 아직 불러와지지 않았어요. 잠시 후 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "购物清单尚未载入。请稍等片刻后再试一次。"
+          }
         }
       }
     },
@@ -4854,6 +5035,24 @@
             "state" : "translated",
             "value" : "Accepter l’offre"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オファーを受け取る"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "혜택 받기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接受优惠"
+          }
         }
       }
     },
@@ -4915,6 +5114,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Suis ce qui est dû"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未払いを確認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기 중 결제 확인하기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看你的待付款项"
           }
         }
       }
@@ -6221,6 +6438,24 @@
             "state" : "translated",
             "value" : "Quelque chose n’a pas fonctionné"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "問題が発生しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "문제가 발생했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出了点问题"
+          }
         }
       }
     },
@@ -6243,6 +6478,24 @@
             "state" : "translated",
             "value" : "Quelque chose n’a pas fonctionné comme prévu. Vérifie ta connexion et réessaie."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正しく動作しませんでした。接続状況を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제대로 작동하지 않았어요. 연결 상태를 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出现了问题。请检查网络连接后再试一次。"
+          }
         }
       }
     },
@@ -6264,6 +6517,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Quelqu’un a emménagé ou ta routine a changé ? Refais ta répartition quand tu veux."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい住人が来た、または生活リズムが変わった?いつでも分担をやり直せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "누군가 집에 들어왔거나 일상이 바뀌었나요? 언제든 분배를 다시 할 수 있어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有新室友加入，或你的作息变了？随时都可以重新分配。"
           }
         }
       }
@@ -7458,6 +7729,24 @@
             "state" : "translated",
             "value" : "Les tâches de la pièce n’ont pas pu être supprimées. Vérifie ta connexion et réessaie."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部屋の家事を削除できませんでした。接続状況を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공간의 집안일을 삭제하지 못했어요. 연결 상태를 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除这个房间的家务。请检查网络连接后再试一次。"
+          }
         }
       }
     },
@@ -7724,6 +8013,24 @@
             "state" : "translated",
             "value" : "S’abonner"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "登録する"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구독하기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "订阅"
+          }
         }
       }
     },
@@ -7848,7 +8155,44 @@
       }
     },
     "Atrasada" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overdue"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atrasada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En retard"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "期限切れ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "밀림"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已逾期"
+          }
+        }
+      }
     },
     "Aumentar" : {
       "localizations" : {
@@ -8694,7 +9038,44 @@
       }
     },
     "Cada tarefa feita rende pontos e faz sua pipa subir no ranking. Arraste para ver todos os rankings." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every chore you do earns points and makes your kite climb the ranking. Swipe to see all the rankings."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cada tarea que haces da puntos y hace que tu cometa suba en el ranking. Desliza para ver todos los rankings."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaque tâche faite rapporte des points et fait monter ton cerf-volant au classement. Fais glisser pour voir tous les classements."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事をするたびにポイントがたまり、あなたの凧がランキングを上がります。スワイプしてすべてのランキングを見られます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 할 때마다 포인트가 쌓이고 내 연이 랭킹에서 올라가요. 밀어서 모든 랭킹을 확인하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每完成一项家务都能获得积分，让你的风筝在排行榜上升。滑动可查看所有排行榜。"
+          }
+        }
+      }
     },
     "Cada tarefa feita te deixa mais perto do próximo rank!" : {
       "localizations" : {
@@ -10508,7 +10889,44 @@
       }
     },
     "Com um cupom, você fica livre da tarefa dele na próxima divisão. Toque em um para comprá-lo." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With a coupon, you're off the hook for its chore in the next split. Tap one to buy it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con un cupón, te libras de su tarea en el próximo reparto. Toca uno para comprarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avec un coupon, tu es dispensé de sa tâche à la prochaine répartition. Touche-en un pour l’acheter."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クーポンがあれば、次の分担でその家事をしなくて済みます。タップして購入できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쿠폰이 있으면 다음 분배에서 그 집안일을 하지 않아도 돼요. 쿠폰을 눌러 구매하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有了优惠券，下次分配时就不用做对应的家务。点按一张即可购买。"
+          }
+        }
+      }
     },
     "Combina com o que está na lista." : {
       "localizations" : {
@@ -11431,7 +11849,44 @@
       }
     },
     "Conectando ao iCloud..." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connecting to iCloud..."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conectando con iCloud..."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion à iCloud..."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudに接続中..."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud에 연결하는 중..."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在连接 iCloud……"
+          }
+        }
+      }
     },
     "Conectar" : {
       "extractionState" : "stale",
@@ -13906,6 +14361,24 @@
             "state" : "translated",
             "value" : "Décris la tâche et l’IA la remplit pour toi"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事を説明すると、AIが入力します"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 설명하면 AI가 채워 줘요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "描述家务，AI 帮你填写"
+          }
         }
       }
     },
@@ -13967,6 +14440,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Décris l’article et l’IA le remplit pour toi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目を説明すると、AIが入力します"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 설명하면 AI가 채워 줘요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "描述商品，AI 帮你填写"
           }
         }
       }
@@ -15674,6 +16165,24 @@
             "state" : "translated",
             "value" : "Répartition automatique illimitée"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事の自動分担が無制限"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무제한 자동 분배"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无限次自动分配"
+          }
         }
       }
     },
@@ -16101,6 +16610,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "et"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "と"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "및"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "和"
           }
         }
       }
@@ -16764,6 +17291,24 @@
             "state" : "translated",
             "value" : "Il ne couvre pas cette maison. Si tu ne veux plus être facturé, résilie-le dans Gérer l’abonnement."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この家には適用されません。今後請求されたくない場合は、「サブスクリプションを管理」で解約してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 집에는 적용되지 않아요. 더 이상 결제되지 않게 하려면 구독 관리에서 해지하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "它不适用于这个家。如果不想再被扣费，请在“管理订阅”中取消。"
+          }
         }
       }
     },
@@ -16848,7 +17393,44 @@
       }
     },
     "Entendi" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Got it"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entendido"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compris"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "わかりました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "알겠어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "知道了"
+          }
+        }
+      }
     },
     "Entrando na casa" : {
       "localizations" : {
@@ -17656,7 +18238,44 @@
       }
     },
     "Erro ao editar item." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't edit the item."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error al editar el ítem."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erreur lors de la modification de l’article."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目を編集できませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 수정하지 못했어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "编辑商品时出错。"
+          }
+        }
+      }
     },
     "Erro ao entrar na casa." : {
       "localizations" : {
@@ -19726,6 +20345,24 @@
             "state" : "translated",
             "value" : "Ce téléphone ne reçoit plus les mises à jour de Harvii. Tu peux l’appairer à nouveau quand tu veux."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この携帯電話はHarviiの更新を受け取らなくなりました。いつでも再度ペアリングできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 휴대폰은 더 이상 Harvii 업데이트를 받지 않아요. 언제든 다시 페어링할 수 있어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这部手机不再接收 Harvii 的更新。你可以随时重新配对。"
+          }
         }
       }
     },
@@ -19788,6 +20425,24 @@
             "state" : "translated",
             "value" : "Cet article a encore des paiements en attente"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この項目にはまだ未払いがあります"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 항목에는 아직 대기 중 결제가 있어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这件商品还有待付款项"
+          }
         }
       }
     },
@@ -19809,6 +20464,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cet article quitte la liste de lui-même quand tout le monde a payé sa part. S’il a été coché comme acheté par erreur, décoche-le dans la liste pour pouvoir le supprimer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この項目は、全員が自分の分を支払うと自動でリストから消えます。誤って購入済みにした場合は、リストでチェックを外すと削除できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 항목은 모두가 자기 몫을 내면 목록에서 자동으로 사라져요. 실수로 구매함으로 표시했다면 목록에서 표시를 해제해야 삭제할 수 있어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有人付清自己的份额后，这件商品会自动从清单移除。如果误标为已购买，请先在清单中取消勾选再删除。"
           }
         }
       }
@@ -21241,6 +21914,24 @@
             "state" : "translated",
             "value" : "Il manque des informations sur l’article"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目の情報が足りません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목 정보가 부족해요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "商品信息不完整"
+          }
         }
       }
     },
@@ -21365,7 +22056,44 @@
       }
     },
     "Fechar dicas" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close tips"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerrar consejos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer les astuces"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ヒントを閉じる"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "도움말 닫기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关闭提示"
+          }
+        }
+      }
     },
     "Fechar editor" : {
       "localizations" : {
@@ -24078,6 +24806,24 @@
             "state" : "translated",
             "value" : "Les articles achetés quittent la liste d’eux-mêmes quand tout le monde a payé sa part. S’il a été coché par erreur, décoche-le comme acheté pour pouvoir le supprimer."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入済みの項目は、全員が自分の分を支払うと自動でリストから消えます。誤ってマークした場合は、購入済みを外すと削除できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구매한 항목은 모두가 자기 몫을 내면 목록에서 자동으로 사라져요. 실수로 표시했다면 구매함 표시를 해제해야 삭제할 수 있어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有人付清自己的份额后，已购买的商品会自动从清单移除。如果误标了，请先取消“已购买”再删除。"
+          }
         }
       }
     },
@@ -26338,6 +27084,24 @@
             "state" : "translated",
             "value" : "Liste de courses indisponible"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "買い物リストを利用できません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "장보기 목록을 사용할 수 없어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "购物清单不可用"
+          }
         }
       }
     },
@@ -28563,6 +29327,24 @@
             "state" : "translated",
             "value" : "Impossible de reporter la tâche"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事を延期できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 미루지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法推迟家务"
+          }
         }
       }
     },
@@ -28584,6 +29366,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible d’ajouter l’article"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目を追加できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 추가하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法添加商品"
           }
         }
       }
@@ -28607,6 +29407,24 @@
             "state" : "translated",
             "value" : "Impossible de mettre à jour l’achat"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入を更新できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구매를 업데이트하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法更新购买状态"
+          }
         }
       }
     },
@@ -28629,11 +29447,66 @@
             "state" : "translated",
             "value" : "Impossible de charger les pièces"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部屋を読み込めませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공간을 불러오지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法载入房间"
+          }
         }
       }
     },
     "Não foi possível carregar os dados. Verifique sua conexão e tente novamente." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load the data. Check your connection and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudieron cargar los datos. Revisa tu conexión e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de charger les données. Vérifie ta connexion et réessaie."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "データを読み込めませんでした。接続状況を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "데이터를 불러오지 못했어요. 연결 상태를 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法载入数据。请检查网络连接后再试一次。"
+          }
+        }
+      }
     },
     "Não foi possível carregar seu perfil" : {
       "localizations" : {
@@ -28653,6 +29526,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de charger ton profil"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロフィールを読み込めませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필을 불러오지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法载入你的个人资料"
           }
         }
       }
@@ -28675,6 +29566,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de charger ta maison"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を読み込めませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 불러오지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法载入你的家"
           }
         }
       }
@@ -28738,11 +29647,66 @@
             "state" : "translated",
             "value" : "Impossible d’acheter le coupon"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "クーポンを購入できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "쿠폰을 구매하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法购买优惠券"
+          }
         }
       }
     },
     "Não foi possível concluir" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't finish"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo completar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de terminer"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完了できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료할 수 없어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法完成"
+          }
+        }
+      }
     },
     "Não foi possível concluir a compra. Tente de novo." : {
       "localizations" : {
@@ -28785,7 +29749,44 @@
       }
     },
     "Não foi possível conectar" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't connect"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo conectar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de se connecter"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결할 수 없어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法连接"
+          }
+        }
+      }
     },
     "Não foi possível conectar o Harvii" : {
       "localizations" : {
@@ -28846,6 +29847,24 @@
             "state" : "translated",
             "value" : "Impossible de créer la maison"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を作成できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 만들지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法创建家"
+          }
         }
       }
     },
@@ -28867,6 +29886,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de créer la pièce"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部屋を作成できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공간을 만들지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法创建房间"
           }
         }
       }
@@ -28890,11 +29927,66 @@
             "state" : "translated",
             "value" : "Impossible de créer ton profil"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロフィールを作成できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필을 만들지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法创建你的个人资料"
+          }
         }
       }
     },
     "Não foi possível criar. Verifique sua conexão e tente novamente." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't create it. Check your connection and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo crear. Revisa tu conexión e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de créer. Vérifie ta connexion et réessaie."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "作成できませんでした。接続状況を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "만들지 못했어요. 연결 상태를 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法创建。请检查网络连接后再试一次。"
+          }
+        }
+      }
     },
     "Não foi possível desfazer esta etapa. Verifique sua conexão e tente novamente." : {
       "localizations" : {
@@ -29156,6 +30248,24 @@
             "state" : "translated",
             "value" : "Impossible d’envoyer le Wi-Fi à Harvii"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HarviiにWi-Fiを送信できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii에 Wi-Fi를 보내지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法将 Wi-Fi 发送到 Harvii"
+          }
         }
       }
     },
@@ -29218,6 +30328,24 @@
             "state" : "translated",
             "value" : "Impossible de supprimer la maison"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を削除できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 삭제하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除家"
+          }
         }
       }
     },
@@ -29239,6 +30367,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de supprimer la tâche"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事を削除できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 삭제하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除家务"
           }
         }
       }
@@ -29302,6 +30448,24 @@
             "state" : "translated",
             "value" : "Impossible de supprimer la pièce"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部屋を削除できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공간을 삭제하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除房间"
+          }
         }
       }
     },
@@ -29323,6 +30487,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de supprimer l’article"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目を削除できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 삭제하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除商品"
           }
         }
       }
@@ -29346,11 +30528,66 @@
             "state" : "translated",
             "value" : "Impossible de supprimer ton profil"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロフィールを削除できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필을 삭제하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除你的个人资料"
+          }
         }
       }
     },
     "Não foi possível excluir. Verifique sua conexão e tente novamente." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't delete it. Check your connection and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo eliminar. Revisa tu conexión e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de supprimer. Vérifie ta connexion et réessaie."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除できませんでした。接続状況を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제하지 못했어요. 연결 상태를 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法删除。请检查网络连接后再试一次。"
+          }
+        }
+      }
     },
     "Não foi possível falar com o Harvii" : {
       "localizations" : {
@@ -29613,6 +30850,24 @@
             "state" : "translated",
             "value" : "Impossible d’appairer Harvii"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harviiとペアリングできませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii와 페어링하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法与 Harvii 配对"
+          }
         }
       }
     },
@@ -29754,6 +31009,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de régler le paiement"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未払いを精算できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기 중 결제를 정산하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法结清待付款项"
           }
         }
       }
@@ -29897,6 +31170,24 @@
             "state" : "translated",
             "value" : "Impossible de quitter la maison"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家から退出できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집에서 나가지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法退出家"
+          }
         }
       }
     },
@@ -29999,6 +31290,24 @@
             "state" : "translated",
             "value" : "Impossible d’enregistrer la clé Pix"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pixキーを保存できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pix 키를 저장하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存 Pix 密钥"
+          }
         }
       }
     },
@@ -30061,6 +31370,24 @@
             "state" : "translated",
             "value" : "Impossible d’enregistrer les tâches"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事を保存できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 저장하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存家务"
+          }
         }
       }
     },
@@ -30082,6 +31409,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible d’enregistrer la pièce"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部屋を保存できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공간을 저장하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存房间"
           }
         }
       }
@@ -30185,6 +31530,24 @@
             "state" : "translated",
             "value" : "Impossible d’enregistrer l’article"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "項目を保存できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목을 저장하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存商品"
+          }
         }
       }
     },
@@ -30247,6 +31610,24 @@
             "state" : "translated",
             "value" : "Impossible d’enregistrer ton nom"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "名前を保存できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이름을 저장하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存你的名字"
+          }
         }
       }
     },
@@ -30269,6 +31650,24 @@
             "state" : "translated",
             "value" : "Impossible d’enregistrer ton profil"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロフィールを保存できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필을 저장하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存你的个人资料"
+          }
         }
       }
     },
@@ -30290,6 +31689,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible d’enregistrer tes horaires"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スケジュールを保存できませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "일정을 저장하지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存你的时间安排"
           }
         }
       }
@@ -30415,7 +31832,44 @@
       }
     },
     "Não foi possível salvar. Verifique sua conexão e tente novamente." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save. Check your connection and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible d’enregistrer. Vérifie ta connexion et réessaie."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "保存できませんでした。接続状況を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장하지 못했어요. 연결 상태를 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法保存。请检查网络连接后再试一次。"
+          }
+        }
+      }
     },
     "Não foi possível trocar de casa" : {
       "localizations" : {
@@ -30435,6 +31889,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de changer de maison"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を切り替えられませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 바꾸지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法切换家"
           }
         }
       }
@@ -30497,6 +31969,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de revenir en arrière"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "戻れませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "돌아가지 못했어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法返回"
           }
         }
       }
@@ -34203,7 +35693,44 @@
       }
     },
     "Os cupons que você comprou ficam aqui até serem usados na próxima divisão." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The coupons you bought stay here until they're used in the next split."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los cupones que compraste quedan aquí hasta que se usen en el próximo reparto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les coupons que tu as achetés restent ici jusqu’à leur utilisation à la prochaine répartition."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入したクーポンは、次の分担で使われるまでここに表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구매한 쿠폰은 다음 분배에서 사용될 때까지 여기에 있어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你购买的优惠券会留在这里，直到在下次分配中使用。"
+          }
+        }
+      }
     },
     "Os moradores não vão conseguir te pagar pelo app até você cadastrar outra." : {
       "localizations" : {
@@ -34946,6 +36473,24 @@
             "state" : "translated",
             "value" : "Paie une seule fois et profite de Premium pour toujours pour seulement %@"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一度の支払い%@だけで、プレミアムをずっと使えます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@만 한 번 결제하면 프리미엄을 평생 이용할 수 있어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "只需一次付费 %@，即可永久使用高级版"
+          }
         }
       }
     },
@@ -35088,6 +36633,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pour garder Premium, une autre personne de la maison doit s’abonner"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアムを続けるには、家の別の人が登録する必要があります"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄을 계속 쓰려면 집의 다른 사람이 구독해야 해요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要继续使用高级版，需要家里的其他人订阅"
           }
         }
       }
@@ -36868,7 +38431,44 @@
       }
     },
     "pipa andorinha" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "swallow kite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cometa golondrina"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cerf-volant hirondelle"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ツバメ凧"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제비 연"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "燕子风筝"
+          }
+        }
+      }
     },
     "Pipa andorinha I" : {
       "localizations" : {
@@ -36991,7 +38591,44 @@
       }
     },
     "pipa delta" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "delta kite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cometa delta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cerf-volant delta"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "デルタ凧"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "델타 연"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "三角风筝"
+          }
+        }
+      }
     },
     "Pipa delta I" : {
       "localizations" : {
@@ -37114,7 +38751,44 @@
       }
     },
     "pipa dragão chinês" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chinese dragon kite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cometa dragón chino"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cerf-volant dragon chinois"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中国の龍凧"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "중국 용 연"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "中国龙风筝"
+          }
+        }
+      }
     },
     "Pipa dragão chinês" : {
       "localizations" : {
@@ -37279,7 +38953,44 @@
       }
     },
     "pipa tradicional" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "traditional kite"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cometa tradicional"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "cerf-volant traditionnel"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "伝統凧"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "전통 연"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "传统风筝"
+          }
+        }
+      }
     },
     "Pipa Tradicional I" : {
       "localizations" : {
@@ -37742,6 +39453,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Politique de confidentialité"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プライバシーポリシー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개인정보 처리방침"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "隐私政策"
           }
         }
       }
@@ -38207,6 +39936,24 @@
             "state" : "translated",
             "value" : "Premium Annuel"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアム年額"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄 연간"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高级版年度"
+          }
         }
       }
     },
@@ -38229,6 +39976,24 @@
             "state" : "translated",
             "value" : "Premium Mensuel"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアム月額"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄 월간"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高级版月度"
+          }
         }
       }
     },
@@ -38250,6 +40015,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Premium à vie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアム買い切り"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄 평생"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高级版终身"
           }
         }
       }
@@ -39642,6 +41425,24 @@
             "state" : "translated",
             "value" : "La personne qui a créé la maison l’a supprimée. Tu vas revenir au début pour créer une nouvelle maison ou en rejoindre une autre."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を作成した人が家を削除しました。最初の画面に戻り、新しい家を作成するか、別の家に参加してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 만든 사람이 집을 삭제했어요. 처음으로 돌아가 새 집을 만들거나 다른 집에 참여하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "创建这个家的人已将其删除。你将回到开始界面，创建新家或加入其他家。"
+          }
         }
       }
     },
@@ -40146,6 +41947,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Reçois des suggestions faites par l’IA sur quoi acheter et comment organiser ta routine."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "買うべきものや生活リズムの整え方を、AIが提案します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무엇을 살지, 일상을 어떻게 정리할지 AI가 제안해 줘요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "由 AI 为你推荐该买什么，以及如何安排日常。"
           }
         }
       }
@@ -40703,6 +42522,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Harvii 네트워크"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Harvii 网络"
           }
         }
       }
@@ -43569,7 +45394,44 @@
       }
     },
     "Sem preço" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No price"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin precio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans prix"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "価格なし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "가격 없음"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无价格"
+          }
+        }
+      }
     },
     "Sem rank" : {
       "localizations" : {
@@ -44311,6 +46173,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ton profil n’est pas encore chargé. Patiente un instant et réessaie."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロフィールがまだ読み込まれていません。少し待ってから、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필이 아직 불러와지지 않았어요. 잠시 후 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的个人资料尚未载入。请稍等片刻后再试一次。"
           }
         }
       }
@@ -45058,6 +46938,24 @@
             "state" : "translated",
             "value" : "Ton abonnement appartient à la maison où tu t’es abonné"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サブスクリプションは、登録した家に適用されます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구독은 구독한 집에 적용돼요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的订阅属于你订阅时所在的家"
+          }
         }
       }
     },
@@ -45161,6 +47059,24 @@
             "state" : "translated",
             "value" : "Ta maison est en essai gratuit jusqu’au %@"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家は%@まで無料トライアル中です"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집은 %@까지 무료 체험 중이에요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的家在 %@ 前处于免费试用期"
+          }
         }
       }
     },
@@ -45183,6 +47099,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ta maison a été supprimée"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家が削除されました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집이 삭제되었어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的家已被删除"
           }
         }
       }
@@ -45246,6 +47180,24 @@
             "state" : "translated",
             "value" : "Ta maison est introuvable. Vérifie ta connexion et réessaie."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家が見つかりませんでした。接続状況を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 찾을 수 없어요. 연결 상태를 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "找不到你的家。请检查网络连接后再试一次。"
+          }
         }
       }
     },
@@ -45290,7 +47242,44 @@
       }
     },
     "Sua conexão está lenta e não conseguimos falar com o iCloud. Verifique sua internet e tente novamente." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your connection is slow and we couldn't reach iCloud. Check your internet and try again."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu conexión está lenta y no pudimos comunicarnos con iCloud. Revisa tu internet e inténtalo de nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ta connexion est lente et nous n’avons pas pu joindre iCloud. Vérifie ta connexion Internet et réessaie."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "接続が遅く、iCloudにつながりませんでした。インターネット接続を確認して、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "연결이 느려서 iCloud에 연결하지 못했어요. 인터넷을 확인하고 다시 시도하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "网络较慢，无法连接 iCloud。请检查网络后再试一次。"
+          }
+        }
+      }
     },
     "Sua divisão" : {
       "localizations" : {
@@ -45655,7 +47644,44 @@
       }
     },
     "Suas moedas" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your coins"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus monedas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tes jetons"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたのコイン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 코인"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的金币"
+          }
+        }
+      }
     },
     "Suas Tarefas" : {
       "extractionState" : "manual",
@@ -45837,6 +47863,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Suggestions intelligentes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スマートな提案"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스마트 추천"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "智能建议"
           }
         }
       }
@@ -47304,6 +49348,24 @@
             "state" : "translated",
             "value" : "Conditions d’utilisation"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "利用規約"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "서비스 약관"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服务条款"
+          }
         }
       }
     },
@@ -47365,6 +49427,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Essai gratuit"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無料トライアル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무료 체험"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "免费试用"
           }
         }
       }
@@ -48038,6 +50118,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toutes les fonctionnalités Premium sont débloquées. Ensuite, quelqu’un de la maison doit s’abonner pour continuer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべてのプレミアム機能が利用できます。その後も続けるには、家の誰かが登録する必要があります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 프리미엄 기능이 열려 있어요. 그 이후에도 계속 쓰려면 집의 누군가가 구독해야 해요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "所有高级版功能均已开放。之后需要家里有人订阅才能继续使用。"
           }
         }
       }
@@ -48984,6 +51082,24 @@
             "state" : "translated",
             "value" : "Changer de maison ?"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を切り替えますか?"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 바꿀까요?"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要切换家吗？"
+          }
         }
       }
     },
@@ -49573,11 +51689,66 @@
             "state" : "translated",
             "value" : "Un seul abonnement débloque tous les avantages pour toute la maison"
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1つのサブスクリプションで、家全体がすべての特典を利用できます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구독 하나로 집 전체가 모든 혜택을 누려요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一份订阅，全家享受所有权益"
+          }
         }
       }
     },
     "Uma tarefa não pôde ser salva e voltou como pendente. %@" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A chore couldn't be saved and went back to pending. %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Una tarea no se pudo guardar y volvió a pendiente. %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une tâche n’a pas pu être enregistrée et est repassée en attente. %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事を保存できず、保留中に戻りました。%@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 저장하지 못해 대기 중으로 돌아갔어요. %@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有一项家务无法保存，已改回待处理。%@"
+          }
+        }
+      }
     },
     "única" : {
       "localizations" : {
@@ -50141,10 +52312,84 @@
       }
     },
     "Vão entrar na lista já comprados." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They'll be added to the list as already bought."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entrarán en la lista ya comprados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils seront ajoutés à la liste comme déjà achetés."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入済みとしてリストに追加されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구매한 상태로 목록에 추가돼요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会以“已购买”状态加入清单。"
+          }
+        }
+      }
     },
     "Vão ser marcados como comprados." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "They'll be marked as bought."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se marcarán como comprados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ils seront marqués comme achetés."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "購入済みにマークされます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "구매함으로 표시돼요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "会被标记为已购买。"
+          }
+        }
+      }
     },
     "Varal" : {
       "localizations" : {
@@ -50654,6 +52899,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Consulte le détail de ce qui est dû, qui te doit et à qui tu dois, et règle les comptes avec Pix."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "未払いの詳細、誰があなたに借りがあるか、あなたが誰に払うべきかを確認し、Pixで精算できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "대기 중 결제의 자세한 내용, 누가 나에게 빚졌는지, 내가 누구에게 갚아야 하는지 보고 Pix로 정산하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "查看待付款项的详情：谁欠你、你欠谁，并用 Pix 结清。"
           }
         }
       }
@@ -51782,7 +54045,44 @@
       }
     },
     "Você ganha moedas fazendo tarefas e contribuindo com a casa. Use para comprar cupons." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You earn coins by doing chores and pitching in at home. Use them to buy coupons."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ganas monedas haciendo tareas y colaborando con la casa. Úsalas para comprar cupones."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu gagnes des jetons en faisant des tâches et en participant à la maison. Utilise-les pour acheter des coupons."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家事をしたり家に貢献したりするとコインがもらえます。クーポンの購入に使えます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집안일을 하고 집에 기여하면 코인을 받아요. 쿠폰을 사는 데 쓰세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "做家务、为家出力就能赚金币，可用来购买优惠券。"
+          }
+        }
+      }
     },
     "Você já tem um cupom desse cômodo neste ciclo." : {
       "localizations" : {
@@ -51923,6 +54223,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tu ne peux pas prendre cette tâche"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この家事は引き受けられません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 집안일은 맡을 수 없어요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你不能领取这项家务"
           }
         }
       }
@@ -52067,6 +54385,24 @@
             "state" : "translated",
             "value" : "Tu paies le Premium de cette maison. Quand tu pars, la maison revient à l’offre gratuite. L’abonnement reste actif sur l’App Store : si tu ne veux plus être facturé, résilie-le dans Profil > Pipa Premium > Gérer l’abonnement avant de partir."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたがこの家のプレミアムを支払っています。退出すると、家は無料プランに戻ります。サブスクリプションはApp Storeで有効なままです。今後請求されたくない場合は、退出する前に「プロフィール」>「Pipaプレミアム」>「サブスクリプションを管理」で解約してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 집의 프리미엄은 내가 결제하고 있어요. 나가면 집은 무료 플랜으로 돌아가요. 구독은 App Store에서 계속 유지돼요. 더 이상 결제되지 않게 하려면 나가기 전에 프로필 > Pipa 프리미엄 > 구독 관리에서 해지하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这个家的高级版由你付费。你离开后，这个家会恢复为免费方案。订阅在 App Store 中仍然有效：如果不想再被扣费，请在离开前前往“个人资料 > Pipa Premium > 管理订阅”取消。"
+          }
         }
       }
     },
@@ -52089,6 +54425,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tu paies le Premium de cette maison. Ton Premium à vie part avec toi, mais cette maison revient à l’offre gratuite."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたがこの家のプレミアムを支払っています。買い切りのプレミアムはあなたについていきますが、この家は無料プランに戻ります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 집의 프리미엄은 내가 결제하고 있어요. 평생 프리미엄은 나와 함께 가지만, 이 집은 무료 플랜으로 돌아가요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这个家的高级版由你付费。你的终身高级版会跟着你，但这个家会恢复为免费方案。"
           }
         }
       }
@@ -52313,6 +54667,24 @@
             "state" : "translated",
             "value" : "Tu ne peux faire partie que d’une maison à la fois. En acceptant l’invitation, tu quittes ta maison actuelle et tu perds tes tâches, points et jetons."
           }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "参加できる家は一度に1つだけです。招待を受け入れると、今の家から退出し、その家での家事、ポイント、コインは失われます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "한 번에 하나의 집에만 참여할 수 있어요. 초대를 수락하면 지금 집에서 나가게 되고, 그 집의 집안일, 포인트, 코인을 잃어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你一次只能加入一个家。接受邀请后，你会离开当前的家，并失去在那里的家务、积分和金币。"
+          }
         }
       }
     },
@@ -52335,6 +54707,24 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tu as le coupon de cette tâche, elle ne peut donc pas être à toi ce cycle."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この家事のクーポンを持っているため、今サイクルはあなたの担当になりません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 집안일의 쿠폰을 가지고 있어서 이번 사이클에는 내 담당이 될 수 없어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你持有这项家务的优惠券，所以本周期它不能分给你。"
           }
         }
       }
