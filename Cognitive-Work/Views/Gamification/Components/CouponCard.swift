@@ -173,8 +173,12 @@ struct CouponTicket: View {
         VStack(spacing: 2 * scale) {
             Text(verbatim: L10n.tr("Desbloqueie em"))
                 .font(.system(size: metrics.captionSize))
+            // One line, shrinking a little for the long names ("Pipa Tradicional III", "Pipa
+            // dragão chinês"): on two lines they filled the stub and touched its bottom edge.
             Text(verbatim: coupon.tier.displayName)
                 .font(.system(size: metrics.tierSize, weight: .bold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
         }
         .multilineTextAlignment(.center)
         .fixedSize(horizontal: false, vertical: true)
@@ -271,4 +275,20 @@ private struct Perforation: Shape {
         )
     }
     .padding(30)
+}
+
+#Preview("Na lista (rankings longos)") {
+    let kitchen = DefaultRoomsOnboarding.kitchen
+    HStack(spacing: 14) {
+        ForEach([Tier.ajudanteOficial, .cavaleiroDoRodo, .almaDaCasa], id: \.self) { tier in
+            CouponCard(
+                coupon: CouponModel(name: "Lavar a louça", isOnSale: true, price: 60, tier: tier),
+                roomColor: kitchen.color,
+                roomSymbol: kitchen.symbol,
+                isAffordable: true
+            )
+            .frame(width: 145)
+        }
+    }
+    .padding(20)
 }

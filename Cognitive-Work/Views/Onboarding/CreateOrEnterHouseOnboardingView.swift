@@ -69,9 +69,9 @@ struct CreateOrEnterHouseOnboardingView: View {
                         VStack(alignment: .leading) {
                             Text("Criar uma casa")
                                 .bold()
-                                .font(.title2)
+                                .font(.system(size: 22))
                             Text("Você será o administrador")
-                                .font(.subheadline)
+                                .font(.system(size: 15))
                         }
                         .padding(.horizontal, width * 0.04)
                         .frame(minWidth: width * 0.854, alignment: .leading)
@@ -123,9 +123,9 @@ struct CreateOrEnterHouseOnboardingView: View {
                     VStack(alignment: .leading) {
                         Text("Entrar em uma casa")
                             .bold()
-                            .font(.title2)
+                            .font(.system(size: 22))
                         Text("A casa já foi criada por outro morador")
-                            .font(.subheadline)
+                            .font(.system(size: 15))
                             .multilineTextAlignment(.leading)
                     }
                     .foregroundStyle(.chorePurple)

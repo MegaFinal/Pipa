@@ -30,7 +30,7 @@ struct HouseAccessLostView: View {
                 .accessibilityDecorative()
 
             Text("Você não faz mais parte desta casa")
-                .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                .font(.custom("Alan Sans", fixedSize: 32))
                 .bold()
                 .foregroundStyle(.titleGray)
                 .multilineTextAlignment(.center)
@@ -39,7 +39,7 @@ struct HouseAccessLostView: View {
                 .padding(.bottom, height * 0.02)
 
             Text("O administrador removeu você da casa, ou ela foi excluída. Seu perfil continua salvo: é só entrar em outra casa ou criar a sua.")
-                .font(.title3)
+                .font(.system(size: 20))
                 .foregroundStyle(.subTitleGray)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)

@@ -21,7 +21,7 @@ struct ChoreDetailsHeader: View {
                 .accessibilityHidden(true)
             
             Text(chore.localizedName)
-                .font(.custom("Alan Sans", size: 28))
+                .font(.custom("Alan Sans", fixedSize: 28))
                 .fontWeight(.semibold)
                 .multilineTextAlignment(.center)
                 .frame(width: width * 0.7)

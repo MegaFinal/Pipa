@@ -26,7 +26,7 @@ struct DebtBalanceCard: View {
             // MARK: - Title and caption
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.custom("Alan Sans", size: 24))
+                    .font(.custom("Alan Sans", fixedSize: 24))
                     .fontWeight(.bold)
                     .foregroundStyle(.black)
 
@@ -39,7 +39,7 @@ struct DebtBalanceCard: View {
 
             // MARK: - Amount
             Text(amountText)
-                .font(.custom("Alan Sans", size: 38))
+                .font(.custom("Alan Sans", fixedSize: 38))
                 .fontWeight(.bold)
                 .foregroundStyle(color.uiColor)
                 .lineLimit(1)

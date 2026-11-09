@@ -34,7 +34,7 @@ struct PendingPaymentsView: View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 20) {
                 Text("Pendências")
-                    .font(.custom("Alan Sans", size: 34))
+                    .font(.custom("Alan Sans", fixedSize: 34))
                     .fontWeight(.bold)
                     .padding(.horizontal, 10)
                     .accessibilityAddTraits(.isHeader)
@@ -197,7 +197,7 @@ struct PendingPaymentsView: View {
                 .accessibilityHidden(true)
 
             Text(viewModel.emptyTitle)
-                .font(.custom("Alan Sans", size: 24))
+                .font(.custom("Alan Sans", fixedSize: 24))
                 .fontWeight(.bold)
                 .foregroundStyle(.titleGray)
 

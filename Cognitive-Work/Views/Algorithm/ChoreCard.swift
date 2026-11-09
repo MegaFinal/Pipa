@@ -61,7 +61,7 @@ struct ChoreCard: View {
                 .font(.system(size: 17, weight: .semibold))
             Text(chore.localizedName)
                 .bold()
-                .font(.custom("Alan Sans", size: 26))
+                .font(.custom("Alan Sans", fixedSize: 26))
         }
     }
 }

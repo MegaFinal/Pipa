@@ -87,7 +87,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             
             // MARK: - Member count and loading
             Text("Na casa \(Text("\(houseUsers.count)").fontWeight(.black))")
-                .font(.body)
+                .font(.system(size: 17))
                 .frame(width: width * 0.84, alignment: .leading)
                 .padding(.top, 30)
                 .padding(.bottom, width * 0.02)
@@ -95,7 +95,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
             
             if onRemoveMember != nil {
                 Text("Toque em um morador para removê-lo da casa.")
-                    .font(.footnote)
+                    .font(.system(size: 13))
                     .foregroundStyle(.gray)
             }
             
@@ -110,7 +110,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     if !pendingUsers.isEmpty {
                         Text("Em configuração")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .fontWeight(.thin)
                         .accessibilityAddTraits(.isHeader)
                         pendingUsersView
@@ -118,7 +118,7 @@ struct InviteAndWaitUsersFreeTimeOnboardingView: View {
                     
                     if !completedUsers.isEmpty {
                         Text("Moradores prontos")
-                        .font(.subheadline)
+                        .font(.system(size: 15))
                         .fontWeight(.thin)
                         .accessibilityAddTraits(.isHeader)
                         completedUsersView

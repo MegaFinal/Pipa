@@ -131,6 +131,9 @@ struct ChoreCardListStyle: View {
                                     .shadow(color: .black.opacity(0.24), radius: 1.83087, x: 1.71644, y: 1.14429)
                             }
                         }
+                        // Same height with or without avatars: a chore nobody owns yet (one to
+                        // pick) used to have a shorter top line, and its content sat off-center.
+                        .frame(height: width * 0.07)
                         .padding(.bottom, 8)
                         
                         // MARK: - Tags
@@ -233,13 +236,33 @@ struct ChoreCardListStyle: View {
         return chore
     }()
     
+    // The same chore with three responsible members (two avatars and "+1").
+    let ownedChore: ChoreModel = {
+        let owned = ChoreModel(
+            name: "Tirar o lixo",
+            description: "",
+            frequency: .weekly,
+            duration: 10,
+            isPublic: true,
+            priorityTag: .high,
+            roomReference: chore.roomReference
+        )
+        owned.allResponsibleUsersReference = [ShopListPreviewData.jones, ShopListPreviewData.isabela, ShopListPreviewData.carol]
+            .compactMap(\.recordID)
+            .map { CKRecord.Reference(recordID: $0, action: .none) }
+        return owned
+    }()
+    
     let vm: CarouselViewModel = {
         let vm = CarouselViewModel()
         vm.roomModels = [room]
+        vm.userModels = ShopListPreviewData.users
         return vm
     }()
     
-    ChoreCardListStyle(chore: chore, namespace: namespace, carouselViewModel: vm) {
-        print("Tapped")
+    VStack(spacing: 18) {
+        // Nobody owns it yet (a chore to pick): no avatars.
+        ChoreCardListStyle(chore: chore, namespace: namespace, carouselViewModel: vm)
+        ChoreCardListStyle(chore: ownedChore, namespace: namespace, carouselViewModel: vm)
     }
 }

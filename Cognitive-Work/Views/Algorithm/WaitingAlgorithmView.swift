@@ -52,7 +52,7 @@ struct WaitingAlgorithmView: View {
                     }
                 
                 Text("Levantando escalas")
-                    .font(.custom("Alan Sans", size: 32, relativeTo: .largeTitle))
+                    .font(.custom("Alan Sans", fixedSize: 32))
                     .bold()
                     .foregroundStyle(.titleGray)
                 

@@ -54,11 +54,11 @@ struct HardwareDailyChoresView: View {
         HStack {
             HStack(alignment: .firstTextBaseline) {
                 Text("Tarefas do Dia,")
-                    .font(.title)
+                    .font(.system(size: 28))
                     .bold()
 
                 Text(viewModel.targetDateFormatted)
-                    .font(.title2)
+                    .font(.system(size: 22))
             }
             
             Spacer()
@@ -95,7 +95,7 @@ struct HardwareDailyChoresView: View {
                 HStack(spacing: 6) {
                     EInkRoomSwatch(style: EInkRoomStyle(room: room))
                     Text(room.name.localizedDefault)
-                        .font(.title3)
+                        .font(.system(size: 20))
                         .foregroundStyle(.black)
                 }
             }
@@ -134,13 +134,13 @@ private struct UserDailyChoresColumn: View {
             // MARK: - Name and share of the day
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text(group.user.name)
-                    .font(.title3)
+                    .font(.system(size: 20))
                     .fontWeight(.bold)
                 
                 Spacer()
                 
                 Text(group.shareOfDayFormatted)
-                    .font(.title3)
+                    .font(.system(size: 20))
                     .foregroundStyle(.black)
             }
             .padding(.trailing, 5)
@@ -167,7 +167,7 @@ private struct UserDailyChoresColumn: View {
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text("Sem tarefas por hoje")
-                .font(.title3)
+                .font(.system(size: 20))
                 .fontWeight(.bold)
                 // No line limit: wraps onto as many lines as it needs instead of "…".
                 .fixedSize(horizontal: false, vertical: true)
@@ -196,12 +196,12 @@ private struct DailyChoreCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(room?.name.localizedDefault ?? L10n.tr("Sem cômodo"))
-                .font(.body)
+                .font(.system(size: 17))
                 .fontWeight(.medium)
                 .fixedSize(horizontal: false, vertical: true)
 
             Text(chore.localizedName)
-                .font(.title3)
+                .font(.system(size: 20))
                 .fontWeight(.bold)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -223,7 +223,7 @@ private struct OverflowStrip: View {
 
     var body: some View {
         Text(verbatim: "+" + L10n.tr("\(count) tarefas"))
-            .font(.title3)
+            .font(.system(size: 20))
             .fontWeight(.semibold)
             .foregroundColor(EInkShade.darkGray)
             .frame(maxWidth: .infinity)

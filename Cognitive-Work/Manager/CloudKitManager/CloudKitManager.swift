@@ -114,6 +114,15 @@ class CloudKitManager {
         ) { [weak self] _ in
             self?.markDataChanged()
         }
+        
+        // Another iCloud account signed in: the cached account ID belongs to the old one.
+        NotificationCenter.default.addObserver(
+            forName: .CKAccountChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in self?.userRecordIDLookup = nil }
+        }
     }
     
     
@@ -387,9 +396,29 @@ class CloudKitManager {
         return recordName.hasSuffix(houseUserSuffix)
     }
     
+    /// The signed-in iCloud account's record ID, read once and reused.
+    ///
+    /// It used to be a network round trip on every call, and opening the app called it several
+    /// times in a row (leaving orphaned houses, checking the membership, notifications), each one
+    /// waiting for the previous. It only changes when the iCloud account does
+    /// (`CKAccountChanged`, which clears it); a failed read isn't kept, so the next call tries again.
+    @ObservationIgnored
+    private var userRecordIDLookup: Task<CKRecord.ID?, Never>?
+
     /// The record ID of the signed-in iCloud account, or `nil` when it can't be read.
     func fetchCurrentUserRecordID() async -> CKRecord.ID? {
-        return try? await container.userRecordID()
+        if let running = userRecordIDLookup {
+            let cached = await running.value
+            if let cached { return cached }
+        }
+        let container = self.container
+        let lookup: Task<CKRecord.ID?, Never> = Task {
+            try? await container.userRecordID()
+        }
+        userRecordIDLookup = lookup
+        let recordID = await lookup.value
+        if recordID == nil { userRecordIDLookup = nil }
+        return recordID
     }
     
     /// Fetches this device's own `UserModel` record *inside the current house* — the one

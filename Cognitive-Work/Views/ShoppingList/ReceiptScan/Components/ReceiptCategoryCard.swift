@@ -60,7 +60,7 @@ struct ReceiptCategoryCard<Row: View>: View {
                     .accessibilityHidden(true)
 
                 Text(section.category.displayName)
-                    .font(.custom("Alan Sans", size: 18))
+                    .font(.custom("Alan Sans", fixedSize: 18))
                     .fontWeight(.bold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)

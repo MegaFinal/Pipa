@@ -80,13 +80,23 @@ struct ShopSectionCard<Row: View>: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Above the items, so they slide out from under the banner's bottom edge, like a
+            // folder opening, instead of being drawn over it from its top.
             header
+                .zIndex(1)
 
             if isExpanded {
                 items
+                    // The items open as one block: without this, each row animated on its
+                    // own from where it was laid out while the card moved and grew.
+                    .geometryGroup()
                     .transition(.opacity.combined(with: .move(edge: .top)))
+                    .zIndex(0)
             }
         }
+        // The card moves and grows as one piece; its rows ride along instead of each
+        // animating separately (see `.geometryGroup()` above).
+        .geometryGroup()
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
         .shadow(color: .black.opacity(0.18), radius: 8, y: 4)
         .overlay(alignment: .top) {
@@ -109,7 +119,7 @@ struct ShopSectionCard<Row: View>: View {
                 }
 
                 Text(section.title)
-                    .font(.custom("Alan Sans", size: 22))
+                    .font(.custom("Alan Sans", fixedSize: 22))
                     .fontWeight(.bold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)

@@ -134,7 +134,10 @@ class RecurrentAssignmentModel: CloudKitSyncable {
         let calendar = Calendar.current
         let previousDay = day
         
-        guard let newDay = calendar.date(byAdding: .day, value: days, to: calendar.startOfDay(for: day)) else { return false }
+        // A late occurrence is postponed from today, not from its past day: "Adiar 1 dia"
+        // must land on tomorrow, not on another day that has already gone by.
+        let start = max(calendar.startOfDay(for: day), calendar.startOfDay(for: Date()))
+        guard let newDay = calendar.date(byAdding: .day, value: days, to: start) else { return false }
         day = newDay
         
         guard await CloudKitManager.shared.update(self) else {

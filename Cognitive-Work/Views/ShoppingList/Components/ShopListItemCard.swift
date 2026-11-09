@@ -78,7 +78,8 @@ struct ShopListItemCard: View {
             .font(.system(size: 18))
             .fontWeight(.bold)
             .strikethrough(item.isBought)
-            .lineLimit(2)
+            // Long names wrap in full instead of ending in "…".
+            .fixedSize(horizontal: false, vertical: true)
     }
     
     /// The round check button (spinner while saving).
