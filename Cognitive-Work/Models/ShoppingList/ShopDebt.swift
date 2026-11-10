@@ -119,7 +119,10 @@ enum DebtCalculator {
         /// positive when the housemate owes the user, negative when the user owes the housemate.
         var shares: [String: [DebtEntry]] = [:]
 
-        for item in items.sorted(by: { $0.createdAt < $1.createdAt }) {
+        // In the order they were bought, so the latest purchase is the last line of the bill,
+        // also for an item bought again after being unchecked (not where it was first added).
+        let byPurchase = items.sorted { ($0.boughtAt ?? $0.createdAt) < ($1.boughtAt ?? $1.createdAt) }
+        for item in byPurchase {
             guard
                 item.isBought,
                 item.hasPrice,

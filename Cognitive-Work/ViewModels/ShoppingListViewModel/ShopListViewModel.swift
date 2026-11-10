@@ -180,14 +180,26 @@ final class ShopListViewModel {
     /// Turns a user record id into the person it belongs to (`ownerRecordName`), like
     /// ``DebtCalculator``: the same person may have more than one user record.
     private func personResolver() -> (CKRecord.ID) -> String {
-        // The signed-in member too: the item may point at their record before the house list
-        // has it. Without an account name, the record itself (as in ``DebtCalculator``).
-        var ownerByRecord: [String: String] = [:]
+        let owners = ownerByRecordName
+        return { owners[$0.recordName] ?? $0.recordName }
+    }
+
+    /// Record name -> the person it belongs to, for ``personResolver()`` and ``person(_:)``.
+    /// Built once by ``rebuildOwners()`` when the house members change, instead of on every
+    /// call (several per item on each redraw).
+    @ObservationIgnored
+    private var ownerByRecordName: [String: String] = [:]
+
+    /// Fills ``ownerByRecordName``. The signed-in member too: an item may point at their record
+    /// before the house list has it. Without an account name, the record itself (as in
+    /// ``DebtCalculator``).
+    private func rebuildOwners() {
+        var owners: [String: String] = [:]
         for user in houseUserRecords + houseUsers + [currentUser].compactMap({ $0 }) {
             guard let name = user.recordID?.recordName else { continue }
-            ownerByRecord[name] = user.ownerRecordName.isEmpty ? name : user.ownerRecordName
+            owners[name] = user.ownerRecordName.isEmpty ? name : user.ownerRecordName
         }
-        return { ownerByRecord[$0.recordName] ?? $0.recordName }
+        ownerByRecordName = owners
     }
 
     // MARK: - Presentation
@@ -227,9 +239,11 @@ final class ShopListViewModel {
         }
     }
 
-    /// The "Comprados" section, or `nil` when nothing was bought yet.
+    /// The "Comprados" section, or `nil` when nothing was bought yet. Latest purchase first,
+    /// whatever ``sortOption`` is: an item just checked off (also one bought again after being
+    /// unchecked) shows at the top, not back where it was added.
     var boughtSection: ShopListSection? {
-        let items = sorted(boughtItems)
+        let items = boughtItems.sorted { ($0.boughtAt ?? $0.createdAt) > ($1.boughtAt ?? $1.createdAt) }
         return items.isEmpty ? nil : ShopListSection(id: Self.boughtSectionID, title: L10n.tr("Comprados"), items: items)
     }
 
@@ -315,6 +329,7 @@ final class ShopListViewModel {
         self.houseUsers = houseUsers
         self.houseUserRecords = houseUsers
         self.currentUser = currentUser
+        rebuildOwners()
         self.hasLoaded = true
     }
 
@@ -384,6 +399,7 @@ final class ShopListViewModel {
         houseUsers = snapshot.users
         houseUserRecords = snapshot.userRecords
         currentUser = snapshot.houseUser
+        rebuildOwners()
 
         guard let shopList = snapshot.shopList else {
             list = nil
@@ -411,10 +427,7 @@ final class ShopListViewModel {
     /// Who a user record belongs to (their iCloud account), matching ``DebtCalculator``: the
     /// same person can have more than one record, and an item may point at any of them.
     private func person(_ id: CKRecord.ID) -> String {
-        let user = (houseUserRecords + houseUsers + [currentUser].compactMap { $0 })
-            .first { $0.recordID == id }
-        guard let user, !user.ownerRecordName.isEmpty else { return id.recordName }
-        return user.ownerRecordName
+        ownerByRecordName[id.recordName] ?? id.recordName
     }
 
     /// The housemates of a bought item who share its price with the buyer (everyone it was for,
@@ -501,15 +514,15 @@ final class ShopListViewModel {
         buyerID: CKRecord.ID?,
         adderID: CKRecord.ID?
     ) async {
-        let scoreManager = ScoreManager.shared
+        let buyer = houseUser(withID: buyerID)
+        let adder = awarded != nil ? houseUser(withID: adderID) : nil
+        let buyerPoints = awarded ?? ScoreValues.shoppingPurchase(hasPrice: hasPrice)
 
-        if let buyer = houseUser(withID: buyerID) {
-            let buyerPoints = awarded ?? ScoreValues.shoppingPurchase(hasPrice: hasPrice)
-            await scoreManager.removeScore(score: buyerPoints, for: buyer)
-        }
-        if awarded != nil, let adder = houseUser(withID: adderID) {
-            await scoreManager.removeScore(score: ScoreValues.shoppingItemAdded.points, for: adder)
-        }
+        // Both at once (merged into one when the buyer also added the item).
+        var changes: [(user: UserModel, points: Int)] = []
+        if let buyer { changes.append((buyer, -buyerPoints)) }
+        if let adder { changes.append((adder, -ScoreValues.shoppingItemAdded.points)) }
+        await ScoreManager.shared.applyPoints(changes)
     }
 
     // MARK: - Items
@@ -773,12 +786,12 @@ final class ShopListViewModel {
             }
             // Unchecked before the trip's notification went out: nobody hears about it.
             BoughtItemsNotifier.shared.remove(item)
-            await takeBackPurchasePoints(
-                awarded: awarded,
-                hasPrice: item.hasPrice,
-                buyerID: buyerID,
-                adderID: item.addedByRecordID
-            )
+            // The item is saved: the check stops spinning now and the points follow on their own.
+            let hasPrice = item.hasPrice
+            let adderID = item.addedByRecordID
+            BackgroundWork.run(named: "ShopUnbuyPoints") { [self] in
+                await takeBackPurchasePoints(awarded: awarded, hasPrice: hasPrice, buyerID: buyerID, adderID: adderID)
+            }
         } else if let currentUser {
             // "Comprar sem valor" on an item that had a price: drop it before saving, so the
             // record is saved without it. Restored below if the save fails.
@@ -797,10 +810,15 @@ final class ShopListViewModel {
             }
 
             notifyItemBought(item, by: currentUser)
-            
-            await ScoreManager.shared.assignScore(score: points, for: currentUser)
-            if let adder = houseUser(withID: item.addedByRecordID) {
-                await ScoreManager.shared.assignScore(score: ScoreValues.shoppingItemAdded.points, for: adder)
+
+            // The item is saved: the check stops spinning now and the points follow on their own,
+            // the buyer's and the adder's at the same time.
+            let adder = houseUser(withID: item.addedByRecordID)
+            var changes: [(user: UserModel, points: Int)] = [(currentUser, points)]
+            if let adder { changes.append((adder, ScoreValues.shoppingItemAdded.points)) }
+            BackgroundWork.run(named: "ShopPurchasePoints") {
+                // Merged into one when the buyer also added the item.
+                await ScoreManager.shared.applyPoints(changes)
             }
         } else if await item.toggle() == false {
             errorTitle = L10n.tr("Não foi possível atualizar a compra")
@@ -850,12 +868,14 @@ final class ShopListViewModel {
         // and deleting items can't be repeated for points. Items not bought never paid anything;
         // purchases of a closed cycle were already counted in it.
         if item.isBought, isInCurrentCycle(item.boughtAt) {
-            await takeBackPurchasePoints(
-                awarded: item.awardedPoints,
-                hasPrice: item.hasPrice,
-                buyerID: item.buyerRecordID,
-                adderID: item.addedByRecordID
-            )
+            // Deleted already: the points follow without holding the screen.
+            let awarded = item.awardedPoints
+            let hasPrice = item.hasPrice
+            let buyerID = item.buyerRecordID
+            let adderID = item.addedByRecordID
+            BackgroundWork.run(named: "ShopDeletePoints") { [self] in
+                await takeBackPurchasePoints(awarded: awarded, hasPrice: hasPrice, buyerID: buyerID, adderID: adderID)
+            }
         }
         return true
     }
@@ -1087,13 +1107,11 @@ final class ShopListViewModel {
         guard !isPreview else { return saved }
         let adders = Array(adderPoints.values)
         let points = myPoints
-        Task {
-            if points > 0 {
-                await ScoreManager.shared.assignScoreForMyUser(score: points)
-            }
-            for adder in adders {
-                await ScoreManager.shared.assignScore(score: adder.points, for: adder.user)
-            }
+        BackgroundWork.run(named: "ShopReceiptPoints") { [self] in
+            // Everyone's points at once (each is a fetch and a save), then the notification.
+            var changes: [(user: UserModel, points: Int)] = [(currentUser, points)]
+            changes += adders.map { (user: $0.user, points: $0.points) }
+            await ScoreManager.shared.applyPoints(changes)
             // A receipt is the whole trip: no waiting like the items checked off on the list.
             await notifyPurchase(bought, by: currentUser, fromReceipt: true)
         }

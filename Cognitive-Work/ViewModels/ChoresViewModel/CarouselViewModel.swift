@@ -1224,11 +1224,12 @@ class CarouselViewModel {
             takeBack(occurrence.awardedPoints, from: occurrence.userThatHaveDoneReference)
         }
         
+        // Everyone at once: each removal is a fetch and a save of its own.
         let members = house.userRecords + house.users
-        for (userID, points) in pointsByUser {
-            guard let member = members.first(where: { $0.recordID == userID }) else { continue }
-            await ScoreManager.shared.removeScore(score: points, for: member)
+        let removals: [(member: UserModel, points: Int)] = pointsByUser.compactMap { userID, points in
+            members.first(where: { $0.recordID == userID }).map { ($0, points) }
         }
+        await ScoreManager.shared.applyPoints(removals.map { (user: $0.member, points: -$0.points) })
     }
     
     /// Deletes a chore, or — for a recurring chore — just the given occurrence(s), and
