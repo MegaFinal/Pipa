@@ -3886,6 +3886,9 @@
         }
       }
     },
+    "14 Bis" : {
+
+    },
     "14 Bis I" : {
       "localizations" : {
         "en" : {
@@ -7968,6 +7971,7 @@
       }
     },
     "avião" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -11998,6 +12002,7 @@
       }
     },
     "Confira este item" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -12233,6 +12238,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "确认时间表"
+          }
+        }
+      }
+    },
+    "Confirme o valor total" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm the total amount"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirma el valor total"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmez le montant total"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "合計金額を確認"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "총 금액을 확인하세요"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "确认总金额"
           }
         }
       }
@@ -13241,7 +13286,6 @@
       }
     },
     "Da sua lista" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21565,6 +21609,7 @@
       }
     },
     "foguete" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -21685,7 +21730,6 @@
       }
     },
     "Fora da lista" : {
-      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -36823,6 +36867,9 @@
         }
       }
     },
+    "pipa andorinha" : {
+
+    },
     "Pipa andorinha I" : {
       "localizations" : {
         "en" : {
@@ -36942,6 +36989,9 @@
           }
         }
       }
+    },
+    "pipa delta" : {
+
     },
     "Pipa delta I" : {
       "localizations" : {
@@ -37063,6 +37113,9 @@
         }
       }
     },
+    "pipa dragão chinês" : {
+
+    },
     "Pipa dragão chinês" : {
       "localizations" : {
         "en" : {
@@ -37104,6 +37157,7 @@
       }
     },
     "pipa grande" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37144,6 +37198,7 @@
       }
     },
     "pipa pequena" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -37222,6 +37277,9 @@
           }
         }
       }
+    },
+    "pipa tradicional" : {
+
     },
     "Pipa Tradicional I" : {
       "localizations" : {
@@ -37966,6 +38024,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@的价格"
+          }
+        }
+      }
+    },
+    "Preenchendo com IA…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filling in with AI…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completando con IA…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplissage avec l’IA…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AIで入力中…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI로 채우는 중…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI 正在填写…"
           }
         }
       }
@@ -39237,86 +39335,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@的数量"
-          }
-        }
-      }
-    },
-    "Confirme o valor total" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirm the total amount"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirma el valor total"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Confirmez le montant total"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "合計金額を確認"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "총 금액을 확인하세요"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "确认总金额"
-          }
-        }
-      }
-    },
-    "Preenchendo com IA…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Filling in with AI…"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Completando con IA…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remplissage avec l’IA…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AIで入力中…"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI로 채우는 중…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI 正在填写…"
           }
         }
       }
@@ -43550,6 +43568,9 @@
         }
       }
     },
+    "Sem preço" : {
+
+    },
     "Sem rank" : {
       "localizations" : {
         "en" : {
@@ -44373,9 +44394,6 @@
           }
         }
       }
-    },
-    "Seu rank no ciclo" : {
-
     },
     "Seu saldo" : {
       "localizations" : {
@@ -50121,6 +50139,12 @@
           }
         }
       }
+    },
+    "Vão entrar na lista já comprados." : {
+
+    },
+    "Vão ser marcados como comprados." : {
+
     },
     "Varal" : {
       "localizations" : {

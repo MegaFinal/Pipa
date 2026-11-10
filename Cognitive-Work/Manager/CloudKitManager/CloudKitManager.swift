@@ -606,7 +606,7 @@ class CloudKitManager {
             name: profile.name,
             profilePicture: profilePictureDuplicate,
             banner: profile.banner,
-            tier: .novatoDaCasa,
+            tier: .tradicionalI,
             coins: 0,
             house: CKRecord.Reference(recordID: houseID, action: .none),
             couponLimit: profile.couponLimit,

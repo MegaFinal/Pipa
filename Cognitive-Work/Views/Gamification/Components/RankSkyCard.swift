@@ -434,11 +434,11 @@ private struct RankLine: Shape {
 
 #Preview("Uma linha por ranking") {
     let users = [
-        UserModel(name: "Ana", tier: .aprendiz, points: 30, ownerRecordName: "ana"),
-        UserModel(name: "Bia", tier: .vigiaDaCozinha, points: 105, ownerRecordName: "bia"),
-        UserModel(name: "Caio Souza", tier: .vigiaDaCozinha, points: 110, ownerRecordName: "caio"),
-        UserModel(name: "Davi", tier: .cavaleiroDoRodo, points: 210, ownerRecordName: "davi"),
-        UserModel(name: "Edu", tier: .almaDaCasa, points: 320, ownerRecordName: "edu")
+        UserModel(name: "Ana", tier: .tradicionalII, points: 30, ownerRecordName: "ana"),
+        UserModel(name: "Bia", tier: .deltaII, points: 105, ownerRecordName: "bia"),
+        UserModel(name: "Caio Souza", tier: .deltaII, points: 110, ownerRecordName: "caio"),
+        UserModel(name: "Davi", tier: .andorinhaIII, points: 210, ownerRecordName: "davi"),
+        UserModel(name: "Edu", tier: .dragaoChines, points: 320, ownerRecordName: "edu")
     ]
     RankSkyCard(
         groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },
@@ -450,13 +450,13 @@ private struct RankLine: Shape {
 #Preview("Mais de 3 no mesmo ranking") {
     let names = ["Ana", "Bia", "Caio", "Davi", "Edu", "Fê", "Gabi"]
     let crowded = names.enumerated().map { index, name in
-        UserModel(name: name, tier: .vigiaDaCozinha, points: 100 + index, ownerRecordName: name.lowercased())
+        UserModel(name: name, tier: .deltaII, points: 100 + index, ownerRecordName: name.lowercased())
     }
     let users = crowded + [
-        UserModel(name: "Hugo", tier: .aprendiz, points: 30, ownerRecordName: "hugo"),
-        UserModel(name: "Iara", tier: .aprendiz, points: 32, ownerRecordName: "iara"),
-        UserModel(name: "João", tier: .aprendiz, points: 34, ownerRecordName: "joao"),
-        UserModel(name: "Lia", tier: .aprendiz, points: 36, ownerRecordName: "lia")
+        UserModel(name: "Hugo", tier: .tradicionalII, points: 30, ownerRecordName: "hugo"),
+        UserModel(name: "Iara", tier: .tradicionalII, points: 32, ownerRecordName: "iara"),
+        UserModel(name: "João", tier: .tradicionalII, points: 34, ownerRecordName: "joao"),
+        UserModel(name: "Lia", tier: .tradicionalII, points: 36, ownerRecordName: "lia")
     ]
     RankSkyCard(
         groups: Tier.allCases.map { tier in TierGroup(tier: tier, users: users.filter { $0.tier == tier }) },

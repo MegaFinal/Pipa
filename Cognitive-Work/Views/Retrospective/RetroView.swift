@@ -246,7 +246,7 @@ struct RetroPreviewHost<Content: View>: View {
 #Preview {
     RetroView(
         viewModel: RetroViewModel(repository: PreviewRetroRepository()),
-        coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar)
+        coinsViewModel: .preview(earned: Tier.andorinhaII.cycleCoins, tier: .andorinhaII)
     )
 }
 #endif

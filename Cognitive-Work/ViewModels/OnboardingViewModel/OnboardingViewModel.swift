@@ -242,7 +242,7 @@ class OnboardingViewModel {
             profilePicture: assetCopy,
             banner: user.banner,
             // Points (and the rank) live in the house's `UserScoreModel`, not on the user.
-            tier: .novatoDaCasa,
+            tier: .tradicionalI,
             // Coins belong to a house (`CoinWalletModel`): a new house starts from zero, whatever
             // the profile kept from another one.
             coins: 0,
@@ -1125,7 +1125,7 @@ class OnboardingViewModel {
             name: profile.name,
             profilePicture: assetCopy,
             banner: profile.banner,
-            tier: .novatoDaCasa,
+            tier: .tradicionalI,
             // A new house starts from zero coins (see `CoinWalletModel`).
             coins: 0,
             house: houseReference,
