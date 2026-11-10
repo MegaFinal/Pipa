@@ -18,17 +18,17 @@ struct CoinPayoutTests {
     @Test func higherRanksNeverPayLess() {
         let amounts = Tier.allCases.map(\.cycleCoins)
         #expect(amounts == amounts.sorted())
-        #expect(Tier.novatoDaCasa.cycleCoins == 0)
+        #expect(Tier.tradicionalI.cycleCoins == 0)
         #expect(amounts.dropFirst().allSatisfy { $0 > 0 })
-        #expect(Tier.almaDaCasa.cycleCoins > Tier.novatoDaCasa.cycleCoins)
+        #expect(Tier.dragaoChines.cycleCoins > Tier.tradicionalI.cycleCoins)
     }
 
     // MARK: - Settlement
 
     private let alice = GamificationFixture.id("alice-house")
     private let bob = GamificationFixture.id("bob-house")
-    /// Points that put a member at ``Tier/escudeiroDaFaxina``.
-    private let escudeiroPoints = Tier.escudeiroDaFaxina.minimumPoints
+    /// Points that put a member at ``Tier/deltaI``.
+    private let escudeiroPoints = Tier.deltaI.minimumPoints
 
     /// A member whose record, with `points`, is on the server (`store`).
     private func member(_ id: CKRecord.ID, points: Int, in store: InMemoryAtomicRecordStore) -> UserModel {
@@ -56,8 +56,8 @@ struct CoinPayoutTests {
         #expect(created == 2)
         let alicePayouts = await service.payouts(for: alice, cycles: [closedCycle], today: afterCycle)
         #expect(alicePayouts.count == 1)
-        #expect(alicePayouts.first?.tier == .escudeiroDaFaxina)
-        #expect(alicePayouts.first?.amount == Tier.escudeiroDaFaxina.cycleCoins)
+        #expect(alicePayouts.first?.tier == .deltaI)
+        #expect(alicePayouts.first?.amount == Tier.deltaI.cycleCoins)
         #expect(alicePayouts.first?.status == .pending)
 
         let history = store.storedRecords(ofType: RankHistoryModel.recordType)
@@ -75,7 +75,7 @@ struct CoinPayoutTests {
 
         #expect(GamificationFixture.points(of: alice, in: store) == 0)
         #expect(local.points == 0)
-        #expect(local.tier == .novatoDaCasa)
+        #expect(local.tier == .tradicionalI)
     }
 
     @Test func historyKeepsTheRankBeforeTheReset() async {
@@ -86,7 +86,7 @@ struct CoinPayoutTests {
 
         let entry = store.storedRecords(ofType: RankHistoryModel.recordType)
             .compactMap(RankHistoryModel.init(record:)).first
-        #expect(entry?.tier == .escudeiroDaFaxina)
+        #expect(entry?.tier == .deltaI)
         #expect(entry?.points == escudeiroPoints)
     }
 
@@ -99,7 +99,7 @@ struct CoinPayoutTests {
         await service.prepareClosedCycles([closedCycle], members: [stale], houseID: GamificationFixture.houseID, today: afterCycle)
 
         let payouts = await service.payouts(for: alice, cycles: [closedCycle], today: afterCycle)
-        #expect(payouts.first?.tier == .escudeiroDaFaxina)
+        #expect(payouts.first?.tier == .deltaI)
     }
 
     @Test func coinsPaidDuringTheCycleAreNotPaidAgain() async throws {
@@ -108,20 +108,20 @@ struct CoinPayoutTests {
         let local = member(alice, points: 0, in: store)
         // The rank's coins already reached the wallet as the rank went up.
         let score = GamificationFixture.score(for: alice, points: escudeiroPoints)
-        score["cycleCoins"] = Tier.escudeiroDaFaxina.cycleCoins
+        score["cycleCoins"] = Tier.deltaI.cycleCoins
         store.seed(score)
-        store.seed(GamificationFixture.wallet(for: alice, balance: Tier.escudeiroDaFaxina.cycleCoins))
+        store.seed(GamificationFixture.wallet(for: alice, balance: Tier.deltaI.cycleCoins))
 
         await service.prepareClosedCycles([closedCycle], members: [local], houseID: GamificationFixture.houseID, today: afterCycle)
 
         let payout = await service.payouts(for: alice, cycles: [closedCycle], today: afterCycle).first
         #expect(payout?.status == .confirmed)
-        #expect(payout?.amount == Tier.escudeiroDaFaxina.cycleCoins)
+        #expect(payout?.amount == Tier.deltaI.cycleCoins)
         let confirmation = try await service.confirmPendingPayouts(
             for: alice, cycles: [closedCycle], houseID: GamificationFixture.houseID, legacyCoins: 0, today: afterCycle
         )
         #expect(confirmation.credited == 0)
-        #expect(GamificationFixture.balance(of: alice, in: store) == Tier.escudeiroDaFaxina.cycleCoins)
+        #expect(GamificationFixture.balance(of: alice, in: store) == Tier.deltaI.cycleCoins)
         #expect(store.stored(GamificationFixture.scoreID(of: alice))?["cycleCoins"] as? Int == 0)
     }
 
@@ -233,7 +233,7 @@ struct CoinPayoutTests {
         store.seed(GamificationFixture.wallet(for: alice, balance: 5))
         let service = CycleSettlementService(store: store)
         await service.prepareClosedCycles([closedCycle], members: [member(alice, points: escudeiroPoints, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
-        let amount = Tier.escudeiroDaFaxina.cycleCoins
+        let amount = Tier.deltaI.cycleCoins
 
         let first = try await service.confirmPendingPayouts(for: alice, cycles: [closedCycle], houseID: GamificationFixture.houseID, legacyCoins: 0, today: afterCycle)
         let second = try await service.confirmPendingPayouts(for: alice, cycles: [closedCycle], houseID: GamificationFixture.houseID, legacyCoins: 0, today: afterCycle)
@@ -249,7 +249,7 @@ struct CoinPayoutTests {
         let store = InMemoryAtomicRecordStore()
         let service = CycleSettlementService(store: store)
         await service.prepareClosedCycles([closedCycle], members: [member(alice, points: escudeiroPoints, in: store)], houseID: GamificationFixture.houseID, today: afterCycle)
-        let amount = Tier.escudeiroDaFaxina.cycleCoins
+        let amount = Tier.deltaI.cycleCoins
 
         store.holdFetches(2)
         async let first = service.confirmPendingPayouts(for: alice, cycles: [closedCycle], houseID: GamificationFixture.houseID, legacyCoins: 0, today: afterCycle)
@@ -268,6 +268,6 @@ struct CoinPayoutTests {
 
         let result = try await service.confirmPendingPayouts(for: alice, cycles: [closedCycle], houseID: GamificationFixture.houseID, legacyCoins: 40, today: afterCycle)
 
-        #expect(result.newBalance == 40 + Tier.novatoDaCasa.cycleCoins)
+        #expect(result.newBalance == 40 + Tier.tradicionalI.cycleCoins)
     }
 }

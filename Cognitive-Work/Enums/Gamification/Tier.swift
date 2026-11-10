@@ -9,41 +9,41 @@ import Foundation
 
 /// Ranks, from lowest to highest, in the order of ``allCases``. The raw value is what is stored.
 ///
-/// The case names are the ranks' first names and stay as they are: they are the values saved in
-/// CloudKit. Only ``displayName`` (what the user sees) follows the current names.
+/// The case names follow the current ranks. Each raw value is the rank's first name, which is
+/// what CloudKit stores, so it must not change: records saved with it keep decoding.
 ///
 /// Thirteen ranks form one ladder, each one starting at its ``thresholds`` entry (see the
 /// extension below).
 enum Tier: String, CaseIterable {
     /// "Pipa Tradicional I": the lowest rank, where every cycle starts.
-    case novatoDaCasa
-    case aprendiz
-    case ajudanteOficial
-    case escudeiroDaFaxina
-    case vigiaDaCozinha
-    case sentinelaDaSala
-    case guardiaoDaCasa
-    case protetorDoLar
-    case cavaleiroDoRodo
-    case mestreDaCasa
-    case sabioDoLar
-    case lendaDaCasa
+    case tradicionalI = "novatoDaCasa"
+    case tradicionalII = "aprendiz"
+    case tradicionalIII = "ajudanteOficial"
+    case deltaI = "escudeiroDaFaxina"
+    case deltaII = "vigiaDaCozinha"
+    case deltaIII = "sentinelaDaSala"
+    case andorinhaI = "guardiaoDaCasa"
+    case andorinhaII = "protetorDoLar"
+    case andorinhaIII = "cavaleiroDoRodo"
+    case quatorzeBisI = "mestreDaCasa"
+    case quatorzeBisII = "sabioDoLar"
+    case quatorzeBisIII = "lendaDaCasa"
     /// "Pipa dragão chinês": the top rank.
-    case almaDaCasa
+    case dragaoChines = "almaDaCasa"
 
     // MARK: - Legacy
 
     // Old code and records still say `.tier1`, `.tier2` or `.tier3`; these keep them compiling.
     // See ``init(stored:)``.
-    static let tier1 = Tier.novatoDaCasa
-    static let tier2 = Tier.aprendiz
-    static let tier3 = Tier.ajudanteOficial
+    static let tier1 = Tier.tradicionalI
+    static let tier2 = Tier.tradicionalII
+    static let tier3 = Tier.tradicionalIII
 
     /// Decodes a tier stored in CloudKit.
     ///
     /// Records saved before the current ranks hold "tier1"…"tier3" or one of the old 16 names
     /// ("bronze1" … "diamond3", "Master"); those land on the rank at the same relative height of
-    /// the ladder. Unknown or missing values become ``novatoDaCasa``.
+    /// the ladder. Unknown or missing values become ``tradicionalI``.
     init(stored value: String?) {
         if let value, let tier = Tier(rawValue: value) {
             self = tier
@@ -56,7 +56,7 @@ enum Tier: String, CaseIterable {
         case "tier2": self = .tier2
         case "tier3": self = .tier3
         default:
-            guard let value, let old = legacy.firstIndex(of: value) else { self = .novatoDaCasa; return }
+            guard let value, let old = legacy.firstIndex(of: value) else { self = .tradicionalI; return }
             let top = Tier.allCases.count - 1
             self = Tier.allCases[Int((Double(old) * Double(top) / Double(legacy.count - 1)).rounded())]
         }
@@ -64,38 +64,48 @@ enum Tier: String, CaseIterable {
 
     // MARK: - Presentation
 
-    /// Name of the rank's image in the asset catalog (`Assets.xcassets/Tiers`).
+    /// Name of the rank's image in the asset catalog (`Assets.xcassets/Ranking`).
     ///
-    /// The catalog still holds the 16 old rank icons, so each rank borrows the one at the same
-    /// relative height of the ladder until icons for the new ranks exist.
+    /// The Chinese dragon doesn't have artwork in `Ranking` yet, so it keeps the old icon from
+    /// `Assets.xcassets/Tiers` until its own exists.
     var imageName: String {
-        let icons = ["bronze1", "bronze2", "bronze3", "silver1", "silver2", "silver3", "gold1", "gold2",
-                     "gold3", "platinum1", "platinum2", "platinum3", "diamond1", "diamond2", "diamond3", "Master"]
-        let index = Tier.allCases.firstIndex(of: self) ?? 0
-        let top = Tier.allCases.count - 1
-        return icons[Int((Double(index) * Double(icons.count - 1) / Double(top)).rounded())]
+        switch self {
+        case .tradicionalI: return "tradicional"
+        case .tradicionalII: return "tradicional_II"
+        case .tradicionalIII: return "tradicional_III"
+        case .deltaI: return "delta_I"
+        case .deltaII: return "delta_II"
+        case .deltaIII: return "delta_III"
+        case .andorinhaI: return "andorinha_I"
+        case .andorinhaII: return "andorinha_II"
+        case .andorinhaIII: return "andorinha_III"
+        case .quatorzeBisI: return "14bis"
+        case .quatorzeBisII: return "14biz_II"
+        case .quatorzeBisIII: return "14bis_III"
+        case .dragaoChines: return "Master"
+        }
     }
 
     /// "Pipa Tradicional I", "Pipa Tradicional II", … "Pipa dragão chinês".
     var displayName: String {
         switch self {
-        case .novatoDaCasa: return L10n.tr("Pipa Tradicional I")
-        case .aprendiz: return L10n.tr("Pipa Tradicional II")
-        case .ajudanteOficial: return L10n.tr("Pipa Tradicional III")
-        case .escudeiroDaFaxina: return L10n.tr("Pipa delta I")
-        case .vigiaDaCozinha: return L10n.tr("Pipa delta II")
-        case .sentinelaDaSala: return L10n.tr("Pipa delta III")
-        case .guardiaoDaCasa: return L10n.tr("Pipa andorinha I")
-        case .protetorDoLar: return L10n.tr("Pipa andorinha II")
-        case .cavaleiroDoRodo: return L10n.tr("Pipa andorinha III")
-        case .mestreDaCasa: return L10n.tr("14 Bis I")
-        case .sabioDoLar: return L10n.tr("14 Bis II")
-        case .lendaDaCasa: return L10n.tr("14 Bis III")
-        case .almaDaCasa: return L10n.tr("Pipa dragão chinês")
+        case .tradicionalI: return L10n.tr("Pipa Tradicional I")
+        case .tradicionalII: return L10n.tr("Pipa Tradicional II")
+        case .tradicionalIII: return L10n.tr("Pipa Tradicional III")
+        case .deltaI: return L10n.tr("Pipa delta I")
+        case .deltaII: return L10n.tr("Pipa delta II")
+        case .deltaIII: return L10n.tr("Pipa delta III")
+        case .andorinhaI: return L10n.tr("Pipa andorinha I")
+        case .andorinhaII: return L10n.tr("Pipa andorinha II")
+        case .andorinhaIII: return L10n.tr("Pipa andorinha III")
+        case .quatorzeBisI: return L10n.tr("14 Bis I")
+        case .quatorzeBisII: return L10n.tr("14 Bis II")
+        case .quatorzeBisIII: return L10n.tr("14 Bis III")
+        case .dragaoChines: return L10n.tr("Pipa dragão chinês")
         }
     }
 
-    /// Position on the ladder, from 0 (``novatoDaCasa``) to 12 (``almaDaCasa``).
+    /// Position on the ladder, from 0 (``tradicionalI``) to 12 (``dragaoChines``).
     var position: Int { Tier.allCases.firstIndex(of: self) ?? 0 }
 }
 

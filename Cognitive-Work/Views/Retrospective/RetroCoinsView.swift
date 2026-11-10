@@ -207,19 +207,19 @@ struct RetroCoinsView: View {
 
 #Preview("Bronze 1") {
     RetroPreviewHost(page: .coins) {
-        RetroCoinsView(viewModel: $0, coinsViewModel: .preview(earned: Tier.novatoDaCasa.cycleCoins, tier: .novatoDaCasa))
+        RetroCoinsView(viewModel: $0, coinsViewModel: .preview(earned: Tier.tradicionalI.cycleCoins, tier: .tradicionalI))
     }
 }
 
 #Preview("Ouro 2") {
     RetroPreviewHost(page: .coins) {
-        RetroCoinsView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar))
+        RetroCoinsView(viewModel: $0, coinsViewModel: .preview(earned: Tier.andorinhaII.cycleCoins, tier: .andorinhaII))
     }
 }
 
 #Preview("Mestre") {
     RetroPreviewHost(page: .coins) {
-        RetroCoinsView(viewModel: $0, coinsViewModel: .preview(earned: Tier.almaDaCasa.cycleCoins, tier: .almaDaCasa))
+        RetroCoinsView(viewModel: $0, coinsViewModel: .preview(earned: Tier.dragaoChines.cycleCoins, tier: .dragaoChines))
     }
 }
 #endif

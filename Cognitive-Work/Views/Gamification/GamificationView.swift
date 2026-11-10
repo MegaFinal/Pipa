@@ -259,20 +259,20 @@ struct GamificationView: View {
         },
         couponsByRoomName: [
             DefaultRoomsOnboarding.kitchen.rawValue: [
-                CouponModel(name: "Lavar a louça", isOnSale: true, price: 30, tier: .aprendiz),
-                CouponModel(name: "Limpar o fogão", isOnSale: true, price: 80, tier: .cavaleiroDoRodo)
+                CouponModel(name: "Lavar a louça", isOnSale: true, price: 30, tier: .tradicionalII),
+                CouponModel(name: "Limpar o fogão", isOnSale: true, price: 80, tier: .andorinhaIII)
             ],
             DefaultRoomsOnboarding.livingRoom.rawValue: [
-                CouponModel(name: "Aspirar a sala", isOnSale: true, price: 20, tier: .novatoDaCasa)
+                CouponModel(name: "Aspirar a sala", isOnSale: true, price: 20, tier: .tradicionalI)
             ],
             DefaultRoomsOnboarding.bathroom.rawValue: [
-                CouponModel(name: "Limpar o banheiro", isOnSale: true, price: 60, tier: .vigiaDaCozinha)
+                CouponModel(name: "Limpar o banheiro", isOnSale: true, price: 60, tier: .deltaII)
             ]
         ],
         users: [
-            UserModel(name: "Ana", tier: .aprendiz, points: 30, ownerRecordName: "ana"),
-            UserModel(name: "Bia", tier: .vigiaDaCozinha, points: 105, ownerRecordName: "bia"),
-            UserModel(name: "Caio", tier: .almaDaCasa, points: 320, ownerRecordName: "caio")
+            UserModel(name: "Ana", tier: .tradicionalII, points: 30, ownerRecordName: "ana"),
+            UserModel(name: "Bia", tier: .deltaII, points: 105, ownerRecordName: "bia"),
+            UserModel(name: "Caio", tier: .dragaoChines, points: 320, ownerRecordName: "caio")
         ],
         myOwnerRecordName: "ana"
     ))

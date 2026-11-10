@@ -135,7 +135,7 @@ enum GamificationFixture {
             name: name,
             isOnSale: true,
             price: 0,
-            tier: .novatoDaCasa,
+            tier: .tradicionalI,
             task: CKRecord.Reference(recordID: chore, action: .none)
         ).populate(record: record)
         return record
@@ -145,7 +145,7 @@ enum GamificationFixture {
     /// `points` field, which seeds the score when none exists yet.
     static func user(_ id: CKRecord.ID, points legacyPoints: Int = 0) -> CKRecord {
         let record = CKRecord(recordType: UserModel.recordType, recordID: id)
-        UserModel(name: id.recordName, tier: .novatoDaCasa, recordID: id, ownerRecordName: id.recordName)
+        UserModel(name: id.recordName, tier: .tradicionalI, recordID: id, ownerRecordName: id.recordName)
             .populate(record: record)
         record["points"] = legacyPoints
         return record

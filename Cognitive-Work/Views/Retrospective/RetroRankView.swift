@@ -28,6 +28,16 @@ struct RetroRankView: View {
         RetroRankContent.make(tier: coinsViewModel.cycleTier, points: coinsViewModel.cyclePoints)
     }
 
+    /// Width of the rank icon's frame, as a fraction of the screen width. The 14 Bis artwork is
+    /// about three times wider than tall, so it gets a wider frame to look as big as the kites;
+    /// the height stays the same for every rank.
+    private func iconWidthRatio(for tier: Tier) -> CGFloat {
+        switch tier {
+        case .quatorzeBisI, .quatorzeBisII, .quatorzeBisIII: 0.8
+        default: 0.3
+        }
+    }
+
     var body: some View {
         VStack {
             
@@ -40,7 +50,7 @@ struct RetroRankView: View {
                         Image(tier.imageName)
                             .resizable()
                             .scaledToFit()
-                            .frame(width: width * 0.3, height: width * 0.3)
+                            .frame(width: width * iconWidthRatio(for: tier), height: width * 0.3)
                             .scaleEffect(showIcon ? 1 : 0.4)
                             .opacity(showIcon ? 1 : 0)
                     }
@@ -193,7 +203,7 @@ struct RetroRankContent: Equatable {
     private static func message(for tier: Tier) -> String {
         let step = Tier.allCases.firstIndex(of: tier) ?? 0
         switch step {
-        case _ where tier == .almaDaCasa: return L10n.tr("Você chegou ao topo, parabéns!")
+        case _ where tier == .dragaoChines: return L10n.tr("Você chegou ao topo, parabéns!")
         case 9...: return L10n.tr("Que ciclo! Poucos chegam tão longe")
         case 3...: return L10n.tr("Mandou bem! Dá para subir ainda mais")
         default: return L10n.tr("Todo começo conta")
@@ -203,7 +213,7 @@ struct RetroRankContent: Equatable {
     /// Same colors as the rewards tab's arc: red (far from the next division) → green (almost),
     /// pink at Mestre.
     private static func tint(for tier: Tier, fraction: Double) -> Color {
-        if tier == .almaDaCasa { return .rankMasterPink }
+        if tier == .dragaoChines { return .rankMasterPink }
         switch fraction {
         case ..<0.25: return .tagRed
         case ..<0.5: return .choreOrange
@@ -220,21 +230,27 @@ struct RetroRankContent: Equatable {
     }
 }
 
-#Preview("Bronze 2") {
+#Preview("tadicional 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.aprendiz.cycleCoins, tier: .aprendiz, points: 35))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.tradicionalII.cycleCoins, tier: .tradicionalII, points: 35))
     }
 }
 
-#Preview("Ouro 2") {
+#Preview("andorinha 2") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.protetorDoLar.cycleCoins, tier: .protetorDoLar, points: 340))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.andorinhaII.cycleCoins, tier: .andorinhaII, points: 340))
+    }
+}
+
+#Preview("14bis") {
+    RetroPreviewHost(page: .rank) {
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.quatorzeBisIII.cycleCoins, tier: .quatorzeBisI, points: 10))
     }
 }
 
 #Preview("Mestre") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.almaDaCasa.cycleCoins, tier: .almaDaCasa, points: 820))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.dragaoChines.cycleCoins, tier: .dragaoChines, points: 820))
     }
 }
 #endif

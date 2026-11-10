@@ -63,7 +63,7 @@ struct GamificationCatalogTests {
         let kitchen = room("Cozinha", symbol: "fork.knife", color: .orange)
         let dishes = chore("Louça", in: kitchen)
         let catalog = GamificationCatalog(
-            coupons: [coupon(for: dishes, tier: .vigiaDaCozinha)],
+            coupons: [coupon(for: dishes, tier: .deltaII)],
             chores: [dishes], rooms: [kitchen], users: [], myUserID: nil, latestCycleKey: cycle
         )
 
@@ -71,7 +71,7 @@ struct GamificationCatalogTests {
         #expect(entry.name == "Louça")
         #expect(entry.symbol == "fork.knife")
         #expect(entry.color == .orange)
-        #expect(entry.tier == .vigiaDaCozinha)
+        #expect(entry.tier == .deltaII)
         #expect(entry.roomName == "Cozinha")
     }
 
@@ -82,9 +82,9 @@ struct GamificationCatalogTests {
 
         let catalog = GamificationCatalog(
             coupons: [
-                coupon(for: a, tier: .novatoDaCasa),
-                coupon(for: b, tier: .novatoDaCasa, holder: "user-me", boughtIn: cycle),
-                coupon(for: c, tier: .novatoDaCasa, holder: "user-other", boughtIn: cycle)
+                coupon(for: a, tier: .tradicionalI),
+                coupon(for: b, tier: .tradicionalI, holder: "user-me", boughtIn: cycle),
+                coupon(for: c, tier: .tradicionalI, holder: "user-other", boughtIn: cycle)
             ],
             chores: [a, b, c], rooms: [kitchen], users: [me, other],
             myUserID: me.recordID, latestCycleKey: cycle
@@ -101,7 +101,7 @@ struct GamificationCatalogTests {
         let me = user("me", points: 0)
 
         let catalog = GamificationCatalog(
-            coupons: [coupon(for: a, tier: .novatoDaCasa, holder: "user-me", boughtIn: cycle, consumed: cycle)],
+            coupons: [coupon(for: a, tier: .tradicionalI, holder: "user-me", boughtIn: cycle, consumed: cycle)],
             chores: [a], rooms: [kitchen], users: [me], myUserID: me.recordID, latestCycleKey: cycle
         )
 
@@ -115,7 +115,7 @@ struct GamificationCatalogTests {
         let orphan = chore("Orfã", in: room("Fantasma", symbol: "house", color: .blue))
 
         let catalog = GamificationCatalog(
-            coupons: [coupon(for: a, tier: .novatoDaCasa, onSale: false), coupon(for: orphan, tier: .novatoDaCasa)],
+            coupons: [coupon(for: a, tier: .tradicionalI, onSale: false), coupon(for: orphan, tier: .tradicionalI)],
             chores: [a, orphan], rooms: [kitchen], users: [], myUserID: nil, latestCycleKey: cycle
         )
 
@@ -130,8 +130,8 @@ struct GamificationCatalogTests {
         )
 
         #expect(catalog.tiers.map(\.tier) == Tier.allCases)
-        #expect(catalog.users(in: .novatoDaCasa).map(\.name) == ["caio"])
-        #expect(catalog.users(in: .aprendiz).map(\.name) == ["bia", "ana"])
-        #expect(catalog.users(in: .almaDaCasa).isEmpty)
+        #expect(catalog.users(in: .tradicionalI).map(\.name) == ["caio"])
+        #expect(catalog.users(in: .tradicionalII).map(\.name) == ["bia", "ana"])
+        #expect(catalog.users(in: .dragaoChines).isEmpty)
     }
 }

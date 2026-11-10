@@ -11,7 +11,7 @@ import SwiftUI
 /// traditional one at the bottom to the Chinese dragon at the top.
 ///
 /// The artwork lives in `Assets.xcassets/Ranking`, one image per rank (``assetName``). The ranks
-/// that don't have one yet (14 Bis and the dragon) draw a stand-in, so dropping an image with
+/// that don't have one yet (the dragon) draw a stand-in, so dropping an image with
 /// that name into the catalog is enough to replace it.
 struct RankVehicle: Equatable {
 
@@ -26,16 +26,19 @@ struct RankVehicle: Equatable {
     /// Name of the artwork in the asset catalog, or `nil` while the rank has none.
     var assetName: String? {
         switch tier {
-        case .novatoDaCasa: "tradicional"
-        case .aprendiz: "tradicional_II"
-        case .ajudanteOficial: "tradicional_III"
-        case .escudeiroDaFaxina: "delta_I"
-        case .vigiaDaCozinha: "delta_II"
-        case .sentinelaDaSala: "delta_III"
-        case .guardiaoDaCasa: "andorinha_I"
-        case .protetorDoLar: "andorinha_II"
-        case .cavaleiroDoRodo: "andorinha_III"
-        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa, .almaDaCasa: nil
+        case .tradicionalI: "tradicional"
+        case .tradicionalII: "tradicional_II"
+        case .tradicionalIII: "tradicional_III"
+        case .deltaI: "delta_I"
+        case .deltaII: "delta_II"
+        case .deltaIII: "delta_III"
+        case .andorinhaI: "andorinha_I"
+        case .andorinhaII: "andorinha_II"
+        case .andorinhaIII: "andorinha_III"
+        case .quatorzeBisI: "14bis"
+        case .quatorzeBisII: "14biz_II"
+        case .quatorzeBisIII: "14bis_III"
+        case .dragaoChines: nil
         }
     }
 
@@ -45,20 +48,23 @@ struct RankVehicle: Equatable {
     var size: CGSize {
         switch tier {
         // Traditional: tall diamonds with a long tail.
-        case .novatoDaCasa: CGSize(width: 31, height: 80)
-        case .aprendiz: CGSize(width: 31, height: 86)
-        case .ajudanteOficial: CGSize(width: 37, height: 92)
+        case .tradicionalI: CGSize(width: 31, height: 80)
+        case .tradicionalII: CGSize(width: 31, height: 86)
+        case .tradicionalIII: CGSize(width: 37, height: 92)
         // Delta: wide triangles.
-        case .escudeiroDaFaxina: CGSize(width: 76, height: 56)
-        case .vigiaDaCozinha: CGSize(width: 80, height: 48)
-        case .sentinelaDaSala: CGSize(width: 84, height: 44)
+        case .deltaI: CGSize(width: 76, height: 56)
+        case .deltaII: CGSize(width: 80, height: 48)
+        case .deltaIII: CGSize(width: 84, height: 44)
         // Swallow: wide, with long wings.
-        case .guardiaoDaCasa: CGSize(width: 78, height: 45)
-        case .protetorDoLar: CGSize(width: 80, height: 53)
-        case .cavaleiroDoRodo: CGSize(width: 84, height: 47)
-        // No artwork yet (stand-ins).
-        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa: CGSize(width: 84, height: 66)
-        case .almaDaCasa: CGSize(width: 58, height: 92)
+        case .andorinhaI: CGSize(width: 78, height: 45)
+        case .andorinhaII: CGSize(width: 80, height: 53)
+        case .andorinhaIII: CGSize(width: 84, height: 47)
+        // 14 Bis: long, low planes.
+        case .quatorzeBisI: CGSize(width: 76, height: 24)
+        case .quatorzeBisII: CGSize(width: 80, height: 24)
+        case .quatorzeBisIII: CGSize(width: 84, height: 34)
+        // No artwork yet (stand-in).
+        case .dragaoChines: CGSize(width: 58, height: 92)
         }
     }
 
@@ -68,11 +74,11 @@ struct RankVehicle: Equatable {
     /// The name VoiceOver reads.
     var accessibilityName: String {
         switch tier {
-        case .novatoDaCasa, .aprendiz, .ajudanteOficial: L10n.tr("pipa tradicional")
-        case .escudeiroDaFaxina, .vigiaDaCozinha, .sentinelaDaSala: L10n.tr("pipa delta")
-        case .guardiaoDaCasa, .protetorDoLar, .cavaleiroDoRodo: L10n.tr("pipa andorinha")
-        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa: L10n.tr("14 Bis")
-        case .almaDaCasa: L10n.tr("pipa dragão chinês")
+        case .tradicionalI, .tradicionalII, .tradicionalIII: L10n.tr("pipa tradicional")
+        case .deltaI, .deltaII, .deltaIII: L10n.tr("pipa delta")
+        case .andorinhaI, .andorinhaII, .andorinhaIII: L10n.tr("pipa andorinha")
+        case .quatorzeBisI, .quatorzeBisII, .quatorzeBisIII: L10n.tr("14 Bis")
+        case .dragaoChines: L10n.tr("pipa dragão chinês")
         }
     }
 }
@@ -101,9 +107,9 @@ struct RankVehicleView: View {
     @ViewBuilder
     private var standIn: some View {
         switch vehicle.tier {
-        case .almaDaCasa:
+        case .dragaoChines:
             KiteArt(color: .tagRed).rotationEffect(.degrees(-10))
-        case .mestreDaCasa, .sabioDoLar, .lendaDaCasa:
+        case .quatorzeBisI, .quatorzeBisII, .quatorzeBisIII:
             Image(systemName: "airplane")
                 .resizable()
                 .scaledToFit()

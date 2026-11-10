@@ -259,13 +259,13 @@ private struct Perforation: Shape {
     let bedroom = DefaultRoomsOnboarding.bedroom
     HStack(spacing: 16) {
         CouponCard(
-            coupon: CouponModel(name: "Arrumar a cama", isOnSale: true, price: 20, tier: .aprendiz),
+            coupon: CouponModel(name: "Arrumar a cama", isOnSale: true, price: 20, tier: .tradicionalII),
             roomColor: bedroom.color,
             roomSymbol: bedroom.symbol,
             isAffordable: true
         )
         CouponTicket(
-            coupon: CouponModel(name: "Lavar a louça", isOnSale: true, price: 120, tier: .almaDaCasa),
+            coupon: CouponModel(name: "Lavar a louça", isOnSale: true, price: 120, tier: .dragaoChines),
             roomColor: kitchen.color,
             roomSymbol: kitchen.symbol,
             isAffordable: true,
@@ -280,7 +280,7 @@ private struct Perforation: Shape {
 #Preview("Na lista (rankings longos)") {
     let kitchen = DefaultRoomsOnboarding.kitchen
     HStack(spacing: 14) {
-        ForEach([Tier.ajudanteOficial, .cavaleiroDoRodo, .almaDaCasa], id: \.self) { tier in
+        ForEach([Tier.tradicionalIII, .andorinhaIII, .dragaoChines], id: \.self) { tier in
             CouponCard(
                 coupon: CouponModel(name: "Lavar a louça", isOnSale: true, price: 60, tier: tier),
                 roomColor: kitchen.color,

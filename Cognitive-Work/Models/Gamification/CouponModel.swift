@@ -116,10 +116,10 @@ struct CouponModel: CloudKitSyncable {
 extension CouponModel {
 
     /// The rank a coupon gets from the chore's ``ChoreModel/score``: the harder the chore, the
-    /// higher the rank, from ``Tier/novatoDaCasa`` to ``Tier/lendaDaCasa`` in steps of 4 points
-    /// (scores start at about 8). ``Tier/almaDaCasa`` is not given to coupons.
+    /// higher the rank, from ``Tier/tradicionalI`` to ``Tier/quatorzeBisIII`` in steps of 4 points
+    /// (scores start at about 8). ``Tier/dragaoChines`` is not given to coupons.
     static func tier(forScore score: Int) -> Tier {
-        let ranks = Tier.allCases.filter { $0 != .almaDaCasa }
+        let ranks = Tier.allCases.filter { $0 != .dragaoChines }
         let index = min(max((score - 8) / 4, 0), ranks.count - 1)
         return ranks[index]
     }

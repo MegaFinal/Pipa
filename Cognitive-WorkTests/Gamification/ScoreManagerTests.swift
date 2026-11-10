@@ -100,7 +100,7 @@ struct ScoreManagerTests {
 
     @Test func scoresAreCopiedOntoUsers() {
         let user = localAlice(points: 0)
-        let other = UserModel(name: "bob", tier: .novatoDaCasa, points: 7, recordID: GamificationFixture.id("bob-house"), ownerRecordName: "bob-house")
+        let other = UserModel(name: "bob", tier: .tradicionalI, points: 7, recordID: GamificationFixture.id("bob-house"), ownerRecordName: "bob-house")
         var score = UserScoreModel(ownerRecordName: "alice-house", points: 80)
         score.recordID = GamificationFixture.scoreID(of: alice)
 
@@ -154,7 +154,7 @@ struct ScoreManagerTests {
 
         // Still the first rank, and the coins already come in.
         await manager.assignScore(score: step, for: local)
-        #expect(Tier(points: step) == .novatoDaCasa)
+        #expect(Tier(points: step) == .tradicionalI)
         #expect(GamificationFixture.balance(of: alice, in: store) == 1)
 
         // Points that don't add up to a coin yet pay nothing more, until they do.
@@ -171,8 +171,8 @@ struct ScoreManagerTests {
         let manager = ScoreManager(store: store)
         let local = houseAlice()
 
-        await manager.assignScore(score: Tier.ajudanteOficial.minimumPoints, for: local)
-        await manager.removeScore(score: Tier.ajudanteOficial.minimumPoints, for: local)
+        await manager.assignScore(score: Tier.tradicionalIII.minimumPoints, for: local)
+        await manager.removeScore(score: Tier.tradicionalIII.minimumPoints, for: local)
 
         #expect(GamificationFixture.balance(of: alice, in: store) == 10)
     }
@@ -183,7 +183,7 @@ struct ScoreManagerTests {
         store.seed(GamificationFixture.wallet(for: alice, balance: 0))
         let manager = ScoreManager(store: store)
         let local = houseAlice()
-        let rank = Tier.ajudanteOficial
+        let rank = Tier.tradicionalIII
 
         await manager.assignScore(score: rank.minimumPoints, for: local)
         // The coins are spent (a coupon) before the points are undone.
