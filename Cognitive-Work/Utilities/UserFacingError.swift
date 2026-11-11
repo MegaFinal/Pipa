@@ -34,8 +34,9 @@ enum UserFacingError {
     static func message(for error: Error, doing action: Action = .save) -> String {
         print("[Error] \(action): \(error)")
 
-        // Batch saves report it inside a partial failure, one error per record.
-        if error.isQuotaExceeded {
+        // Batch saves report it inside a partial failure, one error per record. Reporting it
+        // also shows the app-wide full-iCloud alert (see `ICloudStorageMonitor`).
+        if ICloudStorageMonitor.shared.report(error) {
             return L10n.tr("O armazenamento do iCloud está cheio. Libere espaço para continuar.")
         }
 

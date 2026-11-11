@@ -40,6 +40,8 @@ struct Cognitive_WorkApp: App {
             .requiresTermsAcceptance()
             .dynamicTypeSize(.large)
             .environment(\.locale, languageManager.locale)
+            // MARK: - Full iCloud: CloudKit stops saving, tell the user from any screen
+            .iCloudStorageAlert()
             // MARK: - Premium: listen to the App Store from launch (renewals, refunds, purchases)
             .task {
                 await PremiumManager.shared.start()
