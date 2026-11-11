@@ -31,6 +31,14 @@ class RecurrentAssignmentModel: CloudKitSyncable {
     /// The member who checked it off. `nil` while not done.
     var userThatHaveDoneReference: CKRecord.Reference?
     var awardedPoints: Int?
+
+    /// The kind of default room (``DefaultRoomsOnboarding`` raw value) this completion counted
+    /// for in the room badges (``RoomBadge``). `nil` while not done, or when it didn't count (a
+    /// custom room, checked off too early, or over the daily limit of one-off chores).
+    ///
+    /// Unchecking takes the check-off back from exactly this room, like ``awardedPoints``, even
+    /// if the chore moved to another room in between.
+    var badgeRoom: String?
     /// The chore this occurrence belongs to.
     var choreReference: CKRecord.Reference?
     
@@ -111,6 +119,7 @@ class RecurrentAssignmentModel: CloudKitSyncable {
         self.choreReference = record["chore"] as? CKRecord.Reference
         self.userThatHaveDoneReference = record["userThatHaveDone"] as? CKRecord.Reference
         self.awardedPoints = record["awardedPoints"] as? Int
+        self.badgeRoom = record["badgeRoom"] as? String
         self.calendarEventIdentifier = record["calendarEventIdentifier"] as? String
     }
     
@@ -122,6 +131,7 @@ class RecurrentAssignmentModel: CloudKitSyncable {
         record["chore"] = choreReference
         record["userThatHaveDone"] = userThatHaveDoneReference
         record["awardedPoints"] = awardedPoints
+        record["badgeRoom"] = badgeRoom
         record["calendarEventIdentifier"] = calendarEventIdentifier
     }
     

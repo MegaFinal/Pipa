@@ -96,6 +96,10 @@ class CarouselViewModel {
     /// ``ChoreCompletionBatcher``). Left for the view to clear back to `nil` once shown.
     var completionErrorMessage: String?
     
+    /// Room badges the signed-in member just unlocked by checking chores off, waiting to be
+    /// celebrated (see ``BadgeUnlockedSheet``). Left for the view to clear once shown.
+    var unlockedBadges: [RoomBadge] = []
+    
     /// Saves the check-offs made close together in one go (see ``ChoreCompletionBatcher``).
     @ObservationIgnored
     private(set) lazy var completions: ChoreCompletionBatcher = {
@@ -104,6 +108,9 @@ class CarouselViewModel {
         batcher.onError = { [weak self] message in self?.completionErrorMessage = message }
         batcher.onSavedDone = { [weak self] chore, assignment in
             self?.notifyOwnersChoreDone(chore, assignment: assignment)
+        }
+        batcher.onBadgesUnlocked = { [weak self] badges in
+            self?.unlockedBadges.append(contentsOf: badges)
         }
         return batcher
     }()
@@ -921,7 +928,12 @@ class CarouselViewModel {
             let earned = isFromSettledSeason ? 0 : scoreManager.points(forCompleting: chore, dueOn: chore.dueDate)
             completions.record(
                 .chore(chore),
-                to: .init(isDone: true, doer: CKRecord.Reference(recordID: myID, action: .none), awardedPoints: earned),
+                to: .init(
+                    isDone: true,
+                    doer: CKRecord.Reference(recordID: myID, action: .none),
+                    awardedPoints: earned,
+                    badgeRoom: badgeRoom(for: chore, dueOn: chore.dueDate)
+                ),
                 points: earned,
                 pointsOwner: nil,
                 choreToNotify: chore
@@ -968,7 +980,12 @@ class CarouselViewModel {
             : chore.map { scoreManager.points(forCompleting: $0, dueOn: assignment.day) } ?? 0
             completions.record(
                 .assignment(assignment),
-                to: .init(isDone: true, doer: CKRecord.Reference(recordID: myID, action: .none), awardedPoints: earned),
+                to: .init(
+                    isDone: true,
+                    doer: CKRecord.Reference(recordID: myID, action: .none),
+                    awardedPoints: earned,
+                    badgeRoom: chore.flatMap { badgeRoom(for: $0, dueOn: assignment.day) }
+                ),
                 points: earned,
                 pointsOwner: nil,
                 choreToNotify: chore
@@ -994,6 +1011,21 @@ class CarouselViewModel {
         return true
     }
     
+    /// The kind of default room a check-off of `chore` counts for in the room badges
+    /// (``RoomBadge``), or `nil` when it doesn't count: the chore's room isn't one of the app's
+    /// default rooms, or it is checked off earlier than its grace period allows
+    /// (``ScoreManager/isWithinGrace(_:dueOn:completedAt:calendar:)``).
+    ///
+    /// Badges belong to people, not to seasons: chores of a season already settled still count.
+    private func badgeRoom(for chore: ChoreModel, dueOn dueDate: Date?) -> String? {
+        guard let roomID = chore.roomReference?.recordID,
+              let room = roomModels.first(where: { $0.recordID == roomID }),
+              let kind = DefaultRoomsOnboarding(kind: room.kind, name: room.name),
+              ScoreManager.shared.isWithinGrace(chore, dueOn: dueDate)
+        else { return nil }
+        return kind.rawValue
+    }
+
     /// The signed-in member's record in the house (who a check-off is saved for).
     private func myHouseUserID() async -> CKRecord.ID? {
         if let id = dashboardUser?.recordID { return id }

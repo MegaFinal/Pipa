@@ -39,9 +39,9 @@ final class ChoreCompletionBatcher {
         var state: CompletionState {
             switch self {
             case .chore(let chore):
-                return CompletionState(isDone: chore.isDone, doer: chore.userThatHaveDoneReference, awardedPoints: chore.awardedPoints)
+                return CompletionState(isDone: chore.isDone, doer: chore.userThatHaveDoneReference, awardedPoints: chore.awardedPoints, badgeRoom: chore.badgeRoom)
             case .assignment(let assignment):
-                return CompletionState(isDone: assignment.isCompleted, doer: assignment.userThatHaveDoneReference, awardedPoints: assignment.awardedPoints)
+                return CompletionState(isDone: assignment.isCompleted, doer: assignment.userThatHaveDoneReference, awardedPoints: assignment.awardedPoints, badgeRoom: assignment.badgeRoom)
             }
         }
 
@@ -52,10 +52,12 @@ final class ChoreCompletionBatcher {
                 chore.isDone = state.isDone
                 chore.userThatHaveDoneReference = state.doer
                 chore.awardedPoints = state.awardedPoints
+                chore.badgeRoom = state.badgeRoom
             case .assignment(let assignment):
                 assignment.isCompleted = state.isDone
                 assignment.userThatHaveDoneReference = state.doer
                 assignment.awardedPoints = state.awardedPoints
+                assignment.badgeRoom = state.badgeRoom
             }
         }
     }
@@ -65,11 +67,15 @@ final class ChoreCompletionBatcher {
         var isDone: Bool
         var doer: CKRecord.Reference?
         var awardedPoints: Int?
+        /// The kind of default room the completion counts for in the room badges (see
+        /// ``ChoreModel/badgeRoom``); `nil` when it doesn't count.
+        var badgeRoom: String? = nil
 
         static func == (lhs: Self, rhs: Self) -> Bool {
             lhs.isDone == rhs.isDone
             && lhs.doer?.recordID == rhs.doer?.recordID
             && lhs.awardedPoints == rhs.awardedPoints
+            && lhs.badgeRoom == rhs.badgeRoom
         }
     }
 
@@ -83,6 +89,9 @@ final class ChoreCompletionBatcher {
         var points: [(user: UserModel?, delta: Int)]
         /// The chore to tell its owners about once the check is saved, when it was checked (not unchecked).
         var choreToNotify: ChoreModel?
+        /// Who the saved completion was counted for in the room badges, when it was done before
+        /// this change (`nil` is the signed-in member). Unchecking takes the check-off back from them.
+        var originalDoer: UserModel?
     }
 
     /// Waits this long after the last tap before saving, so taps in a row go out together.
@@ -96,6 +105,8 @@ final class ChoreCompletionBatcher {
     var onError: (String) -> Void = { _ in }
     /// Tells the owners that `chore` (or its `assignment`) was done by someone else.
     var onSavedDone: (ChoreModel, RecurrentAssignmentModel?) -> Void = { _, _ in }
+    /// Tells the signed-in member about the room badges their saved checks just unlocked.
+    var onBadgesUnlocked: ([RoomBadge]) -> Void = { _ in }
 
     private var pending: [CKRecord.ID: Entry] = [:]
     private var inFlight: [CKRecord.ID: Entry] = [:]
@@ -122,7 +133,15 @@ final class ChoreCompletionBatcher {
     ) {
         guard let id = target.recordID else { return }
 
-        var entry = pending[id] ?? Entry(target: target, original: target.state, points: [], choreToNotify: nil)
+        // A check-off already saved can only be unchecked first: whose points go back is whose
+        // badge check-off goes back too.
+        var entry = pending[id] ?? Entry(
+            target: target,
+            original: target.state,
+            points: [],
+            choreToNotify: nil,
+            originalDoer: target.state.isDone ? pointsOwner : nil
+        )
         entry.target = target
         entry.points.append((user: pointsOwner, delta: points))
         entry.choreToNotify = state.isDone ? choreToNotify : nil
@@ -194,6 +213,9 @@ final class ChoreCompletionBatcher {
         firstPendingAt = nil
         inFlight.merge(batch) { _, new in new }
 
+        // Before saving: the completions must hold the room they really count for.
+        await limitOneOffBadges(in: batch)
+
         var chores: [ChoreModel] = []
         var assignments: [RecurrentAssignmentModel] = []
         for entry in batch.values {
@@ -219,6 +241,8 @@ final class ChoreCompletionBatcher {
         // Saved: the points of the whole batch, one change per member.
         let saved = batch.filter { !failed.contains($0.key) }
         await applyPoints(of: Array(saved.values))
+        let unlockedBadges = await applyBadges(of: Array(saved.values))
+        if !unlockedBadges.isEmpty { onBadgesUnlocked(unlockedBadges) }
         for entry in saved.values {
             guard let chore = entry.choreToNotify, entry.target.state.isDone else { continue }
             if case .assignment(let assignment) = entry.target {
@@ -260,5 +284,79 @@ final class ChoreCompletionBatcher {
                 await scoreManager.applyPoints(total.delta, to: me)
             }
         }
+    }
+
+    // MARK: - Room badges
+
+    /// Leaves out of the room badges the one-off chores of `batch` checked off over the day's
+    /// limit (``RoomBadgeProgressModel/oneOffDailyLimit``), before they are saved: their
+    /// ``CompletionState/badgeRoom`` goes back to `nil`.
+    private func limitOneOffBadges(in batch: [CKRecord.ID: Entry]) async {
+        var newlyCounting: [DefaultRoomsOnboarding: [Target]] = [:]
+        for entry in batch.values {
+            guard case .chore = entry.target else { continue }
+            let state = entry.target.state
+            let alreadyCounted = entry.original.isDone && entry.original.badgeRoom != nil
+            guard state.isDone, !alreadyCounted,
+                  let room = state.badgeRoom.flatMap(DefaultRoomsOnboarding.init(rawValue:))
+            else { continue }
+            newlyCounting[room, default: []].append(entry.target)
+        }
+        guard !newlyCounting.isEmpty else { return }
+
+        // Nobody to count them for: none of them counts.
+        var countable: [DefaultRoomsOnboarding: Int] = [:]
+        if let me = await CloudKitManager.shared.fetchMyHouseUser() {
+            countable = await BadgeManager.shared.countableOneOffs(for: me)
+        }
+        for (room, targets) in newlyCounting {
+            for target in targets.dropFirst(countable[room] ?? 0) {
+                var state = target.state
+                state.badgeRoom = nil
+                target.apply(state)
+            }
+        }
+    }
+
+    /// Counts the saved checks towards the room badges (``BadgeManager``): a check adds one to
+    /// the room it counts for, and unchecking takes it back from whoever it was counted for.
+    ///
+    /// - Returns: The badges the signed-in member just unlocked.
+    private func applyBadges(of entries: [Entry]) async -> [RoomBadge] {
+        var changesByMember: [String: (user: UserModel?, changes: [RoomBadgeChange])] = [:]
+        func add(_ change: RoomBadgeChange, for user: UserModel?) {
+            let key = user?.recordID?.recordName ?? "me"
+            changesByMember[key, default: (user: user, changes: [])].changes.append(change)
+        }
+
+        for entry in entries {
+            let before = entry.original
+            let after = entry.target.state
+            // A completion counts only while it is done (an old one may still hold a room).
+            let counted = before.isDone ? before.badgeRoom.flatMap(DefaultRoomsOnboarding.init(rawValue:)) : nil
+            let counts = after.isDone ? after.badgeRoom.flatMap(DefaultRoomsOnboarding.init(rawValue:)) : nil
+            guard counted != counts || before.doer?.recordID != after.doer?.recordID else { continue }
+
+            var isOneOff = false
+            if case .chore = entry.target { isOneOff = true }
+            if let counted {
+                add(RoomBadgeChange(room: counted, delta: -1), for: entry.originalDoer)
+            }
+            if let counts {
+                // A check is always made by the signed-in member.
+                add(RoomBadgeChange(room: counts, delta: 1, isOneOff: isOneOff), for: nil)
+            }
+        }
+        guard !changesByMember.isEmpty else { return [] }
+
+        var unlocked: [RoomBadge] = []
+        for (key, group) in changesByMember {
+            var member = group.user
+            if member == nil { member = await CloudKitManager.shared.fetchMyHouseUser() }
+            guard let member else { continue }
+            let newlyUnlocked = await BadgeManager.shared.apply(group.changes, to: member)
+            if key == "me" { unlocked += newlyUnlocked }
+        }
+        return unlocked
     }
 }

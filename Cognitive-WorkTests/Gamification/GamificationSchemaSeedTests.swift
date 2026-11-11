@@ -138,4 +138,35 @@ struct GamificationSchemaSeedTests {
         item.awardedPoints = 4
         await seed(item)
     }
+
+    /// Creates the `RoomBadgeProgressModel` type. Only read by ID: it needs no index.
+    @Test func seedRoomBadgeProgressModel() async {
+        var progress = RoomBadgeProgressModel(ownerRecordName: "schema-seed-owner")
+        progress.apply([RoomBadgeChange(room: .kitchen, delta: 25, isOneOff: true)], dayKey: "2026-01-01")
+        await seed(progress)
+    }
+
+    /// Adds `badgeRoom` to the existing `ChoreModel` type.
+    @Test func seedChoreModelBadgeRoom() async {
+        let chore = ChoreModel(
+            name: "schema-seed-chore",
+            description: "",
+            isDone: true,
+            frequency: .none,
+            duration: 15,
+            isPublic: true,
+            priorityTag: .low,
+            userThatHaveDone: placeholder("user")
+        )
+        chore.badgeRoom = DefaultRoomsOnboarding.kitchen.rawValue
+        await seed(chore)
+    }
+
+    /// Adds `badgeRoom` to the existing `DailyAssignmentModel` type.
+    @Test func seedRecurrentAssignmentBadgeRoom() async {
+        let occurrence = RecurrentAssignmentModel(day: .now, isCompleted: true, users: [placeholder("user")], chore: placeholder("chore"))
+        occurrence.userThatHaveDoneReference = placeholder("user")
+        occurrence.badgeRoom = DefaultRoomsOnboarding.kitchen.rawValue
+        await seed(occurrence)
+    }
 }

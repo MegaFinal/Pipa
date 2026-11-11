@@ -71,6 +71,11 @@ struct GamificationView: View {
                         )
                         .coachMarkAnchor(GamificationTourStop.myCoupons)
                     }
+                    
+                    // MARK: - Room badges
+                    if viewModel.hasLoaded {
+                        RoomBadgesSection(rooms: viewModel.badgeRooms, progress: viewModel.badgeProgress)
+                    }
                 }
                 .padding(.bottom, 24)
             }

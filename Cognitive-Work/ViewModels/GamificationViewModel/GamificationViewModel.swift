@@ -40,6 +40,16 @@ final class GamificationViewModel {
     /// The house's rooms, as tabs of the coupon list.
     private(set) var rooms: [RoomModel] = []
 
+    /// The signed-in member's progress towards the room badges (``RoomBadge``).
+    private(set) var badgeProgress = RoomBadgeProgressModel(ownerRecordName: "")
+
+    /// The kinds of default room the house has, in the order of the onboarding: the badge
+    /// ladders the screen shows. Custom rooms have no badges.
+    var badgeRooms: [DefaultRoomsOnboarding] {
+        let kinds = Set(rooms.compactMap { DefaultRoomsOnboarding(kind: $0.kind, name: $0.name) })
+        return DefaultRoomsOnboarding.onboardingOrder.filter { kinds.contains($0) }
+    }
+
     /// Coupons of the period with their room's color, symbol and tier, and the members of each
     /// rank. See ``GamificationCatalog``.
     private(set) var catalog: GamificationCatalog = .empty
@@ -297,6 +307,11 @@ final class GamificationViewModel {
 
         coins = balance
         if settled > 0 { apply(snapshot) }
+
+        // Kept apart from the house data, like the balance: read after it.
+        if let houseUser = snapshot.houseUser {
+            badgeProgress = await BadgeManager.shared.progress(of: houseUser)
+        }
     }
 
     /// Fills the screen from `snapshot`.
