@@ -82,14 +82,38 @@ class ScoreManager {
         let full = ScoreValues.choreCompletion(minutes: chore.duration, priority: chore.priorityTag)
         guard let dueDate else { return full }
 
+        return full >> max(daysEarly(chore, dueOn: dueDate, completedAt: date, calendar: calendar), 0)
+    }
+
+    /// Whether completing `chore` on `date` is on time: not earlier than its grace period
+    /// allows (``earlyGraceDays(for:)``), so it is worth its full points. Chores without a due
+    /// date are always on time.
+    ///
+    /// The room badges use the same rule (``BadgeManager``), so checking off the coming weeks'
+    /// occurrences ahead of time doesn't count towards them either.
+    func isWithinGrace(
+        _ chore: ChoreModel,
+        dueOn dueDate: Date?,
+        completedAt date: Date = .now,
+        calendar: Calendar = .current
+    ) -> Bool {
+        guard let dueDate else { return true }
+        return daysEarly(chore, dueOn: dueDate, completedAt: date, calendar: calendar) <= 0
+    }
+
+    /// Days `chore` is completed before its grace period starts; 0 or less when it's on time.
+    private func daysEarly(
+        _ chore: ChoreModel,
+        dueOn dueDate: Date,
+        completedAt date: Date,
+        calendar: Calendar
+    ) -> Int {
         let daysUntilDue = calendar.dateComponents(
             [.day],
             from: calendar.startOfDay(for: date),
             to: calendar.startOfDay(for: dueDate)
         ).day ?? 0
-        let daysEarly = daysUntilDue - earlyGraceDays(for: chore.frequency)
-
-        return full >> max(daysEarly, 0)
+        return daysUntilDue - earlyGraceDays(for: chore.frequency)
     }
     
     /// Days before the due date a chore can be done without losing points: one period of the
