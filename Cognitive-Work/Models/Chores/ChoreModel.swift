@@ -23,7 +23,7 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         "name", "description", "isDone", "dueDate", "frequency", "shouldBeIncluded",
         "duration", "isPublic", "isLate", "weight", "priorityTag",
         "checkList", "currentResponsible", "allResponsibleUsers", "room", "dailyAssignment",
-        "userThatHaveDone", "awardedPoints", "createdBy", "creationPoints"
+        "userThatHaveDone", "awardedPoints", "badgeRoom", "createdBy", "creationPoints"
     ]
     
     /// Identifier of the stored record, or `nil` before the chore is saved.
@@ -95,6 +95,14 @@ class ChoreModel: CloudKitSyncable, Identifiable {
     /// someone check off a long, urgent chore, edit it into a short one and uncheck it, keeping
     /// the difference every time.
     var awardedPoints: Int?
+
+    /// The kind of default room (``DefaultRoomsOnboarding`` raw value) this completion counted
+    /// for in the room badges (``RoomBadge``). `nil` while not done, or when it didn't count (a
+    /// custom room, checked off too early, or over the daily limit of one-off chores).
+    ///
+    /// Unchecking takes the check-off back from exactly this room, like ``awardedPoints``, even
+    /// if the chore moved to another room in between.
+    var badgeRoom: String?
     
     /// When the chore was created (CloudKit's creation date). `nil` before it is saved.
     private(set) var createdAt: Date?
@@ -234,6 +242,7 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         self.dailyAssignmentsReference = record["dailyAssignment"] as? [CKRecord.Reference]
         self.userThatHaveDoneReference = record["userThatHaveDone"] as? CKRecord.Reference
         self.awardedPoints = record["awardedPoints"] as? Int
+        self.badgeRoom = record["badgeRoom"] as? String
         self.createdByReference = record["createdBy"] as? CKRecord.Reference
         self.creationPoints = record["creationPoints"] as? Int
         self.calendarEventIdentifier = record["calendarEventIdentifier"] as? String
@@ -319,6 +328,7 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         record["dailyAssignment"] = dailyAssignmentsReference ?? []
         record["userThatHaveDone"] = userThatHaveDoneReference
         record["awardedPoints"] = awardedPoints
+        record["badgeRoom"] = badgeRoom
         if let createdByReference {
             record["createdBy"] = createdByReference
         }
