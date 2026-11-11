@@ -24,24 +24,12 @@ struct BadgeUnlockedSheet: View {
                 .multilineTextAlignment(.center)
                 .accessibilityAddTraits(.isHeader)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 24) {
-                    ForEach(badges) { badge in
-                        VStack(spacing: 10) {
-                            RoomBadgeIcon(badge: badge, size: badges.count == 1 ? 140 : 100)
-                            Text(verbatim: badge.title)
-                                .font(.system(size: 17, weight: .semibold))
-                                .multilineTextAlignment(.center)
-                            Text(verbatim: badge.room.rawValue.localizedDefault)
-                                .font(.system(size: 15))
-                                .foregroundStyle(.subTitleGray)
-                        }
-                        .frame(maxWidth: 180)
-                        .accessibilityElement(children: .combine)
-                    }
+            // Centered when they fit, scrolling sideways when several don't.
+            ViewThatFits(in: .horizontal) {
+                badgeRow
+                ScrollView(.horizontal, showsIndicators: false) {
+                    badgeRow
                 }
-                .padding(.horizontal, 24)
-                .frame(minWidth: 0, maxWidth: .infinity)
             }
 
             Button(action: onClose) {
@@ -61,6 +49,26 @@ struct BadgeUnlockedSheet: View {
                     .ignoresSafeArea()
             }
         }
+    }
+
+    /// Every badge with its name and room.
+    private var badgeRow: some View {
+        HStack(alignment: .top, spacing: 24) {
+            ForEach(badges) { badge in
+                VStack(spacing: 10) {
+                    RoomBadgeIcon(badge: badge, size: badges.count == 1 ? 140 : 100)
+                    Text(verbatim: badge.title)
+                        .font(.system(size: 17, weight: .semibold))
+                        .multilineTextAlignment(.center)
+                    Text(verbatim: badge.room.rawValue.localizedDefault)
+                        .font(.system(size: 15))
+                        .foregroundStyle(.subTitleGray)
+                }
+                .frame(width: 160)
+                .accessibilityElement(children: .combine)
+            }
+        }
+        .padding(.horizontal, 24)
     }
 
     /// The rooms' colors first, then the rest of the palette.
