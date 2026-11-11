@@ -34,14 +34,17 @@ enum UserFacingError {
     static func message(for error: Error, doing action: Action = .save) -> String {
         print("[Error] \(action): \(error)")
 
+        // Batch saves report it inside a partial failure, one error per record.
+        if error.isQuotaExceeded {
+            return L10n.tr("O armazenamento do iCloud está cheio. Libere espaço para continuar.")
+        }
+
         if let ckError = error as? CKError {
             switch ckError.code {
             case .networkUnavailable, .networkFailure:
                 return L10n.tr("Sem conexão com a internet. Verifique sua rede e tente novamente.")
             case .notAuthenticated, .accountTemporarilyUnavailable:
                 return L10n.tr("Entre na sua conta do iCloud para continuar.")
-            case .quotaExceeded:
-                return L10n.tr("O armazenamento do iCloud está cheio. Libere espaço para continuar.")
             case .requestRateLimited, .zoneBusy, .serviceUnavailable, .serverResponseLost:
                 return L10n.tr("O serviço está ocupado agora. Tente novamente em instantes.")
             case .serverRecordChanged:
