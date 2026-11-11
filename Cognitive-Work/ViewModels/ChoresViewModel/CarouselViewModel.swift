@@ -96,6 +96,10 @@ class CarouselViewModel {
     /// ``ChoreCompletionBatcher``). Left for the view to clear back to `nil` once shown.
     var completionErrorMessage: String?
     
+    /// Room badges the signed-in member just unlocked by checking chores off, waiting to be
+    /// celebrated (see ``BadgeUnlockedSheet``). Left for the view to clear once shown.
+    var unlockedBadges: [RoomBadge] = []
+    
     /// Saves the check-offs made close together in one go (see ``ChoreCompletionBatcher``).
     @ObservationIgnored
     private(set) lazy var completions: ChoreCompletionBatcher = {
@@ -104,6 +108,9 @@ class CarouselViewModel {
         batcher.onError = { [weak self] message in self?.completionErrorMessage = message }
         batcher.onSavedDone = { [weak self] chore, assignment in
             self?.notifyOwnersChoreDone(chore, assignment: assignment)
+        }
+        batcher.onBadgesUnlocked = { [weak self] badges in
+            self?.unlockedBadges.append(contentsOf: badges)
         }
         return batcher
     }()

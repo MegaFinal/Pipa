@@ -291,6 +291,18 @@ struct ChoresView: View {
         } message: {
             Text(carouselVM.completionErrorMessage ?? "")
         }
+        // MARK: - Room badges just unlocked
+        .sheet(
+            isPresented: Binding(
+                get: { !carouselVM.unlockedBadges.isEmpty },
+                set: { if !$0 { carouselVM.unlockedBadges = [] } }
+            )
+        ) {
+            BadgeUnlockedSheet(badges: carouselVM.unlockedBadges) {
+                carouselVM.unlockedBadges = []
+            }
+            .presentationDetents([.medium])
+        }
         // Checks still waiting go out before the app leaves the screen.
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             carouselVM.completions.flushNow()
