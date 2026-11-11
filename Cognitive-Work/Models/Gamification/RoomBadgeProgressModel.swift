@@ -127,7 +127,7 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
     ///
     /// Counts never go below 0, and badges already unlocked stay unlocked. The one-off counts of
     /// a day other than `dayKey` are dropped first. It's up to the caller to leave out one-off
-    /// check-offs over ``oneOffDailyLimit`` (``BadgeManager/countableOneOffs(in:for:on:)``).
+    /// check-offs over ``oneOffDailyLimit`` (``BadgeManager/countableOneOffs(for:on:)``).
     ///
     /// - Returns: The badges unlocked by this change, in the order of each room's ladder.
     @discardableResult
