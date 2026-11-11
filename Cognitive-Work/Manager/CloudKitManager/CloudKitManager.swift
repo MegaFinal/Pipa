@@ -159,6 +159,7 @@ class CloudKitManager {
             didEnsureZone = true
             return true
         } catch {
+            ICloudStorageMonitor.shared.report(error, in: privateDB)
             errorMessage = UserFacingError.message(for: error, doing: .save)
             return false
         }
@@ -812,18 +813,26 @@ class CloudKitManager {
             // `modifyRecords` only throws for whole-request failures; per-record errors
             // (e.g. serverRecordChanged) come back in the results and used to be ignored.
             var saved: [CKRecord] = []
+            var failure: Error?
             for (_, result) in saveResults {
                 switch result {
                 case .success(let record): saved.append(record)
-                case .failure(let error): throw error
+                case .failure(let error):
+                    // In an atomic batch the other records only say `batchRequestFailed`: keep
+                    // the record that has the real cause (for example a full iCloud).
+                    if failure == nil || failure?.isBatchRequestFailed == true {
+                        failure = error
+                    }
                 }
             }
+            if let failure { throw failure }
             RecentWrites.shared.saved(saved)
         
             await HardwareViewModel.notifyDataChanged()
             markDataChanged()
             return true
         } catch {
+            ICloudStorageMonitor.shared.report(error, in: database)
             self.errorMessage = UserFacingError.message(for: error, doing: .save)
             return false
         }
@@ -863,11 +872,14 @@ class CloudKitManager {
                 guard !recordsToSave.isEmpty else { continue }
 
                 let (saveResults, _) = try await database.modifyRecords(saving: recordsToSave, deleting: [])
+                // Per-record failures don't throw: look for a full iCloud among them.
+                ICloudStorageMonitor.shared.report(saveResults: saveResults, in: database)
                 RecentWrites.shared.saved(saveResults.values.compactMap { try? $0.get() })
                 
                 await HardwareViewModel.notifyDataChanged()
                 markDataChanged()
             } catch {
+                ICloudStorageMonitor.shared.report(error, in: database)
                 errorMessage = UserFacingError.message(for: error, doing: .save)
                 print("    batchUpdate FAILED (\(T.recordType)): \(error)")
                 allSucceeded = false

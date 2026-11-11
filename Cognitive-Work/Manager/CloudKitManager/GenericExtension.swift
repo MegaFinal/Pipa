@@ -60,6 +60,7 @@ extension CloudKitManager {
             markDataChanged()
             return saved
         } catch {
+            ICloudStorageMonitor.shared.report(error, in: database)
             errorMessage = UserFacingError.message(for: error, doing: .create)
             return nil
         }
@@ -465,6 +466,7 @@ extension CloudKitManager {
             markDataChanged()
             return true
         } catch {
+            ICloudStorageMonitor.shared.report(error, in: database)
             errorMessage = UserFacingError.message(for: error, doing: .save)
             return false
         }
@@ -483,6 +485,7 @@ extension CloudKitManager {
             markDataChanged()
             return true
         } catch {
+            ICloudStorageMonitor.shared.report(error, in: database)
             errorMessage = UserFacingError.message(for: error, doing: .save)
             return false
         }

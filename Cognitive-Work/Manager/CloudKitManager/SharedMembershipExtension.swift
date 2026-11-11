@@ -285,12 +285,18 @@ extension CloudKitManager {
                 housesToSave.append(house)
             }
             if !housesToSave.isEmpty {
-                _ = try? await sharedDB.modifyRecords(
-                    saving: housesToSave,
-                    deleting: [],
-                    savePolicy: .changedKeys,
-                    atomically: false
-                )
+                // Best effort, but a full iCloud is still reported.
+                do {
+                    let (saveResults, _) = try await sharedDB.modifyRecords(
+                        saving: housesToSave,
+                        deleting: [],
+                        savePolicy: .changedKeys,
+                        atomically: false
+                    )
+                    ICloudStorageMonitor.shared.report(saveResults: saveResults, in: sharedDB)
+                } catch {
+                    ICloudStorageMonitor.shared.report(error, in: sharedDB)
+                }
             }
         }
         
@@ -448,7 +454,13 @@ extension CloudKitManager {
         if let houseRecord = records.first(where: { $0.recordID == houseID }),
            let references = houseRecord["users"] as? [CKRecord.Reference] {
             houseRecord["users"] = references.filter { !memberIDs.contains($0.recordID) }
-            _ = try? await privateDB.modifyRecords(saving: [houseRecord], deleting: [], savePolicy: .changedKeys, atomically: false)
+            // Best effort, but a full iCloud is still reported.
+            do {
+                let (saveResults, _) = try await privateDB.modifyRecords(saving: [houseRecord], deleting: [], savePolicy: .changedKeys, atomically: false)
+                ICloudStorageMonitor.shared.report(saveResults: saveResults, in: privateDB)
+            } catch {
+                ICloudStorageMonitor.shared.report(error, in: privateDB)
+            }
         }
 
         // What hangs from the member records (free time…) goes first: a parent can only be
@@ -489,7 +501,11 @@ extension CloudKitManager {
                $0.userIdentity.userRecordID?.recordName == ownerRecordName
            }) {
             share.removeParticipant(participant)
-            _ = try? await privateDB.modifyRecords(saving: [share], deleting: [])
+            do {
+                _ = try await privateDB.modifyRecords(saving: [share], deleting: [])
+            } catch {
+                ICloudStorageMonitor.shared.report(error, in: privateDB)
+            }
         }
 
         invalidateSessionCache()
@@ -656,13 +672,26 @@ extension CloudKitManager {
         
         guard !toSave.isEmpty || !toDelete.isEmpty else { return }
         
-        // Best effort: failing here must not stop the member from leaving.
-        let result = try? await (database ?? sharedDB).modifyRecords(
-            saving: toSave,
-            deleting: toDelete,
-            savePolicy: .changedKeys,
-            atomically: false
-        )
+        // Best effort: failing here must not stop the member from leaving. A full iCloud is
+        // still reported.
+        let targetDatabase = database ?? sharedDB
+        let result: (
+            saveResults: [CKRecord.ID: Result<CKRecord, Error>],
+            deleteResults: [CKRecord.ID: Result<Void, Error>]
+        )?
+        do {
+            let response = try await targetDatabase.modifyRecords(
+                saving: toSave,
+                deleting: toDelete,
+                savePolicy: .changedKeys,
+                atomically: false
+            )
+            ICloudStorageMonitor.shared.report(saveResults: response.saveResults, in: targetDatabase)
+            result = response
+        } catch {
+            ICloudStorageMonitor.shared.report(error, in: targetDatabase)
+            result = nil
+        }
         // Shopping queries see a deletion only once the server indexed it: tell this device's
         // screens right away.
         let deleted = result?.deleteResults.compactMap { id, outcome in
