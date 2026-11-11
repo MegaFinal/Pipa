@@ -11,6 +11,7 @@ import CloudKit
 @testable import Cognitive_Work
 
 /// Checks how ``RoomBadgeProgressModel`` counts check-offs and unlocks badges.
+@MainActor
 struct RoomBadgeProgressModelTests {
 
     private let today = "2026-11-11"

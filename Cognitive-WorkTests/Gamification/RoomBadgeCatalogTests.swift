@@ -10,6 +10,7 @@ import Foundation
 @testable import Cognitive_Work
 
 /// Checks the shape of the room badge catalog (``RoomBadge``).
+@MainActor
 struct RoomBadgeCatalogTests {
 
     @Test func everyDefaultRoomHasBadges() {
