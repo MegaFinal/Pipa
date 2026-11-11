@@ -30,6 +30,12 @@ struct NotificationsView: View {
     @State private var isShowingPremium = false
     /// Closes this screen.
     @Environment(\.dismiss) private var dismiss
+    #if DEBUG
+    /// Result of the last shopping list seeding or cleanup (debug builds only).
+    @State private var seedStatus: String?
+    /// Whether the shopping list seeder is running (debug builds only).
+    @State private var isSeeding = false
+    #endif
     
     var body: some View {
         // No NavigationStack here: we are already inside ChoresView's stack.
@@ -152,7 +158,66 @@ struct NotificationsView: View {
             }
             .buttonStyle(.plain) // keeps the text black
             .voiceControlNames(["Simular retrospectiva"])
+            
+            Button {
+                Task { await seedShopList() }
+            } label: {
+                NotificationComponent(
+                    color: Notifications.itemBought.color,
+                    symbol: Notifications.itemBought.symbol,
+                    title: "Popular lista de compras",
+                    subtitle: "Cria 4–5 itens por categoria, com preço, para os moradores da casa"
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isSeeding)
+            .voiceControlNames(["Popular lista de compras"])
+            
+            Button {
+                Task { await removeSeededShopList() }
+            } label: {
+                NotificationComponent(
+                    color: Notifications.itemBought.color,
+                    symbol: Notifications.itemBought.symbol,
+                    title: "Remover dados de teste",
+                    subtitle: "Apaga os itens criados pelo botão acima"
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isSeeding)
+            .voiceControlNames(["Remover dados de teste"])
+            
+            if let seedStatus {
+                Text(verbatim: seedStatus)
+                    .font(.system(size: 15))
+                    .foregroundStyle(.subTitleGray)
+            }
         }
+    }
+    
+    /// Fills the shopping list with sample items and made-up housemates (debug builds only).
+    private func seedShopList() async {
+        isSeeding = true
+        defer { isSeeding = false }
+        do {
+            let result = try await ShopListDebugSeeder.seed()
+            seedStatus = "\(result.itemCount) itens criados. Moradores: \(result.housemates.joined(separator: ", "))"
+        } catch {
+            seedStatus = error.localizedDescription
+        }
+    }
+    
+    /// Deletes what ``seedShopList()`` created (debug builds only).
+    private func removeSeededShopList() async {
+        isSeeding = true
+        defer { isSeeding = false }
+        guard ShopListDebugSeeder.hasSeededData else {
+            seedStatus = "Não há dados de teste para remover."
+            return
+        }
+        seedStatus = await ShopListDebugSeeder.removeSeededData()
+            ? "Dados de teste removidos."
+            : "Não deu para remover tudo; tente de novo."
     }
     #endif
     
