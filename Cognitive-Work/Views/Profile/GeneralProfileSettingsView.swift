@@ -26,6 +26,10 @@ struct GeneralProfileSettingsView: View {
     @AppStorage("didOnboard") private var didOnboard: Bool = true
     /// Saved for the "Microinterações" switch. Nothing in the app reads it yet.
     @AppStorage("microinteractionsEnabled") private var areMicrointeractionsEnabled = true
+    /// "Sugestões da IA": read by every suggestion through ``IntelligenceManager/areSuggestionsEnabled``.
+    @AppStorage(IntelligenceManager.suggestionsEnabledKey) private var areAISuggestionsEnabled = true
+    /// The Premium paywall, opened from the locked "Sugestões da IA" switch on the free plan.
+    @State private var paywall: PremiumFeature?
     
     private let languageManager = LanguageManager.shared
     private var languageSelection: Binding<AppLanguage> {
@@ -75,6 +79,40 @@ struct GeneralProfileSettingsView: View {
         if status == .denied { areNotificationsEnabled = false }
     }
     
+    /// "Sugestões da IA" on the free plan: an off switch with the Premium crown. Turning it on,
+    /// or tapping anywhere on the row, opens the paywall; the switch itself stays off.
+    ///
+    /// Not a `Button` around the `Toggle`: with the toggle's hit testing turned off, a plain
+    /// button in a list row had nothing left to tap, so nothing happened.
+    private var lockedAISuggestionsToggle: some View {
+        Toggle(isOn: Binding(
+            get: { false },
+            set: { isOn in if isOn { openAIPaywall() } }
+        )) {
+            HStack(spacing: 6) {
+                Text("Sugestões da IA")
+                PremiumBadge()
+            }
+        }
+        // The text side of the row opens it too, not only the switch.
+        .contentShape(Rectangle())
+        .onTapGesture { openAIPaywall() }
+        .accessibilityElement(children: .ignore)
+        .voiceOverLabel(L10n.tr("Sugestões da IA, Premium"))
+        .voiceOverValue(L10n.tr("Desativado"))
+        .voiceOverHint(L10n.tr("Toque duas vezes para ver o Premium."))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { openAIPaywall() }
+        .voiceControlNames([L10n.tr("Sugestões da IA"), L10n.tr("Sugestões"), L10n.tr("IA"), L10n.tr("Premium")])
+    }
+
+    /// Opens the paywall on the AI features (from the locked "Sugestões da IA" switch).
+    private func openAIPaywall() {
+        guard paywall == nil else { return }
+        HapticsManager.selection()
+        paywall = .intelligence
+    }
+
     var body: some View {
         List {
             // MARK: - Perfil do usuário
@@ -120,6 +158,19 @@ struct GeneralProfileSettingsView: View {
             } footer: {
                 Text("Pequenos efeitos e animações que servem como um retorno visual.")
             }
+
+            // The suggestions are Premium (see ``IntelligenceManager/areSuggestionsEnabled``). On
+            // the free plan the switch shows off, with the crown, and opens the paywall.
+            Section {
+                if PremiumManager.shared.isPremium {
+                    Toggle("Sugestões da IA", isOn: $areAISuggestionsEnabled)
+                        .voiceControlNames([L10n.tr("Sugestões da IA"), L10n.tr("Sugestões"), L10n.tr("IA")])
+                } else {
+                    lockedAISuggestionsToggle
+                }
+            } footer: {
+                Text("Ordem sugerida das tarefas, ideias de subtarefas, sugestões do que pode estar faltando na lista de compras e preenchimento automático ao descrever uma tarefa ou um item.")
+            }
             
             Section {
                 Toggle(isOn: $viewModel.isCalendarSyncEnabled) {
@@ -137,23 +188,27 @@ struct GeneralProfileSettingsView: View {
             } footer: {
                 Text("Adicionar automaticamente as suas tarefas ao Apple Calendar (Pipa).")
             }
-        }
-        .listSectionSpacing(.compact)
-        // MARK: - Delete account button (pinned to the bottom of the screen)
-        .safeAreaInset(edge: .bottom) {
-            Button("Excluir perfil", role: .destructive) {
-                Task {
-                    let isAdmin = await houseViewModel.checkAdminStatus()
-                    if isAdmin {
-                        showAdminDeleteConfirmation = true
-                    } else {
-                        showDeleteConfirmation = true
+
+            // MARK: - Delete account button
+            // The list's last row, so it scrolls with the settings instead of staying pinned over
+            // them. Same look as before: red text on the page background, no cell.
+            Section {
+                Button("Excluir perfil", role: .destructive) {
+                    Task {
+                        let isAdmin = await houseViewModel.checkAdminStatus()
+                        if isAdmin {
+                            showAdminDeleteConfirmation = true
+                        } else {
+                            showDeleteConfirmation = true
+                        }
                     }
                 }
+                .frame(maxWidth: .infinity)
+                .listRowBackground(Color.clear)
+                .voiceControlNames([L10n.tr("Excluir Perfil"), L10n.tr("Excluir"), L10n.tr("Apagar")])
             }
-            .voiceControlNames([L10n.tr("Excluir Perfil"), L10n.tr("Excluir"), L10n.tr("Apagar")])
-            .padding(.vertical, 12)
         }
+        .listSectionSpacing(.compact)
         // MARK: - Edit name / Pix key sheets
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
@@ -161,6 +216,7 @@ struct GeneralProfileSettingsView: View {
             case .pix: PixKeySettingsView(viewModel: viewModel)
             }
         }
+        .premiumPaywall($paywall)
         .navigationTitle("Configurações Gerais")
         .navigationBarTitleDisplayMode(.inline)
         .hidesTabBar()

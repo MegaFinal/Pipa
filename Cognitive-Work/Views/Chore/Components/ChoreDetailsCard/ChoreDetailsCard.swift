@@ -80,6 +80,7 @@ struct ChoreDetailsCard: View {
     /// suggested order and what comes first (see ``TodayChoreOrder``); `nil` when it isn't one
     /// of the viewer's chores today.
     private var orderNote: String? {
+        guard IntelligenceManager.areSuggestionsEnabled else { return nil }
         let id = viewModel.recurrentAssignment?.recordID?.recordName ?? viewModel.chore.id.uuidString
         return TodayChoreOrder.shared.note(for: id)
     }
