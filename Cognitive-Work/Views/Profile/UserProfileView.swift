@@ -171,10 +171,6 @@ private struct SettingsButtonsSection: View {
                     SelectFreeTimeOnboardingView(viewModel: $viewModelOnboarding, isFromSettings: true)
                 }
                 .voiceControlNames([L10n.tr("Alterar Tempo Livre"), L10n.tr("Tempo livre")])
-                
-                NavigationLink("Sobre nós") {
-                    AboutUsView()
-                }
             }
             
             // MARK: - Hardware connection

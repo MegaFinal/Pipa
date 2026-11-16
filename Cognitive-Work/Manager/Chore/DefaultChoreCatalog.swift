@@ -88,3 +88,12 @@ extension ChoreDTO {
     /// The name to display: translated when it's one of the app's default names.
     var localizedName: String { name.localizedDefault }
 }
+
+extension CouponModel {
+    /// The name to display: translated when it's one of the app's default chore names.
+    ///
+    /// A coupon is named after the chore it came from (``CouponModel/name``). When that chore
+    /// was one of the app's suggestions, the coupon still shows the translated name; a name the
+    /// user typed is shown exactly as written, same as ``ChoreModel/localizedName``.
+    var localizedName: String { name.localizedDefault }
+}
