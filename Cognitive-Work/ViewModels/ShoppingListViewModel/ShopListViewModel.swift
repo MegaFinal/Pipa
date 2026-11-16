@@ -1188,9 +1188,11 @@ final class ShopListViewModel {
 
     // MARK: - Apple Intelligence
 
-    /// Whether the add-item form should offer AI suggestions on this device and language.
+    /// Whether the add-item form should offer AI suggestions on this device and language, and
+    /// the person didn't turn "Sugestões da IA" off. ("Adicionar com IA" doesn't depend on it.)
     var canSuggestItemDetails: Bool {
-        IntelligenceManager.shared.isAvailable && PremiumManager.shared.allows(.intelligence)
+        IntelligenceManager.areSuggestionsEnabled
+            && IntelligenceManager.shared.isAvailable && PremiumManager.shared.allows(.intelligence)
     }
 
     /// Suggests name, quantity, unit, category, price and who splits the item from a description.

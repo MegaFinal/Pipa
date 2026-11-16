@@ -43,7 +43,9 @@ struct CheckListCreateAndEdit: View {
         }
     }
     
-    /// Check circle, text field and, when there's more than one row, a remove button.
+    /// Check circle, text field and a remove button. The only row has one too once it holds
+    /// something: removing it leaves a blank row to type into (see ``remove(_:)``), so the last
+    /// subtask can be deleted like the others.
     private func row(for item: Binding<CheckItemDTO>) -> some View {
         HStack(spacing: 12) {
             Button {
@@ -68,7 +70,7 @@ struct CheckListCreateAndEdit: View {
                 .onSubmit { insertItem(after: item.wrappedValue.id) }
                 .voiceControlNames([accessibilityName(of: item.wrappedValue), L10n.tr("Item")])
             
-            if localChecklist.count > 1 {
+            if localChecklist.count > 1 || !isBlank(item.wrappedValue) {
                 Button {
                     remove(item.wrappedValue.id)
                 } label: {
@@ -82,6 +84,11 @@ struct CheckListCreateAndEdit: View {
         .padding(.vertical, 12)
     }
     
+    /// Whether `item` is an untouched row: no text and not checked.
+    private func isBlank(_ item: CheckItemDTO) -> Bool {
+        item.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !item.isDone
+    }
+
     /// The item's text, or "Nova subtarefa" while it's still blank.
     private func accessibilityName(of item: CheckItemDTO) -> String {
         let name = item.name.trimmingCharacters(in: .whitespacesAndNewlines)

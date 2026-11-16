@@ -26,6 +26,8 @@ struct ShopListView: View {
     @State private var isPresentingAIBatch = false
     /// Whether the AI button shows: the on-device model can run on this device and language.
     @State private var canUseAI = false
+    /// "Sugestões da IA" in the settings: turning it off or on updates "Pode estar faltando".
+    @AppStorage(IntelligenceManager.suggestionsEnabledKey) private var areSuggestionsEnabled = true
 
     /// The Premium feature whose paywall is open, or `nil`.
     @State private var paywall: PremiumFeature?
@@ -123,6 +125,13 @@ struct ShopListView: View {
         }
         // Suggestions follow the list: an item added, bought or removed changes them.
         .onChange(of: suggestionsKey, initial: true) { _, _ in
+            suggestionsModel.refresh()
+        }
+        .onChange(of: areSuggestionsEnabled) { _, _ in
+            suggestionsModel.refresh()
+        }
+        // Suggestions are Premium: shown (or hidden) as soon as the house's status is known.
+        .onChange(of: PremiumManager.shared.isPremium) { _, _ in
             suggestionsModel.refresh()
         }
         #if DEBUG

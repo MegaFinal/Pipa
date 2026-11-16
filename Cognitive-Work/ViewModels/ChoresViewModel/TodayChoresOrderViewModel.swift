@@ -65,11 +65,15 @@ final class TodayChoreOrder {
 
     /// Rebuilds the order when today's chores changed. Cheap to call often.
     func refresh(using carousel: CarouselViewModel) async {
-        guard IntelligenceManager.shared.isAvailable, PremiumManager.shared.allows(.intelligence) else {
+        guard IntelligenceManager.areSuggestionsEnabled,
+              IntelligenceManager.shared.isAvailable,
+              PremiumManager.shared.allows(.intelligence) else {
             #if DEBUG
-            print("[TodayOrder] Apple Intelligence unavailable or house not Premium: no order")
+            print("[TodayOrder] suggestions off, Apple Intelligence unavailable or house not Premium: no order")
             #endif
             steps = []
+            // Built again from scratch once it's possible (switch turned back on).
+            lastKey = ""
             return
         }
         // Today's open chores plus the late ones (everyone's: the others only tell what has to

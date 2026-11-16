@@ -23,6 +23,8 @@ struct ChoreListLayout: View {
     
     /// Days the user has collapsed, keyed by ``DayGroup/id``.
     @State private var collapsedDays: Set<Date> = []
+    /// "Sugestões da IA" in the settings: off hides the suggested order.
+    @AppStorage(IntelligenceManager.suggestionsEnabledKey) private var areSuggestionsEnabled = true
     
     /// The occurrence whose delete button is currently revealed. Only one at a time: revealing
     /// another closes it, and tapping any card closes it instead of opening the details.
@@ -79,7 +81,7 @@ struct ChoreListLayout: View {
                     
                     if !collapsedDays.contains(group.id) {
                         // Today only: the suggested order of the viewer's own chores (AI).
-                        if group.isToday, todayOrder.steps.count >= 2 {
+                        if group.isToday, areSuggestionsEnabled, todayOrder.steps.count >= 2 {
                             TodayOrderBox(steps: todayOrder.steps)
                                 .frame(width: width * 0.92)
                                 .padding(.bottom, cardSpacing)
@@ -110,7 +112,7 @@ struct ChoreListLayout: View {
         }
         .matchedGeometryEffect(id: "Spawnpoint", in: namespace)
         // Rebuilds the suggested order when today's chores change (done, added, reassigned).
-        .task(id: todayOrderKey) {
+        .task(id: todayOrderKey + "\(areSuggestionsEnabled)\(PremiumManager.shared.isPremium)") {
             await todayOrder.refresh(using: viewModel)
         }
         // MARK: - Empty state

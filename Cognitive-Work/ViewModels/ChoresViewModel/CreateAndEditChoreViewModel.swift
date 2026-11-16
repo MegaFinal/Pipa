@@ -183,10 +183,12 @@ final class CreateAndEditChoreViewModel {
     /// each picker, see ``replaceUndefinedTags(in:)``), not real choices.
     private var handPickedFields: Set<SuggestedField> = []
 
-    /// Whether the name field can take a description: only for a new chore, and only when the
-    /// on-device model can run here.
+    /// Whether the name field can take a description: only for a new chore, only when the
+    /// on-device model can run here, and only while "Sugestões da IA" is on. Also gates the
+    /// checklist ideas.
     var canSuggest: Bool {
-        mode == .create && IntelligenceManager.shared.isAvailable && PremiumManager.shared.allows(.intelligence)
+        mode == .create && IntelligenceManager.areSuggestionsEnabled
+            && IntelligenceManager.shared.isAvailable && PremiumManager.shared.allows(.intelligence)
     }
 
     /// Asks the on-device model to fill the form from `text` ("lavar a louça toda semana, eu e Ana").

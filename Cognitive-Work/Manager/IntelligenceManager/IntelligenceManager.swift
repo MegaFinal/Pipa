@@ -24,6 +24,27 @@ final class IntelligenceManager {
 
     private init() {}
 
+    // MARK: - The person's switch
+
+    /// `UserDefaults` key of the "Sugestões da IA" switch in "Configurações Gerais".
+    static let suggestionsEnabledKey = "aiSuggestionsEnabled"
+
+    /// Whether the app's own suggestions show: only in Premium houses, and only while the person
+    /// keeps the switch on (it starts on, so a house that becomes Premium gets them right away).
+    ///
+    /// Outside Premium it's always `false`, the usual items and the last price included: they
+    /// aren't AI, but they look like it (purple, dashed border) and are part of Premium.
+    ///
+    /// Off hides everything the app suggests by itself: "Pode estar faltando" in the shopping
+    /// list (AI ideas and usual items), the last price in the item form, today's suggested order
+    /// and its note on the cards, checklist ideas, the "Nome: …" preview, and the item and chore
+    /// forms no longer read a description to fill themselves. What the person asks for stays:
+    /// "Adicionar com IA" and the receipt scan; so do the duplicate checks.
+    static var areSuggestionsEnabled: Bool {
+        guard PremiumManager.shared.isPremium else { return false }
+        return UserDefaults.standard.object(forKey: suggestionsEnabledKey) as? Bool ?? true
+    }
+
     // MARK: - Availability
 
     /// Whether AI features can run right now: the device supports Apple Intelligence, it's turned

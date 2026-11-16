@@ -776,6 +776,8 @@ struct ShopListItemFormView: View {
 
     /// The latest item with this name that had a price, while the price here is still empty.
     private var lastPriced: ShopListItem? {
+        // A suggestion too: hidden with "Sugestões da IA" off.
+        guard IntelligenceManager.areSuggestionsEnabled else { return nil }
         guard valueText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
         let editing: ShopListItem? = {
             if case .edit(let item) = mode { return item }
