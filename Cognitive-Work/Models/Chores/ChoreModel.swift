@@ -476,7 +476,12 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         let checklistDrafts = choreDTO.hasChecklist
             ? choreDTO.checklist.filter { !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
             : []
+        // Items the person removed from the checklist (dropped from `checklistDrafts`, so `sync`
+        // never writes them back into the new reference list) need deleting too, or they stay
+        // around in CloudKit with nothing pointing at them.
+        let previousCheckListReference = checkListReference ?? []
         self.checkListReference = await CheckItemModel.sync(from: checklistDrafts, parent: choreReference)
+        await CheckItemModel.deleteRemoved(from: previousCheckListReference, keeping: checkListReference ?? [])
         
         if !targetAssignments.isEmpty {
             await updateRecurrentAssignments(

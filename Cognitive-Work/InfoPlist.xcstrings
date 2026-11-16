@@ -37,7 +37,7 @@
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Pipa"
           }
         },
@@ -85,7 +85,7 @@
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Cognitive-Work"
           }
         },
@@ -133,7 +133,7 @@
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Precisamos de acesso ao seu calendário para sincronizar e atualizar as suas tarefas domésticas atribuídas."
           }
         },
@@ -151,43 +151,43 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "We use the camera to scan receipts and read the items you bought."
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Usamos la cámara para escanear recibos y leer los artículos comprados."
           }
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Nous utilisons l’appareil photo pour scanner les tickets de caisse et lire les articles achetés."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "レシートをスキャンして購入した商品を読み取るためにカメラを使用します。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "영수증을 스캔하고 구매한 상품을 읽기 위해 카메라를 사용해요."
           }
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Usamos a câmera para escanear notas fiscais e ler os itens comprados."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "我们使用相机扫描小票并读取所购商品。"
           }
         }
@@ -241,7 +241,7 @@
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Usamos a rede local para encontrar e se comunicar com o Harvi."
           }
         },
@@ -289,7 +289,7 @@
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Usamos o microfone para você adicionar itens falando."
           }
         },
@@ -337,7 +337,7 @@
         },
         "pt-BR" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Usamos o reconhecimento de fala para transformar o que você diz em itens da lista."
           }
         },
