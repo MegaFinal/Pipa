@@ -619,6 +619,17 @@ private struct TodayOrderBox: View {
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.titleGray)
 
+                        // Late chore: same icon and color as the card's "Atrasada" badge.
+                        if let overdue = step.overdueText {
+                            Label {
+                                Text(overdue)
+                            } icon: {
+                                Image(systemName: "clock.badge.exclamationmark.fill")
+                            }
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Color.choreOrange)
+                        }
+
                         if let note = step.note {
                             Text(note)
                                 .font(.system(size: 13))

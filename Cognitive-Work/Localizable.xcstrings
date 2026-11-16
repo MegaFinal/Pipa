@@ -1262,6 +1262,9 @@
         }
       }
     },
+    "%@, bloqueada" : {
+
+    },
     "%@, pronto" : {
       "localizations" : {
         "en" : {
@@ -1915,6 +1918,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已完成 %lld / %lld 项家务，%@"
+          }
+        }
+      }
+    },
+    "%lld de %lld tarefas para %@" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld de %2$lld tarefas para %3$@"
           }
         }
       }
@@ -3200,202 +3213,42 @@
     "+%lld" : {
       "shouldTranslate" : false
     },
-    "Agora não" : {
+    "Atrasada desde %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Not Now"
+            "value" : "Overdue since %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ahora no"
+            "value" : "Atrasada desde el %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pas maintenant"
+            "value" : "En retard depuis le %@"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今はしない"
+            "value" : "%@から遅れています"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "나중에"
+            "value" : "%@부터 밀림"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "以后再说"
-          }
-        }
-      }
-    },
-    "iCloud cheio" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud Full"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud lleno"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud plein"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudがいっぱいです"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 저장 공간 부족"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 已满"
-          }
-        }
-      }
-    },
-    "O armazenamento do iCloud está cheio, então algumas alterações não foram salvas. Libere espaço no iCloud para continuar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud storage is full, so some changes weren't saved. Free up iCloud storage to continue."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El almacenamiento de iCloud está lleno, así que algunos cambios no se guardaron. Libera espacio en iCloud para continuar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le stockage iCloud est plein, certaines modifications n’ont donc pas été enregistrées. Libère de l’espace iCloud pour continuer."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudストレージがいっぱいのため、一部の変更が保存されませんでした。続けるにはiCloudの空き容量を確保してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 저장 공간이 가득 차서 일부 변경 사항이 저장되지 않았어요. 계속하려면 iCloud 공간을 확보하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 储存空间已满，部分更改未能保存。请释放 iCloud 空间后继续。"
-          }
-        }
-      }
-    },
-    "O iCloud de quem criou a casa está sem espaço, então as alterações da casa não estão sendo salvas. Peça para essa pessoa liberar espaço no iCloud." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The iCloud of the person who created the house is out of space, so the house's changes aren't being saved. Ask them to free up iCloud storage."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El iCloud de quien creó la casa no tiene espacio, así que los cambios de la casa no se están guardando. Pídele a esa persona que libere espacio en iCloud."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L’iCloud de la personne qui a créé la maison n’a plus d’espace, les modifications de la maison ne sont donc pas enregistrées. Demande-lui de libérer de l’espace iCloud."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "家を作成した人のiCloudの空き容量がないため、家の変更が保存されていません。その人にiCloudの空き容量を確保するよう頼んでください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "집을 만든 사람의 iCloud 저장 공간이 부족해서 집의 변경 사항이 저장되지 않고 있어요. 그 사람에게 iCloud 공간을 확보해 달라고 요청하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "创建这个家的人的 iCloud 空间不足，家里的更改无法保存。请让对方释放 iCloud 空间。"
-          }
-        }
-      }
-    },
-    "Seu iCloud está sem espaço, então suas alterações não estão sendo salvas. Libere espaço no iCloud para continuar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your iCloud is out of space, so your changes aren't being saved. Free up iCloud storage to continue."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu iCloud no tiene espacio, así que tus cambios no se están guardando. Libera espacio en iCloud para continuar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton iCloud n’a plus d’espace, tes modifications ne sont donc pas enregistrées. Libère de l’espace iCloud pour continuer."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudの空き容量がないため、変更が保存されていません。続けるにはiCloudの空き容量を確保してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 저장 공간이 부족해서 변경 사항이 저장되지 않고 있어요. 계속하려면 iCloud 공간을 확보하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的 iCloud 空间不足，更改无法保存。请释放 iCloud 空间后继续。"
+            "value" : "自 %@ 起逾期"
           }
         }
       }
@@ -4211,6 +4064,9 @@
           }
         }
       }
+    },
+    "8 Horas de Sono" : {
+
     },
     "14 Bis" : {
       "localizations" : {
@@ -6298,6 +6154,46 @@
         }
       }
     },
+    "Agora não" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas maintenant"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今はしない"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나중에"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以后再说"
+          }
+        }
+      }
+    },
     "Agora, digite o Wi-Fi da sua casa" : {
       "localizations" : {
         "en" : {
@@ -7667,6 +7563,9 @@
         }
       }
     },
+    "Aromatizante de Cheiro de Pônei" : {
+
+    },
     "Arquivar o que é importante e descartar os papéis desnecessários." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7870,6 +7769,9 @@
         }
       }
     },
+    "As badges aparecem aqui quando a casa tiver cômodos como Cozinha, Sala de Estar ou Banheiro." : {
+
+    },
     "As tarefas da casa, na parede" : {
       "localizations" : {
         "en" : {
@@ -7989,6 +7891,9 @@
           }
         }
       }
+    },
+    "Aspirador de Farelo" : {
+
     },
     "Aspirar embaixo da cama, varrer e passar pano no quarto todo." : {
       "extractionState" : "manual",
@@ -8635,6 +8540,15 @@
         }
       }
     },
+    "Badge desbloqueada!" : {
+
+    },
+    "Badges desbloqueadas!" : {
+
+    },
+    "Badges dos cômodos" : {
+
+    },
     "baixa" : {
       "localizations" : {
         "en" : {
@@ -9076,6 +8990,9 @@
         }
       }
     },
+    "Bike de Rodinha" : {
+
+    },
     "bora na próxima!" : {
       "localizations" : {
         "en" : {
@@ -9155,6 +9072,9 @@
           }
         }
       }
+    },
+    "Brilhando no Lava-Jato" : {
+
     },
     "Brilhos" : {
       "localizations" : {
@@ -9237,6 +9157,9 @@
         }
       }
     },
+    "Cabos Embolados" : {
+
+    },
     "Cada tarefa feita rende pontos e faz sua pipa subir no ranking. Arraste para ver todos os rankings." : {
       "localizations" : {
         "en" : {
@@ -9316,6 +9239,12 @@
           }
         }
       }
+    },
+    "Cadeira Arara" : {
+
+    },
+    "Cadeira de Balanço" : {
+
     },
     "Cadeira de varanda" : {
       "localizations" : {
@@ -10760,6 +10689,12 @@
         }
       }
     },
+    "Chefe Master de Delícias" : {
+
+    },
+    "Cheirinho de Roupa Limpa" : {
+
+    },
     "Chores" : {
       "localizations" : {
         "en" : {
@@ -10805,6 +10740,9 @@
           }
         }
       }
+    },
+    "Chuva de Post-it" : {
+
     },
     "Chuveiro" : {
       "localizations" : {
@@ -11607,6 +11545,9 @@
           }
         }
       }
+    },
+    "Completo!" : {
+
     },
     "comprado" : {
       "localizations" : {
@@ -14059,6 +14000,9 @@
           }
         }
       }
+    },
+    "Data de Validade Infinita" : {
+
     },
     "Dê um nome à tarefa para poder criá-la" : {
       "localizations" : {
@@ -16670,6 +16614,9 @@
           }
         }
       }
+    },
+    "Duende de Jardim" : {
+
     },
     "Duração" : {
       "localizations" : {
@@ -19925,6 +19872,9 @@
         }
       }
     },
+    "Espelho Espelho Meu" : {
+
+    },
     "Esqueça o Harvii do seu iPhone." : {
       "localizations" : {
         "en" : {
@@ -22015,6 +21965,9 @@
         }
       }
     },
+    "Fada do Banho Premium" : {
+
+    },
     "Falar" : {
       "localizations" : {
         "en" : {
@@ -22696,6 +22649,9 @@
           }
         }
       }
+    },
+    "Fortaleza Impenetrável de Travesseiros" : {
+
     },
     "Foto" : {
       "localizations" : {
@@ -23583,6 +23539,9 @@
         }
       }
     },
+    "Guardião do Controle Remoto" : {
+
+    },
     "Há notificações novas" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -24140,6 +24099,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI"
+          }
+        }
+      }
+    },
+    "iCloud cheio" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud Full"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud lleno"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud plein"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudがいっぱいです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 저장 공간 부족"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 已满"
           }
         }
       }
@@ -28107,6 +28106,9 @@
         }
       }
     },
+    "Meia Sem Par" : {
+
+    },
     "Meia-lua" : {
       "localizations" : {
         "en" : {
@@ -28628,6 +28630,9 @@
         }
       }
     },
+    "Mister Corp" : {
+
+    },
     "Moedas insuficientes" : {
       "localizations" : {
         "en" : {
@@ -28707,6 +28712,9 @@
           }
         }
       }
+    },
+    "Monstro do Ralo" : {
+
     },
     "Morador" : {
       "localizations" : {
@@ -34115,6 +34123,46 @@
         }
       }
     },
+    "O armazenamento do iCloud está cheio, então algumas alterações não foram salvas. Libere espaço no iCloud para continuar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud storage is full, so some changes weren't saved. Free up iCloud storage to continue."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El almacenamiento de iCloud está lleno, así que algunos cambios no se guardaron. Libera espacio en iCloud para continuar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le stockage iCloud est plein, certaines modifications n’ont donc pas été enregistrées. Libère de l’espace iCloud pour continuer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudストレージがいっぱいのため、一部の変更が保存されませんでした。続けるにはiCloudの空き容量を確保してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 저장 공간이 가득 차서 일부 변경 사항이 저장되지 않았어요. 계속하려면 iCloud 공간을 확보하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 储存空间已满，部分更改未能保存。请释放 iCloud 空间后继续。"
+          }
+        }
+      }
+    },
     "O armazenamento do iCloud está cheio. Libere espaço para continuar." : {
       "localizations" : {
         "en" : {
@@ -34642,6 +34690,46 @@
         }
       }
     },
+    "O iCloud de quem criou a casa está sem espaço, então as alterações da casa não estão sendo salvas. Peça para essa pessoa liberar espaço no iCloud." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The iCloud of the person who created the house is out of space, so the house's changes aren't being saved. Ask them to free up iCloud storage."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El iCloud de quien creó la casa no tiene espacio, así que los cambios de la casa no se están guardando. Pídele a esa persona que libere espacio en iCloud."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’iCloud de la personne qui a créé la maison n’a plus d’espace, les modifications de la maison ne sont donc pas enregistrées. Demande-lui de libérer de l’espace iCloud."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を作成した人のiCloudの空き容量がないため、家の変更が保存されていません。その人にiCloudの空き容量を確保するよう頼んでください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 만든 사람의 iCloud 저장 공간이 부족해서 집의 변경 사항이 저장되지 않고 있어요. 그 사람에게 iCloud 공간을 확보해 달라고 요청하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "创建这个家的人的 iCloud 空间不足，家里的更改无法保存。请让对方释放 iCloud 空间。"
+          }
+        }
+      }
+    },
     "O item que já está na lista usa outra unidade." : {
       "localizations" : {
         "en" : {
@@ -35122,6 +35210,9 @@
           }
         }
       }
+    },
+    "Oba!" : {
+
     },
     "Ocorreu um erro." : {
       "extractionState" : "stale",
@@ -36733,6 +36824,12 @@
           }
         }
       }
+    },
+    "Pano de Prato da Vó" : {
+
+    },
+    "Pão Mofado" : {
+
     },
     "para %@" : {
       "localizations" : {
@@ -39715,6 +39812,12 @@
         }
       }
     },
+    "Pombo Folgado" : {
+
+    },
+    "Pote de Sorvete com Feijão" : {
+
+    },
     "Poucas tarefas" : {
       "localizations" : {
         "en" : {
@@ -41442,6 +41545,9 @@
           }
         }
       }
+    },
+    "Quartinho da Bagunça" : {
+
     },
     "Quarto" : {
       "extractionState" : "manual",
@@ -44668,6 +44774,9 @@
         }
       }
     },
+    "Sabonete de Enfeite" : {
+
+    },
     "Saindo da casa..." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -45029,6 +45138,9 @@
           }
         }
       }
+    },
+    "Samambaia Desidratada" : {
+
     },
     "Se a tela do Harvii mostrar “Não consegui conectar ao WiFi”, ele já está esperando um Wi-Fi novo. Se não, segure o botão BOOT dele por 5 segundos e depois configure o Wi-Fi." : {
       "localizations" : {
@@ -46275,6 +46387,46 @@
         }
       }
     },
+    "Seu iCloud está sem espaço, então suas alterações não estão sendo salvas. Libere espaço no iCloud para continuar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your iCloud is out of space, so your changes aren't being saved. Free up iCloud storage to continue."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu iCloud no tiene espacio, así que tus cambios no se están guardando. Libera espacio en iCloud para continuar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton iCloud n’a plus d’espace, tes modifications ne sont donc pas enregistrées. Libère de l’espace iCloud pour continuer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudの空き容量がないため、変更が保存されていません。続けるにはiCloudの空き容量を確保してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 저장 공간이 부족해서 변경 사항이 저장되지 않고 있어요. 계속하려면 iCloud 공간을 확보하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的 iCloud 空间不足，更改无法保存。请释放 iCloud 空间后继续。"
+          }
+        }
+      }
+    },
     "Seu nome" : {
       "localizations" : {
         "en" : {
@@ -46918,6 +47070,9 @@
         }
       }
     },
+    "Sofá que Engole Controle" : {
+
+    },
     "Soma dos itens" : {
       "localizations" : {
         "en" : {
@@ -47037,6 +47192,9 @@
           }
         }
       }
+    },
+    "Soneca na Rede" : {
+
     },
     "Sou estudante" : {
       "extractionState" : "manual",
@@ -50980,6 +51138,9 @@
         }
       }
     },
+    "Torre de Louça" : {
+
+    },
     "Total" : {
       "localizations" : {
         "en" : {
@@ -52631,6 +52792,9 @@
         }
       }
     },
+    "Varal de Bandeirinha" : {
+
+    },
     "Varanda" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -53600,6 +53764,9 @@
           }
         }
       }
+    },
+    "Visita de Beija-Flor" : {
+
     },
     "Vitalício" : {
       "localizations" : {
