@@ -199,10 +199,58 @@ enum RoomBadge: String, CaseIterable, Identifiable {
         }
     }
 
-    /// Name of the badge's artwork in the asset catalog (`Assets.xcassets/Badges`).
+    /// Name of the badge's artwork in the asset catalog (`Assets.xcassets/badges`).
     ///
-    /// Badges without artwork yet fall back to their room's icon (see ``RoomBadgeIcon``).
-    var imageName: String { "badge_\(rawValue)" }
+    /// English `snake_case`, independent of ``rawValue`` (which CloudKit stores and must not
+    /// change): whoever draws and imports the artwork names the file in English, and this is the
+    /// only place that has to follow along. Badges without artwork yet fall back to their room's
+    /// icon (see ``RoomBadgeIcon``).
+    var imageName: String {
+        switch self {
+        case .torreDeLouca: "badge_kitchen_dish_tower"
+        case .panoDePratoDaVo: "badge_kitchen_grandmas_dish_towel"
+        case .chefeMasterDeDelicias: "badge_kitchen_final_master_chef_of_delights"
+
+        case .cadeiraArara: "badge_bedroom_clothes_rack_chair"
+        case .oitoHorasDeSono: "badge_bedroom_eight_hours_sleep"
+        case .fortalezaDeTravesseiros: "badge_bedroom_final_pillow_fort"
+
+        case .cabosEmbolados: "badge_office_tangled_cables"
+        case .chuvaDePostIt: "badge_office_post_it_rain"
+        case .misterCorp: "badge_office_final_mister_corp"
+
+        case .aspiradorDeFarelo: "badge_living_room_crumb_vacuum"
+        case .sofaQueEngoleControle: "badge_living_room_devouring_couch"
+        case .guardiaoDoControleRemoto: "badge_living_room_final_remote_guardian"
+
+        case .samambaiaDesidratada: "badge_garden_dry_fern"
+        case .duendeDeJardim: "badge_garden_garden_gnome"
+        case .visitaDeBeijaFlor: "badge_garden_final_hummingbird_visit"
+
+        case .pomboFolgado: "badge_porch_lazy_pigeons"
+        case .cadeiraDeBalanco: "badge_porch_rocking_chair"
+        case .sonecaNaRede: "badge_porch_final_hammock_nap"
+
+        case .monstroDoRalo: "badge_bathroom_drain_monster"
+        case .espelhoEspelhoMeu: "badge_bathroom_mirror_mirror"
+        case .fadaDoBanhoPremium: "badge_bathroom_final_premium_bath_fairy"
+
+        case .meiaSemPar: "badge_laundry_room_odd_sock"
+        case .varalDeBandeirinha: "badge_laundry_room_pennant_clothesline"
+        case .cheirinhoDeRoupaLimpa: "badge_laundry_room_final_fresh_laundry_smell"
+
+        case .paoMofado: "badge_pantry_moldy_bread"
+        case .poteDeSorveteComFeijao: "badge_pantry_ice_cream_tub_beans"
+        case .dataDeValidadeInfinita: "badge_pantry_final_infinite_shelf_life"
+
+        case .quartinhoDaBagunca: "badge_garage_clutter_room"
+        case .bikeDeRodinha: "badge_garage_training_wheels_bike"
+        case .brilhandoNoLavaJato: "badge_garage_final_shining_car_wash"
+
+        case .saboneteDeEnfeite: "badge_powder_room_decorative_soap"
+        case .aromatizanteDeCheiroDePonei: "badge_powder_room_final_pony_scent_freshener"
+        }
+    }
 }
 
 // MARK: - Badges of a room
