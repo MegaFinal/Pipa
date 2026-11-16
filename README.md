@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="Cognitive-Work/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="130" alt="Pipa app icon" style="border-radius: 28px;"/>
+<img src="docs/images/icon.jpg" width="130" alt="Pipa app icon" style="border-radius: 28px;"/>
 
 # Pipa: Para Partilhar
 
@@ -56,12 +56,15 @@ Pipa is **live on the App Store**: [download it here](https://apps.apple.com/br/
 
 <div align="center">
 
-<img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/5f/ae/b6/5faeb6de-df69-f39d-c59c-557187994bc8/1.png/460x1022bb.png" width="16%" alt="Pipa screenshot 1"/>
-<img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/58/ed/97/58ed97f9-80fb-8b84-2eaa-eefc3cf9a042/2.png/460x1022bb.png" width="16%" alt="Pipa screenshot 2"/>
-<img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/14/0f/62/140f62eb-28a9-4ba5-ca93-5bcc5ba9bcce/5.png/460x1022bb.png" width="16%" alt="Pipa screenshot 3"/>
-<img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/08/76/0f/08760f28-4a78-928f-4aa8-2b496f2d0df0/6.png/460x1022bb.png" width="16%" alt="Pipa screenshot 4"/>
-<img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/c6/1e/2d/c61e2d05-335a-0e80-b6a5-970b76784865/7.png/460x1022bb.png" width="16%" alt="Pipa screenshot 5"/>
-<img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource211/v4/5a/c7/f5/5ac7f593-001e-57f1-bb21-2ac9160dd99a/8.png/460x1022bb.png" width="16%" alt="Pipa screenshot 6"/>
+<img src="docs/images/screenshot-1.jpg" width="23%" alt="Pipa screenshot: Lembrar também é trabalho"/>
+<img src="docs/images/screenshot-2.jpg" width="23%" alt="Pipa screenshot: Seu dia em casa, sem preocupações"/>
+<img src="docs/images/screenshot-3.jpg" width="23%" alt="Pipa screenshot: O Pipa divide as tarefas por você"/>
+<img src="docs/images/screenshot-4.jpg" width="23%" alt="Pipa screenshot: O Harvii lembra a casa toda"/>
+
+<img src="docs/images/screenshot-5.jpg" width="23%" alt="Pipa screenshot: Ninguém carrega tudo sozinho"/>
+<img src="docs/images/screenshot-6.jpg" width="23%" alt="Pipa screenshot: Cada tarefa leva sua pipa mais alto"/>
+<img src="docs/images/screenshot-7.jpg" width="23%" alt="Pipa screenshot: Viu algo para fazer? Pendura no varal!"/>
+<img src="docs/images/screenshot-8.jpg" width="23%" alt="Pipa screenshot: Acabou algo? Coloca na lista!"/>
 
 </div>
 
