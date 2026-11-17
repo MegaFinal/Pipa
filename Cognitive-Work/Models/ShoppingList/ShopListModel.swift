@@ -139,7 +139,10 @@ class ShopListModel: CloudKitSyncable, Identifiable {
     @discardableResult
     func addItem(_ item: ShopListItem) async -> ShopListItem? {
         guard let recordID else {
-            CloudKitManager.shared.errorMessage = "Failed to add item: list missing recordID"
+            // The list isn't saved yet, so there's nowhere to add to. Shown to the person: plain
+            // words, the technical reason only in the log.
+            print("[Error] Failed to add item: list missing recordID")
+            CloudKitManager.shared.errorMessage = L10n.tr("A lista de compras ainda não carregou. Aguarde um instante e tente novamente.")
             return nil
         }
 

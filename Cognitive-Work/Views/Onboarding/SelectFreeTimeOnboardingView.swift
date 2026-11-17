@@ -82,6 +82,15 @@ struct SelectFreeTimeOnboardingView: View {
     
     // MARK: - Body
     
+    /// One label of the hour scale, centered over its square (``FreeTimeSlider/squareSize``)
+    /// and on one line; a label wider than the square overflows it evenly instead of wrapping.
+    private func scaleLabel(_ text: Text) -> some View {
+        text
+            .lineLimit(1)
+            .fixedSize()
+            .frame(width: width * 0.09)
+    }
+
     var body: some View {
         VStack(alignment: .leading) {
             // MARK: - Title and description
@@ -94,18 +103,26 @@ struct SelectFreeTimeOnboardingView: View {
             
             // MARK: - Hour scale and one slider per day
             VStack {
-                HStack(spacing: width * 0.07) {
-                    Spacer()
-                    Text("30’")
-                    Text("1h")
-                    Text("2h")
-                    Text("3h")
-                    Text("4h")
-                    Text("5h")
+                // Laid out like a day's row (see `OnboardingCustomSliderComponent` and
+                // `FreeTimeSlider`): the day's width, then one label centered over each square.
+                // A label's own width no longer moves the others, so "1 h" (es, fr) lines up
+                // just like "1h".
+                HStack(spacing: 10) {
+                    Color.clear
+                        .frame(width: width * 0.091, height: 1) // the day abbreviation's width
+                    HStack(spacing: 12) {                       // the squares' spacing
+                        scaleLabel(Text("30’"))
+                        scaleLabel(Text("1h"))
+                        scaleLabel(Text("2h"))
+                        scaleLabel(Text("3h"))
+                        scaleLabel(Text("4h"))
+                        scaleLabel(Text("5h"))
+                    }
+                    // Centered in the rest of the row, like the squares.
+                    .frame(maxWidth: .infinity)
                 }
                 .font(.system(size: 16))
                 .fontWeight(.medium)
-                .padding(.trailing, 12)
                 .padding(.top, height * 0.005)
                 // The scale is visual only; each day reads its value ("2 horas") itself.
                 .accessibilityDecorative()

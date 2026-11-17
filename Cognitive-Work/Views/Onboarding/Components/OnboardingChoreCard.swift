@@ -20,8 +20,9 @@ struct OnboardingChoreCard: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: - Chore name
-            // Translated: the default chores are written in Portuguese.
-            Text(chore.localizedName)
+            // Translated from the catalog: these sample chores are written in Portuguese, and most
+            // aren't among the default chores, which is all `localizedName` translates.
+            Text(verbatim: L10n.tr(key: chore.name))
                 .font(.system(size: 16, weight: .semibold))
                 .padding(.top, 14)
                 .padding(.horizontal, 3)

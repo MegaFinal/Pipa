@@ -349,7 +349,7 @@ final class ReceiptScanViewModel {
                 totals[item.id, default: 0] += line.total
                 continue
             }
-            let name = line.name.trimmingCharacters(in: .whitespacesAndNewlines)
+            let name = shownName(line.name).trimmingCharacters(in: .whitespacesAndNewlines)
             guard !name.isEmpty else { continue }
             let amount = Self.listAmount(for: line)
             newItems.append(.init(
@@ -598,7 +598,12 @@ final class ReceiptScanViewModel {
     /// The name a product shows in the review: the list item's for one that checks off an item
     /// (that's the name kept in the list), what was read otherwise.
     func displayName(for line: ReceiptScanLine) -> String {
-        linkedItem(for: line)?.name ?? line.name
+        linkedItem(for: line)?.name ?? shownName(line.name)
+    }
+
+    /// `name` in the app's language when it's the parser's "(sem nome)" placeholder.
+    func shownName(_ name: String) -> String {
+        name == ReceiptParser.unnamed ? L10n.tr("(sem nome)") : name
     }
 
 

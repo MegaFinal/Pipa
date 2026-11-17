@@ -266,7 +266,7 @@ class UserModel: CloudKitSyncable, Identifiable, Hashable {
     @discardableResult
     func setAvailableTimes(_ times: [AvailableTimeModel], forWeeks weeks: Int = 4) async -> Bool {
         guard let recordID else {
-            CloudKitManager.shared.errorMessage = "Failed to add availableTime: user missing recordID"
+            CloudKitManager.shared.errorMessage = UserFacingError.friendly(technical: "Failed to add availableTime: user missing recordID")
             return false
         }
         

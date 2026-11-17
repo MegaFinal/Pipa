@@ -84,7 +84,9 @@ struct ProfileBannerSheet: View {
     private var hero: some View {
         ProfileHero(
             banner: ProfileBanner(color: selectedColor, pattern: pattern),
-            image: image
+            image: image,
+            // Here the avatar is the photo picker: show it as the place to add a photo.
+            placeholderSymbol: "photo.badge.plus"
         ) {
             ProfilePhotoPicker(selection: $photoSelection, style: photoPickerStyle)
         }
