@@ -175,7 +175,7 @@ private struct SettingsButtonsSection: View {
             
             // MARK: - Hardware connection
             Section {
-                Button("Conectar com Hardware") {
+                Button("Conectar com Harvii") {
                     if viewModelHardware.isPaired {
                         hardwareSheet = .existing
                     } else if !viewModelHardware.hostName.isEmpty {
