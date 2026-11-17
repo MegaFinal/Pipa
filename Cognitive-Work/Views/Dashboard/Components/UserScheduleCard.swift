@@ -366,7 +366,8 @@ private struct RoomScheduleCaption: View {
                     RoomTexturedShape(shape: Circle(), room: room)
                         .frame(width: 14, height: 14)
                     
-                    Text(room.name)
+                    // Default rooms are saved in Portuguese and translated on display.
+                    Text(verbatim: room.name.localizedDefault)
                         .font(.system(size: 15, weight: .light))
                 }
             }

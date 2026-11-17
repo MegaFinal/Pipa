@@ -94,7 +94,7 @@ struct EditableProfileImage: View {
                 placeholderRing
                     .overlay {
                         if !isLoading {
-                            Image(systemName: "photo.badge.plus")
+                            Image(systemName: placeholderSymbol)
                                 .font(.system(size: 65))
                                 .foregroundStyle(.gray)
                         }
@@ -117,6 +117,13 @@ struct EditableProfileImage: View {
 }
 
 extension EditableProfileImage {
+    /// The icon in the empty avatar: "add a photo" only when tapping the avatar does pick one
+    /// (``isEditing``); otherwise a plain person, so it doesn't look like a button (the
+    /// onboarding profile shows the avatar without the picker).
+    fileprivate var placeholderSymbol: String {
+        isEditing ? "photo.badge.plus" : "person.fill"
+    }
+
     /// The dotted circle shown when there is no photo.
     fileprivate var placeholderRing: some View {
         Image("OnboardingElipse")
@@ -141,7 +148,7 @@ extension EditableProfileImage {
                 } else {
                     Color.white
                     if !isLoading {
-                        Image(systemName: "photo.badge.plus")
+                        Image(systemName: placeholderSymbol)
                             .font(.system(size: 65))
                             .foregroundStyle(.gray)
                     }

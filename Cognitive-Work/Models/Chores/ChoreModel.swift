@@ -644,7 +644,7 @@ class ChoreModel: CloudKitSyncable, Identifiable {
         let occurrenceIDs = Set(occurrences.compactMap { $0.recordID })
         
         guard !occurrenceIDs.isEmpty, let zoneID = recordID?.zoneID else {
-            CloudKitManager.shared.errorMessage = "Failed to delete occurrence: missing recordID"
+            CloudKitManager.shared.errorMessage = UserFacingError.friendly(technical: "Failed to delete occurrence: missing recordID")
             return false
         }
         
@@ -664,7 +664,7 @@ class ChoreModel: CloudKitSyncable, Identifiable {
     /// and the chore record itself
     private func deleteWhole() async -> Bool {
         guard let recordID else {
-            CloudKitManager.shared.errorMessage = "Failed to delete chore: missing recordID"
+            CloudKitManager.shared.errorMessage = UserFacingError.friendly(technical: "Failed to delete chore: missing recordID")
             return false
         }
         

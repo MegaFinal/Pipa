@@ -96,7 +96,9 @@ private struct InfoCard: View {
                 Text(description)
             }
         }
-        .frame(width: width * 0.8)
+        // Leading: a card with short texts (step 1 in Chinese, for example) used to center its
+        // number and text, out of line with the other cards.
+        .frame(width: width * 0.8, alignment: .leading)
         .padding(15)
         .background(
             RoundedRectangle(cornerRadius: 32)

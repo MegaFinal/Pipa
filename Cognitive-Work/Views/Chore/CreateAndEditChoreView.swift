@@ -437,7 +437,7 @@ struct CreateAndEditChoreView: View {
     /// "Já existe “Lavar a louça”".
     private var duplicateTitle: String {
         guard let duplicateChore else { return "" }
-        return L10n.tr("Já existe “\(duplicateChore.name)”")
+        return L10n.tr("Já existe “\(duplicateChore.localizedName)”")
     }
 
     /// Where the existing chore is and how often it repeats.
