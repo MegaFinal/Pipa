@@ -287,7 +287,8 @@ class OnboardingViewModel {
             // Free time is now picked before the house exists; persist it on the in-house copy.
             await flushPendingFreeTimeIfNeeded()
             
-            // A new house gets 2 months of Premium, once per person.
+            // A new house gets the person's 2-month Premium trial (what's left of it, if it
+            // started in another house).
             if let savedHouse {
                 await PremiumManager.shared.startTrialIfEligible(for: savedHouse)
             }
@@ -691,9 +692,6 @@ class OnboardingViewModel {
         
         guard await manager.deleteChildren(of: houseID, includingSelf: true) else { return false }
         manager.invalidateSessionCache()
-        
-        // The house is gone before being used: its free trial goes back to the person.
-        await PremiumManager.shared.trialHouseWasDiscarded(houseID)
         
         // Free time was written on the deleted member copy; keep it pending for the next house.
         if pendingFreeTimeMinutes == nil {

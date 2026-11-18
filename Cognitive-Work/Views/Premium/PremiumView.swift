@@ -537,7 +537,7 @@ struct PremiumView: View {
                 text = L10n.tr("Você tem o Premium vitalício.")
             }
         } else {
-            let name = payerName ?? L10n.tr("outro morador")
+            let name = premium.payerName ?? L10n.tr("outro morador")
             text = L10n.tr("Assinado por \(name). Todos os moradores aproveitam os recursos Premium.")
             if premium.needsUpgrade {
                 text += " " + L10n.tr("A casa cresceu: peça para \(name) atualizar o plano.")
@@ -545,18 +545,12 @@ struct PremiumView: View {
         }
         return text
     }
-
-    /// The housemate who pays, looked up in the loaded house data.
-    private var payerName: String? {
-        guard let owner = premium.houseOwnerRecordName else { return nil }
-        return HouseDataStore.shared.snapshot?.users.first { $0.ownerRecordName == owner }?.name
-    }
 }
 
 // MARK: - Feature row
 
-/// One benefit on the paywall: colored icon, title and explanation.
-private struct PremiumFeatureRow: View {
+/// One benefit on the paywall (and on ``PremiumWelcomeView``): colored icon, title and explanation.
+struct PremiumFeatureRow: View {
     let feature: PremiumFeature
 
     var body: some View {
