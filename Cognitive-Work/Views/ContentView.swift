@@ -24,6 +24,9 @@ struct ContentView: View {
     /// Which tab is on screen, and what a tapped notification asks each tab to open.
     @State private var navigation = AppNavigation()
     
+    /// Whether ``PremiumWelcomeView`` is on screen (once per house, see ``PremiumWelcome``).
+    @State private var showPremiumWelcome = false
+    
     /// Whether the app is active (re-checks the house and the retrospective when it comes back).
     @Environment(\.scenePhase) private var scenePhase
     
@@ -96,6 +99,14 @@ struct ContentView: View {
             Text(viewModel.errorMessage ?? L10n.tr("Verifique sua conexão e tente novamente."))
         }
         
+        // MARK: Premium welcome, the first time in a Premium house
+        .sheet(isPresented: $showPremiumWelcome) {
+            PremiumWelcomeView()
+        }
+        .onChange(of: premiumWelcomeCheckID, initial: true) { _, _ in
+            showPremiumWelcomeIfNeeded()
+        }
+        
         // MARK: Blocking screens
         .blockingOperation(isPresented: $viewModel.isSwitchingHouse, message: "Trocando de casa...")
         .blockingWhileUnlinkingOrphanedHouse()
@@ -141,6 +152,31 @@ struct ContentView: View {
         } else {
             navigation.open(destination)
         }
+    }
+    
+    // MARK: - Premium welcome
+
+    /// Changes whenever the Premium welcome may have become due: the house or its Premium
+    /// status loaded, or the screens it waits for went away.
+    private var premiumWelcomeCheckID: String {
+        let premium = PremiumManager.shared
+        return [
+            premium.currentHouseToken?.uuidString ?? "",
+            "\(premium.isPremium)",
+            "\(viewModel.isLoading)",
+            "\(viewModel.showRetro)",
+            "\(viewModel.userHasNoHouse)"
+        ].joined(separator: "|")
+    }
+
+    /// Opens ``PremiumWelcomeView`` the first time this device opens a Premium house, once the
+    /// tabs are on screen and the retrospective is closed.
+    private func showPremiumWelcomeIfNeeded() {
+        guard !viewModel.isLoading, !viewModel.showRetro, !viewModel.userHasNoHouse,
+              viewModel.connectionError == nil, !showPremiumWelcome,
+              PremiumWelcome.isDue else { return }
+        PremiumWelcome.markShown()
+        showPremiumWelcome = true
     }
     
     // MARK: - Tabs

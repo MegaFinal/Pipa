@@ -24,9 +24,9 @@ import CryptoKit
 ///   leave, the house they left goes back to free.
 ///
 /// ## Free trial
-/// A new house gets 2 months of Premium, paid by nobody (``startTrialIfEligible(for:)``). It's
-/// once per person: the creator's iCloud keeps a mark that they already used it, so creating
-/// another house doesn't start a new trial.
+/// A new house gets 2 months of Premium, paid by nobody (``startTrialIfEligible(for:)``). The
+/// period belongs to the person, not the house: the creator's iCloud keeps a mark with when it
+/// ends, so a house they create later only gets what's left of it (and nothing once it's over).
 ///
 /// Before the payer leaves (``releaseHouseBeforeLeaving(_:)``), their device clears the house
 /// record and tells the other members. If that couldn't happen (offline), the other members'
@@ -139,6 +139,12 @@ final class PremiumManager {
     /// Whether the house is Premium thanks to someone else's purchase.
     var isPaidByHousemate: Bool { !isPaidByMe && isHousePremium }
 
+    /// The name of the housemate who pays, looked up in the loaded house data.
+    var payerName: String? {
+        guard let owner = houseOwnerRecordName else { return nil }
+        return HouseDataStore.shared.snapshot?.users.first { $0.ownerRecordName == owner }?.name
+    }
+
     /// Whether the house record still grants Premium.
     ///
     /// - On the payer's own device StoreKit is the source of truth, so the record is ignored.
@@ -206,38 +212,42 @@ final class PremiumManager {
     /// How long a new house's free trial lasts.
     static let trialMonths = 2
 
-    /// The record in the creator's private database (default zone) that says they already used
-    /// the trial. It lives outside the house zone, so deleting the profile doesn't erase it.
+    /// The record in the creator's private database (default zone) with when their trial ends
+    /// (`endsAt`). It lives outside the house zone, so deleting the profile doesn't erase it.
     private static let trialMarkerID = CKRecord.ID(recordName: "premium-house-trial")
     private static let trialMarkerType = "PremiumTrialMarker"
 
     private var privateDatabase: CKDatabase { CloudKitManager.shared.privateDB }
 
-    /// Starts the 2-month trial on a house the person just created, unless they already used
-    /// it in another house. Best effort: if iCloud can't be read, no trial is started (it's
-    /// never given twice by mistake).
+    /// Puts a house the person just created on their trial: the first house starts it (2
+    /// months from now), a later one gets the same end date while it hasn't passed. Best effort:
+    /// if iCloud can't be read, no trial is set (it's never given twice by mistake).
     func startTrialIfEligible(for house: HouseModel) async {
         guard let houseID = house.recordID, house.premiumTrialEndsAt == nil else { return }
 
+        let endsAt: Date
         do {
-            _ = try await privateDatabase.record(for: Self.trialMarkerID)
-            return   // already used
+            let marker = try await privateDatabase.record(for: Self.trialMarkerID)
+            // Started in another house: this one gets what's left, or nothing once it's over.
+            guard let markedEnd = Self.trialEnd(of: marker), markedEnd > .now else { return }
+            endsAt = markedEnd
         } catch let error as CKError where error.code == .unknownItem {
-            // Never used: go on.
+            // First house: the trial starts now. The mark is saved first, so a failure here
+            // never gives a second full trial.
+            guard let newEnd = Calendar.current.date(byAdding: .month, value: Self.trialMonths, to: .now) else { return }
+            let marker = CKRecord(recordType: Self.trialMarkerType, recordID: Self.trialMarkerID)
+            marker["houseRecordName"] = houseID.recordName
+            marker["grantedAt"] = Date.now
+            marker["endsAt"] = newEnd
+            do {
+                _ = try await privateDatabase.save(marker)
+            } catch {
+                print("PremiumManager: couldn't save the trial mark. \(error)")
+                return
+            }
+            endsAt = newEnd
         } catch {
             print("PremiumManager: couldn't check the trial mark. \(error)")
-            return
-        }
-
-        guard let endsAt = Calendar.current.date(byAdding: .month, value: Self.trialMonths, to: .now) else { return }
-
-        let marker = CKRecord(recordType: Self.trialMarkerType, recordID: Self.trialMarkerID)
-        marker["houseRecordName"] = houseID.recordName
-        marker["grantedAt"] = Date.now
-        do {
-            _ = try await privateDatabase.save(marker)
-        } catch {
-            print("PremiumManager: couldn't save the trial mark. \(error)")
             return
         }
 
@@ -246,14 +256,12 @@ final class PremiumManager {
         }
     }
 
-    /// The onboarding deleted the house it had just created (the person went back): gives the
-    /// trial back, so the house they create next gets it.
-    func trialHouseWasDiscarded(_ houseID: CKRecord.ID) async {
-        guard let marker = try? await privateDatabase.record(for: Self.trialMarkerID),
-              marker["houseRecordName"] as? String == houseID.recordName
-        else { return }
-        _ = try? await privateDatabase.deleteRecord(withID: Self.trialMarkerID)
-        houseTrialEndsAt = nil
+    /// When the person's trial ends, from their mark. Marks saved before `endsAt` existed count
+    /// from `grantedAt`.
+    private static func trialEnd(of marker: CKRecord) -> Date? {
+        if let endsAt = marker["endsAt"] as? Date { return endsAt }
+        guard let grantedAt = marker["grantedAt"] as? Date else { return nil }
+        return Calendar.current.date(byAdding: .month, value: trialMonths, to: grantedAt)
     }
 
     // MARK: - Leaving the house
