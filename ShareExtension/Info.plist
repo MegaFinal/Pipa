@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSExtension</key>
+	<dict>
+		<key>NSExtensionAttributes</key>
+		<dict>
+			<!-- Text (WhatsApp lists, notes, text selected in Safari), and up to 5 photos or one
+			     PDF (receipts and recipes, a Premium import). -->
+			<key>NSExtensionActivationRule</key>
+			<string>SUBQUERY (
+				extensionItems,
+				$extensionItem,
+				SUBQUERY (
+					$extensionItem.attachments,
+					$attachment,
+					ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.plain-text"
+					|| ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.image"
+					|| ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.adobe.pdf"
+				).@count &gt;= 1
+				AND SUBQUERY (
+					$extensionItem.attachments,
+					$attachment,
+					ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "public.image"
+					|| ANY $attachment.registeredTypeIdentifiers UTI-CONFORMS-TO "com.adobe.pdf"
+				).@count &lt;= 5
+			).@count &gt;= 1</string>
+		</dict>
+		<key>NSExtensionMainStoryboard</key>
+		<string>MainInterface</string>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.share-services</string>
+	</dict>
+</dict>
+</plist>

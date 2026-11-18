@@ -21,7 +21,30 @@ struct CreateAndEditChoreView: View {
             carouselViewModel: carouselViewModel,
             targetAssignments: targetAssignments
         ))
+        self.importSourceLine = nil
+        self.onImportDone = nil
     }
+
+    /// Fills a chore shared from another app (``SharedImportView``) without saving it: the ✓
+    /// goes back to the import page, which saves every card together once all are complete.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The card's form, already loaded and filled from the shared line.
+    ///   - sourceLine: The shared line, shown above the name with ✨ when the AI read it.
+    ///   - onDone: Called when the person taps ✓.
+    init(importing viewModel: CreateAndEditChoreViewModel,
+         sourceLine: String?,
+         onDone: @escaping () -> Void) {
+        self._viewModel = State(initialValue: viewModel)
+        self.importSourceLine = sourceLine
+        self.onImportDone = onDone
+    }
+
+    // Shared from another app (SharedImportView).
+    /// The line the AI read, shown above the name; `nil` otherwise.
+    private let importSourceLine: String?
+    /// Set when the form only fills an import card: ✓ returns instead of saving.
+    private let onImportDone: (() -> Void)?
     
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: CreateAndEditChoreViewModel
@@ -121,8 +144,12 @@ struct CreateAndEditChoreView: View {
         .interactiveDismissDisabled(isBusy)
         // MARK: - Loading and reacting to visibility and frequency changes
         .task {
-            await viewModel.load()
+            // An import card's form is already loaded and filled; loading again would clear it.
+            if onImportDone == nil || !viewModel.isLoaded {
+                await viewModel.load()
+            }
             canSuggest = viewModel.canSuggest
+            if let importSourceLine { showImportedSentence(importSourceLine) }
         }
         // Bought Premium from the hint: the AI turns on without reopening the form.
         .onChange(of: PremiumManager.shared.isPremium) { _, _ in
@@ -529,7 +556,8 @@ struct CreateAndEditChoreView: View {
             }
             
             // MARK: Delete (editing only)
-            if viewModel.showsDeleteButton {
+            // Not from the import page: there the form only fills a card, nothing is saved or deleted.
+            if viewModel.showsDeleteButton && onImportDone == nil {
                 Section {
                     deleteButton
                 }
@@ -606,6 +634,13 @@ struct CreateAndEditChoreView: View {
                 .voiceOverLabel(L10n.tr("Salvando"))
         } else {
             Button {
+                // Import card: back to the import page, which saves all cards together.
+                if let onImportDone {
+                    HapticsManager.notify(.success)
+                    onImportDone()
+                    dismiss()
+                    return
+                }
                 isSubmitting = true
                 Task {
                     if await viewModel.confirm() {
@@ -1131,6 +1166,16 @@ struct CreateAndEditChoreView: View {
             lastReadSpoken = suggestion.input
         }
         HapticsManager.notify(.success)
+    }
+
+    /// Shows the shared line the AI read above the name, with ✨, like a typed description.
+    /// Leaving the name field must not send it to the AI again.
+    private func showImportedSentence(_ line: String) {
+        spokenText = line
+        lastReadSpoken = line
+        didFillFromDescription = true
+        lastReadName = viewModel.draft.name
+        lastAppliedName = viewModel.draft.name
     }
 
     // MARK: - Helpers

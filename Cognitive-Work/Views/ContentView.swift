@@ -29,6 +29,9 @@ struct ContentView: View {
     
     /// Whether the app is active (re-checks the house and the retrospective when it comes back).
     @Environment(\.scenePhase) private var scenePhase
+
+    /// Text shared from another app (Share Extension), shown in ``SharedImportView``.
+    @State private var sharedEntry: SharedInbox.Entry?
     
     // MARK: - Body
     
@@ -100,7 +103,10 @@ struct ContentView: View {
         }
         
         // MARK: Premium welcome, the first time in a Premium house
-        .sheet(isPresented: $showPremiumWelcome) {
+        .sheet(isPresented: $showPremiumWelcome, onDismiss: {
+            // Something shared while the welcome was open shows next.
+            openSharedText()
+        }) {
             PremiumWelcomeView()
         }
         .onChange(of: premiumWelcomeCheckID, initial: true) { _, _ in
@@ -127,17 +133,47 @@ struct ContentView: View {
         }
         .onChange(of: viewModel.isLoading) { _, _ in
             openPendingDestination()
+            openSharedText()
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
+                openSharedText()
                 Task {
                     await viewModel.fetchHouse()
                     await viewModel.checkRetro()
                 }
             }
         }
+        // MARK: Text shared from another app: opened by the extension (pipa://import), or found
+        // waiting when the app comes to the front.
+        .onOpenURL { url in
+            if SharedInbox.isImportURL(url) { openSharedText() }
+        }
+        .sheet(item: $sharedEntry, onDismiss: {
+            // Several texts shared while the app was closed: one after the other.
+            Task {
+                try? await Task.sleep(for: .milliseconds(400))
+                openSharedText()
+            }
+        }) { entry in
+            SharedImportView(entry: entry)
+        }
     }
     
+    // MARK: - Shared text
+
+    /// Shows the next text shared from another app, once the tabs are on screen. It leaves the
+    /// inbox as soon as it's shown, so it never opens twice (cards already saved would repeat).
+    private func openSharedText() {
+        // Waits for the Premium welcome: one sheet at a time.
+        guard sharedEntry == nil, !showPremiumWelcome, !viewModel.isLoading, !viewModel.userHasNoHouse,
+              viewModel.connectionError == nil,
+              let next = SharedInbox.next
+        else { return }
+        SharedInbox.remove(next.id)
+        sharedEntry = next
+    }
+
     // MARK: - Notifications
 
     /// Opens the screen of the notification the user tapped, once the tabs are on screen.
