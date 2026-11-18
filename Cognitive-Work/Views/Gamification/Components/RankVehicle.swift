@@ -10,17 +10,23 @@ import SwiftUI
 /// What a member flies in the ranking sky: each rank has its own kite, from the small
 /// traditional one at the bottom to the Chinese dragon at the top.
 ///
-/// The artwork lives in `Assets.xcassets/Ranking`, one image per rank (``assetName``). The ranks
-/// that don't have one yet (the dragon) draw a stand-in, so dropping an image with
-/// that name into the catalog is enough to replace it.
+/// The artwork lives in `Assets.xcassets/Ranking`, one image per rank (``assetName``). The Chinese
+/// dragon has one per profile color: each member's dragon flies in their own color. A missing
+/// image draws a stand-in, so dropping an image with that name into the catalog is enough to
+/// replace it.
 struct RankVehicle: Equatable {
 
     /// The rank this vehicle belongs to.
     let tier: Tier
+    /// The member's profile color (``ProfileBanner/color``). Only the dragon uses it.
+    let color: RoomColor
 
     /// The vehicle a member at `tier` flies.
-    init(tier: Tier) {
+    ///
+    /// - Parameter color: The member's profile color; the default banner's when not given.
+    init(tier: Tier, color: RoomColor = ProfileBanner.default.color) {
         self.tier = tier
+        self.color = color
     }
 
     /// Name of the artwork in the asset catalog, or `nil` while the rank has none.
@@ -38,7 +44,7 @@ struct RankVehicle: Equatable {
         case .quatorzeBisI: "14bis"
         case .quatorzeBisII: "14biz_II"
         case .quatorzeBisIII: "14bis_III"
-        case .dragaoChines: nil
+        case .dragaoChines: Tier.dragonImageName(for: color)
         }
     }
 
@@ -63,8 +69,8 @@ struct RankVehicle: Equatable {
         case .quatorzeBisI: CGSize(width: 76, height: 24)
         case .quatorzeBisII: CGSize(width: 80, height: 24)
         case .quatorzeBisIII: CGSize(width: 84, height: 34)
-        // No artwork yet (stand-in).
-        case .dragaoChines: CGSize(width: 58, height: 92)
+        // Chinese dragon: a long, wide dragon (artwork 4:3).
+        case .dragaoChines: CGSize(width: 84, height: 63)
         }
     }
 
@@ -108,7 +114,7 @@ struct RankVehicleView: View {
     private var standIn: some View {
         switch vehicle.tier {
         case .dragaoChines:
-            KiteArt(color: .tagRed).rotationEffect(.degrees(-10))
+            KiteArt(color: vehicle.color.uiColor).rotationEffect(.degrees(-10))
         case .quatorzeBisI, .quatorzeBisII, .quatorzeBisIII:
             Image(systemName: "airplane")
                 .resizable()
@@ -142,6 +148,16 @@ struct RankVehicleView: View {
         }
         .padding(20)
     }
+}
+
+#Preview("Dragão em cada cor de perfil") {
+    VStack(spacing: 24) {
+        ForEach(RoomColor.allCases) { color in
+            RankVehicleView(vehicle: RankVehicle(tier: .dragaoChines, color: color))
+        }
+    }
+    .padding(20)
+    .background(Color(red: 223 / 255, green: 238 / 255, blue: 254 / 255))
 }
 
 // MARK: - Kite

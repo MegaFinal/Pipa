@@ -86,4 +86,21 @@ struct RankProgressionTests {
         user.points = 0
         #expect(user.tier == .tradicionalI)
     }
+
+    @Test func dragonFliesInTheProfileColor() {
+        #expect(Tier.dragaoChines.imageName(for: .blue) == "blue_dragon")
+        #expect(Tier.dragaoChines.imageName(for: .green) == "green_dragon")
+        #expect(Tier.dragaoChines.imageName(for: .purple) == "purple_dragon")
+        #expect(Tier.dragaoChines.imageName(for: .yellow) == "yellow_dragon")
+        #expect(Tier.dragaoChines.imageName(for: .orange) == "red_dragon")
+        // Without a color, the default banner's.
+        #expect(Tier.dragaoChines.imageName(for: nil) == Tier.dragonImageName(for: ProfileBanner.default.color))
+        #expect(RankVehicle(tier: .dragaoChines, color: .green).assetName == "green_dragon")
+    }
+
+    @Test func otherRanksIgnoreTheProfileColor() {
+        for tier in Tier.allCases where tier != .dragaoChines {
+            #expect(tier.imageName(for: .purple) == tier.imageName)
+        }
+    }
 }

@@ -17,6 +17,8 @@ struct RankHistoryView: View {
     @State private var entries: [RankHistoryModel] = []
     /// Whether the first load finished.
     @State private var hasLoaded = false
+    /// The user's profile color: the Chinese dragon flies in it. `nil` before loading.
+    @State private var profileColor: RoomColor?
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -64,6 +66,7 @@ struct RankHistoryView: View {
         guard let user = await CloudKitManager.shared.currentHouseUser(),
               let userID = user.recordID
         else { return }
+        profileColor = user.banner.color
         // Read from the score itself: the cached user's copy may be from before the change.
         points = await UserScoreModel.points(for: user)
         entries = await RankHistoryModel.fetchHistory(for: userID)
@@ -75,7 +78,7 @@ struct RankHistoryView: View {
     private func currentRankCard(points: Int) -> some View {
         let progress = Tier.progress(forPoints: points)
         return HStack(spacing: 16) {
-            Image(progress.tier.imageName)
+            Image(progress.tier.imageName(for: profileColor))
                 .resizable()
                 .scaledToFit()
                 .frame(width: 64, height: 64)
@@ -116,7 +119,7 @@ struct RankHistoryView: View {
     /// One past cycle: rank icon and name, the cycle's dates, and its points.
     private func row(_ entry: RankHistoryModel) -> some View {
         HStack(spacing: 12) {
-            Image(entry.tier.imageName)
+            Image(entry.tier.imageName(for: profileColor))
                 .resizable()
                 .scaledToFit()
                 .frame(width: 40, height: 40)
