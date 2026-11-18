@@ -22,6 +22,11 @@ import Foundation
 
 nonisolated enum ReceiptParser {
 
+    /// Name of a product whose name couldn't be read. Translated where it's shown or saved
+    /// (``ReceiptScanViewModel/shownName(_:)``): the parser runs off the main actor.
+    static let unnamed = "(sem nome)"
+
+
     struct Item {
         /// The printed item number (001 -> 1), when OCR read it.
         var itemNumber: Int?
@@ -240,7 +245,7 @@ nonisolated enum ReceiptParser {
 
             items.append(Item(
                 itemNumber: owner.flatMap(itemNumberValue),
-                name: owner.map(cleanName) ?? "(sem nome)",
+                name: owner.map(cleanName) ?? Self.unnamed,
                 quantity: isWeight ? 1 : max(1, Int(counted)),
                 weightKg: isWeight ? counted : 0,
                 unitPrice: unitPrice,

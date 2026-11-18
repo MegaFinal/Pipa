@@ -88,6 +88,11 @@ final class ShopListSuggestionViewModel {
     /// Recomputes the suggestions shortly after the list stops changing.
     func refresh() {
         refreshTask?.cancel()
+        // Not Premium, or "Sugestões da IA" off: no suggestions at all, usual items included.
+        guard IntelligenceManager.areSuggestionsEnabled else {
+            suggestions = []
+            return
+        }
         refreshTask = Task {
             do {
                 try await Task.sleep(for: .seconds(1))
@@ -205,7 +210,7 @@ final class ShopListSuggestionViewModel {
     /// only asked when a category has a free slot, and is told which names to avoid.
     private func complementItems(excluding usual: [ShopListSuggestion]) async -> [ShopListSuggestion] {
         let pending = shopList.pendingItems
-        // AI suggestions are Premium; the "usual items" (no AI) stay free.
+        // Premium only, like the usual items (see `IntelligenceManager.areSuggestionsEnabled`).
         guard !pending.isEmpty, IntelligenceManager.shared.isAvailable,
               PremiumManager.shared.allows(.intelligence) else {
             shownIdeas = [:]

@@ -11,6 +11,9 @@ import SwiftUI
 struct ProfileHero<AvatarOverlay: View>: View {
     let banner: ProfileBanner
     let image: UIImage?
+    /// The icon in the empty avatar. "photo.badge.plus" where tapping the avatar picks a photo,
+    /// so it reads as the place to add one; a plain person elsewhere.
+    var placeholderSymbol: String = "person.fill"
     let avatarOverlay: AvatarOverlay
     
     // MARK: - Layout
@@ -20,9 +23,15 @@ struct ProfileHero<AvatarOverlay: View>: View {
     private let curveDepth: CGFloat = 65
     private let avatarBottomInset: CGFloat = 21
     
-    init(banner: ProfileBanner, image: UIImage?, @ViewBuilder avatarOverlay: () -> AvatarOverlay) {
+    init(
+        banner: ProfileBanner,
+        image: UIImage?,
+        placeholderSymbol: String = "person.fill",
+        @ViewBuilder avatarOverlay: () -> AvatarOverlay
+    ) {
         self.banner = banner
         self.image = image
+        self.placeholderSymbol = placeholderSymbol
         self.avatarOverlay = avatarOverlay()
     }
     
@@ -57,7 +66,7 @@ struct ProfileHero<AvatarOverlay: View>: View {
                     .scaledToFill()
             } else {
                 Color.white
-                Image(systemName: "person.fill")
+                Image(systemName: placeholderSymbol)
                     .font(.system(size: avatarSize * 0.4))
                     .foregroundStyle(.gray)
             }

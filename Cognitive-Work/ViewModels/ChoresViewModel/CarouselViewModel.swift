@@ -743,6 +743,47 @@ class CarouselViewModel {
         return result
     }
 
+    /// Occurrences from before today that are still open, everyone's (for the suggested order
+    /// of today: the viewer's own are listed with the day's, the others only say what has to
+    /// come first). Same idea as ``overdueAssignment(for:)``, for every group of people: the
+    /// latest turn of the same people up to today, when it's before today and not done, so a
+    /// daily chore missed for a week counts once and a turn due today replaces it.
+    ///
+    /// - Returns: Each occurrence with its people, whether it's the viewer's and the day it was due.
+    func openOverdueOccurrences() -> [(occurrence: ChoreOccurrence, userIDs: Set<CKRecord.ID>, isMine: Bool, since: Date)] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        var result: [(occurrence: ChoreOccurrence, userIDs: Set<CKRecord.ID>, isMine: Bool, since: Date)] = []
+
+        for chore in cardModels {
+            if let refs = chore.dailyAssignmentsReference, !refs.isEmpty {
+                let turns = refs
+                    .compactMap { assignmentsByID[$0.recordID] }
+                    .filter { calendar.startOfDay(for: $0.day) <= today }
+                let byPeople = Dictionary(grouping: turns) { Set(($0.userReferences ?? []).map(\.recordID)) }
+                for (ids, sameTurns) in byPeople {
+                    guard let latest = sameTurns.max(by: { $0.day < $1.day }),
+                          !latest.isCompleted,
+                          calendar.startOfDay(for: latest.day) < today else { continue }
+                    result.append((
+                        ChoreOccurrence(chore: chore, assignment: latest),
+                        ids,
+                        !ids.isDisjoint(with: viewerRecordIDs),
+                        calendar.startOfDay(for: latest.day)
+                    ))
+                }
+            } else if let due = chore.dueDate, calendar.startOfDay(for: due) < today, !chore.isDone {
+                result.append((
+                    ChoreOccurrence(chore: chore, assignment: nil),
+                    responsibleUserIDs(of: chore),
+                    isViewerResponsible(for: chore),
+                    calendar.startOfDay(for: due)
+                ))
+            }
+        }
+        return result
+    }
+
     func getAssignments(for chore: ChoreModel, on date: Date?) -> [RecurrentAssignmentModel] {
         guard let date,
               let refs = chore.dailyAssignmentsReference,

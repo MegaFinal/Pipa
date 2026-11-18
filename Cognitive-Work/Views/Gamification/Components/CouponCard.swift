@@ -148,7 +148,7 @@ struct CouponTicket: View {
     /// Above the perforation: the coupon's name and the room's symbol.
     private func mainSection(scale: CGFloat) -> some View {
         VStack(spacing: 0) {
-            Text(verbatim: coupon.name)
+            Text(verbatim: coupon.localizedName)
                 .font(.custom("Alan Sans", size: metrics.titleSize))
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
@@ -211,7 +211,7 @@ struct CouponTicket: View {
 
     /// The whole ticket as one VoiceOver sentence: name, rank, price and state.
     static func accessibilityText(coupon: CouponModel, state: CouponCard.PurchaseState, isAffordable: Bool) -> String {
-        [coupon.name, L10n.tr("Desbloqueie em"), coupon.tier.displayName, priceText(coupon), stateText(state),
+        [coupon.localizedName, L10n.tr("Desbloqueie em"), coupon.tier.displayName, priceText(coupon), stateText(state),
          state == .available && !isAffordable ? L10n.tr("Moedas insuficientes") : nil]
             .compactMap { $0 }
             .joined(separator: ", ")

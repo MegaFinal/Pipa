@@ -10,7 +10,10 @@ import CloudKit
 
 
 /// The suggested order of the viewer's chores for today, shown in the box under "Hoje" in the
-/// list, plus a "depois de …" note for each card's back face.
+/// list, plus a "depois de …" note for each card's back face. The viewer's late chores
+/// (``CarouselViewModel/openOverdueOccurrences()``) are in it too, marked "Atrasada desde …":
+/// they're still to do, best today. They follow the same flow of the day as today's chores,
+/// and come first among the chores of the same moment.
 ///
 /// The on-device model only says where each chore fits in the day (``GeneratedChorePhase``);
 /// code sorts the viewer's chores by that and finds, among *everyone's* chores today, the one
@@ -29,6 +32,13 @@ final class TodayChoreOrder {
         let name: String
         /// "Depois de “Cozinhar” (Ana)", or `nil` when nothing needs to come first.
         let note: String?
+        /// The day a late chore was due, or `nil` for one of today's.
+        let overdueSince: Date?
+
+        /// "Atrasada desde 12 nov", or `nil` for one of today's chores.
+        var overdueText: String? {
+            overdueSince.map { L10n.tr("Atrasada desde \($0.shortDayMonth)") }
+        }
     }
 
     /// The viewer's open chores today, in the suggested order. Empty when there's nothing to
@@ -48,24 +58,31 @@ final class TodayChoreOrder {
         guard let index = steps.firstIndex(where: { $0.id == occurrenceID }) else { return nil }
         let step = steps[index]
         let place = steps.count >= 2 ? L10n.tr("\(index + 1)ª de \(steps.count) hoje") : nil
-        switch (place, step.note) {
-        case let (place?, note?): return place + " · " + note
-        case let (place?, nil): return place
-        case let (nil, note?): return note
-        case (nil, nil): return nil
-        }
+        // "2ª de 4 hoje · Atrasada desde 12 nov · Depois de “Cozinhar”"
+        let parts = [place, step.overdueText, step.note].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     /// Rebuilds the order when today's chores changed. Cheap to call often.
     func refresh(using carousel: CarouselViewModel) async {
-        guard IntelligenceManager.shared.isAvailable, PremiumManager.shared.allows(.intelligence) else {
+        guard IntelligenceManager.areSuggestionsEnabled,
+              IntelligenceManager.shared.isAvailable,
+              PremiumManager.shared.allows(.intelligence) else {
             #if DEBUG
-            print("[TodayOrder] Apple Intelligence unavailable or house not Premium: no order")
+            print("[TodayOrder] suggestions off, Apple Intelligence unavailable or house not Premium: no order")
             #endif
             steps = []
+            // Built again from scratch once it's possible (switch turned back on).
+            lastKey = ""
             return
         }
-        let today = carousel.openOccurrencesToday()
+        // Today's open chores plus the late ones (everyone's: the others only tell what has to
+        // come first). `overdueSince` marks the late ones by occurrence id.
+        let overdue = carousel.openOverdueOccurrences()
+        let today = carousel.openOccurrencesToday() + overdue.map { (occurrence: $0.occurrence, userIDs: $0.userIDs, isMine: $0.isMine) }
+        var overdueSince: [String: Date] = [:]
+        for entry in overdue { overdueSince[entry.occurrence.id] = entry.since }
+
         let day = Calendar.current.startOfDay(for: Date()).timeIntervalSince1970
         let key = "\(day)|" + today
             .map { "\($0.occurrence.id):\($0.occurrence.chore.name):\($0.isMine)" }
@@ -91,6 +108,10 @@ final class TodayChoreOrder {
             .sorted { lhs, rhs in
                 let left = Self.rank(phase(of: lhs)), right = Self.rank(phase(of: rhs))
                 if left != right { return left < right }
+                // Same moment of the day: a late chore first, the longest late first.
+                let lateLeft = overdueSince[lhs.occurrence.id], lateRight = overdueSince[rhs.occurrence.id]
+                if (lateLeft != nil) != (lateRight != nil) { return lateLeft != nil }
+                if let lateLeft, let lateRight, lateLeft != lateRight { return lateLeft < lateRight }
                 // Same moment of the day: more urgent first.
                 let leftPriority = lhs.occurrence.chore.priorityTag.scoreValue
                 let rightPriority = rhs.occurrence.chore.priorityTag.scoreValue
@@ -108,8 +129,11 @@ final class TodayChoreOrder {
             )
             return Step(
                 id: entry.occurrence.id,
-                name: entry.occurrence.chore.name,
-                note: before.map { Self.note(after: $0, carousel: carousel) }
+                // As the cards show it: default chores are saved in Portuguese and translated on
+                // display. The phase cache keeps using the saved name, which never changes.
+                name: entry.occurrence.chore.localizedName,
+                note: before.map { Self.note(after: $0, carousel: carousel) },
+                overdueSince: overdueSince[entry.occurrence.id]
             )
         }
         lastKey = key
@@ -169,16 +193,23 @@ final class TodayChoreOrder {
     }
 
     /// "Depois de “Cozinhar”" for the viewer's own chore, "Depois de “Cozinhar” (Ana)" for
-    /// someone else's.
+    /// someone else's, "Depois de “Cozinhar” (Sem responsável)" for one nobody took yet.
     private static func note(
         after entry: (occurrence: ChoreOccurrence, userIDs: Set<CKRecord.ID>, isMine: Bool),
         carousel: CarouselViewModel
     ) -> String {
-        let name = entry.occurrence.chore.name
+        // Translated like the cards (default chores are saved in Portuguese).
+        let name = entry.occurrence.chore.localizedName
         guard !entry.isMine else { return L10n.tr("Depois de “\(name)”") }
         let people = carousel.userModels
             .filter { user in user.recordID.map { entry.userIDs.contains($0) } ?? false }
             .map(\.name)
+        // Nobody took it yet: say so, or the note reads as if it were the viewer's own chore
+        // (the list only shows the viewer's chores, so they can't tell otherwise).
+        if entry.userIDs.isEmpty {
+            return L10n.tr("Depois de “\(name)” (\(L10n.tr("Sem responsável")))")
+        }
+        // Assigned to someone no longer in the house list: nothing reliable to name.
         guard !people.isEmpty else { return L10n.tr("Depois de “\(name)”") }
         return L10n.tr("Depois de “\(name)” (\(people.joined(separator: ", ")))")
     }
