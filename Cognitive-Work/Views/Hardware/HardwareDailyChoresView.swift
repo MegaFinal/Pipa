@@ -107,7 +107,8 @@ struct HardwareDailyChoresView: View {
 
 // MARK: - Private subviews
 
-/// One member's column: their name and share of the day on top, then their chore cards.
+/// One member's column: their name and share of the day on top, then their chore cards (the
+/// day's first, then the late ones).
 private struct UserDailyChoresColumn: View {
     /// The member and their chores.
     var group: UserDailyChoresGroup
@@ -119,14 +120,27 @@ private struct UserDailyChoresColumn: View {
     /// "+N tarefas" strip instead of a full card.
     static let maxVisibleChores = 3
 
-    /// The chores that get a card.
-    private var visibleChores: [ChoreModel] {
-        Array(group.chores.prefix(Self.maxVisibleChores))
+    /// A card in the column: one of the day's chores, or a late one.
+    private struct ColumnChore: Identifiable {
+        let chore: ChoreModel
+        let isLate: Bool
+        var id: String { chore.id.uuidString + (isLate ? "-late" : "") }
     }
 
-    /// How many chores didn't fit (the "+N tarefas" strip).
+    /// The day's chores, then the late ones.
+    private var allChores: [ColumnChore] {
+        group.chores.map { ColumnChore(chore: $0, isLate: false) }
+            + group.lateChores.map { ColumnChore(chore: $0, isLate: true) }
+    }
+
+    /// The chores that get a card.
+    private var visibleChores: [ColumnChore] {
+        Array(allChores.prefix(Self.maxVisibleChores))
+    }
+
+    /// How many chores didn't fit (the "+N tarefas" strip), late ones included.
     private var overflowCount: Int {
-        max(0, group.chores.count - Self.maxVisibleChores)
+        max(0, allChores.count - Self.maxVisibleChores)
     }
 
     var body: some View {
@@ -146,12 +160,12 @@ private struct UserDailyChoresColumn: View {
             .padding(.trailing, 5)
 
             // MARK: - Chore cards, "+N" strip or empty state
-            if group.chores.isEmpty {
+            if allChores.isEmpty {
                 emptyState
             } else {
                 VStack(spacing: 7) {
-                    ForEach(visibleChores) { chore in
-                        DailyChoreCard(chore: chore, room: roomProvider(chore))
+                    ForEach(visibleChores) { item in
+                        DailyChoreCard(chore: item.chore, room: roomProvider(item.chore), isLate: item.isLate)
                             .frame(maxHeight: .infinity)
                     }
                     if overflowCount > 0 {
@@ -189,16 +203,23 @@ private struct DailyChoreCard: View {
     var chore: ChoreModel
     /// The chore's room, or `nil`.
     var room: RoomModel?
+    /// Whether the chore is from a day before (marked with an exclamation circle).
+    var isLate = false
 
     /// The card's tones.
     private var style: EInkRoomStyle { EInkRoomStyle(room: room) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(room?.name.localizedDefault ?? L10n.tr("Sem cômodo"))
-                .font(.system(size: 17))
-                .fontWeight(.medium)
-                .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                if isLate {
+                    Image(systemName: "exclamationmark.circle.fill")
+                }
+                Text(room?.name.localizedDefault ?? L10n.tr("Sem cômodo"))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .font(.system(size: 17))
+            .fontWeight(.medium)
 
             Text(chore.localizedName)
                 .font(.system(size: 20))
@@ -337,11 +358,11 @@ private enum HardwareDailyChoresPreviewData {
         let dayo    = makeUser("Dayô") // sem tarefas: mostra o "Sem tarefas por hoje"
 
         // MARK: chores
-        func makeChore(_ name: String, room: RoomModel, responsible: UserModel, duration: Double) -> ChoreModel {
+        func makeChore(_ name: String, room: RoomModel, responsible: UserModel, duration: Double, isLate: Bool = false) -> ChoreModel {
             let chore = ChoreModel(
                 name: name,
                 description: "",
-                dueDate: Date(),
+                dueDate: isLate ? Calendar.current.date(byAdding: .day, value: -2, to: Date()) : Date(),
                 frequency: .daily,
                 duration: duration,
                 isPublic: true,
@@ -354,15 +375,16 @@ private enum HardwareDailyChoresPreviewData {
         }
 
         let chores: [ChoreModel] = [
-            // Jones
+            // Jones (2 do dia + 1 atrasada, com o ícone)
             makeChore("Lavar Box",               room: banheiro,      responsible: jones,   duration: 15),
             makeChore("Lavar louça do domingo",  room: cozinha,       responsible: jones,   duration: 20),
-            makeChore("Regar as plantas",        room: quarto,        responsible: jones,   duration: 10),
+            makeChore("Regar as plantas",        room: quarto,        responsible: jones,   duration: 10, isLate: true),
 
-            // Isabela
+            // Isabela (3 do dia + 1 atrasada: a atrasada vai para o "+1 tarefas")
             makeChore("Lavar roupas brancas",    room: areaDeServico, responsible: isabela, duration: 40),
             makeChore("Lavar chão",              room: banheiro,      responsible: isabela, duration: 15),
             makeChore("Tirar o lixo",            room: banheiro,      responsible: isabela, duration: 5),
+            makeChore("Limpar o espelho",        room: banheiro,      responsible: isabela, duration: 5, isLate: true),
 
             // Carol
             makeChore("Lavar louça do jantar",   room: cozinha,       responsible: carol,   duration: 20),
