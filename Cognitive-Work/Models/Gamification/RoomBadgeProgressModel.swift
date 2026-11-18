@@ -148,12 +148,14 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
 
     /// Pins `badge` to the profile, or unpins it.
     ///
-    /// - Returns: Whether anything changed: `false` when it already was that way, or when
-    ///   pinning would go over ``maxPinned``.
+    /// Only unlocked badges can be pinned; any pinned badge can be unpinned.
+    ///
+    /// - Returns: Whether anything changed: `false` when it already was that way, when the badge
+    ///   is locked, or when pinning would go over ``maxPinned``.
     @discardableResult
     mutating func setPinned(_ badge: RoomBadge, _ isPinned: Bool) -> Bool {
         if isPinned {
-            guard !self.isPinned(badge), canPinMore else { return false }
+            guard isUnlocked(badge), !self.isPinned(badge), canPinMore else { return false }
             pinned.append(badge.rawValue)
         } else {
             guard self.isPinned(badge) else { return false }
