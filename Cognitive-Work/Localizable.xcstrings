@@ -1262,6 +1262,46 @@
         }
       }
     },
+    "%@, bloqueada" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, locked"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, bloqueada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, verrouillé"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@、未獲得"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, 잠김"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@，未解锁"
+          }
+        }
+      }
+    },
     "%@, pronto" : {
       "localizations" : {
         "en" : {
@@ -1915,6 +1955,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已完成 %lld / %lld 项家务，%@"
+          }
+        }
+      }
+    },
+    "%lld de %lld tarefas para %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld chores for %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld de %lld tareas para %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld tâches sur %lld pour %@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@まで家事%1$lld/%2$lld件"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@까지 집안일 %1$lld/%2$lld개"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld de %2$lld tarefas para %3$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@：已完成 %1$lld/%2$lld 项家务"
           }
         }
       }
@@ -3157,6 +3243,52 @@
         }
       }
     },
+    "%lld/%lld tarefas em %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld chores in %@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld tareas en %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld/%lld tâches (%@)"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@の家事 %1$lld/%2$lld件"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@ 집안일 %1$lld/%2$lld개"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld/%2$lld tarefas em %3$@"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%3$@家务 %1$lld/%2$lld 项"
+          }
+        }
+      }
+    },
     "%lldª de %lld hoje" : {
       "localizations" : {
         "en" : {
@@ -3199,206 +3331,6 @@
     },
     "+%lld" : {
       "shouldTranslate" : false
-    },
-    "Agora não" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Not Now"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ahora no"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pas maintenant"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "今はしない"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "나중에"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "以后再说"
-          }
-        }
-      }
-    },
-    "iCloud cheio" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud Full"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud lleno"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud plein"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudがいっぱいです"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 저장 공간 부족"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 已满"
-          }
-        }
-      }
-    },
-    "O armazenamento do iCloud está cheio, então algumas alterações não foram salvas. Libere espaço no iCloud para continuar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud storage is full, so some changes weren't saved. Free up iCloud storage to continue."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El almacenamiento de iCloud está lleno, así que algunos cambios no se guardaron. Libera espacio en iCloud para continuar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le stockage iCloud est plein, certaines modifications n’ont donc pas été enregistrées. Libère de l’espace iCloud pour continuer."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudストレージがいっぱいのため、一部の変更が保存されませんでした。続けるにはiCloudの空き容量を確保してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 저장 공간이 가득 차서 일부 변경 사항이 저장되지 않았어요. 계속하려면 iCloud 공간을 확보하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 储存空间已满，部分更改未能保存。请释放 iCloud 空间后继续。"
-          }
-        }
-      }
-    },
-    "O iCloud de quem criou a casa está sem espaço, então as alterações da casa não estão sendo salvas. Peça para essa pessoa liberar espaço no iCloud." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The iCloud of the person who created the house is out of space, so the house's changes aren't being saved. Ask them to free up iCloud storage."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "El iCloud de quien creó la casa no tiene espacio, así que los cambios de la casa no se están guardando. Pídele a esa persona que libere espacio en iCloud."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "L’iCloud de la personne qui a créé la maison n’a plus d’espace, les modifications de la maison ne sont donc pas enregistrées. Demande-lui de libérer de l’espace iCloud."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "家を作成した人のiCloudの空き容量がないため、家の変更が保存されていません。その人にiCloudの空き容量を確保するよう頼んでください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "집을 만든 사람의 iCloud 저장 공간이 부족해서 집의 변경 사항이 저장되지 않고 있어요. 그 사람에게 iCloud 공간을 확보해 달라고 요청하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "创建这个家的人的 iCloud 空间不足，家里的更改无法保存。请让对方释放 iCloud 空间。"
-          }
-        }
-      }
-    },
-    "Seu iCloud está sem espaço, então suas alterações não estão sendo salvas. Libere espaço no iCloud para continuar." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your iCloud is out of space, so your changes aren't being saved. Free up iCloud storage to continue."
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu iCloud no tiene espacio, así que tus cambios no se están guardando. Libera espacio en iCloud para continuar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ton iCloud n’a plus d’espace, tes modifications ne sont donc pas enregistrées. Libère de l’espace iCloud pour continuer."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudの空き容量がないため、変更が保存されていません。続けるにはiCloudの空き容量を確保してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 저장 공간이 부족해서 변경 사항이 저장되지 않고 있어요. 계속하려면 iCloud 공간을 확보하세요."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你的 iCloud 空间不足，更改无法保存。请释放 iCloud 空间后继续。"
-          }
-        }
-      }
     },
     "×%lld" : {
       "shouldTranslate" : false
@@ -4208,6 +4140,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "7 位或以上室友"
+          }
+        }
+      }
+    },
+    "8 Horas de Sono" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 Hours of Sleep"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 Horas de Sueño"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8 heures de sommeil"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8時間睡眠"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "8시간 수면"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡足8小时"
           }
         }
       }
@@ -6298,6 +6270,46 @@
         }
       }
     },
+    "Agora não" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Now"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ahora no"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas maintenant"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今はしない"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "나중에"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以后再说"
+          }
+        }
+      }
+    },
     "Agora, digite o Wi-Fi da sua casa" : {
       "localizations" : {
         "en" : {
@@ -7667,6 +7679,46 @@
         }
       }
     },
+    "Aromatizante de Cheiro de Pônei" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pony-Scented Air Freshener"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ambientador con Olor a Poni"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désodorisant parfum poney"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ポニーの香りの芳香剤"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "조랑말 향 방향제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "小马味空气清新剂"
+          }
+        }
+      }
+    },
     "Arquivar o que é importante e descartar os papéis desnecessários." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7870,6 +7922,46 @@
         }
       }
     },
+    "As badges aparecem aqui quando a casa tiver cômodos como Cozinha, Sala de Estar ou Banheiro." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badges show up here once the home has rooms like Kitchen, Living Room or Bathroom."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las insignias aparecerán aquí cuando la casa tenga ambientes como Cocina, Sala de Estar o Baño."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les badges apparaîtront ici quand la maison aura des pièces comme Cuisine, Salon ou Salle de bain."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "キッチン、リビング、バスルームなどの部屋があると、ここにバッジが表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주방, 거실, 욕실 같은 공간이 생기면 여기에 배지가 나타나요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家里有厨房、客厅或浴室等房间后，徽章会显示在这里。"
+          }
+        }
+      }
+    },
     "As tarefas da casa, na parede" : {
       "localizations" : {
         "en" : {
@@ -7986,6 +8078,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "分配后剩下的家务会留在主页的 %@ 按钮下。选择适合你时间的来做。"
+          }
+        }
+      }
+    },
+    "Aspirador de Farelo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Crumb Vacuum"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspiradora de Migas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aspirateur à miettes"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パンくずクリーナー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "부스러기 청소기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "碎屑吸尘器"
           }
         }
       }
@@ -8635,6 +8767,126 @@
         }
       }
     },
+    "Badge desbloqueada!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badge unlocked!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Insignia desbloqueada!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badge débloqué !"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バッジを獲得！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "배지 획득!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "徽章已解锁！"
+          }
+        }
+      }
+    },
+    "Badges desbloqueadas!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badges unlocked!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Insignias desbloqueadas!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badges débloqués !"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バッジを獲得！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "배지 획득!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "徽章已解锁！"
+          }
+        }
+      }
+    },
+    "Badges dos cômodos" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Room badges"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insignias de los ambientes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badges des pièces"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "部屋のバッジ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공간 배지"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "房间徽章"
+          }
+        }
+      }
+    },
     "baixa" : {
       "localizations" : {
         "en" : {
@@ -9076,6 +9328,46 @@
         }
       }
     },
+    "Bike de Rodinha" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Training-Wheel Bike"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bici con Rueditas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vélo à petites roues"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "補助輪つき自転車"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "보조바퀴 자전거"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "带辅助轮的自行车"
+          }
+        }
+      }
+    },
     "bora na próxima!" : {
       "localizations" : {
         "en" : {
@@ -9152,6 +9444,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "下个周期再往上冲！"
+          }
+        }
+      }
+    },
+    "Brilhando no Lava-Jato" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Car Wash Shine"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brillando en el Autolavado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Brillant comme au lavage auto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "洗車でピカピカ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "세차장에서 반짝반짝"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "洗车洗得锃亮"
           }
         }
       }
@@ -9237,6 +9569,46 @@
         }
       }
     },
+    "Cabos Embolados" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tangled Cables"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cables Enredados"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Câbles emmêlés"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "こんがらがったケーブル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "엉킨 케이블"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缠成一团的线"
+          }
+        }
+      }
+    },
     "Cada tarefa feita rende pontos e faz sua pipa subir no ranking. Arraste para ver todos os rankings." : {
       "localizations" : {
         "en" : {
@@ -9313,6 +9685,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "你完成的每项家务都让你更接近下一个等级！"
+          }
+        }
+      }
+    },
+    "Cadeira Arara" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clothes-Rack Chair"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La Silla Perchero"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La chaise portemanteau"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "服置きイス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "옷걸이 의자"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "衣架椅"
+          }
+        }
+      }
+    },
+    "Cadeira de Balanço" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rocking Chair"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mecedora"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fauteuil à bascule"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ロッキングチェア"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "흔들의자"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "摇椅"
           }
         }
       }
@@ -10760,6 +11212,86 @@
         }
       }
     },
+    "Chefe Master de Delícias" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Master Chef of Delights"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chef Maestro de Delicias"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grand chef des délices"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ごちそうマスターシェフ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "맛있는 요리의 마스터 셰프"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "美味大厨"
+          }
+        }
+      }
+    },
+    "Cheirinho de Roupa Limpa" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fresh Laundry Scent"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Olorcito a Ropa Limpia"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bonne odeur de linge propre"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "洗いたての香り"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "갓 빤 빨래 냄새"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "干净衣服的香味"
+          }
+        }
+      }
+    },
     "Chores" : {
       "localizations" : {
         "en" : {
@@ -10802,6 +11334,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "家务"
+          }
+        }
+      }
+    },
+    "Chuva de Post-it" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Post-it Shower"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lluvia de Post-its"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pluie de Post-it"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ふせんの雨"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "포스트잇 소나기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "便利贴雨"
           }
         }
       }
@@ -11604,6 +12176,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "分享邀请"
+          }
+        }
+      }
+    },
+    "Completo!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Completo!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terminé !"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コンプリート！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "완료!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "全部完成！"
           }
         }
       }
@@ -14060,6 +14672,46 @@
         }
       }
     },
+    "Data de Validade Infinita" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never-Ending Expiry Date"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fecha de Caducidad Infinita"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date de péremption infinie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無限の賞味期限"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "무한 유통기한"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "永不过期"
+          }
+        }
+      }
+    },
     "Dê um nome à tarefa para poder criá-la" : {
       "localizations" : {
         "en" : {
@@ -14336,6 +14988,126 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "之后，所有家务会在你们之间重新分配。"
+          }
+        }
+      }
+    },
+    "Desafixar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unpin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desfijar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désépingler"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピンを外す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "고정 해제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消固定"
+          }
+        }
+      }
+    },
+    "Desafixar do perfil" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unpin from profile"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desfijar del perfil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désépingler du profil"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロフィールから外す"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필에서 고정 해제"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "从个人资料取消固定"
+          }
+        }
+      }
+    },
+    "Desbloqueada" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unlocked"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desbloqueada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloqué"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "獲得済み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "획득함"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "已解锁"
           }
         }
       }
@@ -16667,6 +17439,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "星期日"
+          }
+        }
+      }
+    },
+    "Duende de Jardim" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garden Gnome"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gnomo de Jardín"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nain de jardin"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "庭のノーム"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정원 요정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "花园小矮人"
           }
         }
       }
@@ -19925,6 +20737,46 @@
         }
       }
     },
+    "Espelho Espelho Meu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mirror, Mirror"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Espejito, Espejito"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Miroir, mon beau miroir"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "鏡よ鏡"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "거울아 거울아"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "魔镜魔镜"
+          }
+        }
+      }
+    },
     "Esqueça o Harvii do seu iPhone." : {
       "localizations" : {
         "en" : {
@@ -22015,6 +22867,46 @@
         }
       }
     },
+    "Fada do Banho Premium" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Bath Fairy"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hada del Baño Premium"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fée du bain premium"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアムお風呂の妖精"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄 목욕 요정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "高级沐浴仙子"
+          }
+        }
+      }
+    },
     "Falar" : {
       "localizations" : {
         "en" : {
@@ -22536,6 +23428,86 @@
         }
       }
     },
+    "Fixar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pin"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fijar"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Épingler"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ピン留め"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "고정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固定"
+          }
+        }
+      }
+    },
+    "Fixar no perfil" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pin to profile"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fijar en el perfil"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Épingler au profil"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プロフィールにピン留め"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프로필에 고정"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "固定到个人资料"
+          }
+        }
+      }
+    },
     "foguete" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -22693,6 +23665,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "清单外的"
+          }
+        }
+      }
+    },
+    "Fortaleza Impenetrável de Travesseiros" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impenetrable Pillow Fort"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fuerte Impenetrable de Almohadas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forteresse imprenable d’oreillers"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "難攻不落のまくら要塞"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "난공불락 베개 요새"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "坚不可摧的枕头堡垒"
           }
         }
       }
@@ -23583,6 +24595,46 @@
         }
       }
     },
+    "Guardião do Controle Remoto" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keeper of the Remote"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guardián del Control Remoto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gardien de la télécommande"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リモコンの守護者"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "리모컨의 수호자"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "遥控器守护者"
+          }
+        }
+      }
+    },
     "Há notificações novas" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -24140,6 +25192,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI"
+          }
+        }
+      }
+    },
+    "iCloud cheio" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud Full"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud lleno"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud plein"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudがいっぱいです"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 저장 공간 부족"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 已满"
           }
         }
       }
@@ -28107,6 +29199,46 @@
         }
       }
     },
+    "Meia Sem Par" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Missing Sock"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calcetín sin Pareja"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chaussette orpheline"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "片方だけの靴下"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "짝 잃은 양말"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "落单的袜子"
+          }
+        }
+      }
+    },
     "Meia-lua" : {
       "localizations" : {
         "en" : {
@@ -28508,6 +29640,46 @@
         }
       }
     },
+    "Minhas Badges" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My Badges"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mis insignias"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mes badges"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マイバッジ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 배지"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "我的徽章"
+          }
+        }
+      }
+    },
     "Minutos" : {
       "localizations" : {
         "en" : {
@@ -28628,6 +29800,46 @@
         }
       }
     },
+    "Mister Corp" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mister Corp"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mister Corp"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mister Corp"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ミスター・コープ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미스터 코프"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "职场先生"
+          }
+        }
+      }
+    },
     "Moedas insuficientes" : {
       "localizations" : {
         "en" : {
@@ -28704,6 +29916,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已兑换金币"
+          }
+        }
+      }
+    },
+    "Monstro do Ralo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drain Monster"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monstruo del Desagüe"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Monstre du siphon"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "排水口モンスター"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "배수구 괴물"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下水道怪兽"
           }
         }
       }
@@ -34115,6 +35367,46 @@
         }
       }
     },
+    "O armazenamento do iCloud está cheio, então algumas alterações não foram salvas. Libere espaço no iCloud para continuar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud storage is full, so some changes weren't saved. Free up iCloud storage to continue."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El almacenamiento de iCloud está lleno, así que algunos cambios no se guardaron. Libera espacio en iCloud para continuar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le stockage iCloud est plein, certaines modifications n’ont donc pas été enregistrées. Libère de l’espace iCloud pour continuer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudストレージがいっぱいのため、一部の変更が保存されませんでした。続けるにはiCloudの空き容量を確保してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 저장 공간이 가득 차서 일부 변경 사항이 저장되지 않았어요. 계속하려면 iCloud 공간을 확보하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 储存空间已满，部分更改未能保存。请释放 iCloud 空间后继续。"
+          }
+        }
+      }
+    },
     "O armazenamento do iCloud está cheio. Libere espaço para continuar." : {
       "localizations" : {
         "en" : {
@@ -34642,6 +35934,46 @@
         }
       }
     },
+    "O iCloud de quem criou a casa está sem espaço, então as alterações da casa não estão sendo salvas. Peça para essa pessoa liberar espaço no iCloud." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The iCloud of the person who created the house is out of space, so the house's changes aren't being saved. Ask them to free up iCloud storage."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El iCloud de quien creó la casa no tiene espacio, así que los cambios de la casa no se están guardando. Pídele a esa persona que libere espacio en iCloud."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’iCloud de la personne qui a créé la maison n’a plus d’espace, les modifications de la maison ne sont donc pas enregistrées. Demande-lui de libérer de l’espace iCloud."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "家を作成した人のiCloudの空き容量がないため、家の変更が保存されていません。その人にiCloudの空き容量を確保するよう頼んでください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집을 만든 사람의 iCloud 저장 공간이 부족해서 집의 변경 사항이 저장되지 않고 있어요. 그 사람에게 iCloud 공간을 확보해 달라고 요청하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "创建这个家的人的 iCloud 空间不足，家里的更改无法保存。请让对方释放 iCloud 空间。"
+          }
+        }
+      }
+    },
     "O item que já está na lista usa outra unidade." : {
       "localizations" : {
         "en" : {
@@ -35119,6 +36451,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "留意、记住、决定和跟进，和做家务本身一样重要"
+          }
+        }
+      }
+    },
+    "Oba!" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yay!"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Bien!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Youpi !"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "やった！"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "야호!"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "太棒了！"
           }
         }
       }
@@ -36730,6 +38102,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "炉灶上的锅"
+          }
+        }
+      }
+    },
+    "Pano de Prato da Vó" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grandma's Dish Towel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El Trapo de la Abuela"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le torchon de Mamie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おばあちゃんのふきん"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "할머니의 행주"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "外婆的擦碗布"
+          }
+        }
+      }
+    },
+    "Pão Mofado" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moldy Bread"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pan Mohoso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pain moisi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "カビたパン"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "곰팡이 핀 빵"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "发霉的面包"
           }
         }
       }
@@ -39715,6 +41167,86 @@
         }
       }
     },
+    "Pombo Folgado" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Freeloading Pigeon"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paloma Aprovechada"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pigeon squatteur"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ずうずうしいハト"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "뻔뻔한 비둘기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "赖着不走的鸽子"
+          }
+        }
+      }
+    },
+    "Pote de Sorvete com Feijão" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ice Cream Tub Full of Beans"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bote de Helado con Frijoles"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pot de glace rempli de haricots"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アイスの容器に豆"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아이스크림 통 속 콩"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "冰淇淋盒里装豆子"
+          }
+        }
+      }
+    },
     "Poucas tarefas" : {
       "localizations" : {
         "en" : {
@@ -41439,6 +42971,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "星期三"
+          }
+        }
+      }
+    },
+    "Quartinho da Bagunça" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Junk Room"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El Cuarto del Desorden"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le débarras du bazar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "がらくた部屋"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "잡동사니 방"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "杂物间"
           }
         }
       }
@@ -44668,6 +46240,46 @@
         }
       }
     },
+    "Sabonete de Enfeite" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decorative Soap"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jabón de Adorno"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Savon décoratif"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "飾り用せっけん"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "장식용 비누"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "装饰香皂"
+          }
+        }
+      }
+    },
     "Saindo da casa..." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -45026,6 +46638,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "已保存到你的个人资料"
+          }
+        }
+      }
+    },
+    "Samambaia Desidratada" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thirsty Fern"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helecho Deshidratado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fougère desséchée"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "からからのシダ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목마른 고사리"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "缺水的蕨类"
           }
         }
       }
@@ -46275,6 +47927,46 @@
         }
       }
     },
+    "Seu iCloud está sem espaço, então suas alterações não estão sendo salvas. Libere espaço no iCloud para continuar." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your iCloud is out of space, so your changes aren't being saved. Free up iCloud storage to continue."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu iCloud no tiene espacio, así que tus cambios no se están guardando. Libera espacio en iCloud para continuar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ton iCloud n’a plus d’espace, tes modifications ne sont donc pas enregistrées. Libère de l’espace iCloud pour continuer."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudの空き容量がないため、変更が保存されていません。続けるにはiCloudの空き容量を確保してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 저장 공간이 부족해서 변경 사항이 저장되지 않고 있어요. 계속하려면 iCloud 공간을 확보하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你的 iCloud 空间不足，更改无法保存。请释放 iCloud 空间后继续。"
+          }
+        }
+      }
+    },
     "Seu nome" : {
       "localizations" : {
         "en" : {
@@ -46918,6 +48610,46 @@
         }
       }
     },
+    "Sofá que Engole Controle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Remote-Eating Couch"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "El Sofá Come-Controles"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le canapé qui avale la télécommande"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リモコンを飲み込むソファ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "리모컨 삼키는 소파"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "吞遥控器的沙发"
+          }
+        }
+      }
+    },
     "Soma dos itens" : {
       "localizations" : {
         "en" : {
@@ -47034,6 +48766,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "加到数量上（%lld → %lld）"
+          }
+        }
+      }
+    },
+    "Soneca na Rede" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hammock Nap"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siesta en la Hamaca"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sieste dans le hamac"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハンモックでお昼寝"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "해먹에서 낮잠"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "吊床午睡"
           }
         }
       }
@@ -50900,6 +52672,46 @@
         }
       }
     },
+    "Toque numa badge na aba Gamificação e fixe-a para ela aparecer aqui." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap a badge on the Gamification tab and pin it to show it here."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toca una insignia en la pestaña Gamificación y fíjala para que aparezca aquí."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Touche un badge dans l’onglet Gamification et épingle-le pour qu’il apparaisse ici."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲーミフィケーションタブでバッジをタップしてピン留めすると、ここに表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게이미피케이션 탭에서 배지를 눌러 고정하면 여기에 나타나요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“游戏化”标签页点按徽章并固定，它就会显示在这里。"
+          }
+        }
+      }
+    },
     "Toque para falar" : {
       "localizations" : {
         "en" : {
@@ -50976,6 +52788,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "点按以填写表单。"
+          }
+        }
+      }
+    },
+    "Torre de Louça" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dish Tower"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torre de Platos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tour de vaisselle"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "食器タワー"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설거지 탑"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "碗碟高塔"
           }
         }
       }
@@ -52631,6 +54483,46 @@
         }
       }
     },
+    "Varal de Bandeirinha" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bunting Clothesline"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tendedero de Banderitas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Corde à linge en guirlande"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "旗みたいな物干し"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "깃발 빨랫줄"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "彩旗晾衣绳"
+          }
+        }
+      }
+    },
     "Varanda" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -53601,6 +55493,46 @@
         }
       }
     },
+    "Visita de Beija-Flor" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hummingbird Visit"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visita del Colibrí"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visite du colibri"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ハチドリの訪問"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "벌새의 방문"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "蜂鸟来访"
+          }
+        }
+      }
+    },
     "Vitalício" : {
       "localizations" : {
         "en" : {
@@ -54280,6 +56212,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "做家务、为家出力就能赚金币，可用来购买优惠券。"
+          }
+        }
+      }
+    },
+    "Você já fixou %lld badges. Desafixe uma para fixar esta." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You’ve already pinned %lld badges. Unpin one to pin this one."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ya fijaste %lld insignias. Desfija una para fijar esta."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu as déjà épinglé %lld badges. Désépingle-en un pour épingler celui-ci."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すでに%lld個のバッジをピン留めしています。このバッジをピン留めするには、どれかを外してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이미 배지 %lld개를 고정했어요. 이 배지를 고정하려면 하나를 해제하세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已经固定了 %lld 个徽章。取消固定一个才能固定这个。"
           }
         }
       }

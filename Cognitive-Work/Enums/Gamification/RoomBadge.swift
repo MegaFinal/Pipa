@@ -262,4 +262,11 @@ extension DefaultRoomsOnboarding {
             .filter { $0.room == self }
             .sorted { $0.threshold < $1.threshold }
     }
+
+    /// The kinds of default room among `rooms`, in the order of the onboarding: the badge ladders
+    /// a house has. Custom rooms have no badges.
+    static func withBadges(in rooms: [RoomModel]) -> [DefaultRoomsOnboarding] {
+        let kinds = Set(rooms.compactMap { DefaultRoomsOnboarding(kind: $0.kind, name: $0.name) })
+        return onboardingOrder.filter { kinds.contains($0) }
+    }
 }

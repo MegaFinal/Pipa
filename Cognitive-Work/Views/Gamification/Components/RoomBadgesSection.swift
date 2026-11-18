@@ -15,6 +15,10 @@ struct RoomBadgesSection: View {
     let rooms: [DefaultRoomsOnboarding]
     /// The member's progress.
     let progress: RoomBadgeProgressModel
+    /// Id (``RoomBadge/id``) of the badge brought to the center of the screen, if any.
+    @Binding var focusedBadgeKey: String?
+    /// Lets a badge fly from its row to the center and back.
+    let namespace: Namespace.ID
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -31,7 +35,12 @@ struct RoomBadgesSection: View {
                     .padding(.horizontal, 30)
             } else {
                 ForEach(rooms) { room in
-                    RoomBadgeRow(room: room, progress: progress)
+                    RoomBadgeRow(
+                        room: room,
+                        progress: progress,
+                        focusedBadgeKey: $focusedBadgeKey,
+                        namespace: namespace
+                    )
                 }
             }
         }
@@ -41,8 +50,16 @@ struct RoomBadgesSection: View {
 /// One room's ladder of badges and the progress towards the next one.
 private struct RoomBadgeRow: View {
 
+    /// Width and height of each badge in the row.
+    private static let iconSize: CGFloat = 84
+
     let room: DefaultRoomsOnboarding
     let progress: RoomBadgeProgressModel
+    /// Id (``RoomBadge/id``) of the badge in focus; `nil` when none. Tapping one of this row's
+    /// badges sets it, so it flies to the center (``FocusedBadgeView``).
+    @Binding var focusedBadgeKey: String?
+    /// Lets a badge fly from here to the center and back.
+    let namespace: Namespace.ID
 
     private var count: Int { progress.count(for: room) }
     private var next: RoomBadge? { progress.nextBadge(in: room) }
@@ -59,9 +76,23 @@ private struct RoomBadgeRow: View {
                     .monospacedDigit()
             }
 
-            HStack(spacing: 12) {
+            HStack(spacing: 16) {
                 ForEach(room.badges) { badge in
-                    RoomBadgeIcon(badge: badge, isUnlocked: progress.isUnlocked(badge), size: 56)
+                    // While a badge is in focus its place stays empty, so the row doesn't jump
+                    // and the badge can fly back into it (same trick as ``CouponCell``).
+                    if focusedBadgeKey == badge.id {
+                        Color.clear
+                            .frame(width: Self.iconSize, height: Self.iconSize)
+                            .accessibilityHidden(true)
+                    } else {
+                        Button {
+                            focusBadge(badge.id, in: $focusedBadgeKey)
+                        } label: {
+                            RoomBadgeIcon(badge: badge, isUnlocked: progress.isUnlocked(badge), size: Self.iconSize)
+                        }
+                        .buttonStyle(.plain)
+                        .matchedGeometryEffect(id: badge.id, in: namespace)
+                    }
                 }
             }
 
@@ -77,12 +108,21 @@ private struct RoomBadgeRow: View {
 }
 
 #Preview {
+    @Previewable @State var focusedBadgeKey: String?
+    @Previewable @Namespace var namespace
+
     var progress = RoomBadgeProgressModel(ownerRecordName: "preview")
     progress.apply([
         RoomBadgeChange(room: .kitchen, delta: 37),
         RoomBadgeChange(room: .garage, delta: 25)
     ], dayKey: "2026-11-11")
     return ScrollView {
-        RoomBadgesSection(rooms: [.kitchen, .powderRoom, .garage], progress: progress)
+        RoomBadgesSection(
+            rooms: [.kitchen, .powderRoom, .garage],
+            progress: progress,
+            focusedBadgeKey: $focusedBadgeKey,
+            namespace: namespace
+        )
     }
+    .badgeFocus(progress: progress, focusedBadgeKey: $focusedBadgeKey, namespace: namespace)
 }

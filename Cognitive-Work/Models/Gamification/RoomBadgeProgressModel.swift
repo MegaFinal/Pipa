@@ -41,6 +41,9 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
     /// over doesn't unlock anything.
     static let oneOffDailyLimit = 3
 
+    /// How many badges the member can pin to their profile.
+    static let maxPinned = 3
+
     /// The CloudKit record ID (`badges-<owner>`). `nil` until the model is saved.
     var recordID: CKRecord.ID?
 
@@ -54,6 +57,9 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
     var oneOffDay: String?
     /// One-off chores counted on ``oneOffDay``, per kind of room.
     var oneOffCounts: [String: Int]
+    /// Raw values of the badges pinned to the profile, in the order they were pinned
+    /// (at most ``maxPinned``).
+    var pinned: [String]
 
     /// Creates an empty progress, not saved yet.
     init(
@@ -61,13 +67,15 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
         counts: [String: Int] = [:],
         unlocked: [String] = [],
         oneOffDay: String? = nil,
-        oneOffCounts: [String: Int] = [:]
+        oneOffCounts: [String: Int] = [:],
+        pinned: [String] = []
     ) {
         self.ownerRecordName = ownerRecordName
         self.counts = counts
         self.unlocked = unlocked
         self.oneOffDay = oneOffDay
         self.oneOffCounts = oneOffCounts
+        self.pinned = pinned
     }
 
     /// Creates the model from a CloudKit record. Returns `nil` when the owner is missing.
@@ -80,6 +88,7 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
         self.unlocked = record["unlocked"] as? [String] ?? []
         self.oneOffDay = record["oneOffDay"] as? String
         self.oneOffCounts = Self.decode(record["oneOffCounts"] as? Data)
+        self.pinned = record["pinned"] as? [String] ?? []
     }
 
     /// Copies the model's fields into `record`, before saving it.
@@ -91,6 +100,7 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
         record["unlocked"] = unlocked
         record["oneOffDay"] = oneOffDay
         record["oneOffCounts"] = try? JSONEncoder().encode(oneOffCounts)
+        record["pinned"] = pinned
     }
 
     /// Counts saved as JSON; empty when missing or unreadable.
@@ -121,7 +131,36 @@ struct RoomBadgeProgressModel: CloudKitSyncable, Equatable {
         oneOffDay == dayKey ? oneOffCounts[room.rawValue] ?? 0 : 0
     }
 
+    /// Whether `badge` is pinned to the profile.
+    func isPinned(_ badge: RoomBadge) -> Bool {
+        pinned.contains(badge.rawValue)
+    }
+
+    /// Whether another badge can still be pinned (fewer than ``maxPinned``).
+    var canPinMore: Bool { pinned.count < Self.maxPinned }
+
+    /// The badges pinned to the profile, in the order they were pinned.
+    var pinnedBadges: [RoomBadge] {
+        pinned.compactMap(RoomBadge.init(rawValue:))
+    }
+
     // MARK: - Changing
+
+    /// Pins `badge` to the profile, or unpins it.
+    ///
+    /// - Returns: Whether anything changed: `false` when it already was that way, or when
+    ///   pinning would go over ``maxPinned``.
+    @discardableResult
+    mutating func setPinned(_ badge: RoomBadge, _ isPinned: Bool) -> Bool {
+        if isPinned {
+            guard !self.isPinned(badge), canPinMore else { return false }
+            pinned.append(badge.rawValue)
+        } else {
+            guard self.isPinned(badge) else { return false }
+            pinned.removeAll { $0 == badge.rawValue }
+        }
+        return true
+    }
 
     /// Applies `changes` and unlocks every badge whose threshold was reached.
     ///

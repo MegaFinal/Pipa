@@ -21,6 +21,14 @@ struct UserProfileView: View {
     @State private var viewModelOnboarding = OnboardingViewModel()
     /// Whether the edit profile sheet is open.
     @State private var isEditingProfile = false
+    /// The member's room badges, for "Minhas Badges".
+    @State private var viewModelBadges = MyBadgesViewModel()
+    /// Id (``RoomBadge/id``) of the badge brought to the center of the screen, if any.
+    @State private var focusedBadgeKey: String?
+    /// Lets a badge fly from "Minhas Badges" to the center and back.
+    @Namespace private var badgeNamespace
+    /// Owns the tab bar's visibility on this tab (``tabBarVisibilityRoot()``); `nil` in previews.
+    @Environment(TabBarVisibilityController.self) private var tabBar: TabBarVisibilityController?
     
     init(viewModelUser: UserProfileViewModel = UserProfileViewModel()) {
         self._viewModelUser = State(initialValue: viewModelUser)
@@ -35,12 +43,34 @@ struct UserProfileView: View {
                 SettingsButtonsSection(
                     viewModelUser: viewModelUser,
                     viewModelHouse: viewModelHouse,
+                    viewModelBadges: viewModelBadges,
+                    focusedBadgeKey: $focusedBadgeKey,
+                    badgeNamespace: badgeNamespace,
                     viewModelHardware: $viewModelHardware,
                     viewModelOnboarding: $viewModelOnboarding
                 )
             }
             .ignoresSafeArea(edges: .top)
             .background(Color.groupedBackground.ignoresSafeArea())
+            // MARK: - Focused badge (from "Minhas Badges"), over the whole screen
+            .badgeFocus(
+                progress: viewModelBadges.progress,
+                focusedBadgeKey: $focusedBadgeKey,
+                namespace: badgeNamespace,
+                onTogglePin: { badge in Task { await viewModelBadges.togglePin(badge) } }
+            )
+            .toolbar(focusedBadgeKey == nil ? .automatic : .hidden, for: .navigationBar)
+            // The tab root decides the tab bar here, so the focused badge hides it through the
+            // controller, like a pushed screen does (``hidesTabBar()``).
+            .onChange(of: focusedBadgeKey == nil) { _, isClosed in
+                if isClosed {
+                    tabBar?.hidingScreenDidDisappear()
+                } else {
+                    tabBar?.hidingScreenDidAppear()
+                }
+            }
+            // Leaving the tab closes the badge, so the other tabs get their bar back.
+            .onDisappear { focusedBadgeKey = nil }
             // MARK: - Edit profile button
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -125,10 +155,16 @@ struct UserProfileView: View {
     }
 }
 
-/// The list of settings links, plus the hardware sheet.
+/// The badges, the list of settings links, plus the hardware sheet.
 private struct SettingsButtonsSection: View {
     var viewModelUser: UserProfileViewModel
     var viewModelHouse: HouseEditViewModel
+    /// The member's room badges, for "Minhas Badges".
+    var viewModelBadges: MyBadgesViewModel
+    /// Id (``RoomBadge/id``) of the badge in focus; `nil` when none.
+    @Binding var focusedBadgeKey: String?
+    /// Lets a badge fly from "Minhas Badges" to the center and back.
+    let badgeNamespace: Namespace.ID
     @Binding var viewModelHardware: HardwareViewModel
     @Binding var viewModelOnboarding: OnboardingViewModel
     
@@ -142,6 +178,15 @@ private struct SettingsButtonsSection: View {
 
     var body: some View {
         List {
+            // MARK: - Badges
+            Section {
+                MyBadgesRow(
+                    viewModel: viewModelBadges,
+                    focusedBadgeKey: $focusedBadgeKey,
+                    namespace: badgeNamespace
+                )
+            }
+
             // MARK: - Premium
             Section {
                 DisclosureButton(
@@ -194,6 +239,16 @@ private struct SettingsButtonsSection: View {
         .listSectionSpacing(.compact)
         .scrollContentBackground(.hidden)
         .scrollBounceBehavior(.basedOnSize)
+        // MARK: - Badges: read on every visit and when the house changes
+        .task {
+            await viewModelBadges.load()
+        }
+        .onChange(of: CloudKitManager.shared.dataRevision) {
+            Task { await viewModelBadges.load() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .cloudKitDidChange)) { _ in
+            Task { await viewModelBadges.load() }
+        }
         .sheet(isPresented: $isShowingPremium) {
             PremiumView()
         }

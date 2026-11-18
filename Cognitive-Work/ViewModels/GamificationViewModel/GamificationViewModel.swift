@@ -46,8 +46,7 @@ final class GamificationViewModel {
     /// The kinds of default room the house has, in the order of the onboarding: the badge
     /// ladders the screen shows. Custom rooms have no badges.
     var badgeRooms: [DefaultRoomsOnboarding] {
-        let kinds = Set(rooms.compactMap { DefaultRoomsOnboarding(kind: $0.kind, name: $0.name) })
-        return DefaultRoomsOnboarding.onboardingOrder.filter { kinds.contains($0) }
+        DefaultRoomsOnboarding.withBadges(in: rooms)
     }
 
     /// Coupons of the period with their room's color, symbol and tier, and the members of each
@@ -225,6 +224,26 @@ final class GamificationViewModel {
     /// Stable across refreshes, unlike ``RoomModel/id``, which changes on every fetch.
     static func key(for room: RoomModel) -> String {
         room.recordID?.recordName ?? room.id.uuidString
+    }
+
+    // MARK: - Pinned badges
+
+    /// Pins `badge` to the profile, or unpins it if it already is.
+    ///
+    /// Shows the change at once and saves it after; goes back to what it was if the save fails.
+    func togglePin(_ badge: RoomBadge) async {
+        guard let houseUser else { return }
+        let previous = badgeProgress
+        let pin = !previous.isPinned(badge)
+        var optimistic = previous
+        guard optimistic.setPinned(badge, pin) else { return }
+        badgeProgress = optimistic
+
+        if let saved = await BadgeManager.shared.setPinned(badge, pin, for: houseUser) {
+            badgeProgress = saved
+        } else {
+            badgeProgress = previous
+        }
     }
 
     // MARK: - Loading
