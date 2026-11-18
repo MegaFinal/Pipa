@@ -165,7 +165,7 @@ struct GamificationView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack {
-                Text("Gamificação")
+                Text("Recompensas")
                     .font(.custom("Alan Sans", fixedSize: 34))
                     .fontWeight(.bold)
                     .accessibilityAddTraits(.isHeader)

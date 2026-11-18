@@ -1054,17 +1054,26 @@ class CarouselViewModel {
     
     /// The kind of default room a check-off of `chore` counts for in the room badges
     /// (``RoomBadge``), or `nil` when it doesn't count: the chore's room isn't one of the app's
-    /// default rooms, or it is checked off earlier than its grace period allows
-    /// (``ScoreManager/isWithinGrace(_:dueOn:completedAt:calendar:)``).
+    /// default rooms, or the chore is late (checked off after its day).
+    ///
+    /// Checking off ahead of time counts, however early; only late chores are left out. (The
+    /// points keep their own rule, ``ScoreManager/isWithinGrace(_:dueOn:completedAt:calendar:)``.)
     ///
     /// Badges belong to people, not to seasons: chores of a season already settled still count.
     private func badgeRoom(for chore: ChoreModel, dueOn dueDate: Date?) -> String? {
         guard let roomID = chore.roomReference?.recordID,
               let room = roomModels.first(where: { $0.recordID == roomID }),
               let kind = DefaultRoomsOnboarding(kind: room.kind, name: room.name),
-              ScoreManager.shared.isWithinGrace(chore, dueOn: dueDate)
+              !Self.isLate(dueOn: dueDate)
         else { return nil }
         return kind.rawValue
+    }
+
+    /// Whether a chore due on `dueDate` is late when checked off at `date`: its day has already
+    /// passed. A chore without a due date is never late.
+    static func isLate(dueOn dueDate: Date?, completedAt date: Date = .now, calendar: Calendar = .current) -> Bool {
+        guard let dueDate else { return false }
+        return calendar.startOfDay(for: date) > calendar.startOfDay(for: dueDate)
     }
 
     /// The signed-in member's record in the house (who a check-off is saved for).

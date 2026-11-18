@@ -41,7 +41,17 @@ final class GamificationViewModel {
     private(set) var rooms: [RoomModel] = []
 
     /// The signed-in member's progress towards the room badges (``RoomBadge``).
-    private(set) var badgeProgress = RoomBadgeProgressModel(ownerRecordName: "")
+    ///
+    /// Read from what ``BadgeManager`` keeps in memory, which it updates as soon as a check-off is
+    /// counted or a pin saved: the screen follows at once, without reloading the whole house.
+    var badgeProgress: RoomBadgeProgressModel {
+        if let pendingBadgeProgress { return pendingBadgeProgress }
+        if let houseUser, let cached = BadgeManager.shared.cachedProgress(of: houseUser) { return cached }
+        return RoomBadgeProgressModel(ownerRecordName: "")
+    }
+
+    /// A pin being saved, shown before the save finishes (see ``togglePin(_:)``).
+    private var pendingBadgeProgress: RoomBadgeProgressModel?
 
     /// The kinds of default room the house has, in the order of the onboarding: the badge
     /// ladders the screen shows. Custom rooms have no badges.
@@ -233,17 +243,15 @@ final class GamificationViewModel {
     /// Shows the change at once and saves it after; goes back to what it was if the save fails.
     func togglePin(_ badge: RoomBadge) async {
         guard let houseUser else { return }
-        let previous = badgeProgress
-        let pin = !previous.isPinned(badge)
-        var optimistic = previous
+        var optimistic = badgeProgress
+        let pin = !optimistic.isPinned(badge)
         guard optimistic.setPinned(badge, pin) else { return }
-        badgeProgress = optimistic
+        pendingBadgeProgress = optimistic
 
-        if let saved = await BadgeManager.shared.setPinned(badge, pin, for: houseUser) {
-            badgeProgress = saved
-        } else {
-            badgeProgress = previous
-        }
+        // On success `BadgeManager` keeps the saved progress, which ``badgeProgress`` reads; on
+        // failure it still holds the previous one.
+        await BadgeManager.shared.setPinned(badge, pin, for: houseUser)
+        pendingBadgeProgress = nil
     }
 
     // MARK: - Loading
@@ -329,7 +337,8 @@ final class GamificationViewModel {
 
         // Kept apart from the house data, like the balance: read after it.
         if let houseUser = snapshot.houseUser {
-            badgeProgress = await BadgeManager.shared.progress(of: houseUser)
+            // Updates what `BadgeManager` keeps, which ``badgeProgress`` reads.
+            _ = await BadgeManager.shared.progress(of: houseUser)
         }
     }
 

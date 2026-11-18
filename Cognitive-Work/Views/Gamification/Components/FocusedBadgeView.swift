@@ -90,7 +90,8 @@ struct FocusedBadgeView: View {
             }
             .padding(.horizontal, 24)
 
-            if let pin {
+            // Only unlocked badges can be pinned; a pinned one can always be unpinned.
+            if let pin, isUnlocked || pin.isPinned {
                 pinButton(pin)
             }
         }

@@ -24637,46 +24637,6 @@
         }
       }
     },
-    "Gamificação" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gamification"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gamificación"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gamification"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ゲーミフィケーション"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "게이미피케이션"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "游戏化"
-          }
-        }
-      }
-    },
     "ganhas neste ciclo" : {
       "localizations" : {
         "en" : {
@@ -54585,42 +54545,42 @@
         }
       }
     },
-    "Toque numa badge na aba Gamificação e fixe-a para ela aparecer aqui." : {
+    "Toque numa badge na aba Recompensas e fixe-a para ela aparecer aqui." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tap a badge on the Gamification tab and pin it to show it here."
+            "value" : "Tap a badge on the Rewards tab and pin it to show it here."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toca una insignia en la pestaña Gamificación y fíjala para que aparezca aquí."
+            "value" : "Toca una insignia en la pestaña Recompensas y fíjala para que aparezca aquí."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Touche un badge dans l’onglet Gamification et épingle-le pour qu’il apparaisse ici."
+            "value" : "Touche un badge dans l’onglet Récompenses et épingle-le pour qu’il apparaisse ici."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ゲーミフィケーションタブでバッジをタップしてピン留めすると、ここに表示されます。"
+            "value" : "特典タブでバッジをタップしてピン留めすると、ここに表示されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "게이미피케이션 탭에서 배지를 눌러 고정하면 여기에 나타나요."
+            "value" : "보상 탭에서 배지를 눌러 고정하면 여기에 나타나요."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在“游戏化”标签页点按徽章并固定，它就会显示在这里。"
+            "value" : "在“奖励”标签页点按徽章并固定，它就会显示在这里。"
           }
         }
       }

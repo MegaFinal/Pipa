@@ -213,8 +213,12 @@ final class ChoreCompletionBatcher {
         firstPendingAt = nil
         inFlight.merge(batch) { _, new in new }
 
+        // The signed-in member's house record, read once for the whole batch (it takes up to three
+        // CloudKit round trips) and while the checks are being saved, instead of once per step.
+        let me = Task { await CloudKitManager.shared.fetchMyHouseUser() }
+
         // Before saving: the completions must hold the room they really count for.
-        await limitOneOffBadges(in: batch)
+        await limitOneOffBadges(in: batch, me: me)
 
         var chores: [ChoreModel] = []
         var assignments: [RecurrentAssignmentModel] = []
@@ -240,8 +244,9 @@ final class ChoreCompletionBatcher {
 
         // Saved: the points of the whole batch, one change per member.
         let saved = batch.filter { !failed.contains($0.key) }
-        await applyPoints(of: Array(saved.values))
-        let unlockedBadges = await applyBadges(of: Array(saved.values))
+        // One after the other: saves at the same time in the house's zone get `zoneBusy`.
+        await applyPoints(of: Array(saved.values), me: me)
+        let unlockedBadges = await applyBadges(of: Array(saved.values), me: me)
         if !unlockedBadges.isEmpty { onBadgesUnlocked(unlockedBadges) }
         for entry in saved.values {
             guard let chore = entry.choreToNotify, entry.target.state.isDone else { continue }
@@ -268,7 +273,7 @@ final class ChoreCompletionBatcher {
     }
 
     /// Sums the points of `entries` per member and applies each sum once (``ScoreManager``).
-    private func applyPoints(of entries: [Entry]) async {
+    private func applyPoints(of entries: [Entry], me: Task<UserModel?, Never>) async {
         var totals: [String: (user: UserModel?, delta: Int)] = [:]
         for change in entries.flatMap(\.points) where change.delta != 0 {
             let key = change.user?.recordID?.recordName ?? "me"
@@ -280,7 +285,7 @@ final class ChoreCompletionBatcher {
         for total in totals.values where total.delta != 0 {
             if let user = total.user {
                 await scoreManager.applyPoints(total.delta, to: user)
-            } else if let me = await CloudKitManager.shared.fetchMyHouseUser() {
+            } else if let me = await me.value {
                 await scoreManager.applyPoints(total.delta, to: me)
             }
         }
@@ -291,7 +296,7 @@ final class ChoreCompletionBatcher {
     /// Leaves out of the room badges the one-off chores of `batch` checked off over the day's
     /// limit (``RoomBadgeProgressModel/oneOffDailyLimit``), before they are saved: their
     /// ``CompletionState/badgeRoom`` goes back to `nil`.
-    private func limitOneOffBadges(in batch: [CKRecord.ID: Entry]) async {
+    private func limitOneOffBadges(in batch: [CKRecord.ID: Entry], me: Task<UserModel?, Never>) async {
         var newlyCounting: [DefaultRoomsOnboarding: [Target]] = [:]
         for entry in batch.values {
             guard case .chore = entry.target else { continue }
@@ -306,7 +311,7 @@ final class ChoreCompletionBatcher {
 
         // Nobody to count them for: none of them counts.
         var countable: [DefaultRoomsOnboarding: Int] = [:]
-        if let me = await CloudKitManager.shared.fetchMyHouseUser() {
+        if let me = await me.value {
             countable = await BadgeManager.shared.countableOneOffs(for: me)
         }
         for (room, targets) in newlyCounting {
@@ -322,7 +327,7 @@ final class ChoreCompletionBatcher {
     /// the room it counts for, and unchecking takes it back from whoever it was counted for.
     ///
     /// - Returns: The badges the signed-in member just unlocked.
-    private func applyBadges(of entries: [Entry]) async -> [RoomBadge] {
+    private func applyBadges(of entries: [Entry], me: Task<UserModel?, Never>) async -> [RoomBadge] {
         var changesByMember: [String: (user: UserModel?, changes: [RoomBadgeChange])] = [:]
         func add(_ change: RoomBadgeChange, for user: UserModel?) {
             let key = user?.recordID?.recordName ?? "me"
@@ -352,7 +357,7 @@ final class ChoreCompletionBatcher {
         var unlocked: [RoomBadge] = []
         for (key, group) in changesByMember {
             var member = group.user
-            if member == nil { member = await CloudKitManager.shared.fetchMyHouseUser() }
+            if member == nil { member = await me.value }
             guard let member else { continue }
             let newlyUnlocked = await BadgeManager.shared.apply(group.changes, to: member)
             if key == "me" { unlocked += newlyUnlocked }

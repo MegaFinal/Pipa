@@ -45,7 +45,7 @@ struct MyBadgesRow: View {
     private var badges: some View {
         let pinned = viewModel.pinnedBadges
         if pinned.isEmpty {
-            Text(verbatim: L10n.tr("Toque numa badge na aba Gamificação e fixe-a para ela aparecer aqui."))
+            Text(verbatim: L10n.tr("Toque numa badge na aba Recompensas e fixe-a para ela aparecer aqui."))
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
         } else {
@@ -94,7 +94,8 @@ struct MyBadgesRow: View {
     @Previewable @Namespace var namespace
 
     var progress = RoomBadgeProgressModel(ownerRecordName: "preview")
-    progress.apply([RoomBadgeChange(room: .kitchen, delta: 37)], dayKey: "2026-11-18")
+    // Enough for the kitchen's first two badges, so both can be pinned.
+    progress.apply([RoomBadgeChange(room: .kitchen, delta: 120)], dayKey: "2026-11-18")
     progress.setPinned(.torreDeLouca, true)
     progress.setPinned(.panoDePratoDaVo, true)
     return NavigationStack {
