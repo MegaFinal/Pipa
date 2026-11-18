@@ -295,7 +295,7 @@ struct RankSkyCard: View {
     ///
     /// - Parameter scale: `1` normally; smaller when the rank's members take two lines.
     private func marker(of user: UserModel, tier: Tier, scale: CGFloat) -> some View {
-        let vehicle = RankVehicle(tier: tier)
+        let vehicle = RankVehicle(tier: tier, color: user.banner.color)
         let isMe = user.ownerRecordName == myOwnerRecordName
 
         return VStack(spacing: 2) {

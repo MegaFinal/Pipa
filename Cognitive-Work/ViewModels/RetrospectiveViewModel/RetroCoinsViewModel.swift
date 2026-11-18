@@ -30,6 +30,9 @@ final class RetroCoinsViewModel {
     private(set) var cycleTier: Tier?
     /// Points the user had when that cycle closed (what ``cycleTier`` came from).
     private(set) var cyclePoints = 0
+    /// The user's profile color (``ProfileBanner/color``): the Chinese dragon flies in it.
+    /// `nil` before loading.
+    private(set) var profileColor: RoomColor?
     /// `true` once the first load finished, even if it found nothing.
     private(set) var isLoaded = false
     /// `true` once the user redeemed the pending coins in this session.
@@ -87,6 +90,7 @@ final class RetroCoinsViewModel {
 
         let cycles = house.cycles
         let members = house.users
+        profileColor = user.banner.color
 
         let service = CycleSettlementService()
         await service.prepareClosedCycles(cycles, members: members, houseID: houseID)
@@ -193,8 +197,9 @@ struct RetroCoinsContent: Equatable {
 #if DEBUG
 extension RetroCoinsViewModel {
     /// Already "loaded" with fixed values, for previews (never touches CloudKit).
-    static func preview(earned: Int, tier: Tier?, points: Int? = nil, pending: Int? = nil) -> RetroCoinsViewModel {
+    static func preview(earned: Int, tier: Tier?, points: Int? = nil, pending: Int? = nil, profileColor: RoomColor? = nil) -> RetroCoinsViewModel {
         let viewModel = RetroCoinsViewModel()
+        viewModel.profileColor = profileColor
         viewModel.cycleEarned = earned
         viewModel.cycleTier = tier
         viewModel.cyclePoints = points ?? tier?.minimumPoints ?? 0

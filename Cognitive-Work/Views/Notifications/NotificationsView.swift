@@ -35,6 +35,11 @@ struct NotificationsView: View {
     @State private var seedStatus: String?
     /// Whether the shopping list seeder is running (debug builds only).
     @State private var isSeeding = false
+    // TODO: PROVISÓRIO — remover. Suporte ao botão de desbloquear todas as badges.
+    /// Result of the last "desbloquear todas as badges" tap (debug builds only).
+    @State private var badgeUnlockStatus: String?
+    /// Whether the badge unlock is running (debug builds only).
+    @State private var isUnlockingBadges = false
     #endif
     
     var body: some View {
@@ -187,8 +192,55 @@ struct NotificationsView: View {
             .disabled(isSeeding)
             .voiceControlNames(["Remover dados de teste"])
             
+            Button {
+                Task { await unlockAllBadges() }
+            } label: {
+                NotificationComponent(
+                    color: Notifications.retrospective.color,
+                    symbol: Notifications.retrospective.symbol,
+                    title: "Desbloquear todas as badges",
+                    subtitle: "Provisório: aplica progresso suficiente em cada cômodo para o usuário atual"
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isUnlockingBadges)
+            .voiceControlNames(["Desbloquear todas as badges"])
+            
+            Button {
+                Task { await removeAllBadges() }
+            } label: {
+                NotificationComponent(
+                    color: Notifications.retrospective.color,
+                    symbol: Notifications.retrospective.symbol,
+                    title: "Remover todas as badges",
+                    subtitle: "Provisório: zera o progresso e bloqueia todas as badges do usuário atual"
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isUnlockingBadges)
+            .voiceControlNames(["Remover todas as badges"])
+            
+            Button {
+                Task { await seedPartialBadges() }
+            } label: {
+                NotificationComponent(
+                    color: Notifications.retrospective.color,
+                    symbol: Notifications.retrospective.symbol,
+                    title: "Badges parcialmente feitas",
+                    subtitle: "Provisório: cada cômodo fica entre 5% e 90% da primeira badge, sem desbloquear nenhuma"
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(isUnlockingBadges)
+            .voiceControlNames(["Badges parcialmente feitas"])
+            
             if let seedStatus {
                 Text(verbatim: seedStatus)
+                    .font(.system(size: 15))
+                    .foregroundStyle(.subTitleGray)
+            }
+            if let badgeUnlockStatus {
+                Text(verbatim: badgeUnlockStatus)
                     .font(.system(size: 15))
                     .foregroundStyle(.subTitleGray)
             }
@@ -218,6 +270,73 @@ struct NotificationsView: View {
         seedStatus = await ShopListDebugSeeder.removeSeededData()
             ? "Dados de teste removidos."
             : "Não deu para remover tudo; tente de novo."
+    }
+
+    // TODO: PROVISÓRIO — remover. Aplica progresso suficiente em todo cômodo para destravar
+    // todas as ``RoomBadge`` do usuário atual (debug builds only).
+    /// Adds enough check-offs to every default room to unlock every badge of the signed-in user.
+    private func unlockAllBadges() async {
+        isUnlockingBadges = true
+        defer { isUnlockingBadges = false }
+
+        guard let user = await CloudKitManager.shared.currentHouseUser() else {
+            badgeUnlockStatus = "Nenhum usuário encontrado."
+            return
+        }
+
+        let maxThreshold = RoomBadge.allCases.map(\.threshold).max() ?? 0
+        let changes = DefaultRoomsOnboarding.allCases.map {
+            RoomBadgeChange(room: $0, delta: maxThreshold, isOneOff: false)
+        }
+        let unlocked = await BadgeManager.shared.apply(changes, to: user)
+        badgeUnlockStatus = unlocked.isEmpty
+            ? "Nenhuma badge nova (talvez já estivessem todas destravadas)."
+            : "\(unlocked.count) badge(s) destravada(s)."
+    }
+
+    // TODO: PROVISÓRIO — remover. Zera o progresso das ``RoomBadge`` do usuário atual.
+    /// Resets every room count to 0 and locks every badge of the signed-in user (debug builds only).
+    private func removeAllBadges() async {
+        isUnlockingBadges = true
+        defer { isUnlockingBadges = false }
+
+        guard let user = await CloudKitManager.shared.currentHouseUser() else {
+            badgeUnlockStatus = "Nenhum usuário encontrado."
+            return
+        }
+        let saved = await BadgeManager.shared.debugReplaceProgress(of: user, counts: [:], unlocked: [])
+        badgeUnlockStatus = saved
+            ? "Todas as badges foram removidas."
+            : "Não deu para salvar; tente de novo."
+    }
+
+    // TODO: PROVISÓRIO — remover. Deixa cada cômodo a caminho da primeira ``RoomBadge``,
+    // uns mais adiantados que outros, para testar a ordem de "Minhas Badges" no perfil.
+    /// Share of its first badge each room gets, in ``DefaultRoomsOnboarding/onboardingOrder``.
+    private static let partialBadgeShares: [Double] = [0.9, 0.75, 0.6, 0.45, 0.3, 0.15, 0.05, 0.8, 0.5, 0.35, 0.2]
+
+    /// Sets every default room part of the way to its first badge, some further than others,
+    /// with every badge locked (debug builds only).
+    private func seedPartialBadges() async {
+        isUnlockingBadges = true
+        defer { isUnlockingBadges = false }
+
+        guard let user = await CloudKitManager.shared.currentHouseUser() else {
+            badgeUnlockStatus = "Nenhum usuário encontrado."
+            return
+        }
+
+        var counts: [String: Int] = [:]
+        for (index, room) in DefaultRoomsOnboarding.onboardingOrder.enumerated() {
+            guard let first = room.badges.first else { continue }
+            let share = Self.partialBadgeShares[index % Self.partialBadgeShares.count]
+            // At least 1 check-off, and always 1 short of the threshold, so nothing unlocks.
+            counts[room.rawValue] = min(max(Int(Double(first.threshold) * share), 1), first.threshold - 1)
+        }
+        let saved = await BadgeManager.shared.debugReplaceProgress(of: user, counts: counts, unlocked: [])
+        badgeUnlockStatus = saved
+            ? "Progresso parcial aplicado em \(counts.count) cômodos, nenhuma badge desbloqueada."
+            : "Não deu para salvar; tente de novo."
     }
     #endif
     

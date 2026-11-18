@@ -233,6 +233,13 @@ final class HouseDataStore {
 
         snapshot = downloaded
         isStale = invalidationCount != invalidationsAtStart
+
+        // "Minhas Badges" on the profile shows the member's pinned badges as soon as the tab
+        // opens: the first time the house loads, their badge progress is read too, in the
+        // background, and kept by `BadgeManager`.
+        if let houseUser = downloaded.houseUser, BadgeManager.shared.cachedProgress(of: houseUser) == nil {
+            Task { _ = await BadgeManager.shared.progress(of: houseUser) }
+        }
         return downloaded
     }
 

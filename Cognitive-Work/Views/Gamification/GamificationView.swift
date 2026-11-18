@@ -23,6 +23,12 @@ struct GamificationView: View {
     /// Lets a ticket fly from the list to the center and back.
     @Namespace private var ticketNamespace
     
+    /// Id (``RoomBadge/id``) of the badge brought to the center of the screen, if any.
+    @State private var focusedBadgeKey: String?
+    
+    /// Lets a badge fly from its row to the center and back.
+    @Namespace private var badgeNamespace
+    
     /// Width of a ticket in the horizontal lists.
     private static let ticketWidth: CGFloat = 145
     
@@ -74,7 +80,12 @@ struct GamificationView: View {
                     
                     // MARK: - Room badges
                     if viewModel.hasLoaded {
-                        RoomBadgesSection(rooms: viewModel.badgeRooms, progress: viewModel.badgeProgress)
+                        RoomBadgesSection(
+                            rooms: viewModel.badgeRooms,
+                            progress: viewModel.badgeProgress,
+                            focusedBadgeKey: $focusedBadgeKey,
+                            namespace: badgeNamespace
+                        )
                     }
                 }
                 .padding(.bottom, 24)
@@ -138,6 +149,12 @@ struct GamificationView: View {
                 entries: viewModel.catalog.entries,
                 focusedKey: $focusedKey,
                 namespace: ticketNamespace
+            )
+            .badgeFocus(
+                progress: viewModel.badgeProgress,
+                focusedBadgeKey: $focusedBadgeKey,
+                namespace: badgeNamespace,
+                onTogglePin: { badge in Task { await viewModel.togglePin(badge) } }
             )
         }
     }
