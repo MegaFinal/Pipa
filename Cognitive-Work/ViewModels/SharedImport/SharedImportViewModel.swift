@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import CloudKit
 
 /// What a chore shared from another app fills in the chore form: by hand (free) or with the
@@ -109,6 +110,22 @@ final class SharedImportViewModel {
 
     // MARK: - State
 
+    /// What the page shows.
+    enum Mode {
+        /// Cards made from text (shared text, or a recipe's ingredients).
+        case cards
+        /// Photos or PDFs on the free plan: importing them is Premium.
+        case locked
+        /// A receipt (or an order/invoice): the usual receipt review takes over, already read.
+        case receipt(ReceiptScanViewModel)
+    }
+
+    private(set) var mode: Mode = .cards
+    /// Small versions of the shared photos, shown on the Premium page and above a recipe's cards.
+    private(set) var thumbnails: [UIImage] = []
+    /// The cards came from a recipe photo: every line is something to buy.
+    private(set) var isRecipe = false
+
     /// The shared text being read.
     let entry: SharedInbox.Entry
     /// The text, editable from the page ("Editar texto") before reading it again.
@@ -162,13 +179,94 @@ final class SharedImportViewModel {
 
     // MARK: - Loading
 
-    /// Loads the house (same cached data as the tabs) and reads the text.
+    /// Loads the house (same cached data as the tabs) and reads the text, or the photos.
     func start() async {
         isLoading = true
         await shopList.setup()
         await choresModel.fetchAllData()
         isLoading = false
+        if entry.hasFiles {
+            await readFiles()
+        } else {
+            await read()
+        }
+    }
+
+    /// Photos and PDFs (Premium): a receipt opens the receipt review; a recipe becomes shopping
+    /// cards from its ingredients. On the free plan only the Premium page shows.
+    func readFiles() async {
+        isReading = true
+        errorText = nil
+        if thumbnails.isEmpty {
+            thumbnails = await SharedFileReader.pages(from: entry.fileURLs, maxSide: 360)
+        }
+        guard PremiumManager.shared.allows(.receiptScan) else {
+            isReading = false
+            mode = .locked
+            return
+        }
+
+        mode = .cards
+        let pages = await SharedFileReader.pages(from: entry.fileURLs)
+        var texts: [String] = []
+        for page in pages {
+            texts.append(await ReceiptTextReader.text(from: page, style: .plain))
+        }
+        isReading = false
+        let allText = texts.joined(separator: "\n")
+
+        guard !pages.isEmpty, !allText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            errorText = L10n.tr("Não conseguimos ler esta foto. Tente uma foto mais nítida.")
+            return
+        }
+        if SharedFileReader.looksLikeReceipt(allText) {
+            await openReceiptReview(pages: pages, text: allText)
+            return
+        }
+
+        let ingredients = SharedFileReader.ingredientLines(in: allText)
+        // Not a recipe but a table with prices (an order without receipt words): a purchase.
+        if ingredients.isEmpty, !SharedFileReader.orderLines(in: allText).isEmpty {
+            await openReceiptReview(pages: pages, text: allText)
+            return
+        }
+        guard !ingredients.isEmpty else {
+            errorText = L10n.tr("Não encontramos uma nota fiscal nem ingredientes nesta foto.")
+            return
+        }
+        isRecipe = true
+        text = ingredients.joined(separator: "\n")
         await read()
+    }
+
+    /// Reads a receipt the same way as "Escanear nota" (``ReceiptScanService``). When that finds
+    /// no products (an online order or a bill laid out as a table, not a printed receipt), the
+    /// rows with a price are read with ``SharedFileReader/orderLines(in:)``. The review then
+    /// opens already read, linked to the list like a scanned receipt.
+    private func openReceiptReview(pages: [UIImage], text: String) async {
+        isReading = true
+        var result = await ReceiptScanService.read(pages)
+        if result.lines.isEmpty {
+            result = ReceiptScanResult(
+                lines: SharedFileReader.orderLines(in: text),
+                printedTotals: ReceiptTotals.candidates(in: text)
+            )
+        }
+        isReading = false
+
+        let review = ReceiptScanViewModel()
+        review.load(
+            result,
+            linking: shopList.receiptLinkableItems,
+            houseUsers: shopList.houseUsers,
+            memory: shopList.receiptNameMemory,
+            knownCategory: { [shopList] name in shopList.receiptCategory(named: name) }
+        )
+        // The review saves to the list itself: the tabs reload when this page closes.
+        didSaveAnything = true
+        mode = .receipt(review)
+        // Aisles nothing else could tell, while the person reviews (as the scan does).
+        Task { await review.guessCategoriesWithAI() }
     }
 
     /// Turns the text into cards. Free: plain code. Premium: the on-device model, with the
@@ -179,8 +277,9 @@ final class SharedImportViewModel {
         defer { isReading = false }
 
         let lines = SharedTextReader.lines(in: text)
-        let shopLines = lines.filter { $0.kind == .shopping }.map { $0.text }
-        let choreLines = lines.filter { $0.kind == .chore }.map { $0.text }
+        // A recipe's lines are all ingredients, even "Picar a cebola" copied with them.
+        let shopLines = lines.filter { isRecipe || $0.kind == .shopping }.map { $0.text }
+        let choreLines = isRecipe ? [] : lines.filter { $0.kind == .chore }.map { $0.text }
         didReadWithAI = usesAI
 
         let newShop: [ShopCard]

@@ -39,38 +39,54 @@ struct SharedImportView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .voiceOverLabel(L10n.tr("Carregando sua casa..."))
-                } else if isEditingText {
-                    textEditor
-                } else {
-                    review
+        Group {
+            if case .receipt(let review) = viewModel.mode {
+                // A shared receipt or order: the same review as scanning one from "Pendências",
+                // already read.
+                ReceiptReviewView(viewModel: review, shopList: viewModel.shopList)
+            } else {
+                NavigationStack {
+                    Group {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .voiceOverLabel(L10n.tr("Carregando sua casa..."))
+                        } else if case .locked = viewModel.mode {
+                            lockedFiles
+                        } else if isEditingText {
+                            textEditor
+                        } else {
+                            review
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemGray6).ignoresSafeArea())
+                    .navigationTitle("Adicionar ao Pipa")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar { toolbar }
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.systemGray6).ignoresSafeArea())
-            .navigationTitle("Adicionar ao Pipa")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar { toolbar }
         }
         .presentationDragIndicator(.visible)
         .presentationBackground(Color(.systemGray6))
         .interactiveDismissDisabled(viewModel.isSaving)
         .premiumPaywall($paywall)
         .task { await viewModel.start() }
-        // Bought Premium from the hint: read the text again with the AI.
+        // Bought Premium here: read the photos, or the text again with the AI.
         .onChange(of: PremiumManager.shared.isPremium) { _, isPremium in
-            guard isPremium, viewModel.usesAI, !viewModel.isLoading else { return }
-            Task { await viewModel.read() }
+            guard isPremium, !viewModel.isLoading else { return }
+            if viewModel.entry.hasFiles {
+                Task { await viewModel.readFiles() }
+            } else if viewModel.usesAI {
+                Task { await viewModel.read() }
+            }
         }
-        // The tabs hold their own copies of the house: reload them if anything was added.
         .onDisappear {
+            // The tabs hold their own copies of the house: reload them if anything was added.
             if viewModel.didSaveAnything {
                 NotificationCenter.default.post(name: .cloudKitDidChange, object: nil)
             }
+            // The shared photos are no longer needed (the entry already left the inbox).
+            SharedInbox.deleteFiles(of: viewModel.entry)
         }
         .sheet(item: $editingShop) { card in
             ShopListItemFormView(
@@ -143,6 +159,9 @@ struct SharedImportView: View {
                 .voiceControlNames([L10n.tr("Gerar itens"), L10n.tr("Próximo"), L10n.tr("Continuar")])
             } else if viewModel.isSaving {
                 ProgressView()
+            } else if case .locked = viewModel.mode {
+                // Nothing to add before Premium.
+                EmptyView()
             } else {
                 Button {
                     Task {
@@ -175,6 +194,63 @@ struct SharedImportView: View {
         }
     }
 
+    // MARK: - Photos on the free plan
+
+    /// Photos and PDFs shared on the free plan: what they'd become, and the way to Premium.
+    private var lockedFiles: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 20) {
+                thumbnailStrip(height: 120)
+
+                VStack(spacing: 8) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sparkles")
+                        Text("Importar fotos e PDFs")
+                        PremiumBadge()
+                    }
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.titleGray)
+
+                    Text("Com o Premium, o Pipa lê notas fiscais e receitas: os produtos da nota vão para a lista e as despesas, e os ingredientes da receita viram itens de compra.")
+                        .font(.system(size: 15))
+                        .foregroundStyle(.subTitleGray)
+                        .multilineTextAlignment(.center)
+                }
+                .accessibilityElement(children: .combine)
+
+                Button {
+                    HapticsManager.selection()
+                    paywall = .receiptScan
+                } label: {
+                    Text("Conhecer o Premium")
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                }
+                .buttonStyle(.glassProminent)
+                .tint(.blue)
+                .voiceControlNames([L10n.tr("Conhecer o Premium"), L10n.tr("Premium")])
+            }
+            .padding(22)
+        }
+    }
+
+    /// The shared photos, side by side.
+    private func thumbnailStrip(height: CGFloat) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(Array(viewModel.thumbnails.enumerated()), id: \.offset) { _, image in
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: height * 0.75, height: height)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+            }
+        }
+        .accessibilityLabel(Text("Fotos compartilhadas"))
+    }
+
     // MARK: - Editing the text
 
     private var textEditor: some View {
@@ -204,7 +280,12 @@ struct SharedImportView: View {
     private var review: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
-                sharedTextCard
+                // Photos: only their pictures until a recipe's ingredients are read.
+                if !viewModel.entry.hasFiles || viewModel.isRecipe {
+                    sharedTextCard
+                } else if !viewModel.thumbnails.isEmpty {
+                    thumbnailStrip(height: 120)
+                }
 
                 // Free plan on a device that can run the model: what the AI would add.
                 if !viewModel.usesAI && PremiumAIHint.isNeeded {
@@ -215,9 +296,13 @@ struct SharedImportView: View {
                 if viewModel.isReading {
                     HStack(spacing: 8) {
                         ProgressView()
-                        Text(viewModel.usesAI ? LocalizedStringKey("Lendo o texto com IA…") : LocalizedStringKey("Lendo o texto…"))
-                            .font(.system(size: 13))
-                            .foregroundStyle(.subTitleGray)
+                        if viewModel.entry.hasFiles && !viewModel.isRecipe {
+                            Text("Lendo a foto…")
+                        } else {
+                            Text(viewModel.usesAI ? LocalizedStringKey("Lendo o texto com IA…") : LocalizedStringKey("Lendo o texto…"))
+                                .font(.system(size: 13))
+                                .foregroundStyle(.subTitleGray)
+                        }
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
@@ -267,15 +352,24 @@ struct SharedImportView: View {
         }
     }
 
-    /// The text as it was shared, a few lines of it, with "Editar texto" to fix it.
+    /// The text as it was shared (or a recipe photo's ingredients), a few lines of it, with
+    /// "Editar texto" to fix it.
     private var sharedTextCard: some View {
         VStack(alignment: .leading, spacing: 10) {
+            if !viewModel.thumbnails.isEmpty {
+                thumbnailStrip(height: 64)
+            }
+
             HStack(spacing: 6) {
                 if viewModel.didReadWithAI {
                     Image(systemName: "sparkles")
                         .accessibilityHidden(true)
                 }
-                Text("Texto compartilhado")
+                if viewModel.isRecipe {
+                    Text("Ingredientes da receita")
+                } else {
+                    Text("Texto compartilhado")
+                }
             }
             .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(.subTitleGray)

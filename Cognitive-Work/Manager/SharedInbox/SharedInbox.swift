@@ -7,8 +7,9 @@
 
 import Foundation
 
-/// Text shared to Pipa from another app (Share Extension), waiting for the app to turn it into
-/// shopping items and chores.
+/// Text, photos and PDFs shared to Pipa from another app (Share Extension), waiting for the app
+/// to turn them into shopping items and chores (text), or to read them (photos and PDFs: a
+/// receipt or a recipe, Premium).
 ///
 /// The extension only stores the text here, in the App Group's defaults, and asks the system to
 /// open Pipa. The app reads it (``ContentView``) and shows ``SharedImportView``, where the text
@@ -39,11 +40,24 @@ nonisolated enum SharedInbox {
     private static let maxEntries = 10
     private static let storageKey = "sharedInbox.entries"
 
-    /// One shared text.
+    /// The most photos (or PDF pages) read from one share.
+    static let maxFiles = 5
+
+    /// One share: text, and the names of the photos or PDFs copied into ``filesDirectory``.
     struct Entry: Codable, Identifiable, Equatable {
         let id: UUID
         let text: String
         let createdAt: Date
+        /// File names in ``SharedInbox/filesDirectory``; `nil` for a text-only share (and for
+        /// entries saved before files were supported).
+        var files: [String]?
+
+        var hasFiles: Bool { !(files ?? []).isEmpty }
+
+        /// Where each file is, in the order shared.
+        var fileURLs: [URL] {
+            (files ?? []).compactMap { SharedInbox.fileURL(named: $0) }
+        }
     }
 
     private static var defaults: UserDefaults? {
@@ -55,28 +69,91 @@ nonisolated enum SharedInbox {
         url.scheme?.lowercased() == urlScheme && url.host?.lowercased() == importHost
     }
 
-    /// Stores `text` for the app.
+    /// Stores `text` and the files already copied with ``copyFile(at:)`` for the app.
     ///
-    /// - Returns: `false` when the text is empty or the App Group isn't set up (then the
+    /// - Returns: `false` when there's nothing to store or the App Group isn't set up (then the
     ///   defaults can't be opened).
     @discardableResult
-    static func add(_ text: String) -> Bool {
+    static func add(_ text: String, files: [String] = []) -> Bool {
         let trimmed = String(text.trimmingCharacters(in: .whitespacesAndNewlines).prefix(maxTextLength))
-        guard !trimmed.isEmpty, let defaults else { return false }
+        guard !trimmed.isEmpty || !files.isEmpty, let defaults else { return false }
         var list = entries()
-        list.append(Entry(id: UUID(), text: trimmed, createdAt: Date()))
-        save(Array(list.suffix(maxEntries)), in: defaults)
+        list.append(Entry(id: UUID(), text: trimmed, createdAt: Date(), files: files.isEmpty ? nil : files))
+        // Entries pushed out by the limit take their files with them.
+        let kept = Array(list.suffix(maxEntries))
+        list.filter { old in !kept.contains { $0.id == old.id } }.forEach(deleteFiles(of:))
+        save(kept, in: defaults)
         return true
     }
 
-    /// Entries still waiting, oldest first.
+    // MARK: - Files
+
+    /// Shared photos and PDFs, in the App Group's container so the app can read them.
+    static var filesDirectory: URL? {
+        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) else {
+            return nil
+        }
+        let directory = container.appendingPathComponent("SharedInbox", isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
+    }
+
+    /// Copies a shared file into ``filesDirectory`` (without loading it in memory: extensions
+    /// get little of it).
+    ///
+    /// - Returns: The copy's name, for ``add(_:files:)``; `nil` when it couldn't be copied.
+    static func copyFile(at url: URL) -> String? {
+        guard let directory = filesDirectory else { return nil }
+        let ext = url.pathExtension.isEmpty ? "jpg" : url.pathExtension.lowercased()
+        let name = "\(UUID().uuidString).\(ext)"
+        do {
+            try FileManager.default.copyItem(at: url, to: directory.appendingPathComponent(name))
+            return name
+        } catch {
+            return nil
+        }
+    }
+
+    /// Writes shared data that came without a file (some apps send an image's bytes).
+    static func writeFile(_ data: Data, ext: String) -> String? {
+        guard let directory = filesDirectory else { return nil }
+        let name = "\(UUID().uuidString).\(ext)"
+        do {
+            try data.write(to: directory.appendingPathComponent(name))
+            return name
+        } catch {
+            return nil
+        }
+    }
+
+    static func fileURL(named name: String) -> URL? {
+        filesDirectory?.appendingPathComponent(name)
+    }
+
+    /// Deletes copied files that were never sent (the share sheet was cancelled).
+    static func deleteFiles(named names: [String]) {
+        for name in names {
+            if let url = fileURL(named: name) { try? FileManager.default.removeItem(at: url) }
+        }
+    }
+
+    static func deleteFiles(of entry: Entry) {
+        deleteFiles(named: entry.files ?? [])
+    }
+
+    /// Entries still waiting, oldest first. Expired ones are dropped with their files.
     static func entries() -> [Entry] {
         guard let defaults,
               let data = defaults.data(forKey: storageKey),
               let list = try? JSONDecoder().decode([Entry].self, from: data)
         else { return [] }
         let oldest = Date().addingTimeInterval(-maxAge)
-        return list.filter { $0.createdAt >= oldest }
+        let expired = list.filter { $0.createdAt < oldest }
+        guard !expired.isEmpty else { return list }
+        expired.forEach(deleteFiles(of:))
+        let kept = list.filter { $0.createdAt >= oldest }
+        save(kept, in: defaults)
+        return kept
     }
 
     /// The oldest entry waiting, if any.
@@ -84,7 +161,8 @@ nonisolated enum SharedInbox {
         entries().first
     }
 
-    /// Removes an entry once the app showed it (added or discarded).
+    /// Takes an entry out of the waiting list once the app shows it. Its files stay until
+    /// ``deleteFiles(of:)``: the import page still reads them.
     static func remove(_ id: UUID) {
         guard let defaults else { return }
         save(entries().filter { $0.id != id }, in: defaults)

@@ -9,22 +9,32 @@ import UIKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// "Pipa" in the share sheet: shows the shared text in ``ShareComposeView`` to check it, stores
-/// it in ``SharedInbox`` and opens the app, where it becomes shopping and chore cards.
+/// "Pipa" in the share sheet: shows the shared text (or photos, PDF) in ``ShareComposeView`` to
+/// check it, stores it in ``SharedInbox`` and opens the app, where text becomes shopping and
+/// chore cards and photos are read as a receipt or a recipe (Premium).
 ///
 /// Nothing else runs here (no CloudKit, no AI): extensions get little memory, and the app
 /// already has every rule for saving items and chores.
 final class ShareViewController: UIViewController {
+
+    /// Photos and PDFs already copied into the App Group (names in ``SharedInbox``).
+    private var files: [String] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .clear
 
         Task { @MainActor in
-            let text = await Self.sharedText(from: extensionContext)
+            let content = await Self.sharedContent(from: extensionContext)
+            files = content.files
             embed(ShareComposeView(
-                initialText: text,
-                onCancel: { [weak self] in self?.finish() },
+                initialText: content.text,
+                files: content.files.compactMap(ShareComposeView.SharedFile.init(name:)),
+                onCancel: { [weak self] in
+                    // Copies made for nothing: remove them.
+                    SharedInbox.deleteFiles(named: self?.files ?? [])
+                    self?.finish()
+                },
                 onSend: { [weak self] text in self?.send(text) ?? .failed }
             ))
         }
@@ -48,7 +58,7 @@ final class ShareViewController: UIViewController {
 
     /// Stores the text and asks the system to open Pipa on it.
     private func send(_ text: String) -> ShareComposeView.SendResult {
-        guard SharedInbox.add(text) else { return .failed }
+        guard SharedInbox.add(text, files: files) else { return .failed }
         let opened = openApp(SharedInbox.importURL)
         // A moment for the check mark, then the sheet closes (Pipa is opening behind it).
         DispatchQueue.main.asyncAfter(deadline: .now() + (opened ? 0.6 : 1.8)) { [weak self] in
@@ -86,23 +96,49 @@ final class ShareViewController: UIViewController {
 
     // MARK: - Reading the shared items
 
-    /// The shared text: plain text attachments first, then the item's own text (some apps send
-    /// the selection there).
-    private static func sharedText(from context: NSExtensionContext?) async -> String {
+    /// The shared text (plain text attachments first, then the item's own text, where some
+    /// apps put the selection) and the photos or PDFs, copied straight into the App Group.
+    private static func sharedContent(from context: NSExtensionContext?) async -> (text: String, files: [String]) {
         let items = context?.inputItems.compactMap { $0 as? NSExtensionItem } ?? []
         var texts: [String] = []
+        var files: [String] = []
 
         for item in items {
-            for provider in item.attachments ?? [] where provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                if let text = await loadText(from: provider), !text.isEmpty {
-                    texts.append(text)
+            for provider in item.attachments ?? [] {
+                if provider.hasItemConformingToTypeIdentifier(UTType.pdf.identifier) {
+                    guard files.count < SharedInbox.maxFiles else { continue }
+                    if let name = await copyFile(from: provider, type: .pdf) { files.append(name) }
+                } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                    guard files.count < SharedInbox.maxFiles else { continue }
+                    if let name = await copyFile(from: provider, type: .image) { files.append(name) }
+                } else if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                    if let text = await loadText(from: provider), !text.isEmpty { texts.append(text) }
                 }
             }
         }
-        if texts.isEmpty {
+        if texts.isEmpty && files.isEmpty {
             texts = items.compactMap { $0.attributedContentText?.string }.filter { !$0.isEmpty }
         }
-        return texts.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = texts.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines)
+        return (text, files)
+    }
+
+    /// Copies a photo or PDF without loading it in memory (the temporary file only lives inside
+    /// the callback). Some apps only give the bytes: those are written instead.
+    private static func copyFile(from provider: NSItemProvider, type: UTType) async -> String? {
+        let copied: String? = await withCheckedContinuation { continuation in
+            provider.loadFileRepresentation(forTypeIdentifier: type.identifier) { url, _ in
+                continuation.resume(returning: url.flatMap(SharedInbox.copyFile(at:)))
+            }
+        }
+        if let copied { return copied }
+
+        return await withCheckedContinuation { continuation in
+            provider.loadDataRepresentation(forTypeIdentifier: type.identifier) { data, _ in
+                let ext = type == .pdf ? "pdf" : "jpg"
+                continuation.resume(returning: data.flatMap { SharedInbox.writeFile($0, ext: ext) })
+            }
+        }
     }
 
     private static func loadText(from provider: NSItemProvider) async -> String? {

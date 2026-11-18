@@ -11312,6 +11312,47 @@
         }
       }
     },
+    "Com o Premium, o Pipa lê notas fiscais e receitas: os produtos da nota vão para a lista e as despesas, e os ingredientes da receita viram itens de compra." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With Premium, Pipa reads receipts and recipes: a receipt's products go to the list and the expenses, and a recipe's ingredients become shopping items."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Con Premium, Pipa lee tickets y recetas: los productos del ticket van a la lista y a los gastos, y los ingredientes de la receta se vuelven compras."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avec Premium, Pipa lit les tickets de caisse et les recettes : les produits du ticket vont dans la liste et les dépenses, et les ingrédients deviennent des courses."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premiumなら、Pipaがレシートとレシピを読み取ります。レシートの商品はリストと支出に、レシピの材料は買い物リストに追加されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄이면 Pipa가 영수증과 레시피를 읽어요. 영수증의 상품은 목록과 지출로, 레시피 재료는 장보기 항목이 돼요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "开通 Premium 后，Pipa 能读取小票和菜谱：小票上的商品会进入清单和账目，菜谱的食材会变成购物项。"
+          }
+        }
+      }
+    },
     "Com um cupom, você fica livre da tarefa dele na próxima divisão. Toque em um para comprá-lo." : {
       "localizations" : {
         "en" : {
@@ -13200,6 +13241,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "冲突：这条记录最近在另一台设备上被修改。为避免数据丢失，操作已取消。"
+          }
+        }
+      }
+    },
+    "Conhecer o Premium" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "See Premium"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conocer Premium"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Découvrir Premium"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premiumを見る"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄 알아보기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "了解 Premium"
           }
         }
       }
@@ -23510,6 +23592,47 @@
         }
       }
     },
+    "Fotos compartilhadas" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shared photos"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fotos compartidas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos partagées"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "共有された写真"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "공유된 사진"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "分享的照片"
+          }
+        }
+      }
+    },
     "Frequência" : {
       "localizations" : {
         "en" : {
@@ -25204,6 +25327,47 @@
         }
       }
     },
+    "Importar fotos e PDFs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import photos and PDFs"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importar fotos y PDF"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importer des photos et des PDF"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真とPDFを取り込む"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진과 PDF 가져오기"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导入照片和 PDF"
+          }
+        }
+      }
+    },
     "Incluir %@" : {
       "localizations" : {
         "en" : {
@@ -25400,6 +25564,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "请输入数量以确认商品。"
+          }
+        }
+      }
+    },
+    "Ingredientes da receita" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recipe ingredients"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingredientes de la receta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingrédients de la recette"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "レシピの材料"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "레시피 재료"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "菜谱的食材"
           }
         }
       }
@@ -27021,6 +27226,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "布局"
+          }
+        }
+      }
+    },
+    "Lendo a foto…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading the photo…"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leyendo la foto…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lecture de la photo…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真を読み取り中…"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "사진을 읽는 중…"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "正在读取照片…"
           }
         }
       }
@@ -30831,6 +31077,47 @@
         }
       }
     },
+    "Não conseguimos ler esta foto. Tente uma foto mais nítida." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn’t read this photo. Try a sharper one."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No pudimos leer esta foto. Prueba con una más nítida."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de lire cette photo. Essayez une photo plus nette."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この写真を読み取れませんでした。もっと鮮明な写真でお試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 사진을 읽지 못했어요. 더 선명한 사진으로 시도해 보세요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无法读取这张照片，请换一张更清晰的。"
+          }
+        }
+      }
+    },
     "Não encontramos esses dados. Eles podem ter sido removidos." : {
       "localizations" : {
         "en" : {
@@ -30907,6 +31194,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "找不到此 Apple 账户的有效订阅。"
+          }
+        }
+      }
+    },
+    "Não encontramos uma nota fiscal nem ingredientes nesta foto." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We didn’t find a receipt or ingredients in this photo."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No encontramos un ticket ni ingredientes en esta foto."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun ticket ni ingrédient trouvé sur cette photo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この写真にはレシートも材料も見つかりませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 사진에서 영수증이나 재료를 찾지 못했어요."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "这张照片里没有找到小票或食材。"
           }
         }
       }
