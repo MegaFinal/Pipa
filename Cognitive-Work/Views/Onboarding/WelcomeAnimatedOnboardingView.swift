@@ -28,22 +28,26 @@ struct WelcomeAnimatedOnboardingView: View{
     
     var body: some View {
         ZStack {
-            // MARK: - Background color
+            // MARK: - Background color, with the scrolling columns of chore cards
+            // The columns hang from the top of the background, which fills the whole screen
+            // (under the status bar too). As a block of the screen's size centered in the
+            // ZStack, they left a strip without cards at the top whenever the ZStack was
+            // taller than that block.
             Color(.onboardingBackground)
-            
-            // MARK: - Scrolling columns of chore cards
-            HStack(alignment: .top, spacing: 16) {
-                ForEach(columns.indices, id: \.self) { index in
-                    InfinityRow(cards: columns[index],
-                                movesUp: index.isMultiple(of: 2),
-                                speed: Self.speeds[index % Self.speeds.count],
-                                phase: Self.phases[index % Self.phases.count])
-                    .frame(width: 110)
+                .overlay(alignment: .top) {
+                    HStack(alignment: .top, spacing: 16) {
+                        ForEach(columns.indices, id: \.self) { index in
+                            InfinityRow(cards: columns[index],
+                                        movesUp: index.isMultiple(of: 2),
+                                        speed: Self.speeds[index % Self.speeds.count],
+                                        phase: Self.phases[index % Self.phases.count])
+                            .frame(width: 110)
+                        }
+                    }
                 }
-            }
-            .frame(width: width, height: height, alignment: .top)
-            .clipped()
-            .accessibilityDecorative()
+                .clipped()
+                .ignoresSafeArea()
+                .accessibilityDecorative()
             
             // MARK: - White panel: pitch texts
             if showSheet {

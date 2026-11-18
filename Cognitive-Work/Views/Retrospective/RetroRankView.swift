@@ -29,11 +29,12 @@ struct RetroRankView: View {
     }
 
     /// Width of the rank icon's frame, as a fraction of the screen width. The 14 Bis artwork is
-    /// about three times wider than tall, so it gets a wider frame to look as big as the kites;
-    /// the height stays the same for every rank.
+    /// about three times wider than tall, and the Chinese dragon a third wider than tall, so they
+    /// get wider frames to look as big as the kites; the height stays the same for every rank.
     private func iconWidthRatio(for tier: Tier) -> CGFloat {
         switch tier {
         case .quatorzeBisI, .quatorzeBisII, .quatorzeBisIII: 0.8
+        case .dragaoChines: 0.4
         default: 0.3
         }
     }
@@ -47,7 +48,7 @@ struct RetroRankView: View {
             if coinsViewModel.isLoaded {
                 ZStack(alignment: .bottom) {
                     if let tier = content.tier {
-                        Image(tier.imageName)
+                        Image(tier.imageName(for: coinsViewModel.profileColor))
                             .resizable()
                             .scaledToFit()
                             .frame(width: width * iconWidthRatio(for: tier), height: width * 0.3)
@@ -250,7 +251,7 @@ struct RetroRankContent: Equatable {
 
 #Preview("Mestre") {
     RetroPreviewHost(page: .rank) {
-        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.dragaoChines.cycleCoins, tier: .dragaoChines, points: 820))
+        RetroRankView(viewModel: $0, coinsViewModel: .preview(earned: Tier.dragaoChines.cycleCoins, tier: .dragaoChines, points: 820, profileColor: .purple))
     }
 }
 #endif

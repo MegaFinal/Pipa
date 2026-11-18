@@ -139,10 +139,11 @@ struct GamificationSchemaSeedTests {
         await seed(item)
     }
 
-    /// Creates the `RoomBadgeProgressModel` type. Only read by ID: it needs no index.
+    /// Creates the `RoomBadgeProgressModel` type, `pinned` included. Only read by ID: it needs no index.
     @Test func seedRoomBadgeProgressModel() async {
         var progress = RoomBadgeProgressModel(ownerRecordName: "schema-seed-owner")
         progress.apply([RoomBadgeChange(room: .kitchen, delta: 25, isOneOff: true)], dayKey: "2026-01-01")
+        progress.setPinned(.torreDeLouca, true)
         await seed(progress)
     }
 

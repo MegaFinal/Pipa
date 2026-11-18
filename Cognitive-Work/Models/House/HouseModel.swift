@@ -49,7 +49,7 @@ class HouseModel: CloudKitSyncable {
     /// which house size it covers.
     private(set) var premiumProductID: String? = nil
 
-    /// Until when the house is on its free Premium trial (2 months from creation, see
+    /// Until when the house is on its free Premium trial (the creator's trial end, see
     /// ``PremiumManager/startTrialIfEligible(for:)``), or `nil` when it never had one.
     private(set) var premiumTrialEndsAt: Date? = nil
     

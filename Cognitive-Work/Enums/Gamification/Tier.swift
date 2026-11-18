@@ -11,7 +11,7 @@ import Foundation
 ///
 /// The case names follow the current ranks. Each raw value is the rank's first name, which is
 /// what CloudKit stores, so it must not change: records saved with it keep decoding.
-///
+/// 
 /// Thirteen ranks form one ladder, each one starting at its ``thresholds`` entry (see the
 /// extension below).
 enum Tier: String, CaseIterable {
@@ -66,8 +66,8 @@ enum Tier: String, CaseIterable {
 
     /// Name of the rank's image in the asset catalog (`Assets.xcassets/Ranking`).
     ///
-    /// The Chinese dragon doesn't have artwork in `Ranking` yet, so it keeps the old icon from
-    /// `Assets.xcassets/Tiers` until its own exists.
+    /// The Chinese dragon comes in the colors of the profile banners; without a member's color it
+    /// uses the default banner's (see ``imageName(for:)``).
     var imageName: String {
         switch self {
         case .tradicionalI: return "tradicional"
@@ -82,7 +82,28 @@ enum Tier: String, CaseIterable {
         case .quatorzeBisI: return "14bis"
         case .quatorzeBisII: return "14biz_II"
         case .quatorzeBisIII: return "14bis_III"
-        case .dragaoChines: return "Master"
+        case .dragaoChines: return Self.dragonImageName(for: ProfileBanner.default.color)
+        }
+    }
+
+    /// Name of the rank's image for a member whose profile color is `color`.
+    ///
+    /// Only the Chinese dragon changes with the color: it flies in the member's profile color
+    /// (``ProfileBanner/color``). Every other rank has a single artwork (``imageName``).
+    func imageName(for color: RoomColor?) -> String {
+        guard self == .dragaoChines, let color else { return imageName }
+        return Self.dragonImageName(for: color)
+    }
+
+    /// The Chinese dragon's artwork in `color`. There is no orange dragon: orange flies the red
+    /// one, the closest to it.
+    static func dragonImageName(for color: RoomColor) -> String {
+        switch color {
+        case .orange: return "red_dragon"
+        case .yellow: return "yellow_dragon"
+        case .green: return "green_dragon"
+        case .blue: return "blue_dragon"
+        case .purple: return "purple_dragon"
         }
     }
 

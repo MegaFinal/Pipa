@@ -59,6 +59,13 @@ final class BadgeManager {
         return progress
     }
 
+    /// The last progress of `user` read or saved on this device, without asking CloudKit;
+    /// `nil` when there is none yet.
+    func cachedProgress(of user: UserModel) -> RoomBadgeProgressModel? {
+        guard let userID = user.recordID else { return nil }
+        return progressByOwner[RoomBadgeProgressModel.owner(of: user, userID: userID)]
+    }
+
     /// How many more one-off chores of each kind of room can count for `user` on `date`
     /// (``RoomBadgeProgressModel/oneOffDailyLimit``), never below 0.
     func countableOneOffs(for user: UserModel, on date: Date = .now) async -> [DefaultRoomsOnboarding: Int] {
@@ -119,4 +126,96 @@ final class BadgeManager {
         }
         return []
     }
+
+    /// Pins `badge` to the profile of `user` on the server, or unpins it.
+    ///
+    /// Starts from the server's value, like ``apply(_:to:on:)``, so it never undoes check-offs
+    /// counted on another device.
+    ///
+    /// - Returns: The saved progress; `nil` when it couldn't be saved. When nothing had to
+    ///   change (already that way, or ``RoomBadgeProgressModel/maxPinned`` reached), the
+    ///   server's progress as it is.
+    @discardableResult
+    func setPinned(_ badge: RoomBadge, _ isPinned: Bool, for user: UserModel) async -> RoomBadgeProgressModel? {
+        guard let userID = user.recordID else { return nil }
+
+        let owner = RoomBadgeProgressModel.owner(of: user, userID: userID)
+        let id = RoomBadgeProgressModel.recordID(for: user, userID: userID)
+        let houseID = user.houseReference?.recordID
+
+        for _ in 0..<maxAttempts {
+            guard let fetched = try? await store.fetch([id]) else { return nil }
+
+            let (record, current) = RoomBadgeProgressModel.record(
+                id,
+                in: fetched,
+                ownerRecordName: owner,
+                houseID: houseID
+            )
+            var updated = current
+            guard updated.setPinned(badge, isPinned) else {
+                progressByOwner[owner] = current
+                return current
+            }
+            updated.populate(record: record)
+
+            do {
+                try await store.saveAtomically([record])
+                progressByOwner[owner] = updated
+                return updated
+            } catch AtomicRecordStoreError.conflict {
+                continue
+            } catch {
+                return nil
+            }
+        }
+        return nil
+    }
+
+    #if DEBUG
+    // TODO: PROVISÓRIO — remover. Usado pelos botões de teste de badges (NotificationsView).
+    /// Replaces the progress of `user` on the server with `counts` and `unlocked`, and clears the
+    /// one-off counts (debug builds only).
+    ///
+    /// Unlike ``apply(_:to:on:)``, it can lock badges again, so tests can start over.
+    ///
+    /// - Returns: Whether it was saved.
+    @discardableResult
+    func debugReplaceProgress(of user: UserModel, counts: [String: Int], unlocked: [String]) async -> Bool {
+        guard let userID = user.recordID else { return false }
+
+        let owner = RoomBadgeProgressModel.owner(of: user, userID: userID)
+        let id = RoomBadgeProgressModel.recordID(for: user, userID: userID)
+        let houseID = user.houseReference?.recordID
+
+        for _ in 0..<maxAttempts {
+            guard let fetched = try? await store.fetch([id]) else { return false }
+
+            let (record, current) = RoomBadgeProgressModel.record(
+                id,
+                in: fetched,
+                ownerRecordName: owner,
+                houseID: houseID
+            )
+            var updated = current
+            updated.counts = counts
+            updated.unlocked = unlocked
+            updated.oneOffDay = nil
+            updated.oneOffCounts = [:]
+            updated.pinned = []
+            updated.populate(record: record)
+
+            do {
+                try await store.saveAtomically([record])
+                progressByOwner[owner] = updated
+                return true
+            } catch AtomicRecordStoreError.conflict {
+                continue
+            } catch {
+                return false
+            }
+        }
+        return false
+    }
+    #endif
 }
