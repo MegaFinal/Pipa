@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3F5755AF30AE194F00EABAAB /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3F5755A530AE194F00EABAAB /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		3F5755AD30AE194F00EABAAB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 910DAADB3026477D00F899C0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3F5755A430AE194F00EABAAB;
+			remoteInfo = ShareExtension;
+		};
 		84127251302E380E00982FA0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 910DAADB3026477D00F899C0 /* Project object */;
@@ -23,13 +34,42 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		3F5755B430AE194F00EABAAB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3F5755AF30AE194F00EABAAB /* ShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		3F5755A530AE194F00EABAAB /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		8412724D302E380E00982FA0 /* Cognitive-WorkTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cognitive-WorkTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8412725A302E382D00982FA0 /* Cognitive-WorkUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Cognitive-WorkUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		910DAAE33026477D00F899C0 /* Cognitive-Work.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cognitive-Work.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3F5755B330AE194F00EABAAB /* Exceptions for "ShareExtension" folder in "ShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3F5755A430AE194F00EABAAB /* ShareExtension */;
+		};
+		3F5755C030AE1A0000EABAAB /* Exceptions for "Cognitive-Work" folder in "ShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Manager/SharedInbox/SharedInbox.swift,
+			);
+			target = 3F5755A430AE194F00EABAAB /* ShareExtension */;
+		};
 		91BEB2DB302BAE66004FE987 /* Exceptions for "Cognitive-Work" folder in "Cognitive-Work" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -41,6 +81,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		3F5755A630AE194F00EABAAB /* ShareExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3F5755B330AE194F00EABAAB /* Exceptions for "ShareExtension" folder in "ShareExtension" target */,
+			);
+			path = ShareExtension;
+			sourceTree = "<group>";
+		};
 		8412724E302E380E00982FA0 /* Cognitive-WorkTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Cognitive-WorkTests";
@@ -55,6 +103,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				91BEB2DB302BAE66004FE987 /* Exceptions for "Cognitive-Work" folder in "Cognitive-Work" target */,
+				3F5755C030AE1A0000EABAAB /* Exceptions for "Cognitive-Work" folder in "ShareExtension" target */,
 			);
 			path = "Cognitive-Work";
 			sourceTree = "<group>";
@@ -62,6 +111,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		3F5755A230AE194F00EABAAB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8412724A302E380E00982FA0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -92,6 +148,7 @@
 				910DAAE53026477D00F899C0 /* Cognitive-Work */,
 				8412724E302E380E00982FA0 /* Cognitive-WorkTests */,
 				8412725B302E382D00982FA0 /* Cognitive-WorkUITests */,
+				3F5755A630AE194F00EABAAB /* ShareExtension */,
 				910DAAE43026477D00F899C0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -102,6 +159,7 @@
 				910DAAE33026477D00F899C0 /* Cognitive-Work.app */,
 				8412724D302E380E00982FA0 /* Cognitive-WorkTests.xctest */,
 				8412725A302E382D00982FA0 /* Cognitive-WorkUITests.xctest */,
+				3F5755A530AE194F00EABAAB /* ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -109,6 +167,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3F5755A430AE194F00EABAAB /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3F5755B030AE194F00EABAAB /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				3F5755A130AE194F00EABAAB /* Sources */,
+				3F5755A230AE194F00EABAAB /* Frameworks */,
+				3F5755A330AE194F00EABAAB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				3F5755A630AE194F00EABAAB /* ShareExtension */,
+			);
+			name = ShareExtension;
+			packageProductDependencies = (
+			);
+			productName = ShareExtension;
+			productReference = 3F5755A530AE194F00EABAAB /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		8412724C302E380E00982FA0 /* Cognitive-WorkTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 84127253302E380E00982FA0 /* Build configuration list for PBXNativeTarget "Cognitive-WorkTests" */;
@@ -162,10 +242,12 @@
 				910DAADF3026477D00F899C0 /* Sources */,
 				910DAAE03026477D00F899C0 /* Frameworks */,
 				910DAAE13026477D00F899C0 /* Resources */,
+				3F5755B430AE194F00EABAAB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				3F5755AE30AE194F00EABAAB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				910DAAE53026477D00F899C0 /* Cognitive-Work */,
@@ -184,9 +266,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2620;
+				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
+					3F5755A430AE194F00EABAAB = {
+						CreatedOnToolsVersion = 27.0;
+					};
 					8412724C302E380E00982FA0 = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 910DAAE23026477D00F899C0;
@@ -223,11 +308,19 @@
 				910DAAE23026477D00F899C0 /* Cognitive-Work */,
 				8412724C302E380E00982FA0 /* Cognitive-WorkTests */,
 				84127259302E382D00982FA0 /* Cognitive-WorkUITests */,
+				3F5755A430AE194F00EABAAB /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		3F5755A330AE194F00EABAAB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8412724B302E380E00982FA0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -252,6 +345,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3F5755A130AE194F00EABAAB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		84127249302E380E00982FA0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -276,6 +376,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		3F5755AE30AE194F00EABAAB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3F5755A430AE194F00EABAAB /* ShareExtension */;
+			targetProxy = 3F5755AD30AE194F00EABAAB /* PBXContainerItemProxy */;
+		};
 		84127252302E380E00982FA0 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 910DAAE23026477D00F899C0 /* Cognitive-Work */;
@@ -289,6 +394,66 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		3F5755B130AE194F00EABAAB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 32M6C7GWMQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Pipa;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "JonasMelo.Cognitive-Work.ShareExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3F5755B230AE194F00EABAAB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 32M6C7GWMQ;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Pipa;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "JonasMelo.Cognitive-Work.ShareExtension";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		84127254302E380E00982FA0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -589,6 +754,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3F5755B030AE194F00EABAAB /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3F5755B130AE194F00EABAAB /* Debug */,
+				3F5755B230AE194F00EABAAB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		84127253302E380E00982FA0 /* Build configuration list for PBXNativeTarget "Cognitive-WorkTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
